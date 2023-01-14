@@ -16,34 +16,24 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="🏓本文的内容是记录搭建hexo博客，并且部署到github上🐖哈哈哈，我就是课代表🍔所有内容均来自于：B站CodeSheep  1.安装Nodejs1.1 安装NodejsNodejs官网：https:&#x2F;&#x2F;nodejs.org&#x2F;en&#x2F;   直接无脑下一步安装，安装完成后node -v查看版本确认是否安装成功 1.2 更换镜像由于npm包管理工具实在太慢了，所以打算使用淘宝镜像 1npm i">
+    <meta name="description" content="🕊️本文来自视频：https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v&#x3D;zbebx1Kvqho 引用部分博客：https:&#x2F;&#x2F;new.qq.com&#x2F;rain&#x2F;a&#x2F;20191016A070PF00   1.Andriod进入Treble之前存在什么问题在Android 8.0（Android Oreo）之前那个时代，苹果手机一旦有了新的系统更新，用户都能在短时间内更新系统，对用户来说实">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如何搭建hexo部署到github">
-<meta property="og:url" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/index.html">
+<meta property="og:title" content="Android-Treble计划">
+<meta property="og:url" content="http://example.com/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="🏓本文的内容是记录搭建hexo博客，并且部署到github上🐖哈哈哈，我就是课代表🍔所有内容均来自于：B站CodeSheep  1.安装Nodejs1.1 安装NodejsNodejs官网：https:&#x2F;&#x2F;nodejs.org&#x2F;en&#x2F;   直接无脑下一步安装，安装完成后node -v查看版本确认是否安装成功 1.2 更换镜像由于npm包管理工具实在太慢了，所以打算使用淘宝镜像 1npm i">
+<meta property="og:description" content="🕊️本文来自视频：https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v&#x3D;zbebx1Kvqho 引用部分博客：https:&#x2F;&#x2F;new.qq.com&#x2F;rain&#x2F;a&#x2F;20191016A070PF00   1.Andriod进入Treble之前存在什么问题在Android 8.0（Android Oreo）之前那个时代，苹果手机一旦有了新的系统更新，用户都能在短时间内更新系统，对用户来说实">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/nodejs%E5%AE%89%E8%A3%85.png">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/%E5%AE%89%E8%A3%85npm.png">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/%E5%88%9B%E5%BB%BAgithub.jpg">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6.png">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/%E8%AE%BE%E7%BD%AEdeploy.png">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/%E6%89%93%E5%BC%80%E4%BB%93%E5%BA%93.png">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/%E4%B8%8B%E8%BD%BD%E4%B8%BB%E9%A2%98.png">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/%E4%BF%AE%E6%94%B9%E7%BD%91%E9%A1%B5%E6%A0%87%E9%A2%98.png">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/%E6%A0%87%E9%A2%98%E6%A0%8F.png">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/%E8%83%8C%E6%99%AF.png">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/%E6%89%93%E5%AD%97%E6%9C%BA.png">
-<meta property="og:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/zhengti.png">
-<meta property="article:published_time" content="2023-01-14T04:08:33.000Z">
-<meta property="article:modified_time" content="2023-01-14T12:48:01.404Z">
+<meta property="og:image" content="http://example.com/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B.png">
+<meta property="og:image" content="http://example.com/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/licheng.png">
+<meta property="article:published_time" content="2023-01-14T15:10:45.000Z">
+<meta property="article:modified_time" content="2023-01-14T15:48:51.779Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/nodejs%E5%AE%89%E8%A3%85.png">
+<meta name="twitter:image" content="http://example.com/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B.png">
   
   
   
-  <title>如何搭建hexo部署到github - 一只安慕嘻</title>
+  <title>Android-Treble计划 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -197,7 +187,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="如何搭建hexo部署到github"></span>
+            <span id="subtitle" data-typed-text="Android-Treble计划"></span>
           
         </div>
 
@@ -208,8 +198,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-01-14 12:08" pubdate>
-          2023年1月14日 中午
+        <time datetime="2023-01-14 23:10" pubdate>
+          2023年1月14日 晚上
         </time>
       </span>
     
@@ -220,7 +210,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.3k 字
+          719 字
         
       </span>
     
@@ -231,7 +221,7 @@
         
         
         
-          11 分钟
+          6 分钟
         
       </span>
     
@@ -269,120 +259,37 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">如何搭建hexo部署到github</h1>
+            <h1 style="display: none">Android-Treble计划</h1>
             
             
               <div class="markdown-body">
                 
-                <blockquote>
-<p>🏓本文的内容是记录搭建hexo博客，并且部署到github上<br>🐖哈哈哈，我就是课代表<br>🍔所有内容均来自于：<strong>B站CodeSheep</strong></p>
-</blockquote>
-<h2 id="1-安装Nodejs"><a href="#1-安装Nodejs" class="headerlink" title="1.安装Nodejs"></a>1.安装Nodejs</h2><h3 id="1-1-安装Nodejs"><a href="#1-1-安装Nodejs" class="headerlink" title="1.1 安装Nodejs"></a>1.1 安装Nodejs</h3><p>Nodejs官网：<a target="_blank" rel="noopener" href="https://nodejs.org/en/">https://nodejs.org/en/</a></p>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/nodejs安装.png" srcset="/img/loading.gif" lazyload alt="image-20230114121402814" style="zoom: 67%;">
+                <ul>
+<li>🕊️本文来自视频：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=zbebx1Kvqho">https://www.youtube.com/watch?v=zbebx1Kvqho</a></li>
+<li>引用部分博客：<a target="_blank" rel="noopener" href="https://new.qq.com/rain/a/20191016A070PF00">https://new.qq.com/rain/a/20191016A070PF00</a></li>
+<li></li>
+</ul>
+<h2 id="1-Andriod进入Treble之前存在什么问题"><a href="#1-Andriod进入Treble之前存在什么问题" class="headerlink" title="1.Andriod进入Treble之前存在什么问题"></a>1.Andriod进入Treble之前存在什么问题</h2><p>在Android 8.0（Android Oreo）之前那个时代，苹果手机一旦有了新的系统更新，用户都能在短时间内更新系统，对用户来说实在太简单了，用户只需要点击更新下载新系统就可以完美的拥有最新的系统功能。而对于安卓用户而言，当安卓发布新的源码以后，会经过下面一系列的操作，用户才能用上真正的全新安卓系统。</p>
+<img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/生成过程.png" srcset="/img/loading.gif" lazyload style="zoom: 80%;">
 
-<p>直接无脑下一步安装，安装完成后<code>node -v</code>查看版本确认是否安装成功</p>
-<h3 id="1-2-更换镜像"><a href="#1-2-更换镜像" class="headerlink" title="1.2 更换镜像"></a>1.2 更换镜像</h3><p>由于npm包管理工具实在太慢了，所以打算使用淘宝镜像</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">npm install -g cnpm --registry=https://registry.npm.taobao.org<br></code></pre></td></tr></table></figure>
-
-<p>最后可以通过<code>cnpm -v</code>查看一下cnpm是否安装成功</p>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/安装npm.png" srcset="/img/loading.gif" lazyload alt="image-20230114121402814" style="zoom: 67%;">
-
-<h2 id="2-安装Hexo并初始化hexo项目"><a href="#2-安装Hexo并初始化hexo项目" class="headerlink" title="2.安装Hexo并初始化hexo项目"></a>2.安装Hexo并初始化hexo项目</h2><h3 id="2-1-安装hexo"><a href="#2-1-安装hexo" class="headerlink" title="2.1 安装hexo"></a>2.1 安装hexo</h3><p>先通过npm安装hexo</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cnpm install -g hexo-cli<br></code></pre></td></tr></table></figure>
-<p>安装完成以后，可以通过<code>hexo -v</code> 查看是否安装成功</p>
-<h3 id="2-2-初始化hexo项目"><a href="#2-2-初始化hexo项目" class="headerlink" title="2.2 初始化hexo项目"></a>2.2 初始化hexo项目</h3><ol>
-<li>本地创建一个文件夹，用于存放hexo的所有内容</li>
+<ol>
+<li>发布源码：Google将新系统源码发布至AOSP</li>
+<li>启动硬件适配：芯片制造商如<strong>三星</strong>、<strong>高通</strong>、<strong>联发科</strong>、<strong>华为</strong>等对源码进行修改，确保自家的芯片在新版Android能正常运行和发挥性能</li>
+<li>OEM适配：OEM 厂商（如国内的华为、小米、VIVO、OPPO、荣耀等）进一步修改新系统</li>
+<li>OEM测试：OEM 厂商对系统进行内部测试</li>
+<li>推送给用户：试无误后的新版系统通过 OTA 推送给用户</li>
 </ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir hexo-blog<br></code></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>进入该项目文件夹，进行初始化</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hexo init<br></code></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>本地打开该项目</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hexo s<br></code></pre></td></tr></table></figure>
-
-<p>通过<code>localhost:4000</code>进行访问</p>
-<h3 id="2-3-创建一个新的项目"><a href="#2-3-创建一个新的项目" class="headerlink" title="2.3 创建一个新的项目"></a>2.3 创建一个新的项目</h3><p>创建自己的新博客</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hexo new &quot;如何搭建hexo部署到github&quot;<br></code></pre></td></tr></table></figure>
-
-<p>生成静态文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hexo g<br></code></pre></td></tr></table></figure>
-
-<p>启动项目</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hexo s<br></code></pre></td></tr></table></figure>
-
-<p>通过<code>localhost:4000</code>进行访问</p>
-<h2 id="3-将hexo部署到github"><a href="#3-将hexo部署到github" class="headerlink" title="3.将hexo部署到github"></a>3.将hexo部署到github</h2><h3 id="3-1-新建一个github仓库"><a href="#3-1-新建一个github仓库" class="headerlink" title="3.1 新建一个github仓库"></a>3.1 新建一个github仓库</h3><blockquote>
-<p>这里需要注意一下，创建的仓库名必须与你的username是一样的，比如我的usrname是anmuxixixi，则创建的仓库名为anmuxixixi.github.io；详情见GitHub如何创建一个Page</p>
-</blockquote>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/创建github.jpg" srcset="/img/loading.gif" lazyload alt="image-20230114121402814" style="zoom: 60%;">
-
-
-
-<h3 id="3-2-安卓hexo针对git的deploy组件"><a href="#3-2-安卓hexo针对git的deploy组件" class="headerlink" title="3.2 安卓hexo针对git的deploy组件"></a>3.2 安卓hexo针对git的deploy组件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cnpm install --save hexo-deployer-git<br></code></pre></td></tr></table></figure>
-
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/安装插件.png" srcset="/img/loading.gif" lazyload alt="image-20230114121402814" style="zoom: 80%;">
-
-
-
-
-<h3 id="3-2-部署到github"><a href="#3-2-部署到github" class="headerlink" title="3.2 部署到github"></a>3.2 部署到github</h3><p>打开项目的<code>_config.xml</code>，设置<code>deploy</code>属性</p>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/设置deploy.png" srcset="/img/loading.gif" lazyload alt="image-20230114121402814" style="zoom: 80%;">
+<p>这样带来的问题是什么，用谷歌开发团队的话来说，整个过程会花费5-12个月的时间……寄🐓</p>
+<p>虽然Google在提交AOSP源码上非常迅速，但是芯片制造商和OEM厂商往往因为技术问题、第三方系统定制原因等导致整体的进程偏慢，最终形成了用户茫茫然的等待，从以往的数据统计我们也可以看出，Android手机中新系统的覆盖率寥寥无几。</p>
+<img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/licheng.png" srcset="/img/loading.gif" lazyload style="zoom: 50%;">
 
 <blockquote>
-<p> 这个repo对应的仓库名就是我们的<strong>github仓库地址</strong></p>
+<p>可以看到自从安卓8.0退出Treble以来，安卓9.0开始突飞猛进，更新的用户几乎是8.0的一倍</p>
 </blockquote>
-<p>将其部署到github上</p>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">hexo cl</span><br><span class="hljs-attribute">hexo g</span><br><span class="hljs-attribute">hexo d</span><br></code></pre></td></tr></table></figure>
-
-<p>浏览器输入<code>https://anmuxixixi.github.io/</code></p>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/打开仓库.png" srcset="/img/loading.gif" lazyload alt="image-20230114121402814" style="zoom: 50%;">
-
-
-
-<h2 id="4-设置主题"><a href="#4-设置主题" class="headerlink" title="4.设置主题"></a>4.设置主题</h2><h3 id="4-1-安装主题"><a href="#4-1-安装主题" class="headerlink" title="4.1 安装主题"></a>4.1 安装主题</h3><ul>
-<li>Hexo官方设置主题的网站：<a target="_blank" rel="noopener" href="https://hexo.io/themes/">https://hexo.io/themes/</a></li>
-<li>Fluid主题：<a target="_blank" rel="noopener" href="https://github.com/fluid-dev/hexo-theme-fluid">https://github.com/fluid-dev/hexo-theme-fluid</a></li>
-<li>Fluid主题文档：<a target="_blank" rel="noopener" href="https://hexo.fluid-dev.com/docs/guide/">https://hexo.fluid-dev.com/docs/guide/</a></li>
+<h2 id="2-Treble计划"><a href="#2-Treble计划" class="headerlink" title="2.Treble计划"></a>2.Treble计划</h2><h2 id="修改历史"><a href="#修改历史" class="headerlink" title="修改历史"></a>修改历史</h2><ul>
+<li>2023&#x2F;01&#x2F;14：首次编写《Android-Treble计划》</li>
 </ul>
-<p>打开github，下载好Fluid主题，将其解压放在themes文件夹下</p>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/下载主题.png" srcset="/img/loading.gif" lazyload alt="image-20230114121402814" style="zoom: 80%;">
 
-<p>打开<code>_config.xml</code>，设置<code>theme</code>为<code>fluid</code>，设置<code>language</code>为<code>zh-CN</code></p>
-<p>启动后看下整体的效果</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hexo cl &amp;&amp; hexo g &amp;&amp; hexo s<br></code></pre></td></tr></table></figure>
-
-<h3 id="4-2-简单的页面设置"><a href="#4-2-简单的页面设置" class="headerlink" title="4.2 简单的页面设置"></a>4.2 简单的页面设置</h3><ol>
-<li>修改网页导航栏标题</li>
-</ol>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/修改网页标题.png" srcset="/img/loading.gif" lazyload alt="image-20230114203236266" style="zoom:67%;">
-
-<p>其对应的效果如下</p>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/标题栏.png" srcset="/img/loading.gif" lazyload>
-
-
-
-<ol start="2">
-<li>修改背景图片</li>
-</ol>
-<p>自己复制一张图片，将名字修改为<code>default.png</code></p>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/背景.png" srcset="/img/loading.gif" lazyload>
-
-<ol start="3">
-<li>修改中间打字机文字</li>
-</ol>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/打字机.png" srcset="/img/loading.gif" lazyload alt="image-20230114203653973" style="zoom:79%;">
-
-<ol start="4">
-<li>整体效果如下</li>
-</ol>
-<p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/">https://anmuxixixi.github.io/</a></p>
-<p>欢迎品尝🌭</p>
-<img src="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/zhengti.png" srcset="/img/loading.gif" lazyload>
                 
               </div>
             
@@ -399,8 +306,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>如何搭建hexo部署到github</div>
-      <div>http://example.com/2023/01/14/如何搭建hexo部署到github/</div>
+      <div>Android-Treble计划</div>
+      <div>http://example.com/2023/01/14/Android-Treble计划/</div>
     </div>
     <div class="license-meta">
       
@@ -444,18 +351,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/" title="Android-Treble计划">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Android-Treble计划</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/01/14/hello-world/" title="Hello World">
-                        <span class="hidden-mobile">Hello World</span>
+                      <a href="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/" title="如何搭建hexo部署到github">
+                        <span class="hidden-mobile">如何搭建hexo部署到github</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

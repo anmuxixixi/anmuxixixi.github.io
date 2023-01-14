@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>Android-Treble计划</title>
+    <link href="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/"/>
+    <url>/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/</url>
+    
+    <content type="html"><![CDATA[<ul><li>🕊️本文来自视频：<a href="https://www.youtube.com/watch?v=zbebx1Kvqho">https://www.youtube.com/watch?v=zbebx1Kvqho</a></li><li>引用部分博客：<a href="https://new.qq.com/rain/a/20191016A070PF00">https://new.qq.com/rain/a/20191016A070PF00</a></li><li></li></ul><h2 id="1-Andriod进入Treble之前存在什么问题"><a href="#1-Andriod进入Treble之前存在什么问题" class="headerlink" title="1.Andriod进入Treble之前存在什么问题"></a>1.Andriod进入Treble之前存在什么问题</h2><p>在Android 8.0（Android Oreo）之前那个时代，苹果手机一旦有了新的系统更新，用户都能在短时间内更新系统，对用户来说实在太简单了，用户只需要点击更新下载新系统就可以完美的拥有最新的系统功能。而对于安卓用户而言，当安卓发布新的源码以后，会经过下面一系列的操作，用户才能用上真正的全新安卓系统。</p><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/生成过程.png" style="zoom: 80%;"><ol><li>发布源码：Google将新系统源码发布至AOSP</li><li>启动硬件适配：芯片制造商如<strong>三星</strong>、<strong>高通</strong>、<strong>联发科</strong>、<strong>华为</strong>等对源码进行修改，确保自家的芯片在新版Android能正常运行和发挥性能</li><li>OEM适配：OEM 厂商（如国内的华为、小米、VIVO、OPPO、荣耀等）进一步修改新系统</li><li>OEM测试：OEM 厂商对系统进行内部测试</li><li>推送给用户：试无误后的新版系统通过 OTA 推送给用户</li></ol><p>这样带来的问题是什么，用谷歌开发团队的话来说，整个过程会花费5-12个月的时间……寄🐓</p><p>虽然Google在提交AOSP源码上非常迅速，但是芯片制造商和OEM厂商往往因为技术问题、第三方系统定制原因等导致整体的进程偏慢，最终形成了用户茫茫然的等待，从以往的数据统计我们也可以看出，Android手机中新系统的覆盖率寥寥无几。</p><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/licheng.png" style="zoom: 50%;"><blockquote><p>可以看到自从安卓8.0退出Treble以来，安卓9.0开始突飞猛进，更新的用户几乎是8.0的一倍</p></blockquote><h2 id="2-Treble计划"><a href="#2-Treble计划" class="headerlink" title="2.Treble计划"></a>2.Treble计划</h2><h2 id="修改历史"><a href="#修改历史" class="headerlink" title="修改历史"></a>修改历史</h2><ul><li>2023&#x2F;01&#x2F;14：首次编写《Android-Treble计划》</li></ul>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>如何搭建hexo部署到github</title>
     <link href="/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/"/>
     <url>/2023/01/14/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BAhexo%E9%83%A8%E7%BD%B2%E5%88%B0github/</url>
