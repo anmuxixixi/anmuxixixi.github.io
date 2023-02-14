@@ -16,25 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="手动挂载apex镜像1.loop设备在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。 这要先从mount的流程来理解，挂载操作，实际上就是把设备上的文件系统&#x2F;目录文件连接到指定的目录（directory）下，在操作系统层面就是把挂载设备和挂载目录的对应关系加到内核中的Vfsmount里的对应表单">
+    <meta name="description" content="tmpfs文件系统与安卓1.什么是tmpfs文件系统先来看一下Kernel文档对于tmpfs文件系统的描述：https:&#x2F;&#x2F;www.kernel.org&#x2F;doc&#x2F;Documentation&#x2F;filesystems&#x2F;tmpfs.txt 1234567Tmpfs is a file system which keeps all files in virtual memory.Everything in">
 <meta property="og:type" content="article">
-<meta property="og:title" content="手动挂载apex包到loop设备">
-<meta property="og:url" content="http://example.com/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/index.html">
+<meta property="og:title" content="tmpfs文件系统与安卓">
+<meta property="og:url" content="http://example.com/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="手动挂载apex镜像1.loop设备在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。 这要先从mount的流程来理解，挂载操作，实际上就是把设备上的文件系统&#x2F;目录文件连接到指定的目录（directory）下，在操作系统层面就是把挂载设备和挂载目录的对应关系加到内核中的Vfsmount里的对应表单">
+<meta property="og:description" content="tmpfs文件系统与安卓1.什么是tmpfs文件系统先来看一下Kernel文档对于tmpfs文件系统的描述：https:&#x2F;&#x2F;www.kernel.org&#x2F;doc&#x2F;Documentation&#x2F;filesystems&#x2F;tmpfs.txt 1234567Tmpfs is a file system which keeps all files in virtual memory.Everything in">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/20200601191934566.png">
-<meta property="og:image" content="http://example.com/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/image-20230204111723539.png">
-<meta property="og:image" content="http://example.com/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/image-20230204111215939.png">
-<meta property="article:published_time" content="2023-02-04T03:13:00.000Z">
-<meta property="article:modified_time" content="2023-02-04T03:32:40.794Z">
+<meta property="og:image" content="http://example.com/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/image-20230214223605505.png">
+<meta property="article:published_time" content="2023-02-14T14:12:22.000Z">
+<meta property="article:modified_time" content="2023-02-14T14:52:36.190Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/20200601191934566.png">
+<meta name="twitter:image" content="http://example.com/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/image-20230214223605505.png">
   
   
   
-  <title>手动挂载apex包到loop设备 - 一只安慕嘻</title>
+  <title>tmpfs文件系统与安卓 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -188,7 +186,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="手动挂载apex包到loop设备"></span>
+            <span id="subtitle" data-typed-text="tmpfs文件系统与安卓"></span>
           
         </div>
 
@@ -199,8 +197,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-02-04 11:13" pubdate>
-          2023年2月4日 上午
+        <time datetime="2023-02-14 22:12" pubdate>
+          2023年2月14日 晚上
         </time>
       </span>
     
@@ -211,7 +209,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.5k 字
+          2.9k 字
         
       </span>
     
@@ -222,7 +220,7 @@
         
         
         
-          30 分钟
+          25 分钟
         
       </span>
     
@@ -260,75 +258,44 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">手动挂载apex包到loop设备</h1>
+            <h1 style="display: none">tmpfs文件系统与安卓</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="手动挂载apex镜像"><a href="#手动挂载apex镜像" class="headerlink" title="手动挂载apex镜像"></a>手动挂载apex镜像</h1><h2 id="1-loop设备"><a href="#1-loop设备" class="headerlink" title="1.loop设备"></a>1.loop设备</h2><p>在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。</p>
-<p>这要先从mount的流程来理解，挂载操作，实际上就是把设备上的文件系统&#x2F;目录文件连接到指定的目录（directory）下，在操作系统层面就是把挂载设备和挂载目录的对应关系加到内核中的Vfsmount里的对应表单里（内核启动后会从硬盘上加载到内存里），这样我们就可以通过访问目录路径来访问设备上的数据了。</p>
-<p>loop mount是另一种mount方式，如果说普通mount解决了实际硬件存储设备的挂载，bind mount解决了目录到目录的挂载，那么loop mount则解决了将<strong>档案文件</strong>到目录的挂载</p>
-<p>档案，英文Archive，与文件（file）不同，是一个打包好的文件集，里面一般包含许多文件, 比如 tar，jar，iso ，img就是常见的档案格式</p>
-<p>那又是怎么实现将档案文件挂载到目录下呢？</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs she">实际上，系统先把档案文件（比如某个.iso文件）映射到loop设备上<br>#losetup  /dev/loop0   xxxx.iso        使系统误认为xxxx.iso为存储设备/dev/loop0<br><br>再欺骗mount命令，使他认为  /dev/loop0真的是个设备在运行，挂载到指定目录<br>#mount   -t   xxxx.iso   /dev/loop0    /loop设备路径    <br><br></code></pre></td></tr></table></figure>
+                <h1 id="tmpfs文件系统与安卓"><a href="#tmpfs文件系统与安卓" class="headerlink" title="tmpfs文件系统与安卓"></a>tmpfs文件系统与安卓</h1><h2 id="1-什么是tmpfs文件系统"><a href="#1-什么是tmpfs文件系统" class="headerlink" title="1.什么是tmpfs文件系统"></a>1.什么是tmpfs文件系统</h2><p>先来看一下Kernel文档对于tmpfs文件系统的描述：<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/filesystems/tmpfs.txt">https://www.kernel.org/doc/Documentation/filesystems/tmpfs.txt</a></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh">Tmpfs is a file system <span class="hljs-built_in">which</span> keeps all files <span class="hljs-keyword">in</span> virtual memory.<br><br>Everything <span class="hljs-keyword">in</span> tmpfs is temporary <span class="hljs-keyword">in</span> the sense that no files will be created on your hard drive. If you unmount a tmpfs instance, everything stored there <span class="hljs-keyword">in</span> is lost.<br><br>tmpfs puts everything into the kernel internal caches and grows andshrinks to accommodate the files it contains and is able to swap unneeded pages out to swap space. It has maximum size limits <span class="hljs-built_in">which</span> can be adjusted on the fly via <span class="hljs-string">&#x27;mount -o remount ...&#x27;</span><br><br>If you compare it to ramfs (<span class="hljs-built_in">which</span> was the template to create tmpfs) you gain swapping and <span class="hljs-built_in">limit</span> checking. Another similar thing is the RAMdisk (/dev/ram*), <span class="hljs-built_in">which</span> simulates a fixed size hard disk <span class="hljs-keyword">in</span> physical RAM, <span class="hljs-built_in">where</span> you have to create an ordinary filesystem on top. Ramdisks cannot swap and you <span class="hljs-keyword">do</span> not have the possibility to resize them. <br></code></pre></td></tr></table></figure>
 
-<p>但前提是，被访问的loop设备里的档案文件具有linux识别的文件系统，像tar, jar, zip 这样的档案，只是一种压缩格式，本身不是文件系统，即使通过loop mount挂载上去了，直接访问他也读不出什么数据，这很好理解，就像在windows下不装任何解压软件，就无法打开压缩文件一样。<u><strong>所有一般我们都是拿img、iso映射到loop设备。</strong></u></p>
-<h2 id="2-apex包结构"><a href="#2-apex包结构" class="headerlink" title="2.apex包结构"></a>2.apex包结构</h2><p>APEX文件格式如下</p>
-<img src="/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/20200601191934566.png" srcset="/img/loading.gif" lazyload>
-
-
-
-<p>从顶层看，APEX文件是一个Zip文件，其中的文件均是未压缩的。</p>
-<p>其中的四个文件有<code>apex_manifest.json</code>，<code>AndroidManifest.xml</code>，<code>apex_pubkey</code>，<code>apex_payload.img</code></p>
 <ul>
-<li><p>apex_manifest.json文件包括package name和版本，用来标识该APEX文件</p>
+<li><p>tmpfs是一个将所有文件保存在虚拟内存中的文件系统。</p>
 </li>
-<li><p>AndroidManifest.xml可以允许APEX文件使用一些apk的工具，像adb、package manager、 app install app等。举个例子APEX文件可以使用aapt检查文件的metadata。该文件还包括packcage name和版本号，这些内容通常也会再apex_manifest.json文件中。</p>
+<li><p>tmpfs中的所有内容都是临时的，因为不会在硬盘上创建任何文件。如果卸载tmpfs实例，存储在其中的所有东西都丢失了</p>
 </li>
-<li><p>apex_payload.img是依赖dm-verity的EXT4文件系统镜像。该镜像在运行时通过一个回环设备加载。具体地说，metadata和hash tree是通过libavb创建的。apex_payload.img还没有被解析，因为要求该文件是可挂载的。一些常规文件包含在该镜像中。</p>
+<li><p>tmpfs将所有内容放入内核内部缓存，并进行增长和收缩以容纳其中包含的文件，并能够将不需要的页面交换出来以交换空间。它具有size限制，可以通过“mount-o remount…”进行动态调整</p>
 </li>
-<li><p>apex_pubkey是用来给文件系统签名的公钥。该公钥确保下载的apex文件是以编译阶段相同的方式签名。</p>
+<li><p>如果将其与ramfs（创建tmpfs的模板）进行比较，则会获得交换和限制检查。另一个类似的东西是RAMdisk（&#x2F;dev&#x2F;ram*），它在物理ram中模拟固定大小的硬盘，您必须在上面创建一个普通的文件系统。Ramdisks无法互换，您无法调整其大小。</p>
 </li>
 </ul>
-<h2 id="3-开始实验"><a href="#3-开始实验" class="headerlink" title="3.开始实验"></a>3.开始实验</h2><ol>
-<li><p><strong>将apex解压缩，上传到Linux中</strong></p>
-<img src="/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/image-20230204111723539.png" srcset="/img/loading.gif" lazyload></li>
+<p><strong>我们总结一下tmpfs的特点：</strong></p>
+<ol>
+<li>由于是构建在内存中，存放在tmpfs中的所有数据在卸载或者断后丢失。【临时性】</li>
+<li>内存的访问速度远远大于磁盘IO操作，即使使用了虚拟内存，性能仍然优于磁盘。【快速读写】</li>
+<li>tmpfs一开始使用很小的空间，但是随着文件的复制和创建，tmpfs文件系统会分配更多的内存，并按照需求动态增加文件系统的空间，而且tmpfs文件系统会动态缩小文件并释放内存资源</li>
+<li>像普通块设备需要mkfs格式化文件系统后才可以使用，但是tmpfs是独立的文件系统，只要挂载就可以使用。</li>
 </ol>
-<p>其实apex包就是个压缩包，将后缀名改成<code>.zip</code>，自行使用Windows解压工具进行解压</p>
-<p><strong>上传后我们可以看下它的文件结构和它的文件系统属性</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs bash">amx@amxxxx:~/Android/system$ file apex_payload.img <br>apex_payload.img: Linux rev 1.0 ext2 filesystem data, UUID=7d1522e1-9dfa-5edb-a43e-98e3a4d20250 (extents) (large files) (huge files)<br><br>amx@amxxxx:~/Android/system$ tune2fs -l apex_payload.img <br>tune2fs 1.44.5 (15-Dec-2018)<br>Filesystem volume name:   &lt;none&gt;<br>Last mounted on:          &lt;not available&gt;<br>Filesystem UUID:          7d1522e1-9dfa-5edb-a43e-98e3a4d20250<br>Filesystem magic number:  0xEF53<br>Filesystem revision <span class="hljs-comment">#:    1 (dynamic)</span><br>Filesystem features:      ext_attr dir_index filetype extent sparse_super large_file huge_file uninit_bg dir_nlink extra_isize shared_blocks<br>Filesystem flags:         signed_directory_hash <br>Default mount options:    user_xattr acl<br>Filesystem state:         clean<br>Errors behavior:          Continue<br>Filesystem OS <span class="hljs-built_in">type</span>:       Linux<br>Inode count:              32<br>Block count:              8213<br>Reserved block count:     0<br>Free blocks:              8<br>Free inodes:              5<br>First block:              0<br>Block size:               4096<br>Fragment size:            4096<br>Blocks per group:         32768<br>Fragments per group:      32768<br>Inodes per group:         32<br>Inode blocks per group:   2<br>Filesystem created:       Thu Jan  1 08:00:01 1970<br>Last mount time:          n/a<br>Last write time:          Thu Jan  1 08:00:01 1970<br>Mount count:              0<br>Maximum mount count:      -1<br>Last checked:             Thu Jan  1 08:00:01 1970<br>Check interval:           0 (&lt;none&gt;)<br>Lifetime writes:          32 MB<br>Reserved blocks uid:      0 (user root)<br>Reserved blocks gid:      0 (group root)<br>First inode:              11<br>Inode size:               256<br>Required extra isize:     32<br>Desired extra isize:      32<br>Default directory <span class="hljs-built_in">hash</span>:   half_md4<br>Directory Hash Seed:      7d1522e1-9dfa-5edb-a43e-98e3a4d20250<br></code></pre></td></tr></table></figure>
+<h2 id="2-Android中的tmpfs文件系统"><a href="#2-Android中的tmpfs文件系统" class="headerlink" title="2.Android中的tmpfs文件系统"></a>2.Android中的tmpfs文件系统</h2><p>Android中挂载tmpfs文件系统的时机主要在安卓init进程中的第一阶段挂载和第二阶段挂载【基于Android S】</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">FirstStageMain</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span> </span>&#123;<br>	<br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, <span class="hljs-string">&quot;/dev&quot;</span>, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOSUID, <span class="hljs-string">&quot;mode=0755&quot;</span>));<br>    <br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, <span class="hljs-string">&quot;/mnt&quot;</span>, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOEXEC | MS_NOSUID | MS_NODEV,<br>                    <span class="hljs-string">&quot;mode=0755,uid=0,gid=1000&quot;</span>));<br>    <br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, <span class="hljs-string">&quot;/debug_ramdisk&quot;</span>, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOEXEC | MS_NOSUID | MS_NODEV,<br>                    <span class="hljs-string">&quot;mode=0755,uid=0,gid=0&quot;</span>));<br>    <br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, kSecondStageRes, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOEXEC | MS_NOSUID | MS_NODEV,<br>                    <span class="hljs-string">&quot;mode=0755,uid=0,gid=0&quot;</span>))<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br><br># --------------------------------------------------------------------------------------<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">SecondStageMain</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span> </span>&#123;<br>    <span class="hljs-built_in">MountExtraFilesystems</span>();<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">MountExtraFilesystems</span><span class="hljs-params">()</span> </span>&#123;<br><br>    <span class="hljs-comment">// /apex is used to mount APEXes</span><br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, <span class="hljs-string">&quot;/apex&quot;</span>, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOEXEC | MS_NOSUID | MS_NODEV,<br>                    <span class="hljs-string">&quot;mode=0755,uid=0,gid=0&quot;</span>));<br><br>    <span class="hljs-comment">// /linkerconfig is used to keep generated linker configuration</span><br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, <span class="hljs-string">&quot;/linkerconfig&quot;</span>, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOEXEC | MS_NOSUID | MS_NODEV,<br>                    <span class="hljs-string">&quot;mode=0755,uid=0,gid=0&quot;</span>));<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<p>我们来看一下安卓真实运行环境中的挂载情况</p>
+<img src="/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/image-20230214223605505.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
 
-
-<ol start="2">
-<li><strong>查看当前空闲的loop设备</strong></li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">amx@amxxxx:~/Android/system$ sudo losetup -f<br>/dev/loop0<br></code></pre></td></tr></table></figure>
-
-<p>可以看到当前空闲的loop设备为<code>/dev/loop0</code>，所以我们打算将apex与&#x2F;dev&#x2F;loop0进行关联</p>
-<ol start="3">
-<li><strong>将apex镜像与loop设备关联</strong></li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">amx@amxxxx:~/Android/system$ sudo losetup /dev/loop0 apex_payload.img<br></code></pre></td></tr></table></figure>
-
-<ol start="4">
-<li><strong>将loop设备挂载到目标节点上</strong></li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">amx@amxxxx:~/Android/system$ sudo mount -o ro /dev/loop0 /home/amx/Android/apex/com.android.i18n<br></code></pre></td></tr></table></figure>
-
-<p>这里我模仿了安卓将它挂载到了<code>/home/amx/Android/apex/com.android.i18n</code></p>
-<blockquote>
-<p>这里只能使用ro只读形式挂载，因为apex_playload.img采用了ext4文件系统，且在文件系统中添加了<code>shared_block</code>属性，该属性不允许随意修改镜像文件，也是为了将镜像文件尽量压缩到最小（从名字就可以看出来共享块）。这里可以通过改变inode结构改变这个属性，但是有点难度，需要了解ext文件系统才行。</p>
-</blockquote>
-<ol start="5">
-<li><strong>查看是否挂载成功</strong></li>
-</ol>
-<img src="/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/image-20230204111215939.png" srcset="/img/loading.gif" lazyload>
-
-<p>可以看到我们可以像访问块设备一样访问apex包啦</p>
-<h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4.参考"></a>4.参考</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/shengxia1999/article/details/52081286?spm=1001.2014.3001.5506">https://blog.csdn.net/shengxia1999/article/details/52081286?spm=1001.2014.3001.5506</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_28351465/article/details/106458089?spm=1001.2014.3001.5506">https://blog.csdn.net/qq_28351465/article/details/106458089?spm=1001.2014.3001.5506</a></li>
+<p>🐖【个人猜想】为什么类似&#x2F;dev，&#x2F;apex这种需要使用tmpfs文件系统：</p>
+<ul>
+<li>像安卓的设备创建后都在&#x2F;dev目录下，驱动会以&#x2F;dev&#x2F;xxx的文件形式存在，所以会发生大量的IO操作，显然使用tmpfs更快</li>
+<li>像ART，VNDK等都存在于&#x2F;apex中，安卓启动的时候虚拟机ART创建都在&#x2F;apex中</li>
+</ul>
+<h2 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1HG4y1K76E/">https://www.bilibili.com/video/BV1HG4y1K76E/</a></li>
 </ul>
 
                 
@@ -347,8 +314,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>手动挂载apex包到loop设备</div>
-      <div>http://example.com/2023/02/04/手动挂载apex包到loop设备/</div>
+      <div>tmpfs文件系统与安卓</div>
+      <div>http://example.com/2023/02/14/tmpfs文件系统与安卓/</div>
     </div>
     <div class="license-meta">
       
@@ -360,7 +327,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年2月4日</div>
+          <div>2023年2月14日</div>
         </div>
       
       
@@ -392,18 +359,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/" title="tmpfs文件系统与安卓">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">tmpfs文件系统与安卓</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/01/25/%E5%AE%89%E5%8D%93%E5%BC%80%E6%9C%BA%E5%8A%A8%E7%94%BB/" title="安卓开机动画">
-                        <span class="hidden-mobile">安卓开机动画</span>
+                      <a href="/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/" title="手动挂载apex包到loop设备">
+                        <span class="hidden-mobile">手动挂载apex包到loop设备</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
