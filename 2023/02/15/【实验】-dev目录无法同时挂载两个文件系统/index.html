@@ -16,23 +16,27 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="tmpfs文件系统与安卓1.什么是tmpfs文件系统先来看一下Kernel文档对于tmpfs文件系统的描述：https:&#x2F;&#x2F;www.kernel.org&#x2F;doc&#x2F;Documentation&#x2F;filesystems&#x2F;tmpfs.txt 1234567Tmpfs is a file system which keeps all files in virtual memory.Everything in">
+    <meta name="description" content="【实验】&#x2F;dev目录无法同时挂载两个文件系统先介绍一下我的开发板，NXP的IMX6ULL，里面是原生的Linux内核，版本为4.1.5。 下面开始做实验，证明&#x2F;dev目录无法同时挂载两个文件系统。 实验步骤1.开机后查看当前的挂载的设备    可以看到此时devtmpfs大小为88.3M  2.尝试手动挂载&#x2F;dev   我们知道tmpfs挂载后默认是RAM的一半">
 <meta property="og:type" content="article">
-<meta property="og:title" content="tmpfs文件系统与安卓">
-<meta property="og:url" content="http://example.com/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/index.html">
+<meta property="og:title" content="【实验】&#x2F;dev目录无法同时挂载两个文件系统">
+<meta property="og:url" content="http://example.com/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="tmpfs文件系统与安卓1.什么是tmpfs文件系统先来看一下Kernel文档对于tmpfs文件系统的描述：https:&#x2F;&#x2F;www.kernel.org&#x2F;doc&#x2F;Documentation&#x2F;filesystems&#x2F;tmpfs.txt 1234567Tmpfs is a file system which keeps all files in virtual memory.Everything in">
+<meta property="og:description" content="【实验】&#x2F;dev目录无法同时挂载两个文件系统先介绍一下我的开发板，NXP的IMX6ULL，里面是原生的Linux内核，版本为4.1.5。 下面开始做实验，证明&#x2F;dev目录无法同时挂载两个文件系统。 实验步骤1.开机后查看当前的挂载的设备    可以看到此时devtmpfs大小为88.3M  2.尝试手动挂载&#x2F;dev   我们知道tmpfs挂载后默认是RAM的一半">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/image-20230214223605505.png">
-<meta property="article:published_time" content="2023-02-14T14:12:22.000Z">
-<meta property="article:modified_time" content="2023-02-14T14:52:36.190Z">
+<meta property="og:image" content="http://example.com/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220652226.png">
+<meta property="og:image" content="http://example.com/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220610703.png">
+<meta property="og:image" content="http://example.com/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220830308.png">
+<meta property="og:image" content="http://example.com/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220510027.png">
+<meta property="og:image" content="http://example.com/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215221013735.png">
+<meta property="article:published_time" content="2023-02-15T14:15:37.000Z">
+<meta property="article:modified_time" content="2023-02-15T14:17:32.283Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/image-20230214223605505.png">
+<meta name="twitter:image" content="http://example.com/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220652226.png">
   
   
   
-  <title>tmpfs文件系统与安卓 - 一只安慕嘻</title>
+  <title>【实验】/dev目录无法同时挂载两个文件系统 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -186,7 +190,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="tmpfs文件系统与安卓"></span>
+            <span id="subtitle" data-typed-text="【实验】/dev目录无法同时挂载两个文件系统"></span>
           
         </div>
 
@@ -197,8 +201,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-02-14 22:12" pubdate>
-          2023年2月14日 晚上
+        <time datetime="2023-02-15 22:15" pubdate>
+          2023年2月15日 晚上
         </time>
       </span>
     
@@ -209,7 +213,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.9k 字
+          436 字
         
       </span>
     
@@ -220,7 +224,7 @@
         
         
         
-          25 分钟
+          4 分钟
         
       </span>
     
@@ -258,45 +262,42 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">tmpfs文件系统与安卓</h1>
+            <h1 style="display: none">【实验】/dev目录无法同时挂载两个文件系统</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="tmpfs文件系统与安卓"><a href="#tmpfs文件系统与安卓" class="headerlink" title="tmpfs文件系统与安卓"></a>tmpfs文件系统与安卓</h1><h2 id="1-什么是tmpfs文件系统"><a href="#1-什么是tmpfs文件系统" class="headerlink" title="1.什么是tmpfs文件系统"></a>1.什么是tmpfs文件系统</h2><p>先来看一下Kernel文档对于tmpfs文件系统的描述：<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/filesystems/tmpfs.txt">https://www.kernel.org/doc/Documentation/filesystems/tmpfs.txt</a></p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh">Tmpfs is a file system <span class="hljs-built_in">which</span> keeps all files <span class="hljs-keyword">in</span> virtual memory.<br><br>Everything <span class="hljs-keyword">in</span> tmpfs is temporary <span class="hljs-keyword">in</span> the sense that no files will be created on your hard drive. If you unmount a tmpfs instance, everything stored there <span class="hljs-keyword">in</span> is lost.<br><br>tmpfs puts everything into the kernel internal caches and grows andshrinks to accommodate the files it contains and is able to swap unneeded pages out to swap space. It has maximum size limits <span class="hljs-built_in">which</span> can be adjusted on the fly via <span class="hljs-string">&#x27;mount -o remount ...&#x27;</span><br><br>If you compare it to ramfs (<span class="hljs-built_in">which</span> was the template to create tmpfs) you gain swapping and <span class="hljs-built_in">limit</span> checking. Another similar thing is the RAMdisk (/dev/ram*), <span class="hljs-built_in">which</span> simulates a fixed size hard disk <span class="hljs-keyword">in</span> physical RAM, <span class="hljs-built_in">where</span> you have to create an ordinary filesystem on top. Ramdisks cannot swap and you <span class="hljs-keyword">do</span> not have the possibility to resize them. <br></code></pre></td></tr></table></figure>
+                <h1 id="【实验】-x2F-dev目录无法同时挂载两个文件系统"><a href="#【实验】-x2F-dev目录无法同时挂载两个文件系统" class="headerlink" title="【实验】&#x2F;dev目录无法同时挂载两个文件系统"></a>【实验】&#x2F;dev目录无法同时挂载两个文件系统</h1><p>先介绍一下我的开发板，NXP的IMX6ULL，里面是原生的Linux内核，版本为<code>4.1.5</code>。</p>
+<p>下面开始做实验，证明&#x2F;dev目录无法同时挂载两个文件系统。</p>
+<h2 id="实验步骤"><a href="#实验步骤" class="headerlink" title="实验步骤"></a>实验步骤</h2><p><strong>1.开机后查看当前的挂载的设备</strong></p>
+<img src="/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220652226.png" srcset="/img/loading.gif" lazyload alt="image-20230215220652226" style="zoom:67%;">
 
+<blockquote>
+<p>可以看到此时devtmpfs大小为88.3M</p>
+</blockquote>
+<p><strong>2.尝试手动挂载&#x2F;dev</strong></p>
+<img src="/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220610703.png" srcset="/img/loading.gif" lazyload alt="image-20230215220610703" style="zoom:67%;">
+
+<p>我们知道tmpfs挂载后默认是RAM的一半</p>
+<img src="/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220830308.png" srcset="/img/loading.gif" lazyload alt="image-20230215220830308" style="zoom:67%;">
+
+<blockquote>
+<p>可以发现devtmpfs跟随tmpfs一起办成了RAM的一半大小</p>
+</blockquote>
+<p><strong>3.再次确认挂载情况</strong></p>
+<p><img src="/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220510027.png" srcset="/img/loading.gif" lazyload alt="image-20230215220510027"></p>
+<p><strong>4.查看此时&#x2F;dev目录是否正常</strong></p>
+<p><img src="/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215221013735.png" srcset="/img/loading.gif" lazyload alt="image-20230215221013735"></p>
+<blockquote>
+<p>此时&#x2F;dev目录下为空，访问不到任何目录</p>
+</blockquote>
+<h2 id="实验结论"><a href="#实验结论" class="headerlink" title="实验结论"></a>实验结论</h2><p>通过实验我们可以发现：</p>
 <ul>
-<li><p>tmpfs是一个将所有文件保存在虚拟内存中的文件系统。</p>
-</li>
-<li><p>tmpfs中的所有内容都是临时的，因为不会在硬盘上创建任何文件。如果卸载tmpfs实例，存储在其中的所有东西都丢失了</p>
-</li>
-<li><p>tmpfs将所有内容放入内核内部缓存，并进行增长和收缩以容纳其中包含的文件，并能够将不需要的页面交换出来以交换空间。它具有size限制，可以通过“mount-o remount…”进行动态调整</p>
-</li>
-<li><p>如果将其与ramfs（创建tmpfs的模板）进行比较，则会获得交换和限制检查。另一个类似的东西是RAMdisk（&#x2F;dev&#x2F;ram*），它在物理ram中模拟固定大小的硬盘，您必须在上面创建一个普通的文件系统。Ramdisks无法互换，您无法调整其大小。</p>
-</li>
+<li>可以同时给<code>/dev</code>挂载两个文件系统，但是有问题</li>
+<li>当系统以<code>devtmpfs</code>挂载后，再次以<code>tmpfs</code>挂载后，<code>devtmpfs</code>会随<code>tmpfs</code>大小一起变化，如果<code>tmpfs</code>挂载时不指明大小，默认为内存的一半</li>
+<li>给<code>/dev</code>挂载两个文件系统后，<code>/dev</code>目录无法正常访问</li>
 </ul>
-<p><strong>我们总结一下tmpfs的特点：</strong></p>
-<ol>
-<li>由于是构建在内存中，存放在tmpfs中的所有数据在卸载或者断后丢失。【临时性】</li>
-<li>内存的访问速度远远大于磁盘IO操作，即使使用了虚拟内存，性能仍然优于磁盘。【快速读写】</li>
-<li>tmpfs一开始使用很小的空间，但是随着文件的复制和创建，tmpfs文件系统会分配更多的内存，并按照需求动态增加文件系统的空间，而且tmpfs文件系统会动态缩小文件并释放内存资源</li>
-<li>像普通块设备需要mkfs格式化文件系统后才可以使用，但是tmpfs是独立的文件系统，只要挂载就可以使用。</li>
-</ol>
-<h2 id="2-Android中的tmpfs文件系统"><a href="#2-Android中的tmpfs文件系统" class="headerlink" title="2.Android中的tmpfs文件系统"></a>2.Android中的tmpfs文件系统</h2><p>Android中挂载tmpfs文件系统的时机主要在安卓init进程中的第一阶段挂载和第二阶段挂载【基于Android S】</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">FirstStageMain</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span> </span>&#123;<br>	<br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, <span class="hljs-string">&quot;/dev&quot;</span>, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOSUID, <span class="hljs-string">&quot;mode=0755&quot;</span>));<br>    <br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, <span class="hljs-string">&quot;/mnt&quot;</span>, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOEXEC | MS_NOSUID | MS_NODEV,<br>                    <span class="hljs-string">&quot;mode=0755,uid=0,gid=1000&quot;</span>));<br>    <br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, <span class="hljs-string">&quot;/debug_ramdisk&quot;</span>, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOEXEC | MS_NOSUID | MS_NODEV,<br>                    <span class="hljs-string">&quot;mode=0755,uid=0,gid=0&quot;</span>));<br>    <br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, kSecondStageRes, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOEXEC | MS_NOSUID | MS_NODEV,<br>                    <span class="hljs-string">&quot;mode=0755,uid=0,gid=0&quot;</span>))<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br><br># --------------------------------------------------------------------------------------<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">SecondStageMain</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span> </span>&#123;<br>    <span class="hljs-built_in">MountExtraFilesystems</span>();<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">MountExtraFilesystems</span><span class="hljs-params">()</span> </span>&#123;<br><br>    <span class="hljs-comment">// /apex is used to mount APEXes</span><br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, <span class="hljs-string">&quot;/apex&quot;</span>, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOEXEC | MS_NOSUID | MS_NODEV,<br>                    <span class="hljs-string">&quot;mode=0755,uid=0,gid=0&quot;</span>));<br><br>    <span class="hljs-comment">// /linkerconfig is used to keep generated linker configuration</span><br>    <span class="hljs-built_in">CHECKCALL</span>(<span class="hljs-built_in">mount</span>(<span class="hljs-string">&quot;tmpfs&quot;</span>, <span class="hljs-string">&quot;/linkerconfig&quot;</span>, <span class="hljs-string">&quot;tmpfs&quot;</span>, MS_NOEXEC | MS_NOSUID | MS_NODEV,<br>                    <span class="hljs-string">&quot;mode=0755,uid=0,gid=0&quot;</span>));<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>我们来看一下安卓真实运行环境中的挂载情况</p>
-<img src="/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/image-20230214223605505.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
-
-<p>🐖【个人猜想】为什么类似&#x2F;dev，&#x2F;apex这种需要使用tmpfs文件系统：</p>
-<ul>
-<li>像安卓的设备创建后都在&#x2F;dev目录下，驱动会以&#x2F;dev&#x2F;xxx的文件形式存在，所以会发生大量的IO操作，显然使用tmpfs更快</li>
-<li>像ART，VNDK等都存在于&#x2F;apex中，安卓启动的时候虚拟机ART创建都在&#x2F;apex中</li>
-</ul>
-<h2 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1HG4y1K76E/">https://www.bilibili.com/video/BV1HG4y1K76E/</a></li>
-</ul>
+<p><strong>说明：本文水平有限，可能存在诸多问题，请指正！</strong></p>
 
                 
               </div>
@@ -314,8 +315,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>tmpfs文件系统与安卓</div>
-      <div>http://example.com/2023/02/14/tmpfs文件系统与安卓/</div>
+      <div>【实验】/dev目录无法同时挂载两个文件系统</div>
+      <div>http://example.com/2023/02/15/【实验】-dev目录无法同时挂载两个文件系统/</div>
     </div>
     <div class="license-meta">
       
@@ -327,7 +328,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年2月14日</div>
+          <div>2023年2月15日</div>
         </div>
       
       
@@ -359,18 +360,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" title="【实验】/dev目录无法同时挂载两个文件系统">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">【实验】/dev目录无法同时挂载两个文件系统</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/" title="手动挂载apex包到loop设备">
-                        <span class="hidden-mobile">手动挂载apex包到loop设备</span>
+                      <a href="/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/" title="tmpfs文件系统与安卓">
+                        <span class="hidden-mobile">tmpfs文件系统与安卓</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

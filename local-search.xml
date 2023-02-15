@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>【实验】/dev目录无法同时挂载两个文件系统</title>
+    <link href="/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/"/>
+    <url>/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</url>
+    
+    <content type="html"><![CDATA[<h1 id="【实验】-x2F-dev目录无法同时挂载两个文件系统"><a href="#【实验】-x2F-dev目录无法同时挂载两个文件系统" class="headerlink" title="【实验】&#x2F;dev目录无法同时挂载两个文件系统"></a>【实验】&#x2F;dev目录无法同时挂载两个文件系统</h1><p>先介绍一下我的开发板，NXP的IMX6ULL，里面是原生的Linux内核，版本为<code>4.1.5</code>。</p><p>下面开始做实验，证明&#x2F;dev目录无法同时挂载两个文件系统。</p><h2 id="实验步骤"><a href="#实验步骤" class="headerlink" title="实验步骤"></a>实验步骤</h2><p><strong>1.开机后查看当前的挂载的设备</strong></p><img src="/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220652226.png" alt="image-20230215220652226" style="zoom:67%;"><blockquote><p>可以看到此时devtmpfs大小为88.3M</p></blockquote><p><strong>2.尝试手动挂载&#x2F;dev</strong></p><img src="/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220610703.png" alt="image-20230215220610703" style="zoom:67%;"><p>我们知道tmpfs挂载后默认是RAM的一半</p><img src="/2023/02/15/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220830308.png" alt="image-20230215220830308" style="zoom:67%;"><blockquote><p>可以发现devtmpfs跟随tmpfs一起办成了RAM的一半大小</p></blockquote><p><strong>3.再次确认挂载情况</strong></p><p><img src="/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215220510027.png" alt="image-20230215220510027"></p><p><strong>4.查看此时&#x2F;dev目录是否正常</strong></p><p><img src="/%E3%80%90%E5%AE%9E%E9%AA%8C%E3%80%91-dev%E7%9B%AE%E5%BD%95%E6%97%A0%E6%B3%95%E5%90%8C%E6%97%B6%E6%8C%82%E8%BD%BD%E4%B8%A4%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230215221013735.png" alt="image-20230215221013735"></p><blockquote><p>此时&#x2F;dev目录下为空，访问不到任何目录</p></blockquote><h2 id="实验结论"><a href="#实验结论" class="headerlink" title="实验结论"></a>实验结论</h2><p>通过实验我们可以发现：</p><ul><li>可以同时给<code>/dev</code>挂载两个文件系统，但是有问题</li><li>当系统以<code>devtmpfs</code>挂载后，再次以<code>tmpfs</code>挂载后，<code>devtmpfs</code>会随<code>tmpfs</code>大小一起变化，如果<code>tmpfs</code>挂载时不指明大小，默认为内存的一半</li><li>给<code>/dev</code>挂载两个文件系统后，<code>/dev</code>目录无法正常访问</li></ul><p><strong>说明：本文水平有限，可能存在诸多问题，请指正！</strong></p>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>tmpfs文件系统与安卓</title>
     <link href="/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/"/>
     <url>/2023/02/14/tmpfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%AE%89%E5%8D%93/</url>
