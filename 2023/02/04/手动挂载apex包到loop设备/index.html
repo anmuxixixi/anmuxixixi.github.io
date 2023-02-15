@@ -16,18 +16,18 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="手动挂载apex镜像1.loop设备在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。 这要先从mount的流程来理解，挂载操作，实际上就是把设备上的文件系统&#x2F;目录文件连接到指定的目录（directory）下，在操作系统层面就是把挂载设备和挂载目录的对应关系加到内核中的Vfsmount里的对应表单">
+    <meta name="description" content="【实验】手动挂载apex镜像1.loop设备在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。 这要先从mount的流程来理解，挂载操作，实际上就是把设备上的文件系统&#x2F;目录文件连接到指定的目录（directory）下，在操作系统层面就是把挂载设备和挂载目录的对应关系加到内核中的Vfsmount里的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="手动挂载apex包到loop设备">
 <meta property="og:url" content="http://example.com/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="手动挂载apex镜像1.loop设备在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。 这要先从mount的流程来理解，挂载操作，实际上就是把设备上的文件系统&#x2F;目录文件连接到指定的目录（directory）下，在操作系统层面就是把挂载设备和挂载目录的对应关系加到内核中的Vfsmount里的对应表单">
+<meta property="og:description" content="【实验】手动挂载apex镜像1.loop设备在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。 这要先从mount的流程来理解，挂载操作，实际上就是把设备上的文件系统&#x2F;目录文件连接到指定的目录（directory）下，在操作系统层面就是把挂载设备和挂载目录的对应关系加到内核中的Vfsmount里的">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/20200601191934566.png">
 <meta property="og:image" content="http://example.com/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/image-20230204111723539.png">
 <meta property="og:image" content="http://example.com/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/image-20230204111215939.png">
 <meta property="article:published_time" content="2023-02-04T03:13:00.000Z">
-<meta property="article:modified_time" content="2023-02-04T03:32:40.794Z">
+<meta property="article:modified_time" content="2023-02-15T14:20:59.577Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/20200601191934566.png">
@@ -211,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.5k 字
+          3.6k 字
         
       </span>
     
@@ -222,7 +222,7 @@
         
         
         
-          30 分钟
+          31 分钟
         
       </span>
     
@@ -265,7 +265,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="手动挂载apex镜像"><a href="#手动挂载apex镜像" class="headerlink" title="手动挂载apex镜像"></a>手动挂载apex镜像</h1><h2 id="1-loop设备"><a href="#1-loop设备" class="headerlink" title="1.loop设备"></a>1.loop设备</h2><p>在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。</p>
+                <h1 id="【实验】手动挂载apex镜像"><a href="#【实验】手动挂载apex镜像" class="headerlink" title="【实验】手动挂载apex镜像"></a>【实验】手动挂载apex镜像</h1><h2 id="1-loop设备"><a href="#1-loop设备" class="headerlink" title="1.loop设备"></a>1.loop设备</h2><p>在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。</p>
 <p>这要先从mount的流程来理解，挂载操作，实际上就是把设备上的文件系统&#x2F;目录文件连接到指定的目录（directory）下，在操作系统层面就是把挂载设备和挂载目录的对应关系加到内核中的Vfsmount里的对应表单里（内核启动后会从硬盘上加载到内存里），这样我们就可以通过访问目录路径来访问设备上的数据了。</p>
 <p>loop mount是另一种mount方式，如果说普通mount解决了实际硬件存储设备的挂载，bind mount解决了目录到目录的挂载，那么loop mount则解决了将<strong>档案文件</strong>到目录的挂载</p>
 <p>档案，英文Archive，与文件（file）不同，是一个打包好的文件集，里面一般包含许多文件, 比如 tar，jar，iso ，img就是常见的档案格式</p>
@@ -326,6 +326,10 @@
 <img src="/2023/02/04/%E6%89%8B%E5%8A%A8%E6%8C%82%E8%BD%BDapex%E5%8C%85%E5%88%B0loop%E8%AE%BE%E5%A4%87/image-20230204111215939.png" srcset="/img/loading.gif" lazyload>
 
 <p>可以看到我们可以像访问块设备一样访问apex包啦</p>
+<ol start="6">
+<li><strong>说明</strong></li>
+</ol>
+<p>真实的安卓环境中是先system&#x2F;apex下面的apex包挂载到对应的版本目录下，例如adb会先挂载到<code>/apex/com.android.adb@300009</code>，然后再将<code>/apex/com.android.adb@300009</code>以bind方式挂载到<code>/apex/com.android.adb</code></p>
 <h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4.参考"></a>4.参考</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/shengxia1999/article/details/52081286?spm=1001.2014.3001.5506">https://blog.csdn.net/shengxia1999/article/details/52081286?spm=1001.2014.3001.5506</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_28351465/article/details/106458089?spm=1001.2014.3001.5506">https://blog.csdn.net/qq_28351465/article/details/106458089?spm=1001.2014.3001.5506</a></li>
