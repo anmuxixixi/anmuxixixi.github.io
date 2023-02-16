@@ -16,17 +16,17 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="udev设备管理器[TOC] 🍋🍋🍋十分推荐阅读：http:&#x2F;&#x2F;www.kroah.com&#x2F;linux&#x2F;talks&#x2F;ols_2003_udev_paper&#x2F;Reprint-Kroah-Hartman-OLS2003.pdf 1.为什么会出现udevdevfs(设备文件系统)是由Linux2.4内核引入的，当时被许多工程师基于了高度的评价，devfs的出现使得设备驱动程序能够自主的管理自己的设">
+    <meta name="description" content="udev设备管理器🍋🍋🍋十分推荐阅读：http:&#x2F;&#x2F;www.kroah.com&#x2F;linux&#x2F;talks&#x2F;ols_2003_udev_paper&#x2F;Reprint-Kroah-Hartman-OLS2003.pdf 1.为什么会出现udevdevfs(设备文件系统)是由Linux2.4内核引入的，当时被许多工程师基于了高度的评价，devfs的出现使得设备驱动程序能够自主的管理自己的设备文件。比如">
 <meta property="og:type" content="article">
 <meta property="og:title" content="udev设备管理">
 <meta property="og:url" content="http://example.com/2023/02/16/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="udev设备管理器[TOC] 🍋🍋🍋十分推荐阅读：http:&#x2F;&#x2F;www.kroah.com&#x2F;linux&#x2F;talks&#x2F;ols_2003_udev_paper&#x2F;Reprint-Kroah-Hartman-OLS2003.pdf 1.为什么会出现udevdevfs(设备文件系统)是由Linux2.4内核引入的，当时被许多工程师基于了高度的评价，devfs的出现使得设备驱动程序能够自主的管理自己的设">
+<meta property="og:description" content="udev设备管理器🍋🍋🍋十分推荐阅读：http:&#x2F;&#x2F;www.kroah.com&#x2F;linux&#x2F;talks&#x2F;ols_2003_udev_paper&#x2F;Reprint-Kroah-Hartman-OLS2003.pdf 1.为什么会出现udevdevfs(设备文件系统)是由Linux2.4内核引入的，当时被许多工程师基于了高度的评价，devfs的出现使得设备驱动程序能够自主的管理自己的设备文件。比如">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/02/16/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/image-20230215234615127.png">
 <meta property="og:image" content="http://example.com/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/20201228214401604.png">
 <meta property="article:published_time" content="2023-02-16T14:18:32.000Z">
-<meta property="article:modified_time" content="2023-02-16T14:21:59.484Z">
+<meta property="article:modified_time" content="2023-02-16T14:25:59.498Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/02/16/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/image-20230215234615127.png">
@@ -264,8 +264,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="udev设备管理器"><a href="#udev设备管理器" class="headerlink" title="udev设备管理器"></a>udev设备管理器</h1><p>[TOC]</p>
-<p>🍋🍋🍋<strong>十分推荐阅读</strong>：<a target="_blank" rel="noopener" href="http://www.kroah.com/linux/talks/ols_2003_udev_paper/Reprint-Kroah-Hartman-OLS2003.pdf">http://www.kroah.com/linux/talks/ols_2003_udev_paper/Reprint-Kroah-Hartman-OLS2003.pdf</a></p>
+                <h1 id="udev设备管理器"><a href="#udev设备管理器" class="headerlink" title="udev设备管理器"></a>udev设备管理器</h1><p>🍋🍋🍋<strong>十分推荐阅读</strong>：<a target="_blank" rel="noopener" href="http://www.kroah.com/linux/talks/ols_2003_udev_paper/Reprint-Kroah-Hartman-OLS2003.pdf">http://www.kroah.com/linux/talks/ols_2003_udev_paper/Reprint-Kroah-Hartman-OLS2003.pdf</a></p>
 <h2 id="1-为什么会出现udev"><a href="#1-为什么会出现udev" class="headerlink" title="1.为什么会出现udev"></a>1.为什么会出现udev</h2><p><strong>devfs</strong>(设备文件系统)是由Linux2.4内核引入的，当时被许多工程师基于了高度的评价，devfs的出现使得设备驱动程序能够自主的管理自己的设备文件。比如，可以通过程序在设备初始化的时候在 &#x2F;dev 目录下创建设备文件，卸载时将他删除，而且设备驱动程序可以指定设备名，所有者和权限位，而且用户空间程序可以修改所有者和权限位，并且不再需要为设备驱动程序分配主设备号以及次设备号，在程序中可以直接给 register_chrdev()传递0主设备号用来获取可用的主设备号。并且可以在 devfs_register() 中指定次设备号。</p>
 <p>🦋尽管devfs有这样和那样的优点，但是，在Linux 2.6内核中，devfs被认为是过时的方法，并最终被抛弃了，<strong>udev取代了它</strong>。</p>
 <p>🐬<strong>Linux VFS内核维护者Al Viro指出了几点udev取代devfs的原因：</strong></p>
@@ -293,7 +292,7 @@
 <li>udev_rules：代表着udev的规则存储的目录。这个目录存储的是以.rules结束的文件。每一个文件处理一系列规则来帮助udev分配名字给设备文件以保证能被内核识别。你的&#x2F;etc&#x2F;udev&#x2F;rules.d下面可能有好几个udev规则文件，这些文件一部分是udev包安装的，另外一部分则是可能是别的硬件或者软件包生成的。该目录下有多个文件时，udev读取文件是按照文件名的ASCII字母顺序来读取的，如果udev一旦找到了与新加入的设备匹配的规则，udev 就会根据规则定义的措施对新设备进行配置。同时不再读后续的规则文件。</li>
 <li>udev_log：代表着udev的日志级别，用syslog记录错误信息。</li>
 </ul>
-<h2 id="4-udev的工作流程图"><a href="#4-udev的工作流程图" class="headerlink" title="4.udev的工作流程图"></a>4.udev的工作流程图</h2><img src="/2023/02/16/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/image-20230215234615127.png" srcset="/img/loading.gif" lazyload alt="image-20230215234615127" style="zoom:80%;">
+<h2 id="4-udev的工作流程图"><a href="#4-udev的工作流程图" class="headerlink" title="4.udev的工作流程图"></a>4.udev的工作流程图</h2><img src="/2023/02/16/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/image-20230215234615127.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
 
 <h2 id="5-udev的匹配规则"><a href="#5-udev的匹配规则" class="headerlink" title="5.udev的匹配规则"></a>5.udev的匹配规则</h2><p>在&#x2F;etc&#x2F;udev&#x2F;rules.d&#x2F;文件夹下有一系列的.rules文件，在这些文件中有一些匹配规则：</p>
 <h3 id="5-1-udev规则的所有操作符"><a href="#5-1-udev规则的所有操作符" class="headerlink" title="5.1 udev规则的所有操作符"></a>5.1 udev规则的所有操作符</h3><ul>
