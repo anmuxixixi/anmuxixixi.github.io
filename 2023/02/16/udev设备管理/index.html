@@ -24,9 +24,9 @@
 <meta property="og:description" content="udev设备管理器🍋🍋🍋十分推荐阅读：http:&#x2F;&#x2F;www.kroah.com&#x2F;linux&#x2F;talks&#x2F;ols_2003_udev_paper&#x2F;Reprint-Kroah-Hartman-OLS2003.pdf 1.为什么会出现udevdevfs(设备文件系统)是由Linux2.4内核引入的，当时被许多工程师基于了高度的评价，devfs的出现使得设备驱动程序能够自主的管理自己的设备文件。比如">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/02/16/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/image-20230215234615127.png">
-<meta property="og:image" content="http://example.com/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/20201228214401604.png">
+<meta property="og:image" content="http://example.com/2023/02/16/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/20201228214401604.png">
 <meta property="article:published_time" content="2023-02-16T14:18:32.000Z">
-<meta property="article:modified_time" content="2023-02-16T14:25:59.498Z">
+<meta property="article:modified_time" content="2023-02-16T14:28:05.444Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/02/16/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/image-20230215234615127.png">
@@ -382,7 +382,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">udevadm test /sys/class/block/sdb<br></code></pre></td></tr></table></figure>
 
 <p>4.结果如下：在&#x2F;dev文件夹下</p>
-<img src="/udev设备管理/20201228214401604.png" srcset="/img/loading.gif" lazyload>
+<img src="/2023/02/16/udev%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/20201228214401604.png" srcset="/img/loading.gif" lazyload>
 
 <h2 id="7-热插拔能自动设备，冷插拔怎么办？"><a href="#7-热插拔能自动设备，冷插拔怎么办？" class="headerlink" title="7.热插拔能自动设备，冷插拔怎么办？"></a>7.热插拔能自动设备，冷插拔怎么办？</h2><p>由于冷插拔的设备开机时就已经存在，在udev启动前已经被插入。针对这种情况，sysfs下的设备都存在uevent文件，向该文件写一个“add”,内核会重新发送netlink，之后udev就可以收到设备的详细信息了，从而创建&#x2F;dev下对应的设备节点。</p>
 <h2 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h2><ul>
