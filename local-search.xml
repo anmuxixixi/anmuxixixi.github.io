@@ -38,6 +38,12 @@
     
     
     
+    <tags>
+      
+      <tag>Android学习笔记</tag>
+      
+    </tags>
+    
   </entry>
   
   
@@ -89,6 +95,12 @@
     <content type="html"><![CDATA[<ul><li>🕊️本文来自视频：<a href="https://www.youtube.com/watch?v=zbebx1Kvqho">https://www.youtube.com/watch?v=zbebx1Kvqho</a></li><li>引用部分博客：<a href="https://new.qq.com/rain/a/20191016A070PF00">https://new.qq.com/rain/a/20191016A070PF00</a></li><li><a href="https://www.freesion.com/article/69471423144/">https://www.freesion.com/article/69471423144/</a></li></ul><h2 id="1-Andriod进入Treble之前存在什么问题"><a href="#1-Andriod进入Treble之前存在什么问题" class="headerlink" title="1.Andriod进入Treble之前存在什么问题"></a>1.Andriod进入Treble之前存在什么问题</h2><p>在Android 8.0（Android Oreo）之前那个时代，苹果手机一旦有了新的系统更新，用户都能在短时间内更新系统，对用户来说实在太简单了，用户只需要点击更新下载新系统就可以完美的拥有最新的系统功能。而对于安卓用户而言，当安卓发布新的源码以后，会经过下面一系列的操作，用户才能用上真正的全新安卓系统。</p><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/生成过程.png" style="zoom: 80%;"><ol><li>发布源码：Google将新系统源码发布至AOSP</li><li>启动硬件适配：芯片制造商如<strong>三星</strong>、<strong>高通</strong>、<strong>联发科</strong>、<strong>华为</strong>等对源码进行修改，确保自家的芯片在新版Android能正常运行和发挥性能</li><li>OEM适配：OEM 厂商进一步修改新系统</li><li>OEM测试：OEM 厂商对系统进行内部测试</li><li>推送给用户：试无误后的新版系统通过 OTA 推送给用户</li></ol><p>这样带来的问题是什么，用谷歌开发团队的话来说，整个过程会花费5-12个月的时间……寄🐓</p><p>虽然Google在提交AOSP源码上非常迅速，但是芯片制造商和OEM厂商往往因为技术问题、第三方系统定制原因等导致整体的进程偏慢，最终形成了用户茫茫然的等待，从以往的数据统计我们也可以看出，Android手机中新系统的覆盖率寥寥无几。</p><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/licheng.png" style="zoom: 50%;"><blockquote><p>可以看到自从安卓8.0退出Treble以来，安卓9.0开始突飞猛进，更新的用户几乎是8.0的一倍</p></blockquote><h2 id="2-Treble计划"><a href="#2-Treble计划" class="headerlink" title="2.Treble计划"></a>2.Treble计划</h2><h3 id="2-1-Treble简介"><a href="#2-1-Treble简介" class="headerlink" title="2.1 Treble简介"></a>2.1 Treble简介</h3><p>Android 8.0 版本的一项新元素是 Project Treble。这是 Android架构方面的一项重大改变，主要解决Android 版本碎片化问题，更方便快捷的升级到最新版本。其中最核心的一点是将AOSP代码和供应商（Vendor）代码做好解耦。贴一张张架构前后的对比图：</p><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/架构变化.png"><ul><li>升级前：Framework代码和Vendor的代码耦合，即使谷歌发布会完最新AOSP代码，设备厂商也需要花费很多时间处理和Vendor代码适配问题【Reworked】，所以升级会花费很大量的时间</li></ul><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/新架构.png"><ul><li>新的架构：Treble在Framework和Vendor实现代码中间定义一个稳定的接口，这样Framework代码和Vendor的代码实现解耦，这样设备厂商能够快速的升级AOSP，只要接口不变，系统还能正常起来。</li></ul><p>下面我们具体看一下以前的Framework层和HAL层是怎么交互的？</p><p><strong>Android O之前版本的框架：</strong></p><p>在此之前的Android 系统架构当中，Android Framework 与Android HAL是打包成一个system.img的，而且Framework 与HAL之间是紧耦合的，通过链接的方式使用相应的硬件相关so库。老版本的android 的系统框架当中framework与HAL之间的一般架构框架是：</p><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/框架.png"><p>所以每次Android framework的升级需要对应的Android HAL升级。所以这样每次Android 升级都需要Android 设备制造商投入大量的人力物理去升级相应的Vendor HAL Implemetation.</p><p><strong>Android O及之后的版本的框架：</strong></p><p>在Android O以及以后的版本当中，Android 更新了新的框架设计在新的框架设计当中，引入了一套叫HIDL的语言来定义Freamework与HAL之间的接口，新的架构如下图：</p><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/HIDL.png"><p>跟以往的Android 版本相比较，Android O里使用HIDL来解耦System Framework 与Vendor HAL Implemetation之间的关系【，从而简化降低Android系统升级的影响与难度。并且目前看起来，Android Framework与Vendor HAL Implemetation会存放在不同的分区当中，Android Framework会在system分区当中，而Vendor HAL Implemetation会在一个新定义的分区(Vendor.img)当中，这样刷新的system.img 才不会影响到Vendor HAL Implemetation。</p><p><strong>更清晰的调用关系</strong></p><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/O之前.png" style="zoom:70%;"><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/O之后.png" style="zoom:70%;"><h3 id="2-2-Treble新技术"><a href="#2-2-Treble新技术" class="headerlink" title="2.2 Treble新技术"></a>2.2 Treble新技术</h3><img src="/2023/01/14/Android-Treble%E8%AE%A1%E5%88%92/架构对比.png"><p><strong>Treble架构中为了实现系统和供应商的分离，引入了许多新技术。关键技术包括：</strong></p><ul><li>HIDL：HAL接口定义语言，用于指定HAL和其他用户之间的接口的一直接口描述语言(IDL)</li><li>HAL：运行Android8.0或者更高版本的设备必须支持使用HIDL语言编写的HAL，分为binderized HAL（绑定式）和passthrough HAL（直通式）。</li><li>设备树叠加层(DTO)：将设备数(DT)分割为主DT和叠加DT。叠加DT由ODM厂商提供，存放在ODM分区。通过对叠加DT的修改升级，可以实现在DT中增加设备节点和修改设备属性。</li><li>供应商原生开发套件(VNDK)：提供了一组让供应商实现其HAL的专用库。</li><li>供应商接口对象(VINTF)：用于汇总设备的相关信息并通过可查询的API提供该信息。</li><li>SELinux：Android8.0实现SELinux策略的模块化和兼容性，目标是使SOC供应商和ODM生产商能够以隔离方式自定义SELinux配置，而无需跨分区修改。</li></ul><h2 id="修改历史"><a href="#修改历史" class="headerlink" title="修改历史"></a>修改历史</h2><ul><li>2023&#x2F;01&#x2F;14：首次编写《Android-Treble计划》</li></ul>]]></content>
     
     
+    
+    <tags>
+      
+      <tag>Android学习笔记</tag>
+      
+    </tags>
     
   </entry>
   
