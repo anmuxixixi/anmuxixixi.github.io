@@ -27,8 +27,10 @@
 <meta property="og:image" content="http://example.com/2023/02/19/Android%E9%80%9A%E7%94%A8%E5%86%85%E6%A0%B8GKI/image-20230217234449847.png">
 <meta property="og:image" content="http://example.com/2023/02/19/Android%E9%80%9A%E7%94%A8%E5%86%85%E6%A0%B8GKI/image-20230219232030518.png">
 <meta property="og:image" content="http://example.com/2023/02/19/Android%E9%80%9A%E7%94%A8%E5%86%85%E6%A0%B8GKI/image-20230219232422846.png">
+<meta property="og:image" content="http://example.com/2023/02/19/Android%E9%80%9A%E7%94%A8%E5%86%85%E6%A0%B8GKI/image-20230221223931378.png">
+<meta property="og:image" content="http://example.com/2023/02/19/Android%E9%80%9A%E7%94%A8%E5%86%85%E6%A0%B8GKI/image-20230221224045860.png">
 <meta property="article:published_time" content="2023-02-19T15:36:02.000Z">
-<meta property="article:modified_time" content="2023-02-20T15:55:16.715Z">
+<meta property="article:modified_time" content="2023-02-21T14:41:20.351Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
@@ -213,7 +215,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.5k 字
+          4.6k 字
         
       </span>
     
@@ -224,7 +226,7 @@
         
         
         
-          38 分钟
+          39 分钟
         
       </span>
     
@@ -360,9 +362,15 @@
 <li>在 bootloader 启动时需要先后加载 boot_ramdisk，vendor_boot_ramdisk 并进行前后拼接。</li>
 <li>ramdisk 用的是 cpio.lz4 格式，可以进行简单的首尾拼接，<u><strong>但是 bootloader 需要注意两个ramdisk 中间必须紧密拼接，不能对齐再拼接，否则会导致内核解压时失败</strong></u>，同时拼接后改变ramdisk 的大小。</li>
 </ul>
-<h2 id="3-如何下载最新的GKI"><a href="#3-如何下载最新的GKI" class="headerlink" title="3.如何下载最新的GKI"></a>3.如何下载最新的GKI</h2><h3 id="3-1-安卓官网描述"><a href="#3-1-安卓官网描述" class="headerlink" title="3.1 安卓官网描述"></a>3.1 安卓官网描述</h3><blockquote>
-<p>最新的 arm64 <code>android11-5.4</code> <code>boot.img</code> 可以从 <a target="_blank" rel="noopener" href="https://ci.android.com/builds/branches/aosp-master-throttled/grid?hl=zh-cn">ci.android.com</a> 中 <code>aosp-master</code> 分支的 <code>aosp_arm64</code> 构建工件中下载。</p>
-<p>最新的 arm64 <code>android11-5.4</code> 内核映像 (<code>Image.gz</code>) 可以从 <a target="_blank" rel="noopener" href="https://ci.android.com/builds/branches/aosp_kernel-common-android11-5.4/grid?hl=zh-cn">ci.android.com</a> 中 <code>aosp_kernel-common-android11-5.4</code> 分支的 <code>kernel_aarch64</code> 构建工件中下载。</p>
+<h2 id="3-如何下载最新的GKI"><a href="#3-如何下载最新的GKI" class="headerlink" title="3.如何下载最新的GKI"></a>3.如何下载最新的GKI</h2><h3 id="3-1-安卓官网描述"><a href="#3-1-安卓官网描述" class="headerlink" title="3.1 安卓官网描述"></a>3.1 安卓官网描述</h3><p>Android官网：<a target="_blank" rel="noopener" href="https://source.android.com/docs/core/architecture/kernel/gki-android12-5_10-release-builds?hl=zh-cn">https://source.android.com/docs/core/architecture/kernel/gki-android12-5_10-release-builds?hl=zh-cn</a></p>
+<p>如果要使用<code>boot.img</code>，选择boot-xxx.img</p>
+<img src="/2023/02/19/Android%E9%80%9A%E7%94%A8%E5%86%85%E6%A0%B8GKI/image-20230221223931378.png" srcset="/img/loading.gif" lazyload alt="image-20230221223931378" style="zoom:67%;">
+
+<p>如果使用GKI，则点击kernel，选择image</p>
+<img src="/2023/02/19/Android%E9%80%9A%E7%94%A8%E5%86%85%E6%A0%B8GKI/image-20230221224045860.png" srcset="/img/loading.gif" lazyload alt="image-20230221224045860" style="zoom:67%;">
+
+<blockquote>
+<p>boot-xxx.img中的kernel和这个image是完全一模一样的！！！</p>
 </blockquote>
 <h3 id="3-2-全志文档"><a href="#3-2-全志文档" class="headerlink" title="3.2 全志文档"></a>3.2 全志文档</h3><p>根据全志文档，Android 12下载编译流程如下：</p>
 <p><strong>1）下载</strong></p>
