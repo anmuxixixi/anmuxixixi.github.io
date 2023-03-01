@@ -25,8 +25,9 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/03/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E6%89%8B%E5%86%99C%E8%AF%AD%E8%A8%80%E7%BC%96%E8%AF%91%E5%99%A8/image-20230301212103467.png">
 <meta property="og:image" content="http://example.com/2023/03/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E6%89%8B%E5%86%99C%E8%AF%AD%E8%A8%80%E7%BC%96%E8%AF%91%E5%99%A8/image-20230301212250329.png">
+<meta property="og:image" content="http://example.com/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E6%89%8B%E5%86%99C%E8%AF%AD%E8%A8%80%E7%BC%96%E8%AF%91%E5%99%A8/image-20230301213807711.png">
 <meta property="article:published_time" content="2023-03-01T13:12:42.000Z">
-<meta property="article:modified_time" content="2023-03-01T13:30:17.374Z">
+<meta property="article:modified_time" content="2023-03-01T13:40:28.022Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/03/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E6%89%8B%E5%86%99C%E8%AF%AD%E8%A8%80%E7%BC%96%E8%AF%91%E5%99%A8/image-20230301212103467.png">
@@ -210,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3k 字
+          3.1k 字
         
       </span>
     
@@ -221,7 +222,7 @@
         
         
         
-          25 分钟
+          26 分钟
         
       </span>
     
@@ -281,16 +282,25 @@
 <h3 id="1-2-建立手写C语言框架"><a href="#1-2-建立手写C语言框架" class="headerlink" title="1.2 建立手写C语言框架"></a>1.2 建立手写C语言框架</h3><p>刚开始建立的框架目录如下所示：</p>
 <img src="/2023/03/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E6%89%8B%E5%86%99C%E8%AF%AD%E8%A8%80%E7%BC%96%E8%AF%91%E5%99%A8/image-20230301212250329.png" srcset="/img/loading.gif" lazyload alt="image-20230301212250329" style="zoom:80%;">
 
-<p>下面详细介绍一下各个目录的作用：</p>
+<p><strong>下面详细介绍一下各个目录的作用：</strong></p>
 <ul>
-<li>build：用来存放Makefile中的编译产物</li>
-<li>helpers：里面主要存放了一些帮助函数，比如说vector，buffer，就不需要我们去手写列表了</li>
-<li>compiler.c：编译器的大管家，由它统筹词法分析，语义分析等过程….</li>
-<li>compiler.h：编译器的头文件，声明函数，定义类型</li>
-<li>cprocess.c：处理源文件的C文件</li>
-<li>main.c：编译器的主入口</li>
-<li>test.c：严重我们编译器是否正确所需要的测试C文件</li>
+<li><strong>build</strong>：用来存放Makefile中的编译产物</li>
+<li><strong>helpers</strong>：里面主要存放了一些帮助函数，比如说vector，buffer，就不需要我们去手写列表了</li>
+<li><strong>compiler.c</strong>：编译器的大管家，由它统筹词法分析，语义分析等过程….</li>
+<li><strong>compiler.h</strong>：编译器的头文件，声明函数，定义类型</li>
+<li><strong>cprocess.c</strong>：处理源文件的C文件</li>
+<li><strong>main.c</strong>：编译器的主入口</li>
+<li><strong>test.c</strong>：严重我们编译器是否正确所需要的测试C文件</li>
 </ul>
+<hr>
+<p><strong>简单介绍一下各个文件的关系：</strong></p>
+<ol>
+<li>进入main.c开始主入口函数执行</li>
+<li>调用compile.c中的compile_file函数去编译文件，有它完成编译器的各个流程</li>
+<li>compile_file调用compile_process_create创建源文件和目标文件</li>
+</ol>
+<p><img src="/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E6%89%8B%E5%86%99C%E8%AF%AD%E8%A8%80%E7%BC%96%E8%AF%91%E5%99%A8/image-20230301213807711.png" srcset="/img/loading.gif" lazyload alt="image-20230301213807711"></p>
+<p>下面看各个函数就清晰了很多。。。</p>
 <p><code>compiler.h</code></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> PEACHCOMPILER_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PEACHCOMPILER_H</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    COMPILER_FILE_COMPILED_OK,<br>    COMPILER_FAILED_WITH_ERRORS<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">compile_process</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">int</span> flags;<br><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">compile_process_inputt_file</span></span><br><span class="hljs-class">    &#123;</span><br>        FILE* fp;<br>        <span class="hljs-type">const</span> <span class="hljs-type">char</span>* abs_path;<br>    &#125; cfile;<br>    <br>    FILE* ofile;<br>&#125;;<br><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">compile_file</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* filename, <span class="hljs-type">const</span> <span class="hljs-type">char</span>* out_filename, <span class="hljs-type">int</span> flags)</span>;<br><br><span class="hljs-keyword">struct</span> compile_process* <span class="hljs-title function_">compile_process_create</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* filename, <span class="hljs-type">const</span> <span class="hljs-type">char</span>* filename_out, <span class="hljs-type">int</span> flags)</span>;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
 
