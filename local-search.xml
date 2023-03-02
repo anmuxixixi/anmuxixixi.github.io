@@ -4,11 +4,24 @@
   
   
   <entry>
+    <title>编译原理学习笔记</title>
+    <link href="/2023/03/02/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    <url>/2023/03/02/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    
+    <content type="html"><![CDATA[<h1 id="《哈工大编译原理》学习笔记"><a href="#《哈工大编译原理》学习笔记" class="headerlink" title="《哈工大编译原理》学习笔记"></a>《哈工大编译原理》学习笔记</h1><blockquote><p>本系列博客主要记录自己学习编译原理的笔记，并手写一个C语言编译器</p><ul><li>☃️<strong>编译原理学习资料</strong>：哈工大陈鄞老师的《编译原理》</li></ul></blockquote><ul><li><p>✏️第一章：<a href="https://anmuxixixi.github.io/2023/03/02/%E4%B8%80%E3%80%81%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%BB%AA%E8%AE%BA/">编译原理绪论</a></p></li><li><p>🖊️第二章：<a href="https://anmuxixixi.github.io/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/">词法及文法</a></p></li></ul>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>二、语言及其文法</title>
     <link href="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/"/>
     <url>/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/</url>
     
-    <content type="html"><![CDATA[<h1 id="二、语言及文法"><a href="#二、语言及文法" class="headerlink" title="二、语言及文法"></a>二、语言及文法</h1><h2 id="1-字母表"><a href="#1-字母表" class="headerlink" title="1.字母表"></a>1.字母表</h2><p>字母表Σ是一个有穷符号集合；这里的符号可以是字母、数字、标点符号……下面的例子都是字母表</p><ul><li>二进制字母表：{0,1}</li><li>ASCII字符集</li><li>Unicode字符集</li></ul><p>字母表有下面几种运算：</p><ul><li>乘积</li></ul><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235051480.png" alt="image-20230302235051480" style="zoom:50%;"><ul><li>n次幂</li></ul><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235116133.png" alt="image-20230302235116133" style="zoom:50%;"><ul><li>正闭包</li></ul><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235140690.png" alt="image-20230302235140690" style="zoom:50%;"><ul><li>克林闭包</li></ul><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235156202.png" alt="image-20230302235156202" style="zoom:50%;"><h2 id="2-串"><a href="#2-串" class="headerlink" title="2.串"></a>2.串</h2><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235218276.png" alt="image-20230302235218276" style="zoom:80%;">]]></content>
+    <content type="html"><![CDATA[<h1 id="二、语言及文法"><a href="#二、语言及文法" class="headerlink" title="二、语言及文法"></a>二、语言及文法</h1><h2 id="1-字母表"><a href="#1-字母表" class="headerlink" title="1.字母表"></a>1.字母表</h2><p>字母表Σ是一个有穷符号集合；这里的符号可以是字母、数字、标点符号……下面的例子都是字母表</p><ul><li>二进制字母表：{0,1}</li><li>ASCII字符集</li><li>Unicode字符集</li></ul><p>字母表有下面几种运算：</p><ul><li>乘积</li></ul><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235051480.png" alt="image-20230302235051480" style="zoom:50%;"><ul><li>n次幂</li></ul><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235116133.png" alt="image-20230302235116133" style="zoom:50%;"><ul><li>正闭包</li></ul><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235140690.png" alt="image-20230302235140690" style="zoom:50%;"><ul><li>克林闭包</li></ul><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235156202.png" alt="image-20230302235156202" style="zoom:50%;"><h2 id="2-串"><a href="#2-串" class="headerlink" title="2.串"></a>2.串</h2><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235218276.png" alt="image-20230302235218276" style="zoom: 50%;"><p>下面介绍一下串上的运算：</p><ul><li>连接</li></ul><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235351581.png" alt="image-20230302235351581" style="zoom: 50%;"><ul><li>幂</li></ul><img src="/2023/03/02/%E4%BA%8C%E3%80%81%E8%AF%AD%E8%A8%80%E5%8F%8A%E5%85%B6%E6%96%87%E6%B3%95/image-20230302235405401.png" alt="image-20230302235405401" style="zoom:50%;"><h2 id="3-文法的定义"><a href="#3-文法的定义" class="headerlink" title="3.文法的定义"></a>3.文法的定义</h2>]]></content>
     
     
     <categories>
@@ -34,19 +47,6 @@
     <url>/2023/03/02/%E4%B8%80%E3%80%81%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%BB%AA%E8%AE%BA/</url>
     
     <content type="html"><![CDATA[<h1 id="一、编译原理绪论"><a href="#一、编译原理绪论" class="headerlink" title="一、编译原理绪论"></a>一、编译原理绪论</h1><h2 id="1-什么是编译"><a href="#1-什么是编译" class="headerlink" title="1.什么是编译"></a>1.什么是编译</h2><p>🫁<strong>编译</strong>：将高级语言【源语言】翻译成汇编语言或机器语言【目标语言】的过程</p><img src="/2023/03/02/%E4%B8%80%E3%80%81%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%BB%AA%E8%AE%BA/image-20230302225554584.png" alt="image-20230302225554584" style="zoom:67%;"><p>我们把C语言中的x &#x3D; 2编译成汇编语言<code>MOV X,2</code>，或是直接编译成机器语言<code>C706 0000 0002</code></p><p><strong>下面我们看一下整个编译的流程：</strong></p><img src="/2023/03/02/%E4%B8%80%E3%80%81%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%BB%AA%E8%AE%BA/image-20230302225855228.png" alt="image-20230302225855228" style="zoom: 67%;"><ul><li>预处理器：把存储在不同文件中的源程序聚合在一起；把被称为宏的缩写语句转换为原始语句</li><li>可重定位的机器代码：汇编器生成的可重定位起始代码在内存中存放的起始位置不是固定的，所有地址都是相对于起始位置的相对地址</li><li>加载器：修改可重定位地址；将修改后的指令和数据放在内存中适合的位置</li><li>链接器：将多个可重定位的机器代码文件（包括库文件）连接到一起；解决外部内部地址问题</li></ul><h2 id="2-编译器的结构"><a href="#2-编译器的结构" class="headerlink" title="2.编译器的结构"></a>2.编译器的结构</h2><img src="/2023/03/02/%E4%B8%80%E3%80%81%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%BB%AA%E8%AE%BA/image-20230302230959458.png" alt="image-20230302230959458" style="zoom:67%;"><p>编译器大致可以分为三个部分：</p><ul><li><p>前端部分，与源语言相关，也就是与我们写的高级语言C&#x2F;Java等有关</p></li><li><p>后端部分，与目标语言相关，也就是生成的目标机器语言</p></li><li><p>中间部分：机器无关代码优化器</p></li></ul>]]></content>
-    
-    
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>编译原理&amp;手写C语言编译器</title>
-    <link href="/2023/03/01/%E3%80%8A%E5%93%88%E5%B7%A5%E5%A4%A7%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-    <url>/2023/03/01/%E3%80%8A%E5%93%88%E5%B7%A5%E5%A4%A7%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    
-    <content type="html"><![CDATA[<h1 id="《哈工大编译原理》学习笔记"><a href="#《哈工大编译原理》学习笔记" class="headerlink" title="《哈工大编译原理》学习笔记"></a>《哈工大编译原理》学习笔记</h1><blockquote><p>本系列博客主要记录自己学习编译原理的笔记，并手写一个C语言编译器</p><ul><li>☃️<strong>编译原理学习资料</strong>：哈工大陈鄞老师的《编译原理》</li></ul></blockquote><ul><li>第一章：<a href="https://anmuxixixi.github.io/2023/03/02/%E4%B8%80%E3%80%81%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%BB%AA%E8%AE%BA/">编译原理绪论</a></li></ul>]]></content>
     
     
     
@@ -200,9 +200,9 @@
     
     <tags>
       
-      <tag>Android</tag>
-      
       <tag>Linux</tag>
+      
+      <tag>Android</tag>
       
     </tags>
     
