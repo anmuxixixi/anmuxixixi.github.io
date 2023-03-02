@@ -34,7 +34,7 @@
     <link href="/2023/03/01/%E3%80%8A%E5%93%88%E5%B7%A5%E5%A4%A7%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     <url>/2023/03/01/%E3%80%8A%E5%93%88%E5%B7%A5%E5%A4%A7%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
     
-    <content type="html"><![CDATA[<h1 id="《哈工大编译原理》学习笔记"><a href="#《哈工大编译原理》学习笔记" class="headerlink" title="《哈工大编译原理》学习笔记"></a>《哈工大编译原理》学习笔记</h1><blockquote><p>本系列博客主要记录自己学习编译原理的笔记，并手写一个C语言编译器</p><ul><li>☃️<strong>编译原理学习资料</strong>：哈工大陈鄞老师的《编译原理》</li></ul></blockquote><h2 id="1-绪论"><a href="#1-绪论" class="headerlink" title="1.绪论"></a>1.绪论</h2><h3 id="1-1-什么是编译"><a href="#1-1-什么是编译" class="headerlink" title="1.1 什么是编译"></a>1.1 什么是编译</h3><p><strong>编译</strong>：将高级语言【源语言】翻译成汇编语言或机器语言【目标语言】的过程</p><img src="/2023/03/01/%E3%80%8A%E5%93%88%E5%B7%A5%E5%A4%A7%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230301212103467.png" alt="image-20230301212103467" style="zoom:67%;">]]></content>
+    <content type="html"><![CDATA[<h1 id="《哈工大编译原理》学习笔记"><a href="#《哈工大编译原理》学习笔记" class="headerlink" title="《哈工大编译原理》学习笔记"></a>《哈工大编译原理》学习笔记</h1><blockquote><p>本系列博客主要记录自己学习编译原理的笔记，并手写一个C语言编译器</p><ul><li>☃️<strong>编译原理学习资料</strong>：哈工大陈鄞老师的《编译原理》</li></ul></blockquote><ul><li>第一章：<a href="https://anmuxixixi.github.io/2023/03/02/%E4%B8%80%E3%80%81%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%BB%AA%E8%AE%BA/">编译原理绪论</a></li></ul>]]></content>
     
     
     
@@ -188,9 +188,9 @@
     
     <tags>
       
-      <tag>Linux</tag>
-      
       <tag>Android</tag>
+      
+      <tag>Linux</tag>
       
     </tags>
     
