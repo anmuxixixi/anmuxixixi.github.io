@@ -16,27 +16,24 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Android HIDL服务实现 https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;b75c4321ae0a  Android O(8.0) 版本之后，底层实现有了比较大的变化，最显著的一个方面就是 HIDL 机制的全面实施。本文将从 HIDL的基本概念、HIDL服务模拟、framework层aidl服务、应用层程序 这四个方面来全面的阐述 HIDL 工作全过程，这对于理解系统源码中 Gnss、">
+    <meta name="description" content="动手写一个简单的文件系统 🍉 参考博客：https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;8966d121263b 🍒 项目地址：https:&#x2F;&#x2F;github.com&#x2F;ZhangShurong&#x2F;HUST_OS_fs_experiment">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android HIDL服务实现">
-<meta property="og:url" content="http://example.com/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:title" content="动手写一个简单的文件系统">
+<meta property="og:url" content="http://example.com/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="Android HIDL服务实现 https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;b75c4321ae0a  Android O(8.0) 版本之后，底层实现有了比较大的变化，最显著的一个方面就是 HIDL 机制的全面实施。本文将从 HIDL的基本概念、HIDL服务模拟、framework层aidl服务、应用层程序 这四个方面来全面的阐述 HIDL 工作全过程，这对于理解系统源码中 Gnss、">
+<meta property="og:description" content="动手写一个简单的文件系统 🍉 参考博客：https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;8966d121263b 🍒 项目地址：https:&#x2F;&#x2F;github.com&#x2F;ZhangShurong&#x2F;HUST_OS_fs_experiment">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/11806352-0fed2e7f185e551d.png">
-<meta property="og:image" content="http://example.com/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/11806352-ea297e84897f8686.webp">
-<meta property="og:image" content="http://example.com/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/11806352-5b8123370101b01f.png">
-<meta property="og:image" content="http://example.com/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/11806352-619180c0c7f8afc5.png">
-<meta property="article:published_time" content="2023-03-10T14:42:14.000Z">
-<meta property="article:modified_time" content="2023-03-10T15:05:10.740Z">
+<meta property="og:image" content="http://example.com/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230311221220446.png">
+<meta property="article:published_time" content="2023-03-11T14:10:10.000Z">
+<meta property="article:modified_time" content="2023-03-11T14:13:27.350Z">
 <meta property="article:author" content="OneAmx">
-<meta property="article:tag" content="Android">
+<meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/11806352-0fed2e7f185e551d.png">
+<meta name="twitter:image" content="http://example.com/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230311221220446.png">
   
   
   
-  <title>Android HIDL服务实现 - 一只安慕嘻</title>
+  <title>动手写一个简单的文件系统 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -190,7 +187,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Android HIDL服务实现"></span>
+            <span id="subtitle" data-typed-text="动手写一个简单的文件系统"></span>
           
         </div>
 
@@ -201,8 +198,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-03-10 22:42" pubdate>
-          2023年3月10日 晚上
+        <time datetime="2023-03-11 22:10" pubdate>
+          2023年3月11日 晚上
         </time>
       </span>
     
@@ -213,7 +210,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.3k 字
+          117 字
         
       </span>
     
@@ -224,7 +221,7 @@
         
         
         
-          11 分钟
+          1 分钟
         
       </span>
     
@@ -262,37 +259,16 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Android HIDL服务实现</h1>
+            <h1 style="display: none">动手写一个简单的文件系统</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="Android-HIDL服务实现"><a href="#Android-HIDL服务实现" class="headerlink" title="Android HIDL服务实现"></a>Android HIDL服务实现</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/b75c4321ae0a">https://www.jianshu.com/p/b75c4321ae0a</a></p>
+                <h1 id="动手写一个简单的文件系统"><a href="#动手写一个简单的文件系统" class="headerlink" title="动手写一个简单的文件系统"></a>动手写一个简单的文件系统</h1><blockquote>
+<p>🍉 <strong>参考博客</strong>：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8966d121263b">https://www.jianshu.com/p/8966d121263b</a></p>
+<p>🍒 <strong>项目地址</strong>：<a target="_blank" rel="noopener" href="https://github.com/ZhangShurong/HUST_OS_fs_experiment">https://github.com/ZhangShurong/HUST_OS_fs_experiment</a></p>
 </blockquote>
-<p><strong>Android O(8.0)</strong> 版本之后，底层实现有了比较大的变化，最显著的一个方面就是 <strong>HIDL</strong> 机制的全面实施。本文将从 <strong>HIDL的基本概念</strong>、<strong>HIDL服务模拟</strong>、<strong>framework层aidl服务</strong>、<strong>应用层程序</strong> 这四个方面来全面的阐述 <strong>HIDL</strong> 工作全过程，这对于理解系统源码中 <strong>Gnss</strong>、<strong>Usb</strong>、<strong>Camera</strong> 等模块的工作原理有极大帮助。</p>
-<h2 id="1-HIDL设计目的"><a href="#1-HIDL设计目的" class="headerlink" title="1. HIDL设计目的"></a>1. HIDL设计目的</h2><p>在 <strong>Android O(8.0)</strong> 之前系统的升级牵扯多方协作，极为麻烦，<strong>HIDL</strong>机制的推出就是将 <strong>framework</strong> 与 <strong>hal</strong> 层分开，使得框架部分可以直接被覆盖、更新，而不需要重新对 HAL 进行编译，这样在系统升级时，<strong>OEM</strong> 厂商 跳过 <strong>SoC</strong> 厂商，先对 <strong>framework</strong> 进行升级。</p>
-<h3 id="1-1-Android-8-0之前"><a href="#1-1-Android-8-0之前" class="headerlink" title="1.1 Android 8.0之前"></a>1.1 Android 8.0之前</h3><p><strong>framework</strong> 与 <strong>hal</strong> 紧紧耦合存在于 <strong>system.img</strong> 中，因此在版本升级时需要: <strong>OEM</strong> 厂商适配 <strong>framework</strong> ，<strong>SoC厂商</strong> 适配 <strong>hal</strong>， 之后将修改打包到 <strong>system.img</strong>，生成 OTA 升级包，推送到手机进行 OTA 升级</p>
-<h3 id="1-2-Android-8-0之后"><a href="#1-2-Android-8-0之后" class="headerlink" title="1.2 Android 8.0之后"></a>1.2 Android 8.0之后</h3><p><strong>framework</strong> 与 <strong>hal</strong> 进行了解耦， <strong>framework</strong> 存在于 <strong>system.img</strong>，<strong>hal</strong> 存在于<strong>vendor.img</strong>，进行版本升级时，分为两次升级:</p>
-<ul>
-<li><strong>framework升级</strong> ： OEM 厂商适配 framework，将修改打包到 system.img， 生成OTA 升级包，推送到手机进行 OTA 升级(framework 发生改变，hal 层未变)。</li>
-<li><strong>hal升级</strong> ：SoC 厂商适配 hal， 将修改打包到 vendor.img, 生成OTA 升级包，推送到手机进行OTA升级(framework发生改变，hal 层发生改变)。</li>
-</ul>
-<h2 id="2-HIDL机制演进"><a href="#2-HIDL机制演进" class="headerlink" title="2.HIDL机制演进"></a>2.HIDL机制演进</h2><h3 id="2-1-老版本-Framework-与-HAL-的通信框架"><a href="#2-1-老版本-Framework-与-HAL-的通信框架" class="headerlink" title="2.1 老版本 Framework 与 HAL 的通信框架"></a>2.1 老版本 Framework 与 HAL 的通信框架</h3><p>正如上述所言，旧版的系统架构中， Android Framework 层与 Hal 层是打包成一个 <strong>system.img</strong> 的，且 Framework 与 hal 层之间是紧密耦合的，通过链接的方式使用相应的硬件 <strong>so</strong> 库。它们之间的架构一般有如下两种方式：</p>
-<img src="/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/11806352-0fed2e7f185e551d.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
-
-<h3 id="2-2-HIDL-类型介绍"><a href="#2-2-HIDL-类型介绍" class="headerlink" title="2.2  HIDL 类型介绍"></a>2.2  HIDL 类型介绍</h3><p>为了解决两者之间这种紧耦合所带来的弊端，google 引入 HIDL 来定义 Framework 与 HAL 之间的接口，可以用下图来描述：</p>
-<img src="/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/11806352-ea297e84897f8686.webp" srcset="/img/loading.gif" lazyload style="zoom:80%;">
-
-<p>事实上虽然 google 推出了这种机制，但是很多厂商没有很快的跟上节奏，因此为了向前兼容， google 定义了三种类型：</p>
-<img src="/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/11806352-5b8123370101b01f.png" srcset="/img/loading.gif" lazyload style="zoom: 67%;">
-
-<p>① 是 Treble Project 之前使用的实现架构，使用的是传统 HAL 和旧版 HAL</p>
-<p>② 直通模式，passthrough mode。如图所示，Framework 和 HAL 层工作在同一个进程当中，下面的 HAL 是使用 HIDL 封装后的库，是直通式 HAL。这些库文件也可用于 ③ 绑定模式</p>
-<p>③ 绑定模式，binderized mode。是直通式 HAL binder 化，变为绑定式 HAL。Framework 和 HAL 层工作在不同的进程，之间通过 Binder 进行 IPC</p>
-<p>④ 纯绑定式。相对于 ③ 来说，绑定式 HAL 中并不包含直通式 HAL，因此称为纯绑定式</p>
-<p><strong>上述可总结为</strong>：</p>
-<img src="/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/11806352-619180c0c7f8afc5.png" srcset="/img/loading.gif" lazyload style="zoom: 67%;">
+<img src="/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230311221220446.png" srcset="/img/loading.gif" lazyload alt="image-20230311221220446" style="zoom: 80%;">
 
                 
               </div>
@@ -301,11 +277,32 @@
             <div>
               <div class="post-metas my-3">
   
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Linux学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
   
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Android/">#Android</a>
+        <a href="/tags/Linux/">#Linux</a>
       
     </div>
   
@@ -317,8 +314,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Android HIDL服务实现</div>
-      <div>http://example.com/2023/03/10/Android-HIDL服务实现/</div>
+      <div>动手写一个简单的文件系统</div>
+      <div>http://example.com/2023/03/11/动手写一个简单的文件系统/</div>
     </div>
     <div class="license-meta">
       
@@ -330,7 +327,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年3月10日</div>
+          <div>2023年3月11日</div>
         </div>
       
       
@@ -362,18 +359,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/03/11/amx-amxxxx-Desktop-simple-fs-dd-bs-4096-count-100-if-dev-zero-of-image/" title="amx@amxxxx:~/Desktop/simple_fs$ dd bs=4096 count=100 if=/dev/zero of=image">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">amx@amxxxx:~/Desktop/simple_fs$ dd bs=4096 count=100 if=/dev/zero of=image</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/03/09/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fmount%E8%BF%87%E7%A8%8B/" title="文件系统mount过程">
-                        <span class="hidden-mobile">文件系统mount过程</span>
+                      <a href="/2023/03/11/amx-amxxxx-Desktop-simple-fs-dd-bs-4096-count-100-if-dev-zero-of-image/" title="amx@amxxxx:~/Desktop/simple_fs$ dd bs=4096 count=100 if=/dev/zero of=image">
+                        <span class="hidden-mobile">amx@amxxxx:~/Desktop/simple_fs$ dd bs=4096 count=100 if=/dev/zero of=image</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
