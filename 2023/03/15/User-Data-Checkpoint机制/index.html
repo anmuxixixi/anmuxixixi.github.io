@@ -1,0 +1,699 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="User Data Checkpoint机制(UDC)1.背景由于AB升级的回滚机制只支持到early_boot阶段，如果OTA升级的过程中，data分区被修改了，并且OTA升级失败了，则data分区是无法回滚到之前的状态的。UDC功能是为了解决OTA升级失败后，当data分区被修改后，不支持回滚data分区的问题。UDC同时支持绑定key版本以及防止key回滚的功能。 2.实现UDC 一定要参考">
+<meta property="og:type" content="article">
+<meta property="og:title" content="User Data Checkpoint机制">
+<meta property="og:url" content="http://example.com/2023/03/15/User-Data-Checkpoint%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="User Data Checkpoint机制(UDC)1.背景由于AB升级的回滚机制只支持到early_boot阶段，如果OTA升级的过程中，data分区被修改了，并且OTA升级失败了，则data分区是无法回滚到之前的状态的。UDC功能是为了解决OTA升级失败后，当data分区被修改后，不支持回滚data分区的问题。UDC同时支持绑定key版本以及防止key回滚的功能。 2.实现UDC 一定要参考">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/03/15/User-Data-Checkpoint%E6%9C%BA%E5%88%B6/image-20230315202320251.png">
+<meta property="og:image" content="http://example.com/2023/03/15/User-Data-Checkpoint%E6%9C%BA%E5%88%B6/image-20230315204223717.png">
+<meta property="article:published_time" content="2023-03-15T12:06:39.000Z">
+<meta property="article:modified_time" content="2023-03-15T12:55:57.622Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/03/15/User-Data-Checkpoint%E6%9C%BA%E5%88%B6/image-20230315202320251.png">
+  
+  
+  
+  <title>User Data Checkpoint机制 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="User Data Checkpoint机制"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-15 20:06" pubdate>
+          2023年3月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          49 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">User Data Checkpoint机制</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="User-Data-Checkpoint机制-UDC"><a href="#User-Data-Checkpoint机制-UDC" class="headerlink" title="User Data Checkpoint机制(UDC)"></a>User Data Checkpoint机制(UDC)</h1><h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1.背景"></a>1.背景</h2><p>由于AB升级的回滚机制只支持到early_boot阶段，如果OTA升级的过程中，data分区被修改了，并且OTA升级失败了，则data分区是无法回滚到之前的状态的。UDC功能是为了解决OTA升级失败后，当data分区被修改后，不支持回滚data分区的问题。UDC同时支持绑定key版本以及防止key回滚的功能。</p>
+<h2 id="2-实现UDC"><a href="#2-实现UDC" class="headerlink" title="2.实现UDC"></a>2.实现UDC</h2><blockquote>
+<p>一定要参考安卓官网：<a target="_blank" rel="noopener" href="https://source.android.com/docs/core/ota/user-data-checkpoint?hl=zh-cn">https://source.android.com/docs/core/ota/user-data-checkpoint?hl=zh-cn</a></p>
+</blockquote>
+<h3 id="2-1-设置"><a href="#2-1-设置" class="headerlink" title="2.1 设置"></a>2.1 设置</h3><p>在 <code>init.hardware.rc</code> 文件的 <code>on fs</code> 中，确保您具有：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mount_all /vendor/etc/fstab.$&#123;ro.boot.hardware.platform&#125; --early<br></code></pre></td></tr></table></figure>
+
+<p>在 <code>init.hardware.rc</code> 文件的 <code>on late-fs</code> 中，确保您具有：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mount_all /vendor/etc/fstab.$&#123;ro.boot.hardware.platform&#125; --late<br></code></pre></td></tr></table></figure>
+
+<p>在 <code>fstab.hardware</code> 文件中，确保将 <code>/data</code> 标记为 <code>latemount</code>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">/dev/block/bootdevice/by-name/userdata              /data              f2fs<br>noatime,nosuid,nodev,discard,reserve_root=32768,resgid=1065,fsync_mode=nobarrier<br>latemount,wait,check,fileencryption=ice,keydirectory=/metadata/vold/metadata_encryption,quota,formattable,sysfs_path=/sys/devices/platform/soc/1d84000.ufshc,reservedsize=128M,checkpoint=fs<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-添加metadata分区"><a href="#2-2-添加metadata分区" class="headerlink" title="2.2 添加metadata分区"></a>2.2 添加metadata分区</h3><p>UDC 需要使用 metadata 分区来存储非引导加载程序重试计数和密钥。设置 metadata 分区并提前将其装载在 <code>/metadata</code> 中。</p>
+<p>在 <code>fstab.hardware</code> 文件中，确保将 <code>/metadata</code> 标记为 <code>earlymount</code> 或 <code>first_stage_mount</code>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">/dev/block/by-name/metadata           /metadata           ext4<br>noatime,nosuid,nodev,discard,sync<br>wait,formattable,first_stage_mount<br></code></pre></td></tr></table></figure>
+
+<p>将分区初始化为全零。</p>
+<p>将以下行添加到 <code>BoardConfig.mk</code>：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile">BOARD_USES_METADATA_PARTITION := true<br>BOARD_ROOT_EXTRA_FOLDERS := existing_folders metadata<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-更新系统"><a href="#2-3-更新系统" class="headerlink" title="2.3 更新系统"></a>2.3 更新系统</h3><p><strong>F2FS 系统</strong></p>
+<ul>
+<li><p>对于使用 F2FS 来格式化数据的系统，请确保您的 F2FS 版本支持检查点。</p>
+</li>
+<li><p>对于在 <code>/data</code> 装载的设备，请将 <code>checkpoint=fs</code> 标志添加到 fstab 的 <code>&lt;fs_mgr_flags&gt;</code> 部分。</p>
+</li>
+</ul>
+<p><strong>非 F2FS 系统</strong></p>
+<ul>
+<li>对于非 F2FS 系统，必须在内核配置中启用 <code>dm-bow</code>。</li>
+<li>对于在 <code>/data</code> 装载的设备，请将 <code>checkpoint=block</code> 标志添加到 fstab 的 <code>&lt;fs_mgr_flags&gt;</code> 部分。</li>
+</ul>
+<h2 id="3-f2fs挂载流程"><a href="#3-f2fs挂载流程" class="headerlink" title="3.f2fs挂载流程"></a>3.f2fs挂载流程</h2><p>既然上面提到了f2fs天然支持checkpoint，那我们分析一下它的挂载流程</p>
+<h3 id="3-1开始挂载所有"><a href="#3-1开始挂载所有" class="headerlink" title="3.1开始挂载所有"></a>3.1开始挂载所有</h3><p>在rc中会调用mount_all来挂载所有fstab中的entry</p>
+<p>在<code>device/softwinner/ceres-common/init.sun50iw10p1.rc</code>文件的on fs中有：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mount_all /vendor/etc/fstab.sun50iw10p1 --early<br></code></pre></td></tr></table></figure>
+
+<p>在<code>device/softwinner/ceres-b3/fstab.sun50iw10p1.rc</code>文件的<code>data</code>分区中添加<code>latemount</code>和<code>checkpoint=fs</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">/dev/block/by-name/UDISK      /data        f2fs     noatime,nosuid,nodev,discard wait,check,formattable,quota,reservedsize=33554432,fileencryption=aes-256-xts:aes-256-cts,latemount,checkpoint=fs<br></code></pre></td></tr></table></figure>
+
+<p>此时会去解析mount_all对应的动作，然后将<code>/vendor/etc/fstab.sun50iw10p1</code>作为arg[0]，<code>--early</code>作为arg[1]传给mount_all对应的处理函数<code>do_mount_all</code></p>
+<img src="/2023/03/15/User-Data-Checkpoint%E6%9C%BA%E5%88%B6/image-20230315202320251.png" srcset="/img/loading.gif" lazyload alt="image-20230315202320251">
+
+<p>在<code>do_mount_all</code>中会调用fs_mgr_mount_all挂载所有<code>/vendor/etc/fstab.sun50iw10p1</code>中的项</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\init\builtins.cpp</span><br><span class="hljs-function"><span class="hljs-type">static</span> Result&lt;<span class="hljs-type">void</span>&gt; <span class="hljs-title">do_mount_all</span><span class="hljs-params">(<span class="hljs-type">const</span> BuiltinArguments&amp; args)</span> </span>&#123;<br>    <span class="hljs-comment">// ...</span><br>    Fstab fstab;<br>    <span class="hljs-keyword">if</span> (mount_all-&gt;fstab_path.<span class="hljs-built_in">empty</span>()) &#123;<br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">ReadDefaultFstab</span>(&amp;fstab)) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-built_in">Error</span>() &lt;&lt; <span class="hljs-string">&quot;Could not read default fstab&quot;</span>;<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-comment">// 会将/vendor/etc/fstab.sun50iw10p1中的每一项解析好放在fstab数组中</span><br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">ReadFstabFromFile</span>(mount_all-&gt;fstab_path, &amp;fstab)) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-built_in">Error</span>() &lt;&lt; <span class="hljs-string">&quot;Could not read fstab&quot;</span>;<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 调用fs_mgr_mount_all挂载所有解析出来的entry</span><br>    <span class="hljs-keyword">auto</span> mount_fstab_result = <span class="hljs-built_in">fs_mgr_mount_all</span>(&amp;fstab, mount_all-&gt;mode);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-fs-mgr-mount-all做好准备工作"><a href="#3-2-fs-mgr-mount-all做好准备工作" class="headerlink" title="3.2 fs_mgr_mount_all做好准备工作"></a>3.2 fs_mgr_mount_all做好准备工作</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">MountAllResult <span class="hljs-title">fs_mgr_mount_all</span><span class="hljs-params">(Fstab* fstab, <span class="hljs-type">int</span> mount_mode)</span> </span>&#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">int</span>&gt;(fstab-&gt;<span class="hljs-built_in">size</span>()); i++) &#123;<br>        <span class="hljs-keyword">auto</span>&amp; current_entry = (*fstab)[i];<br>        <span class="hljs-comment">// 调用checkpoint_manager的Update方法</span><br>        <span class="hljs-keyword">if</span> (!checkpoint_manager.<span class="hljs-built_in">Update</span>(&amp;current_entry)) &#123;<br>        	<span class="hljs-keyword">continue</span>;<br>    	&#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// system\core\fs_mgr\fs_mgr.cpp</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Update</span><span class="hljs-params">(FstabEntry* entry, <span class="hljs-type">const</span> std::string&amp; block_device = std::string())</span> </span>&#123;<br>    <span class="hljs-comment">// fs_mgr_flags是否包含checkpoint=fs或checkpoint=blk</span><br>    <span class="hljs-comment">// 显然包含</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">SupportsCheckpoint</span>(entry)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>	<br>    <span class="hljs-comment">// ***********************这里是最重要的***********************</span><br>    <span class="hljs-comment">// ***********************这里是最重要的***********************</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">NeedsCheckpoint</span>()) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>	<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">UpdateCheckpointPartition</span>(entry, block_device)) &#123;<br>        LERROR &lt;&lt; <span class="hljs-string">&quot;Could not set up checkpoint partition, skipping!&quot;</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-1-NeedsCheckpoint判断是否需要检查Checkpoint"><a href="#3-2-1-NeedsCheckpoint判断是否需要检查Checkpoint" class="headerlink" title="3.2.1 NeedsCheckpoint判断是否需要检查Checkpoint"></a>3.2.1 NeedsCheckpoint判断是否需要检查Checkpoint</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\fs_mgr\fs_mgr.cpp</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">NeedsCheckpoint</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 调用vdc二进制，传入第一个参数checkpoint,第二个参数needsCheckpoint，最终回调的结果是needs_checkpoint_</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">call_vdc</span>(&#123;<span class="hljs-string">&quot;checkpoint&quot;</span>, <span class="hljs-string">&quot;needsCheckpoint&quot;</span>&#125;, &amp;needs_checkpoint_)) &#123;<br>        LERROR &lt;&lt; <span class="hljs-string">&quot;Failed to find if checkpointing is needed. Assuming no.&quot;</span>;<br>        needs_checkpoint_ = NO;<br>    &#125;<br>    <span class="hljs-keyword">return</span> needs_checkpoint_ == YES;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>vdc</strong>二进制编译完以后位于<code>out/target/product/[productName]</code>中</p>
+<img src="/2023/03/15/User-Data-Checkpoint%E6%9C%BA%E5%88%B6/image-20230315204223717.png" srcset="/img/loading.gif" lazyload alt="image-20230315204223717" style="zoom:50%;">
+
+<p>下面看一下它的main入口</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\vold\vdc.cpp</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (xxx) &#123;<br>        <br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (args[<span class="hljs-number">0</span>] == <span class="hljs-string">&quot;checkpoint&quot;</span> &amp;&amp; args[<span class="hljs-number">1</span>] == <span class="hljs-string">&quot;needsCheckpoint&quot;</span> &amp;&amp; args.<span class="hljs-built_in">size</span>() == <span class="hljs-number">2</span>) &#123;<br>        <span class="hljs-type">bool</span> enabled = <span class="hljs-literal">false</span>;<br>        <span class="hljs-comment">// 调用needsCheckpoint方法</span><br>        <span class="hljs-built_in">checkStatus</span>(args, vold-&gt;<span class="hljs-built_in">needsCheckpoint</span>(&amp;enabled));<br>        <span class="hljs-keyword">return</span> enabled ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-function">binder::Status <span class="hljs-title">VoldNativeService::needsCheckpoint</span><span class="hljs-params">(<span class="hljs-type">bool</span>* _aidl_return)</span> </span>&#123;<br>    *_aidl_return = <span class="hljs-built_in">cp_needsCheckpoint</span>();<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Ok</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">cp_needsCheckpoint</span><span class="hljs-params">()</span> </span>&#123;<br><br>    sp&lt;IBootControl&gt; <span class="hljs-keyword">module</span> = IBootControl::<span class="hljs-built_in">getService</span>();<br><br>    <span class="hljs-keyword">if</span> (isCheckpointing) <span class="hljs-keyword">return</span> isCheckpointing;<br>	<br>    <span class="hljs-comment">// 调用bootctl的isSlotMarkedSuccessful方法</span><br>    <span class="hljs-comment">// 如果是第一次启动，那必然boot分区没有succ标记</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">module</span> &amp;&amp; <span class="hljs-keyword">module</span>-&gt;<span class="hljs-built_in">isSlotMarkedSuccessful</span>(<span class="hljs-keyword">module</span>-&gt;<span class="hljs-built_in">getCurrentSlot</span>()) == BoolResult::FALSE) &#123;<br>        isCheckpointing = <span class="hljs-literal">true</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>如果是OTA升级阶段或者是第一次刷固件的时候（调用boot_ctrl判断当前slot是否已经Marked Successful了，如果没有，表明此时处于OTA升级阶段或者是第一次刷固件的时候，需要进行checkpoint），则返回true；正常情况就是false；</strong></p>
+<h4 id="3-2-2-UpdateCheckpointPartition更新挂载opt选项"><a href="#3-2-2-UpdateCheckpointPartition更新挂载opt选项" class="headerlink" title="3.2.2 UpdateCheckpointPartition更新挂载opt选项"></a>3.2.2 UpdateCheckpointPartition更新挂载opt选项</h4><p>如果NeedsCheckpoint为True，调用UpdateCheckpointPartition</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">UpdateCheckpointPartition</span><span class="hljs-params">(FstabEntry* entry, <span class="hljs-type">const</span> std::string&amp; block_device)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (entry-&gt;fs_mgr_flags.checkpoint_fs) &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">is_f2fs</span>(entry-&gt;fs_type)) &#123;<br>            <span class="hljs-comment">// 会在这里添加checkpoint=disable</span><br>            entry-&gt;fs_checkpoint_opts = <span class="hljs-string">&quot;,checkpoint=disable&quot;</span>;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-mount-with-alternatives执行真正的挂载"><a href="#3-3-mount-with-alternatives执行真正的挂载" class="headerlink" title="3.3 mount_with_alternatives执行真正的挂载"></a>3.3 mount_with_alternatives执行真正的挂载</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title">mount_with_alternatives</span><span class="hljs-params">(<span class="hljs-type">const</span> Fstab&amp; fstab, <span class="hljs-type">int</span> start_idx, <span class="hljs-type">int</span>* end_idx,</span></span><br><span class="hljs-params"><span class="hljs-function">                                    <span class="hljs-type">int</span>* attempted_idx)</span> </span>&#123;<br>    <span class="hljs-comment">// 总共尝试2次</span><br> 	<span class="hljs-type">int</span> retry_count = <span class="hljs-number">2</span>;<br>    <span class="hljs-keyword">while</span> (retry_count-- &gt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-comment">// 调用__mount开始真正的挂载</span><br>        <span class="hljs-keyword">if</span> (!__mount(fstab[i].blk_device, fstab[i].mount_point, fstab[i])) &#123;<br>            <span class="hljs-comment">// ...</span><br>        &#125;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4.参考"></a>4.参考</h2><blockquote>
+<p> 🍭 参考大神pyjeston：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/pyjetson/p/14682457.html">https://www.cnblogs.com/pyjetson/p/14682457.html</a></p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Android学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>User Data Checkpoint机制</div>
+      <div>http://example.com/2023/03/15/User-Data-Checkpoint机制/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" title="动手写一个简单的文件系统">
+                        <span class="hidden-mobile">动手写一个简单的文件系统</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
