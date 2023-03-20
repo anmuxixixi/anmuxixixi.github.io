@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/0ea2cc17e450475396458ff4843f7a78.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/9d54d69d1fe943458fe819d4edfa5bb8.png">
 <meta property="article:published_time" content="2023-03-18T15:30:20.000Z">
-<meta property="article:modified_time" content="2023-03-20T15:45:05.294Z">
+<meta property="article:modified_time" content="2023-03-20T15:45:59.865Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
@@ -220,7 +220,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.5k 字
+          4.6k 字
         
       </span>
     
@@ -300,6 +300,9 @@
 
 <p>下面配合具体从super分区中抓取的数据解析。</p>
 <p>命令：<code>dd if=/dev/block/platform/soc/7824900.sdhci/by-name/super bs=4096 count=1048576 of=/data/super.data</code></p>
+<blockquote>
+<p>下面引用：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43899302/article/details/119343835?spm=1001.2014.3001.5506">https://blog.csdn.net/weixin_43899302/article/details/119343835?spm=1001.2014.3001.5506</a></p>
+</blockquote>
 <h3 id="1-1-LpMetadataGeometry"><a href="#1-1-LpMetadataGeometry" class="headerlink" title="1.1 LpMetadataGeometry"></a>1.1 LpMetadataGeometry</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\fs_mgr\liblp\include\liblp\metadata_format.h</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">LpMetadataGeometry</span> &#123;<br>    <span class="hljs-type">uint32_t</span> magic;<br>    <span class="hljs-type">uint32_t</span> struct_size;<br>    <span class="hljs-type">uint8_t</span> checksum[<span class="hljs-number">32</span>];<br>    <span class="hljs-type">uint32_t</span> metadata_max_size;<br>    <span class="hljs-type">uint32_t</span> metadata_slot_count;<br>    <span class="hljs-type">uint32_t</span> logical_block_size;<br>&#125; __attribute__((packed)) LpMetadataGeometry;<br></code></pre></td></tr></table></figure>
 
 <p>因为metadata.img前面预留了4KB（4096Byte），所以偏移位置为<strong>0x1000h</strong></p>
