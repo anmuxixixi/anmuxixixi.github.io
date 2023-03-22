@@ -16,15 +16,16 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Android S创建逻辑分区从安卓模拟器看来，super设备对应的真实块设备为&#x2F;dev&#x2F;block&#x2F;vda2   从真实模拟器运行环境来看，super总共分为了四个分区system、vendor、product、system_ext【其中system分区由于system as root机制作为了rootfs进行挂载】   🤖那么为什么这么dm设备怎么来的？为什么没有dm-0？为什么dm-1是s">
+    <meta name="description" content="Android S创建逻辑分区从安卓模拟器看来，super设备对应的真实块设备为&#x2F;dev&#x2F;block&#x2F;vda2   从真实模拟器运行环境来看，super总共分为了四个分区system、vendor、product、system_ext【其中system分区由于system as root机制作为了rootfs进行挂载】   另外从网上找到一份真实Android S启动日志：   🤖从真实启动日志">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android S创建逻辑分区">
 <meta property="og:url" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="Android S创建逻辑分区从安卓模拟器看来，super设备对应的真实块设备为&#x2F;dev&#x2F;block&#x2F;vda2   从真实模拟器运行环境来看，super总共分为了四个分区system、vendor、product、system_ext【其中system分区由于system as root机制作为了rootfs进行挂载】   🤖那么为什么这么dm设备怎么来的？为什么没有dm-0？为什么dm-1是s">
+<meta property="og:description" content="Android S创建逻辑分区从安卓模拟器看来，super设备对应的真实块设备为&#x2F;dev&#x2F;block&#x2F;vda2   从真实模拟器运行环境来看，super总共分为了四个分区system、vendor、product、system_ext【其中system分区由于system as root机制作为了rootfs进行挂载】   另外从网上找到一份真实Android S启动日志：   🤖从真实启动日志">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230318233940020.png">
 <meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230318234134317.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230322203850415.png">
 <meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/086bef9593e0494a90d27eef2e071bae.png">
 <meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/4ff675e237df41ed9c7d4809bed4d758.png">
 <meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/28872ef9b62844a5b49c0caa07658ff6.png">
@@ -35,7 +36,7 @@
 <meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/0ea2cc17e450475396458ff4843f7a78.png">
 <meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/9d54d69d1fe943458fe819d4edfa5bb8.png">
 <meta property="article:published_time" content="2023-03-18T15:30:20.000Z">
-<meta property="article:modified_time" content="2023-03-21T15:11:15.889Z">
+<meta property="article:modified_time" content="2023-03-22T13:53:14.042Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
@@ -220,7 +221,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.8k 字
+          8.3k 字
         
       </span>
     
@@ -231,7 +232,7 @@
         
         
         
-          57 分钟
+          70 分钟
         
       </span>
     
@@ -280,7 +281,10 @@
 <p>从真实模拟器运行环境来看，super总共分为了四个分区system、vendor、product、system_ext【其中<strong>system</strong>分区由于<strong>system as root</strong>机制作为了rootfs进行挂载】</p>
 <img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230318234134317.png" srcset="/img/loading.gif" lazyload alt="image-20230318234134317" style="zoom: 80%;">
 
-<p>🤖那么<strong>为什么这么dm设备怎么来的？为什么没有dm-0？为什么dm-1是system_ext而不是vendor呢？</strong></p>
+<p>另外从网上找到一份真实Android S启动日志：</p>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230322203850415.png" srcset="/img/loading.gif" lazyload alt="image-20230322203850415" style="zoom:80%;">
+
+<p>🤖从真实启动日志来看，那么<strong>为什么这个dm设备怎么来的？为什么dm-0是system_a而不是vendor_a呢？</strong></p>
 <p>我们要带着这些问题去思考，一步步阅读源码，解决自己的疑惑……</p>
 <h2 id="1-整体认知——LpMetadata"><a href="#1-整体认知——LpMetadata" class="headerlink" title="1.整体认知——LpMetadata"></a>1.整体认知——LpMetadata</h2><blockquote>
 <p>这里引用<strong>洛奇看世界</strong>大哥画的精美示意图：<a target="_blank" rel="noopener" href="https://blog.csdn.net/guyongqiangx/article/details/123899602">https://blog.csdn.net/guyongqiangx/article/details/123899602</a></p>
@@ -352,7 +356,14 @@
 
 <h3 id="2-2-读取元数据"><a href="#2-2-读取元数据" class="headerlink" title="2.2 读取元数据"></a>2.2 读取元数据</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\fs_mgr\fs_mgr_dm_linear.cpp</span><br><span class="hljs-comment">// 传进来的block_device是super分区对应的真实的块设备（假设为/dev/block/mmcblk0p5）</span><br><span class="hljs-function">std::unique_ptr&lt;LpMetadata&gt; <span class="hljs-title">ReadCurrentMetadata</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; block_device)</span> </span>&#123;<br>    <span class="hljs-comment">// fs_mgr_get_slot_suffix获取环境变量ro.boot.slot_suffix</span><br>    <span class="hljs-comment">// 如果当前启动分区为_a，则slot=0</span><br>    <span class="hljs-comment">// 如果当前启动分区为_b，则slot=1</span><br>    <span class="hljs-type">uint32_t</span> slot = <span class="hljs-built_in">SlotNumberForSlotSuffix</span>(<span class="hljs-built_in">fs_mgr_get_slot_suffix</span>());<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">ReadMetadata</span>(block_device.<span class="hljs-built_in">c_str</span>(), slot);<br>&#125;<br><br><span class="hljs-comment">// 传进来的super_partition是/dev/block/mmcblk0p5</span><br><span class="hljs-comment">// 假设启动分区为_a，slot_number为0</span><br><span class="hljs-function">std::unique_ptr&lt;LpMetadata&gt; <span class="hljs-title">ReadMetadata</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; super_partition, <span class="hljs-type">uint32_t</span> slot_number)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">ReadMetadata</span>(<span class="hljs-built_in">PartitionOpener</span>(), super_partition, slot_number);<br>&#125;<br><br><span class="hljs-comment">// --------------------------------------------------------------</span><br><br><span class="hljs-comment">// system\core\fs_mgr\liblp\reader.cpp</span><br><span class="hljs-function">std::unique_ptr&lt;LpMetadata&gt; <span class="hljs-title">ReadMetadata</span><span class="hljs-params">(<span class="hljs-type">const</span> IPartitionOpener&amp; opener,</span></span><br><span class="hljs-params"><span class="hljs-function">                                         <span class="hljs-type">const</span> std::string&amp; super_partition, <span class="hljs-type">uint32_t</span> slot_number)</span> </span>&#123;<br>    android::base::unique_fd fd = opener.<span class="hljs-built_in">Open</span>(super_partition, O_RDONLY);<br><br>    LpMetadataGeometry geometry;<br>    <span class="hljs-comment">// 读取/dev/block/mmcblk0p5中的元数据</span><br>    <span class="hljs-comment">// 读的是1.1节中的LpMetadataGeometry数据结构，将其保存到geometry</span><br>    <span class="hljs-comment">// 目的是直接赋值给下面即将创建的变量meta的成员变量geometry</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">ReadLogicalPartitionGeometry</span>(fd, &amp;geometry)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br><br>    std::unique_ptr&lt;LpMetadata&gt; metadata;<br><br>    <span class="hljs-comment">// 读取/dev/block/mmcblk0p5中的所有的元数据</span><br>    <span class="hljs-comment">// 将其保存到metadata变量中，最后返回2.1中最初调用ReadCurrentMetadata的地方</span><br>    <span class="hljs-comment">// 所有的metadata结构都是按照1.整体认知——LpMetadata分布的</span><br>    metadata = <span class="hljs-built_in">ParseMetadata</span>(geometry, fd)<br>    <br>    <span class="hljs-keyword">return</span> metadata;<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
-<h3 id="2-3-创建逻辑分区"><a href="#2-3-创建逻辑分区" class="headerlink" title="2.3 创建逻辑分区"></a>2.3 创建逻辑分区</h3>
+<h3 id="2-3-创建逻辑分区"><a href="#2-3-创建逻辑分区" class="headerlink" title="2.3 创建逻辑分区"></a>2.3 创建逻辑分区</h3><p><strong>2.2节和2.3节是独立的，两节都是2.1的子篇，不要线性阅读</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">CreateLogicalPartitions</span><span class="hljs-params">(<span class="hljs-type">const</span> LpMetadata&amp; metadata, <span class="hljs-type">const</span> std::string&amp; super_device)</span> </span>&#123;<br>    CreateLogicalPartitionParams params = &#123;<br>            .block_device = super_device,<br>            .metadata = &amp;metadata,<br>    &#125;;<br>    <span class="hljs-comment">// 这里的metadata.partitions是1.3节的LpMetadataPartition</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; partition : metadata.partitions) &#123;<br>        params.partition = &amp;partition;<br><br>        std::string ignore_path;<br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">CreateLogicalPartition</span>(params, &amp;ignore_path)) &#123;<br>            LERROR &lt;&lt; <span class="hljs-string">&quot;Could not create logical partition: &quot;</span> &lt;&lt; <span class="hljs-built_in">GetPartitionName</span>(partition);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里会遍历metadata中存储的partitions成员变量，也就是metadata.img中存放的一个个逻辑分区信息，例如如果我们第一个存储的LpMetadataPartition是system的信息，那么首先调用CreateLogicalPartition去创建逻辑分区，第二个存储的LpMetadataPartition是vendor的信息，相应的调用CreateLogicalPartition去创建逻辑分。</p>
+<p>🎈<strong>到这里解释了开头我们提到的为什么dm-1、dm-2创建的先后顺序，其与metadata.img中的分区顺序有关，换句话说，就是与生成super.img时指明的顺序有关。</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">CreateLogicalPartition</span><span class="hljs-params">(CreateLogicalPartitionParams params, std::string* path)</span> </span>&#123;<br>    CreateLogicalPartitionParams::OwnedData owned_data;<br>    <span class="hljs-keyword">if</span> (!params.<span class="hljs-built_in">InitDefaults</span>(&amp;owned_data)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br><br>    DmTable table;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">CreateDmTableInternal</span>(params, &amp;table)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    DeviceMapper&amp; dm = DeviceMapper::<span class="hljs-built_in">Instance</span>();<br>    <span class="hljs-keyword">if</span> (!dm.<span class="hljs-built_in">CreateDevice</span>(params.device_name, table, path, params.timeout_ms)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-comment">// 文章开头的启动日志打印就是在这里</span><br>    LINFO &lt;&lt; <span class="hljs-string">&quot;Created logical partition &quot;</span> &lt;&lt; params.device_name &lt;&lt; <span class="hljs-string">&quot; on device &quot;</span> &lt;&lt; *path;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
                 
               </div>
             
@@ -441,6 +452,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2023/03/22/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91/" title="Linux内核编译">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux内核编译</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
