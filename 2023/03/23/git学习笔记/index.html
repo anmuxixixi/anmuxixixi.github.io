@@ -16,22 +16,22 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Linux内核编译1.linux内核中Makefile、Kconfig、.config的关系三者的作用：  Makefile：一个文本形式的文件，编译源文件的方法。 Kconfig：一个文本形式的文件，内核的配置菜单。 .config：编译所依据的配置  三者的关系： 简单来说就是去饭店点菜：Kconfig是菜单，Makefile是做法，.config就是你点的菜。在运行make menuconf">
+    <meta name="description" content="git学习笔记git cherry-pick 🐌 参考：阮一峰博客  对于多分支的代码库，将代码从一个分支转移到另一个分支是常见需求。 这时分两种情况。一种情况是，你需要另一个分支的所有代码变动，那么就采用合并（git merge）。另一种情况是，你只需要部分代码变动（某几个提交），这时可以采用 Cherry pick。 基本用法git cherry-pick命令的作用，就是将指定的提交（com">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux内核编译">
-<meta property="og:url" content="http://example.com/2023/03/22/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91/index.html">
+<meta property="og:title" content="git学习笔记">
+<meta property="og:url" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="Linux内核编译1.linux内核中Makefile、Kconfig、.config的关系三者的作用：  Makefile：一个文本形式的文件，编译源文件的方法。 Kconfig：一个文本形式的文件，内核的配置菜单。 .config：编译所依据的配置  三者的关系： 简单来说就是去饭店点菜：Kconfig是菜单，Makefile是做法，.config就是你点的菜。在运行make menuconf">
+<meta property="og:description" content="git学习笔记git cherry-pick 🐌 参考：阮一峰博客  对于多分支的代码库，将代码从一个分支转移到另一个分支是常见需求。 这时分两种情况。一种情况是，你需要另一个分支的所有代码变动，那么就采用合并（git merge）。另一种情况是，你只需要部分代码变动（某几个提交），这时可以采用 Cherry pick。 基本用法git cherry-pick命令的作用，就是将指定的提交（com">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-03-22T13:53:37.000Z">
-<meta property="article:modified_time" content="2023-03-22T14:07:55.161Z">
+<meta property="article:published_time" content="2023-03-23T15:06:46.000Z">
+<meta property="article:modified_time" content="2023-03-23T15:14:04.770Z">
 <meta property="article:author" content="OneAmx">
-<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Git">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>Linux内核编译 - 一只安慕嘻</title>
+  <title>git学习笔记 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -185,7 +185,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Linux内核编译"></span>
+            <span id="subtitle" data-typed-text="git学习笔记"></span>
           
         </div>
 
@@ -196,8 +196,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-03-22 21:53" pubdate>
-          2023年3月22日 晚上
+        <time datetime="2023-03-23 23:06" pubdate>
+          2023年3月23日 晚上
         </time>
       </span>
     
@@ -208,7 +208,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          1.9k 字
         
       </span>
     
@@ -219,7 +219,7 @@
         
         
         
-          10 分钟
+          16 分钟
         
       </span>
     
@@ -257,50 +257,85 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Linux内核编译</h1>
+            <h1 style="display: none">git学习笔记</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="Linux内核编译"><a href="#Linux内核编译" class="headerlink" title="Linux内核编译"></a>Linux内核编译</h1><h2 id="1-linux内核中Makefile、Kconfig、-config的关系"><a href="#1-linux内核中Makefile、Kconfig、-config的关系" class="headerlink" title="1.linux内核中Makefile、Kconfig、.config的关系"></a>1.linux内核中Makefile、Kconfig、.config的关系</h2><p><strong>三者的作用：</strong></p>
-<ul>
-<li>Makefile：一个文本形式的文件，编译源文件的方法。</li>
-<li>Kconfig：一个文本形式的文件，内核的配置菜单。</li>
-<li>.config：编译所依据的配置</li>
-</ul>
-<p><strong>三者的关系：</strong></p>
-<p>简单来说就是去饭店点菜：Kconfig是菜单，Makefile是做法，.config就是你点的菜。在运行make menuconfig后在配置界面中出现的就是Kconfig中的选项，在界面中看到的已经配置好的选项就是从.config中读取出来的，当配置完成后就会将配置重新保存到.config中，编译时makefile会读取.config中配置来对内核进行编译。</p>
+                <h1 id="git学习笔记"><a href="#git学习笔记" class="headerlink" title="git学习笔记"></a>git学习笔记</h1><h2 id="git-cherry-pick"><a href="#git-cherry-pick" class="headerlink" title="git cherry-pick"></a>git cherry-pick</h2><blockquote>
+<p>🐌 <strong>参考</strong>：<a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2020/04/git-cherry-pick.html">阮一峰博客</a></p>
+</blockquote>
+<p>对于多分支的代码库，将代码从一个分支转移到另一个分支是常见需求。</p>
+<p>这时分两种情况。一种情况是，你需要另一个分支的所有代码变动，那么就采用合并（<code>git merge</code>）。另一种情况是，你只需要部分代码变动（某几个提交），这时可以采用 Cherry pick。</p>
+<h3 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h3><p><code>git cherry-pick</code>命令的作用，就是将指定的提交（commit）应用于其他分支。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ git cherry-pick &lt;commitHash&gt;<br></code></pre></td></tr></table></figure>
+
+<p>上面命令就会将指定的提交<code>commitHash</code>，应用于当前分支。这会在当前分支产生一个新的提交，当然它们的哈希值会不一样。</p>
+<p>举例来说，代码仓库有<code>master</code>和<code>feature</code>两个分支。</p>
 <blockquote>
-<ol>
-<li>如果.config不存在，运行make config&#x2F;menuconfig时的缺省设置由固化在各个Kconfig文件中各项目的缺省值决定。</li>
-<li>如果.config存在，运行make config&#x2F;menuconfig时的缺省设置即是当前.config的设置，若对设置进行了修改，<code>.config</code>将被更新。</li>
-<li>arch&#x2F;arm&#x2F;defconfig是一个缺省的配置文件，make defconfig时会根据这个文件生成当前的.config。</li>
-<li>arch&#x2F;arm&#x2F;configs文件夹中有许多命名为xxx_defconfig的配置文件，如果运行make xxx_defconfig，当前.config文件会由xxx_defconfig文件生成。</li>
-</ol>
+<p>a - b - c - d   Master<br>     <br>       e - f - g Feature</p>
 </blockquote>
-<p>🐼 <strong>总结一下</strong></p>
-<p>执行<code>make xxx_defconfig</code>生成.config文件</p>
-<p>执行<code>make menuconfig</code>可以修改.config文件。</p>
-<h2 id="2-模块编译时obj-y和obj-m的区别"><a href="#2-模块编译时obj-y和obj-m的区别" class="headerlink" title="2.模块编译时obj-y和obj-m的区别"></a>2.模块编译时obj-y和obj-m的区别</h2><p>在进行模块编译时，主要有两个选项，obj-m和obj-y，而与内核密切相关的是obj-y选项，下面对两者之间的区别简单总结一下。</p>
-<p>以test.c文件为例：</p>
-<p>obj-m +&#x3D; test.o</p>
-<p>obj-y  +&#x3D; test.o</p>
-<p>其中:</p>
-<ul>
-<li><p>obj-m表示把文件test.o作为”模块”进行编译，不会编译到内核，但是会生成一个独立的 “test.ko” 文件。</p>
-</li>
-<li><p>obj-y表示把test.o文件编译进内核</p>
-</li>
-</ul>
-<h2 id="3-Kernel中Makefile的语法"><a href="#3-Kernel中Makefile的语法" class="headerlink" title="3.Kernel中Makefile的语法"></a>3.Kernel中Makefile的语法</h2><p>1）直接编译</p>
-<p>obj-y &#x3D; led.o</p>
-<p>2）条件编译</p>
-<p>obj-$(CONFIG_RAPIDIO) +&#x3D; rapidio.o</p>
-<p>3）编译目录：</p>
-<p>obj-$(CONFIG_ISCSI_TARGET)  +&#x3D; iscsi&#x2F;</p>
-<h2 id="4-Kernel中Kconfig的语法"><a href="#4-Kernel中Kconfig的语法" class="headerlink" title="4.Kernel中Kconfig的语法"></a>4.Kernel中Kconfig的语法</h2><blockquote>
-<p> 参考：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/crXt-6EvKtWg9QX7SM90Sw">https://mp.weixin.qq.com/s/crXt-6EvKtWg9QX7SM90Sw</a></p>
-</blockquote>
+<p>现在将提交<code>f</code>应用到<code>master</code>分支。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 切换到 master 分支</span><br>$ git checkout master<br><br><span class="hljs-comment"># Cherry pick 操作</span><br>$ git cherry-pick f<br></code></pre></td></tr></table></figure>
+
+<p>上面的操作完成以后，代码库就变成了下面的样子。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">a - b - c - d - f   Master<br>     \<br>       e - f - g Feature<br></code></pre></td></tr></table></figure>
+
+<p>从上面可以看到，<code>master</code>分支的末尾增加了一个提交<code>f</code>。</p>
+<p><code>git cherry-pick</code>命令的参数，不一定是提交的哈希值，分支名也是可以的，表示转移该分支的最新提交。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bas">$ git cherry-pick feature<br></code></pre></td></tr></table></figure>
+
+<p>上面代码表示将<code>feature</code>分支的最近一次提交，转移到当前分支。</p>
+<h3 id="转移多个提交"><a href="#转移多个提交" class="headerlink" title="转移多个提交"></a>转移多个提交</h3><p>Cherry pick 支持一次转移多个提交。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ git cherry-pick &lt;HashA&gt; &lt;HashB&gt;<br></code></pre></td></tr></table></figure>
+
+<p>上面的命令将 A 和 B 两个提交应用到当前分支。这会在当前分支生成两个对应的新提交。</p>
+<p>如果想要转移一系列的连续提交，可以使用下面的简便语法。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ git cherry-pick A..B <br></code></pre></td></tr></table></figure>
+
+<p>上面的命令可以转移从 A 到 B 的所有提交。它们必须按照正确的顺序放置：提交 A 必须早于提交 B，否则命令将失败，但不会报错。</p>
+<p>注意，使用上面的命令，提交 A 将不会包含在 Cherry pick 中。如果要包含提交 A，可以使用下面的语法。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ git cherry-pick A^..B <br></code></pre></td></tr></table></figure>
+
+<h3 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h3><p><code>git cherry-pick</code>命令的常用配置项如下。</p>
+<p><strong>（1）<code>-e</code>，<code>--edit</code></strong></p>
+<p>打开外部编辑器，编辑提交信息。</p>
+<p><strong>（2）<code>-n</code>，<code>--no-commit</code></strong></p>
+<p>只更新工作区和暂存区，不产生新的提交。</p>
+<p><strong>（3）<code>-x</code></strong></p>
+<p>在提交信息的末尾追加一行<code>(cherry picked from commit ...)</code>，方便以后查到这个提交是如何产生的。</p>
+<p><strong>（4）<code>-s</code>，<code>--signoff</code></strong></p>
+<p>在提交信息的末尾追加一行操作者的签名，表示是谁进行了这个操作。</p>
+<p><strong>（5）<code>-m parent-number</code>，<code>--mainline parent-number</code></strong></p>
+<p>如果原始提交是一个合并节点，来自于两个分支的合并，那么 Cherry pick 默认将失败，因为它不知道应该采用哪个分支的代码变动。</p>
+<p><code>-m</code>配置项告诉 Git，应该采用哪个分支的变动。它的参数<code>parent-number</code>是一个从<code>1</code>开始的整数，代表原始提交的父分支编号。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ git cherry-pick -m 1 &lt;commitHash&gt;<br></code></pre></td></tr></table></figure>
+
+<p>上面命令表示，Cherry pick 采用提交<code>commitHash</code>来自编号1的父分支的变动。</p>
+<p>一般来说，1号父分支是接受变动的分支（the branch being merged into），2号父分支是作为变动来源的分支（the branch being merged from）。</p>
+<h3 id="代码冲突"><a href="#代码冲突" class="headerlink" title="代码冲突"></a>代码冲突</h3><p>如果操作过程中发生代码冲突，Cherry pick 会停下来，让用户决定如何继续操作。</p>
+<p><strong>（1）<code>--continue</code></strong></p>
+<p>用户解决代码冲突后，第一步将修改的文件重新加入暂存区（<code>git add .</code>），第二步使用下面的命令，让 Cherry pick 过程继续执行。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ git cherry-pick --<span class="hljs-built_in">continue</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>（2）<code>--abort</code></strong></p>
+<p>发生代码冲突后，放弃合并，回到操作前的样子。</p>
+<p><strong>（3）<code>--quit</code></strong></p>
+<p>发生代码冲突后，退出 Cherry pick，但是不回到操作前的样子。</p>
+<h3 id="转移到另一个代码库"><a href="#转移到另一个代码库" class="headerlink" title="转移到另一个代码库"></a>转移到另一个代码库</h3><p>Cherry pick 也支持转移另一个代码库的提交，方法是先将该库加为远程仓库。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git remote add target git://gitUrl<br></code></pre></td></tr></table></figure>
+
+<p>上面命令添加了一个远程仓库<code>target</code>。</p>
+<p>然后，将远程代码抓取到本地。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bas">$ git fetch target<br></code></pre></td></tr></table></figure>
+
+<p>上面命令将远程代码仓库抓取到本地。</p>
+<p>接着，检查一下要从远程仓库转移的提交，获取它的哈希值。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ git <span class="hljs-built_in">log</span> target/master<br></code></pre></td></tr></table></figure>
+
+<p>最后，使用<code>git cherry-pick</code>命令转移提交。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ git cherry-pick &lt;commitHash&gt;<br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
@@ -319,7 +354,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Linux学习笔记</a>
+  <a href="/categories/Git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Git学习笔记</a>
   
   
 
@@ -334,7 +369,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Linux/">#Linux</a>
+        <a href="/tags/Git/">#Git</a>
       
     </div>
   
@@ -346,8 +381,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Linux内核编译</div>
-      <div>http://example.com/2023/03/22/Linux内核编译/</div>
+      <div>git学习笔记</div>
+      <div>http://example.com/2023/03/23/git学习笔记/</div>
     </div>
     <div class="license-meta">
       
@@ -359,7 +394,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年3月22日</div>
+          <div>2023年3月23日</div>
         </div>
       
       
@@ -391,18 +426,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="git学习笔记">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">git学习笔记</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/" title="Android S创建逻辑分区">
-                        <span class="hidden-mobile">Android S创建逻辑分区</span>
+                      <a href="/2023/03/22/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91/" title="Linux内核编译">
+                        <span class="hidden-mobile">Linux内核编译</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
