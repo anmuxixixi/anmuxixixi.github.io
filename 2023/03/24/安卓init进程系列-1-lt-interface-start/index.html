@@ -16,22 +16,22 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="动态可用的 HAL 🤖 全部来自安卓官网  Android 9 支持在不使用或不需要 Android 硬件子系统时动态关停这些子系统。例如，如果用户未使用 Wi-Fi，Wi-Fi 子系统就不应占用内存、耗用电量或使用其他系统资源。早期版本的 Android 中，在 Android 手机启动的整个期间，Android 设备上的 HAL&#x2F;驱动程序都会保持开启状态。 实现动态关停涉及连接数据">
+    <meta name="description" content="安卓init进程系列(1)clt.interface_start">
 <meta property="og:type" content="article">
-<meta property="og:title" content="动态可用的 HAL">
-<meta property="og:url" content="http://example.com/2023/03/24/%E5%8A%A8%E6%80%81%E5%8F%AF%E7%94%A8%E7%9A%84-HAL/index.html">
+<meta property="og:title" content="安卓init进程系列(1)clt.interface_start">
+<meta property="og:url" content="http://example.com/2023/03/24/%E5%AE%89%E5%8D%93init%E8%BF%9B%E7%A8%8B%E7%B3%BB%E5%88%97-1-lt-interface-start/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="动态可用的 HAL 🤖 全部来自安卓官网  Android 9 支持在不使用或不需要 Android 硬件子系统时动态关停这些子系统。例如，如果用户未使用 Wi-Fi，Wi-Fi 子系统就不应占用内存、耗用电量或使用其他系统资源。早期版本的 Android 中，在 Android 手机启动的整个期间，Android 设备上的 HAL&#x2F;驱动程序都会保持开启状态。 实现动态关停涉及连接数据">
+<meta property="og:description" content="安卓init进程系列(1)clt.interface_start">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-03-24T13:48:26.000Z">
-<meta property="article:modified_time" content="2023-03-24T13:54:36.687Z">
+<meta property="article:published_time" content="2023-03-24T14:17:35.000Z">
+<meta property="article:modified_time" content="2023-03-24T14:18:58.562Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>动态可用的 HAL - 一只安慕嘻</title>
+  <title>安卓init进程系列(1)clt.interface_start - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -185,7 +185,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="动态可用的 HAL"></span>
+            <span id="subtitle" data-typed-text="安卓init进程系列(1)clt.interface_start"></span>
           
         </div>
 
@@ -196,7 +196,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-03-24 21:48" pubdate>
+        <time datetime="2023-03-24 22:17" pubdate>
           2023年3月24日 晚上
         </time>
       </span>
@@ -208,7 +208,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.9k 字
+          32 字
         
       </span>
     
@@ -219,7 +219,7 @@
         
         
         
-          16 分钟
+          1 分钟
         
       </span>
     
@@ -257,36 +257,12 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">动态可用的 HAL</h1>
+            <h1 style="display: none">安卓init进程系列(1)clt.interface_start</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="动态可用的-HAL"><a href="#动态可用的-HAL" class="headerlink" title="动态可用的 HAL"></a>动态可用的 HAL</h1><blockquote>
-<p>🤖 全部来自<a target="_blank" rel="noopener" href="https://source.android.com/docs/core/architecture/hal/dynamic-lifecycle?hl=zh-cn">安卓官网</a></p>
-</blockquote>
-<p>Android 9 支持在不使用或不需要 Android 硬件子系统时动态关停这些子系统。例如，如果用户未使用 Wi-Fi，Wi-Fi 子系统就不应占用内存、耗用电量或使用其他系统资源。早期版本的 Android 中，在 Android 手机启动的整个期间，Android 设备上的 HAL&#x2F;驱动程序都会保持开启状态。</p>
-<p>实现动态关停涉及连接数据流以及执行动态进程，下文对此进行了详细介绍。</p>
-<h2 id="对-HAL-定义所做的更改"><a href="#对-HAL-定义所做的更改" class="headerlink" title="对 HAL 定义所做的更改"></a>对 HAL 定义所做的更改</h2><p>要实现动态关停，不仅需要有关于哪些进程为哪些 HAL 接口提供服务的信息（此类信息之后在其他情况中也可能很有用），还需要确保设备启动时不启动进程，而且在进程退出后，直到系统再次请求启动它们之前，都不重新启动它们。</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># some init.rc script associated with the HAL</span><br>service vendor.some-service-name /vendor/bin/hw/some-binary-service<br>    <span class="hljs-comment"># init language extension, provides information of what service is served</span><br>    <span class="hljs-comment"># if multiple interfaces are served, they can be specified one on each line</span><br>    interface android.hardware.light@2.0::ILight default<br>    <span class="hljs-comment"># restarted if hwservicemanager dies</span><br>    <span class="hljs-comment"># would also cause the hal to start early during boot if disabled wasn&#x27;t set</span><br>    class hal<br>    <span class="hljs-comment"># will not be restarted if it exits until it is requested to be restarted</span><br>    oneshot<br>    <span class="hljs-comment"># will only be started when requested</span><br>    disabled<br>    <span class="hljs-comment"># ... other properties</span><br></code></pre></td></tr></table></figure>
-
-<h2 id="对-init-和-hwservicemanager-所做的更改"><a href="#对-init-和-hwservicemanager-所做的更改" class="headerlink" title="对 init 和 hwservicemanager 所做的更改"></a>对 init 和 hwservicemanager 所做的更改</h2><p>为了实现动态关停，还需要让 <code>hwservicemanager</code> 告知 <code>init</code> 启动所请求的服务。在 Android 9 中，<code>init</code> 包含三个额外的控制消息（例如，<code>ctl.start</code>）：<code>ctl.interface_start</code>、<code>ctl.interface_stop</code> 和 <code>ctl.interface_restart</code>。这些消息可用于指示 <code>init</code> 打开或关闭特定硬件接口。如果系统请求使用某个服务但该服务未注册，<code>hwservicemanager</code> 会请求启动该服务。不过，动态 HAL 不需要使用以上任何消息。</p>
-<h2 id="确定-HAL-退出"><a href="#确定-HAL-退出" class="headerlink" title="确定 HAL 退出"></a>确定 HAL 退出</h2><p>在 Android 9 中，必须手动确定 HAL 退出。对于 Android 10 及更高版本，还可以使用自动生命周期确定 HAL 退出。</p>
-<p>为了实现动态关停，需要多个策略来决定何时启动和关停 HAL。如果 HAL 出于任何原因决定退出，当系统再次需要用到它时，它将使用以下信息和基础架构自动重新启动：HAL 定义中提供的信息，以及更改后的 <code>init</code> 和 <code>hwservicemanager</code> 提供的基础架构。这可能会涉及多个不同的策略，包括：</p>
-<ul>
-<li>如果有人对 HAL 调用关闭命令或类似的 API，则 HAL 可能会选择自行调用退出命令。此行为必须在相应的 HAL 接口中指定。</li>
-<li>HAL 可在任务完成后关停（记录在 HAL 文件中）。</li>
-</ul>
-<h2 id="自动生命周期"><a href="#自动生命周期" class="headerlink" title="自动生命周期"></a>自动生命周期</h2><p>Android 10 为内核和 hwservicemanager 添加了更多支持，可让 HAL 在没有任何客户端时自动关停。如需使用此功能，请根据“对 HAL 定义所做的更改”这一部分完成其中所有步骤，并执行以下操作：</p>
-<ul>
-<li>使用 <code>LazyServiceRegistrar</code> 而不是成员函数 <code>registerAsService</code> 通过 C++ 注册服务，例如：</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// only one instance of LazyServiceRegistrar per process</span><br>LazyServiceRegistrar registrar;<br>registrar.<span class="hljs-built_in">registerAsService</span>(myHidlService <span class="hljs-comment">/* , &quot;default&quot; */</span>);<br></code></pre></td></tr></table></figure>
-
-<ul>
-<li>验证 HAL 客户端是否仅在使用时保留对顶级 HAL（通过 <code>hwservicemanager</code> 注册的接口）的引用。为了避免出现延迟，如果该引用在继续执行的 hwbinder 线程上被丢弃，客户端还应该在丢弃引用后调用 <code>IPCThreadState::self()-&gt;flushCommands()</code>，以确保 binder 驱动程序在相关引用计数发生变化时收到通知。</li>
-</ul>
-
+                <h1 id="安卓init进程系列-1-clt-interface-start"><a href="#安卓init进程系列-1-clt-interface-start" class="headerlink" title="安卓init进程系列(1)clt.interface_start"></a>安卓init进程系列(1)clt.interface_start</h1>
                 
               </div>
             
@@ -331,8 +307,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>动态可用的 HAL</div>
-      <div>http://example.com/2023/03/24/动态可用的-HAL/</div>
+      <div>安卓init进程系列(1)clt.interface_start</div>
+      <div>http://example.com/2023/03/24/安卓init进程系列-1-lt-interface-start/</div>
     </div>
     <div class="license-meta">
       
@@ -376,7 +352,7 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/03/24/%E5%AE%89%E5%8D%93init%E8%BF%9B%E7%A8%8B%E7%B3%BB%E5%88%97-1-lt-interface-start/" title="安卓init进程系列(1)clt.interface_start">
+                      <a href="/2023/03/24/%E5%AE%89%E5%8D%93init%E8%BF%9B%E7%A8%8B%E7%B3%BB%E5%88%97-1-clt-interface-start/" title="安卓init进程系列(1)clt.interface_start">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">安卓init进程系列(1)clt.interface_start</span>
                         <span class="visible-mobile">上一篇</span>
@@ -386,8 +362,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="git学习笔记">
-                        <span class="hidden-mobile">git学习笔记</span>
+                      <a href="/2023/03/24/%E5%8A%A8%E6%80%81%E5%8F%AF%E7%94%A8%E7%9A%84-HAL/" title="动态可用的 HAL">
+                        <span class="hidden-mobile">动态可用的 HAL</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
