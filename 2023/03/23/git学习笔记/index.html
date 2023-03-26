@@ -40,8 +40,15 @@
 <meta property="og:image" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230326112521485.png">
 <meta property="og:image" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230326112631990.png">
 <meta property="og:image" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230326112833997.png">
+<meta property="og:image" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230326113641189.png">
+<meta property="og:image" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230326210601688.png">
+<meta property="og:image" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230326210430079.png">
+<meta property="og:image" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/2de056a0-fa40-11eb-991d-334fd31f0201.png">
+<meta property="og:image" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/36cb0da0-fa40-11eb-991d-334fd31f0201.png">
+<meta property="og:image" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/3e86ba80-fa40-11eb-991d-334fd31f0201.png">
+<meta property="og:image" content="http://example.com/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/439839b0-fa66-11eb-991d-334fd31f0201.png">
 <meta property="article:published_time" content="2023-03-23T15:06:46.000Z">
-<meta property="article:modified_time" content="2023-03-26T03:28:39.655Z">
+<meta property="article:modified_time" content="2023-03-26T13:07:40.097Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Git">
 <meta name="twitter:card" content="summary_large_image">
@@ -226,7 +233,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.3k 字
+          6.5k 字
         
       </span>
     
@@ -237,7 +244,7 @@
         
         
         
-          36 分钟
+          55 分钟
         
       </span>
     
@@ -395,8 +402,23 @@
 
 <img src="/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230326112833997.png" srcset="/img/loading.gif" lazyload alt="image-20230326112833997" style="zoom:67%;">
 
+<h2 id="git-amend修改最近一次提交"><a href="#git-amend修改最近一次提交" class="headerlink" title="git amend修改最近一次提交"></a>git amend修改最近一次提交</h2><blockquote>
+<p>场景：假如刚刚有一笔提交，需要重新修改后提交，但是我们又不想生成新的commitId重新提交</p>
+</blockquote>
+<img src="/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230326113641189.png" srcset="/img/loading.gif" lazyload alt="image-20230326113641189" style="zoom:80%;">
 
+<h2 id="git命令创建别名"><a href="#git命令创建别名" class="headerlink" title="git命令创建别名"></a>git命令创建别名</h2><p>Linux：在home目录下，编辑<code>.gitconfig</code>文件</p>
+<p>WIndow：在 <code>$HOME</code> 目录下（一般情况下是 <code>C:\Users\$USER</code> ）的 <code>.gitconfig</code> 文件</p>
+<p>添加以下内容：</p>
+<img src="/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230326210601688.png" srcset="/img/loading.gif" lazyload alt="image-20230326210601688" style="zoom:80%;">
 
+<p>接下来我们就可以使用简短的命令表示以前繁琐的命令</p>
+<img src="/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230326210430079.png" srcset="/img/loading.gif" lazyload alt="image-20230326210430079" style="zoom: 80%;">
+
+<p>如果我们想更简短一点，在Linux下，编辑<code>~/.bashrc</code>，添加以下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell">alias gs=&#x27;git status&#x27;<br>alias gss=&#x27;git status |grep modified&#x27;<br>alias gd=&#x27;git diff &#x27;<br>alias gds=&#x27;git diff --staged&#x27;<br>alias gsh=&#x27;git show &#x27;<br>alias ga=&#x27;git add .&#x27;<br>alias gcm=&#x27;git commit .&#x27;<br>alias gc=&#x27;git checkout -- &#x27;<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-built_in">alias</span> gl=<span class="hljs-string">&#x27;git log --pretty=oneline  --abbrev-commit&#x27;</span></span><br>alias gl=&#x27;git lg&#x27;<br>alias glh=&#x27;git lg --graph&#x27;<br>alias gls=&#x27;git lg --author=panfei&#x27;<br>alias gb=&#x27;git branch -v&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>就可以使用<code>gs</code>表示<code>git status</code>…</p>
 <h2 id="git-cherry-pick"><a href="#git-cherry-pick" class="headerlink" title="git cherry-pick"></a>git cherry-pick</h2><blockquote>
 <p>🐌 <strong>参考</strong>：<a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2020/04/git-cherry-pick.html">阮一峰博客</a></p>
 </blockquote>
@@ -471,6 +493,52 @@
 <p>最后，使用<code>git cherry-pick</code>命令转移提交。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ git cherry-pick &lt;commitHash&gt;<br></code></pre></td></tr></table></figure>
 
+<h2 id="Git-中-HEAD、工作树和索引之间的区别"><a href="#Git-中-HEAD、工作树和索引之间的区别" class="headerlink" title="Git 中 HEAD、工作树和索引之间的区别"></a>Git 中 HEAD、工作树和索引之间的区别</h2><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="http://fanyouf.gitee.io/interview/git/02.html#%E7%AE%80%E7%89%88">http://fanyouf.gitee.io/interview/git/02.html#%E7%AE%80%E7%89%88</a></p>
+</blockquote>
+<h3 id="HEAD"><a href="#HEAD" class="headerlink" title="HEAD"></a>HEAD</h3><img src="/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/2de056a0-fa40-11eb-991d-334fd31f0201.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>在<code>git</code>中，可以存在很多分支，其本质上是一个指向<code>commit</code>对象的可变指针，而<code>Head</code>是一个特别的指针，是一个指向你正在工作中的本地分支的指针</p>
+<p>简单来讲，就是你现在在哪儿，HEAD 就指向哪儿</p>
+<p>例如当前我们处于<code>master</code>分支，所以<code>HEAD</code>这个指针指向了<code>master</code>分支指针</p>
+<img src="/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/36cb0da0-fa40-11eb-991d-334fd31f0201.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>然后通过调用<code>git checkout test</code>切换到<code>test</code>分支，那么<code>HEAD</code>则指向<code>test</code>分支，如下图：</p>
+<img src="/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/3e86ba80-fa40-11eb-991d-334fd31f0201.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>但我们在<code>test</code>分支再一次<code>commit</code>信息的时候，<code>HEAD</code>指针仍然指向了<code>test</code>分支指针，而<code>test</code>分支指针已经指向了最新创建的提交，如下图：</p>
+<img src="/2023/03/23/git%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/439839b0-fa66-11eb-991d-334fd31f0201.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 50%;">
+
+<p>这个<code>HEAD</code>存储的位置就在<code>.git/HEAD</code>目录中，查看信息可以看到<code>HEAD</code>指向了另一个文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cat</span> .git/HEAD</span><br>ref: refs/heads/master<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cat</span> .git/refs/heads/master</span><br>7406a10efcc169bbab17827aeda189aa20376f7f<br></code></pre></td></tr></table></figure>
+
+<p>这个文件的内容是一串哈希码，而这个哈希码正是<code>master</code>分支上最新的提交所对应的哈希码</p>
+<p>所以，当我们切换分支的时候，<code>HEAD</code>指针通常指向我们所在的分支，当我们在某个分支上创建新的提交时，分支指针总是会指向当前分支的最新提交</p>
+<p>所以，HEAD 指针 ——–&gt; 分支指针 ——–&gt; 最新提交</p>
+<h3 id="工作树和索引"><a href="#工作树和索引" class="headerlink" title="工作树和索引"></a>工作树和索引</h3><p>在<code>Git</code>管理下，大家实际操作的目录被称为<strong>工作树</strong>，也就是<strong>工作区域</strong></p>
+<p>在数据库和工作树之间有索引，索引是为了向数据库提交作准备的区域，也被称为暂存区域</p>
+<p><code>Git</code>在执行提交的时候，不是直接将工作树的状态保存到数据库，而是将设置在中间索引区域的状态保存到数据库</p>
+<p>因此，要提交文件，首先需要把文件加入到索引区域中。</p>
+<p>所以，凭借中间的索引，可以避免工作树中不必要的文件提交，还可以将文件修改内容的一部分加入索引区域并提交</p>
+<blockquote>
+<p>工作树就是工作区，索引就是暂存区，数据库就是本地仓库</p>
+</blockquote>
+<h3 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h3><p>从所在的位置来看：</p>
+<ul>
+<li>HEAD 指针通常指向我们所在的分支，当我们在某个分支上创建新的提交时，分支指针总是会指向当前分支的最新提交</li>
+<li>工作树是查看和编辑的（源）文件的实际内容</li>
+<li>索引是放置你想要提交给 git 仓库文件的地方，如工作树的代码通过 git add 则添加到 git 索引中，通过 git commit 则将索引区域的文件提交到 git 仓库中</li>
+</ul>
+<h2 id="如何理解git-checkout-–-file和git-reset-HEAD-–-file"><a href="#如何理解git-checkout-–-file和git-reset-HEAD-–-file" class="headerlink" title="如何理解git checkout – file和git reset HEAD – file"></a>如何理解git checkout – file和git reset HEAD – file</h2><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.liaoxuefeng.com/wiki/896043488029600/897889638509536">https://www.liaoxuefeng.com/wiki/896043488029600/897889638509536</a></p>
+</blockquote>
+<p>git checkout – file：撤销对工作区修改；这个命令是以最新的存储时间节点（add和commit）为参照，覆盖工作区对应文件file；这个命令改变的是<strong>工作区</strong>【使用场景：当需要撤回工作区的内容到上一个版本，<strong>但是还没有</strong>git add添加到暂存区】</p>
+<p>git reset HEAD – file：清空add命令向暂存区提交的关于file文件的修改（Ustage）；这个命令仅改变<strong>暂存区</strong>，并不改变工作区，这意味着在无任何其他操作的情况下，工作区中的实际文件同该命令运行之前无任何改变【使用场景：当需要撤回工作区的内容到上一个版本，<strong>但是已经</strong>git add添加到暂存区】</p>
+<p>🍭 <strong>总结：</strong></p>
+<blockquote>
+<p>场景1：当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时，用命令<code>git checkout -- file</code>。</p>
+<p>场景2：当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，分两步，第一步用命令<code>git reset HEAD &lt;file&gt;</code>，就回到了场景1，第二步按场景1操作。</p>
+</blockquote>
 
                 
               </div>
