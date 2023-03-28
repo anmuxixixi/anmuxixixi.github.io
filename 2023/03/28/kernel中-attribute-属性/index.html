@@ -1,0 +1,681 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="kernel中__attribute__属性1.实验程序123456789101112#include &lt;stdio.h&gt;static void __attribute__ ((constructor)) beforeMain(void)&amp;#123;    printf(&quot;Before main...\n&quot;);&amp;#125;int main(void)&amp;#123;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kernel中__attribute__属性">
+<meta property="og:url" content="http://example.com/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="kernel中__attribute__属性1.实验程序123456789101112#include &lt;stdio.h&gt;static void __attribute__ ((constructor)) beforeMain(void)&amp;#123;    printf(&quot;Before main...\n&quot;);&amp;#125;int main(void)&amp;#123;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328225545088.png">
+<meta property="og:image" content="http://example.com/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328225732402.png">
+<meta property="og:image" content="http://example.com/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328230224517.png">
+<meta property="og:image" content="http://example.com/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328230504826.png">
+<meta property="article:published_time" content="2023-03-28T14:49:37.000Z">
+<meta property="article:modified_time" content="2023-03-28T15:05:50.846Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328225545088.png">
+  
+  
+  
+  <title>kernel中__attribute__属性 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="kernel中__attribute__属性"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-28 22:49" pubdate>
+          2023年3月28日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          53 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">kernel中__attribute__属性</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="kernel中-attribute-属性"><a href="#kernel中-attribute-属性" class="headerlink" title="kernel中__attribute__属性"></a>kernel中__attribute__属性</h1><h2 id="1-实验程序"><a href="#1-实验程序" class="headerlink" title="1.实验程序"></a>1.实验程序</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __attribute__ ((constructor)) beforeMain(<span class="hljs-type">void</span>)<br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Before main...\n&quot;</span>);<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Main!\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编译运行：<code>gcc test.c -o test</code></p>
+<p>输出结果：</p>
+<img src="/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328225545088.png" srcset="/img/loading.gif" lazyload alt="image-20230328225545088" style="zoom:80%;">
+
+<blockquote>
+<p>为什么最开始执行的不是main函数？怎么和我们刚开始学习C程序时说的不一样呢？从运行结果中，我们可以看出来beforeMain是在进入main函数之前被调用的，这对于C语言的初学者来说似乎有点难以理解。究竟是谁调用的beforeMain呢？怎么还没有进入main就可以有代码被执行呢？</p>
+</blockquote>
+<p>带着以上问题，我们先用-v参数来显示编译过程输出结果<code>gcc test.c -o test -v</code>：，其中输出部分如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/8/:/usr/lib/gcc/x86_64-linux-gnu/8/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/8/:/usr/lib/gcc/x86_64-linux-gnu/<br>LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/8/:/usr/lib/gcc/x86_64-linux-gnu/8/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/8/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/8/../../../:/lib/:/usr/lib/<br>COLLECT_GCC_OPTIONS=&#x27;-o&#x27; &#x27;test&#x27; &#x27;-v&#x27; &#x27;-mtune=generic&#x27; &#x27;-march=x86-64&#x27;<br> /usr/lib/gcc/x86_64-linux-gnu/8/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/8/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/8/lto-wrapper -plugin-opt=-fresolution=/tmp/ccxW7QBR.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o test /usr/lib/gcc/x86_64-linux-gnu/8/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/8/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/8/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/8 -L/usr/lib/gcc/x86_64-linux-gnu/8/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/8/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/8/../../.. /tmp/ccboZUZT.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/8/crtend.o /usr/lib/gcc/x86_64-linux-gnu/8/../../../x86_64-linux-gnu/crtn.o<br>COLLECT_GCC_OPTIONS=&#x27;-o&#x27; &#x27;test&#x27; &#x27;-v&#x27; &#x27;-mtune=generic&#x27; &#x27;-march=x86-64&#x27;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328225732402.png" srcset="/img/loading.gif" lazyload alt="image-20230328225732402" style="zoom:100%;">
+
+<p>从输出结果可以看出，在链接生成最后的可执行文件时，有很多的C库二进制文件参与进来。而最终的可执行文件除了我们编写的这个简单的C代码以外，还有大量的C库文件参与了链接，并包含在了最终的可执行文件中。这个链接的过程，是由链接器ld的链接脚本来决定的。如果我们没有指定链接脚本，会默认使用ld的默认脚本。</p>
+<p>通过<strong>ld -verbose</strong>命令来查看</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">using internal linker script:<br>==================================================<br>/* Script for -z combreloc -z separate-code: combine and sort reloc sections with separate code segment */<br>/* Copyright (C) 2014-2018 Free Software Foundation, Inc.<br>   Copying and distribution of this script, with or without modification,<br>   are permitted in any medium without royalty provided the copyright<br>   notice and this notice are preserved.  */<br>OUTPUT_FORMAT(&quot;elf64-x86-64&quot;, &quot;elf64-x86-64&quot;,<br>              &quot;elf64-x86-64&quot;)<br>OUTPUT_ARCH(i386:x86-64)<br>ENTRY(_start)<br>SEARCH_DIR(&quot;=/usr/local/lib/x86_64-linux-gnu&quot;); SEARCH_DIR(&quot;=/lib/x86_64-linux-gnu&quot;); SEARCH_DIR(&quot;=/usr/lib/x86_64-linux-gnu&quot;); SEARCH_DIR(&quot;=/usr/lib/x86_64-linux-gnu64&quot;); SEARCH_DIR(&quot;=/usr/local/lib64&quot;); SEARCH_DIR(&quot;=/lib64&quot;); SEARCH_DIR(&quot;=/usr/lib64&quot;); SEARCH_DIR(&quot;=/usr/local/lib&quot;); SEARCH_DIR(&quot;=/lib&quot;); SEARCH_DIR(&quot;=/usr/lib&quot;); SEARCH_DIR(&quot;=/usr/x86_64-linux-gnu/lib64&quot;); SEARCH_DIR(&quot;=/usr/x86_64-linux-gnu/lib&quot;);<br></code></pre></td></tr></table></figure>
+
+<p>从上面输出可以看出这里定义了输出的文件格式、目标机器的类型，以及重要的信息和程序的入口ENTRY（_start）。</p>
+<blockquote>
+<p>我们的例子中beforeMain函数使用的gcc扩展属性<code>__attribute__（（constructor））</code>就是将函数对应的指令归属于.ctors section部分。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs shell">.ctors          :<br>&#123;<br>  /* gcc uses crtbegin.o to find the start of<br>     the constructors, so we make sure it is<br>     first.  Because this is a wildcard, it<br>     doesn&#x27;t matter if the user does not<br>     actually link against crtbegin.o; the<br>     linker won&#x27;t look for a file to match a<br>     wildcard.  The wildcard also means that it<br>     doesn&#x27;t matter which directory crtbegin.o<br>     is in.  */<br>  KEEP (*crtbegin.o(.ctors))<br>  KEEP (*crtbegin?.o(.ctors))<br>  /* We don&#x27;t want to include the .ctor section from<br>     the crtend.o file until after the sorted ctors.<br>     The .ctor section from the crtend file contains the<br>     end of ctors marker and it must be last */<br>  KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .ctors))<br>  KEEP (*(SORT(.ctors.*)))<br>  KEEP (*(.ctors))<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-attribute-constructor-属性"><a href="#2-attribute-constructor-属性" class="headerlink" title="2._attribute_((constructor))属性"></a>2._<em>attribute</em>_((constructor))属性</h2><blockquote>
+<p>The constructor attribute causes the function to be called automatically before execution enters main (). 构造函数属性使函数在执行进入main（）之前自动被调用</p>
+</blockquote>
+<p>GNU C的一大特色就是<code>__attribute__</code>机制。<code>__attribute__</code>可以设置函数属性（Function Attribute ）、变量属性（Variable Attribute ）和类型属性（Type Attribute ）。<code>__attribute__</code>写法是<code>__attribute__</code>前后都有两个下划线，并且后面会紧跟一对原括弧，括弧里面是相应的<code>__attribute__</code>参数。<code>__attribute__</code>格式为<code>__attribute__((attribute-list))</code></p>
+<p>就是指在函数上方加上<code>__attribute__((constructor))</code>可以让这个函数在main函数执行前运行</p>
+<p><strong>作用：<code>__attribute__((constructor))</code>可以提前初始化一些在main函数中用到的东西，便于我们做一些准备工作。</strong></p>
+<p><strong>带有优先级的参数</strong></p>
+<p>我们还可以给属性设置优先级，看下面示例代码:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">include &lt;stdio.h&gt;</span><br><br>static void __attribute__ ((constructor(101))) beforeMain1(void)<br>&#123;<br>    printf(&quot;Before main...1\n&quot;);<br>&#125;<br>static void __attribute__ ((constructor(102))) beforeMain2(void)<br>&#123;<br>    printf(&quot;Before main...2\n&quot;);<br>&#125;<br>static void __attribute__ ((constructor(103))) beforeMain3(void)<br>&#123;<br>    printf(&quot;Before main...3\n&quot;);<br>&#125;<br><br>int main(void)<br>&#123;<br>    printf(&quot;Main!\n&quot;);<br>    return 0;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328230224517.png" srcset="/img/loading.gif" lazyload alt="image-20230328230224517" style="zoom:100%;">
+
+<h2 id="3-attribute-destructor-属性"><a href="#3-attribute-destructor-属性" class="headerlink" title="3._attribute_((destructor))属性"></a>3._<em>attribute</em>_((destructor))属性</h2><p>查阅了GNU的文档你还会发现有提及这么一个写法<code>__attribute__((destructor))</code>，文档中关于这两个用法的说明如下:</p>
+<blockquote>
+<p>The constructor attribute causes the function to be called automatically before execution enters main (). Similarly, the destructor attribute causes the function to be called automatically after main () completes or exit () is called. Functions with these attributes are useful for initializing data that is used implicitly during the execution of the program.</p>
+</blockquote>
+<blockquote>
+<p>同理, destructor让系统在main()函数退出或者调用了exit()之后,调用我们的函数。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __attribute__ ((constructor)) beforeMain(<span class="hljs-type">void</span>)<br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Before main...\n&quot;</span>);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __attribute__ ((destructor)) afterMain(<span class="hljs-type">void</span>)<br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;After main...\n&quot;</span>);<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Main!\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328230504826.png" srcset="/img/loading.gif" lazyload alt="image-20230328230504826" style="zoom:100%;">
+
+<h2 id="4-小结"><a href="#4-小结" class="headerlink" title="4.小结"></a>4.小结</h2><p>C程序中<code>__attribute__ ((constructor))</code>和<code>__attribute__ ((destructor))</code>类似于C++类中构造函数和析构函数。在main函数之前，执行一个函数，便于我们做一些准备工作；在main()函数退出或者调用了exit()之后调用。多个函数时，GCC为我们提供了一个参数叫优先级，constructor按从小到大，destructor函数相反<code> void __attribute__((constructor(5)) initFunction1(void); void __attribute__((constructor(10)) initFunction2(void);</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Linux学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>kernel中__attribute__属性</div>
+      <div>http://example.com/2023/03/28/kernel中-attribute-属性/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月28日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/24/%E5%AE%89%E5%8D%93init%E8%BF%9B%E7%A8%8B%E7%B3%BB%E5%88%97-1-ctl-interface-start/" title="安卓init进程系列(1)ctl.interface_start">
+                        <span class="hidden-mobile">安卓init进程系列(1)ctl.interface_start</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
