@@ -27,8 +27,9 @@
 <meta property="og:image" content="http://example.com/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328225732402.png">
 <meta property="og:image" content="http://example.com/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328230224517.png">
 <meta property="og:image" content="http://example.com/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328230504826.png">
+<meta property="og:image" content="http://example.com/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328234128499.png">
 <meta property="article:published_time" content="2023-03-28T14:49:37.000Z">
-<meta property="article:modified_time" content="2023-03-28T15:07:53.001Z">
+<meta property="article:modified_time" content="2023-03-28T15:41:34.636Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary_large_image">
@@ -213,7 +214,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.3k 字
+          7.6k 字
         
       </span>
     
@@ -224,7 +225,7 @@
         
         
         
-          53 分钟
+          64 分钟
         
       </span>
     
@@ -318,6 +319,20 @@
 <img src="/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328230504826.png" srcset="/img/loading.gif" lazyload alt="image-20230328230504826" style="zoom:100%;">
 
 <h2 id="4-小结"><a href="#4-小结" class="headerlink" title="4.小结"></a>4.小结</h2><p>C程序中<code>__attribute__ ((constructor))</code>和<code>__attribute__ ((destructor))</code>类似于C++类中构造函数和析构函数。在main函数之前，执行一个函数，便于我们做一些准备工作；在main()函数退出或者调用了exit()之后调用。多个函数时，GCC为我们提供了一个参数叫优先级，constructor按从小到大，destructor函数相反<code> void __attribute__((constructor(5)) initFunction1(void); void __attribute__((constructor(10)) initFunction2(void);</code></p>
+<h2 id="5-attribute用于加载动态库"><a href="#5-attribute用于加载动态库" class="headerlink" title="5.attribute用于加载动态库"></a>5.attribute用于加载动态库</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs makefile">Shared objects may <span class="hljs-keyword">export</span> functions using the<br><br>__attribute__((constructor)) and __attribute__((destructor))<br>function attributes.  Constructor functions are executed before<br>dlopen() returns, and destructor functions are executed before<br>dlclose() returns.  A shared object may <span class="hljs-keyword">export</span> multiple<br>constructors and destructors, and priorities can be associated<br>with each function to determine the order in which they are<br>executed.  See the gcc info pages (under <span class="hljs-string">&quot;Function attributes&quot;</span>)<br>for further information.<br></code></pre></td></tr></table></figure>
+
+<p>函数设置__attribute__((constructor))属性，在dlopen时，会先调用该方法。</p>
+<p>设置__attribute__((destructor))属性，在dlclose时会调用该方法。</p>
+<p>实验程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// test.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br>__attribute__((constructor)) <span class="hljs-type">void</span> <span class="hljs-title function_">test_init</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world\n&quot;</span>);<br>&#125;<br><br>__attribute__((destructor)) <span class="hljs-type">void</span> <span class="hljs-title function_">test_fini</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;bye world\n&quot;</span>);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">test</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;test\n&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gcc -fPIC -shared test.c -o  libtest.so<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// main.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;dlfcn.h&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span><span class="hljs-params">(*testFunc)</span><span class="hljs-params">()</span>;<br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">void</span> *handle = dlopen(<span class="hljs-string">&quot;./libtest.so&quot;</span>, RTLD_LAZY);<br>    <span class="hljs-keyword">if</span> (handle == <span class="hljs-literal">NULL</span>) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;handle is null, %s\n&quot;</span>, dlerror());<br>    &#125;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;----------\n&quot;</span>);<br>    testFunc f = (testFunc)dlsym(handle, <span class="hljs-string">&quot;test&quot;</span>);<br>    <span class="hljs-keyword">if</span> (f == <span class="hljs-literal">NULL</span>) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;f is null\n&quot;</span>);<br>    &#125;<br><br>    f();<br>    dlclose(handle);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gcc main.c -ldl -O0 -g -o main<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/03/28/kernel%E4%B8%AD-attribute-%E5%B1%9E%E6%80%A7/image-20230328234128499.png" srcset="/img/loading.gif" lazyload alt="image-20230328234128499" style="zoom:100%;">
 
                 
               </div>
