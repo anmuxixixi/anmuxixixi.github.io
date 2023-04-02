@@ -1,0 +1,691 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Linux模块加载时的版本检查机制 参考：https:&#x2F;&#x2F;www.jb51.cc&#x2F;python&#x2F;3860648.html  Linux 的迅速发展致使相邻版本的内核之间亦存在较大的差异，即在版本补丁号（Patch Level，即内核版本号的第四位数）相邻的内核之间。为此 Linux 的开发者为了保证内核的稳定，Linux 在加载模块到内核时对模块采用了版本校验机制。当被期望加载模块的系统环境与模块">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux模块加载时的版本检查机制">
+<meta property="og:url" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="Linux模块加载时的版本检查机制 参考：https:&#x2F;&#x2F;www.jb51.cc&#x2F;python&#x2F;3860648.html  Linux 的迅速发展致使相邻版本的内核之间亦存在较大的差异，即在版本补丁号（Patch Level，即内核版本号的第四位数）相邻的内核之间。为此 Linux 的开发者为了保证内核的稳定，Linux 在加载模块到内核时对模块采用了版本校验机制。当被期望加载模块的系统环境与模块">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402204428316.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402194808674.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402194909699.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/8d71df88-4caa-436c-b5eb-72d2a53f2b31.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402205606535.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402205711705.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402210324480.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402211105995.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402211313240.png">
+<meta property="article:published_time" content="2023-04-02T11:29:24.000Z">
+<meta property="article:modified_time" content="2023-04-02T13:14:55.190Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402204428316.png">
+  
+  
+  
+  <title>Linux模块加载时的版本检查机制 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux模块加载时的版本检查机制"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-02 19:29" pubdate>
+          2023年4月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          26 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux模块加载时的版本检查机制</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Linux模块加载时的版本检查机制"><a href="#Linux模块加载时的版本检查机制" class="headerlink" title="Linux模块加载时的版本检查机制"></a>Linux模块加载时的版本检查机制</h1><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.jb51.cc/python/3860648.html">https://www.jb51.cc/python/3860648.html</a></p>
+</blockquote>
+<p>Linux 的迅速发展致使相邻版本的内核之间亦存在较大的差异，即在版本补丁号（Patch Level，即内核版本号的第四位数）相邻的内核之间。为此 Linux 的开发者为了保证内核的稳定，Linux 在加载模块到内核时对模块采用了版本校验机制。当被期望加载模块的系统环境与模块的构建环境相左时，通常会出现如清单 1 所示的装载模块失败。</p>
+<h2 id="1-模块加载校验失败"><a href="#1-模块加载校验失败" class="headerlink" title="1.模块加载校验失败"></a>1.模块加载校验失败</h2><p>首先，我们看一下当模块加载时候的报错信息：</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402204428316.png" srcset="/img/loading.gif" lazyload alt="image-20230402204428316" style="zoom:100%;">
+
+<p>模块 hello.ko 构建时的环境与当前系统不一致，导致工具 insmod 在尝试装载模块 hello.ko 到内核时失败。hello.ko 是一个仅使用了函数 printk 的普通模块（。我们通过命令 dmesg获取模块装载失败的具体原因。从日志打印的<code>disagree about version of sysmbol module layout</code>可以看出，模块 hello.ko 装载失败是由于<strong>模块中 module_layout 的导出符号的版本信息与当前内核中的不符</strong>。</p>
+<p>函数 module_layout 被定义在内核模块版本选项 MODVERSIONS（即内核可装载模块的版本校验选项）之后。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta"># kernel\module.c</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_MODVERSIONS</span><br><span class="hljs-comment">/* Generate the signature for all relevant module structures here.</span><br><span class="hljs-comment"> * If these change, we don&#x27;t want to try to parse the module. */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">module_layout</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> module *mod,</span><br><span class="hljs-params">		   <span class="hljs-keyword">struct</span> modversion_info *ver,</span><br><span class="hljs-params">		   <span class="hljs-keyword">struct</span> kernel_param *kp,</span><br><span class="hljs-params">		   <span class="hljs-keyword">struct</span> kernel_symbol *ks,</span><br><span class="hljs-params">		   <span class="hljs-keyword">struct</span> tracepoint * <span class="hljs-type">const</span> *tp)</span><br>&#123;<br>&#125;<br>EXPORT_SYMBOL(module_layout);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+
+<p>那么我们如何比对内核的module_layout 和 外部模块的module_layout值呢？</p>
+<h4 id="1-1-比对内核与模块module-layout的CRC"><a href="#1-1-比对内核与模块module-layout的CRC" class="headerlink" title="1.1 比对内核与模块module_layout的CRC"></a>1.1 比对内核与模块module_layout的CRC</h4><p>内核的<code>module_layout</code>的CRC值，我们可以通过内核编译的<code>Module.symvers</code>文件进行查看</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat Module.symvers | grep module_layout<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402194808674.png" srcset="/img/loading.gif" lazyload alt="image-20230402194808674" style="zoom:100%;">
+
+<p>外部模块<code>module_layout</code>的CRC值，我们可以通过modprode查看编译出的ko文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">modprobe --dump-versions xxx.ko | grep module_layout<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402194909699.png" srcset="/img/loading.gif" lazyload alt="image-20230402194909699" style="zoom:100%;">
+
+<blockquote>
+<p>可以看到内核与外部模块的module_layout值是一样的，所以我们可以通过<strong>insmod或者modprobe加载chrdevbase.ko</strong></p>
+</blockquote>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/8d71df88-4caa-436c-b5eb-72d2a53f2b31.png" srcset="/img/loading.gif" lazyload>
+
+<h4 id="1-2-Linux对于模块的两层检验"><a href="#1-2-Linux对于模块的两层检验" class="headerlink" title="1.2 Linux对于模块的两层检验"></a>1.2 Linux对于模块的两层检验</h4><p>inux 对可装载模块采取了两层验证：<strong>模块的 CRC 值校验</strong>和 <strong>vermagic 的检查</strong>。</p>
+<p>其中模块 CRC 值校验针对模块（内核）导出符号，是一种简单的 ABI（即 Application Binary Interface）一致性检查，第一节开头的 hello.ko 加载失败的根本原因就是没有通过 CRC 值校验（即 module_layout 的 CRC 值与当前内核中的不符）。</p>
+<p>而模块 vermagic（即 Version Magic String）则保存了模块编译时的内核版本以及 SMP 等配置信息，当模块 vermagic 与主机信息不相符时亦将终止模块的加载。</p>
+<h2 id="2-模块的CRC值校验"><a href="#2-模块的CRC值校验" class="headerlink" title="2.模块的CRC值校验"></a>2.模块的CRC值校验</h2><p>首先我们了解一下CTC值校验在哪里添加，又是如何进行校验的</p>
+<h3 id="2-1-添加模块的CRC值"><a href="#2-1-添加模块的CRC值" class="headerlink" title="2.1 添加模块的CRC值"></a>2.1 添加模块的CRC值</h3><p>当我们在编译内核模块时，会生成许多的中间文件：</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402205606535.png" srcset="/img/loading.gif" lazyload alt="image-20230402205606535" style="zoom:80%;">
+
+<p>其中<strong>chrdevbase.mod.c</strong>是在模块源文件chrdevbase.c基础上进行的扩展，其内容如下：</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402205711705.png" srcset="/img/loading.gif" lazyload alt="image-20230402205711705" style="zoom:67%;">
+
+<blockquote>
+<p>🤺 <strong>注意</strong>：这里红色圈出来的就是各个符号，前面的16进制数字就是每个符号对应的CRC值。可以看到，module_layout对应的CRC值就是0xfa985410，与1.1节看到的是一样的！</p>
+</blockquote>
+<p>那么chrdevbase.mod.c在生成的过程中， 会调用modpost添加各种信息，其中有一步就是添加版本值：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// scripts\mod\modpost.h</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv)</span><br>&#123;<br>	<span class="hljs-comment">// ...</span><br><br>	<span class="hljs-keyword">for</span> (mod = modules; mod; mod = mod-&gt;next) &#123;<br>		err |= add_versions(&amp;buf, mod);<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br><br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">add_versions</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> buffer *b, <span class="hljs-keyword">struct</span> module *mod)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">symbol</span> *<span class="hljs-title">s</span>, *<span class="hljs-title">exp</span>;</span><br>	<span class="hljs-type">int</span> err = <span class="hljs-number">0</span>;<br><br>	<span class="hljs-keyword">for</span> (s = mod-&gt;unres; s; s = s-&gt;next) &#123;<br>		<span class="hljs-built_in">exp</span> = find_symbol(s-&gt;name);<br>		s-&gt;module = <span class="hljs-built_in">exp</span>-&gt;module;<br>		s-&gt;crc_valid = <span class="hljs-built_in">exp</span>-&gt;crc_valid;<br>		s-&gt;crc = <span class="hljs-built_in">exp</span>-&gt;crc;<br>	&#125;<br><br>	buf_printf(b, <span class="hljs-string">&quot;\n&quot;</span>);<br>	buf_printf(b, <span class="hljs-string">&quot;static const struct modversion_info ____versions[]\n&quot;</span>);<br>	buf_printf(b, <span class="hljs-string">&quot;__used\n&quot;</span>);<br>	buf_printf(b, <span class="hljs-string">&quot;__attribute__((section(\&quot;__versions\&quot;))) = &#123;\n&quot;</span>);<br><br>	<span class="hljs-keyword">for</span> (s = mod-&gt;unres; s; s = s-&gt;next) &#123;<br>		<span class="hljs-keyword">if</span> (!s-&gt;module)<br>			<span class="hljs-keyword">continue</span>;<br>		<span class="hljs-keyword">if</span> (!s-&gt;crc_valid) &#123;<br>			warn(<span class="hljs-string">&quot;\&quot;%s\&quot; [%s.ko] has no CRC!\n&quot;</span>,<br>				s-&gt;name, mod-&gt;name);<br>			<span class="hljs-keyword">continue</span>;<br>		&#125;<br>        <span class="hljs-comment">// 添加各个符号SYSBOL对应的CRC值</span><br>		buf_printf(b, <span class="hljs-string">&quot;\t&#123; %#8x, __VMLINUX_SYMBOL_STR(%s) &#125;,\n&quot;</span>,<br>			   s-&gt;crc, s-&gt;name);<br>	&#125;<br><br>	buf_printf(b, <span class="hljs-string">&quot;&#125;;\n&quot;</span>);<br><br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>哇哦，从这里可以清晰的看到，最终生成的chrdevbase.mod.c【或chrdevbase.ko】是通过add_version添加的。</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402210324480.png" srcset="/img/loading.gif" lazyload alt="image-20230402210324480" style="zoom:80%;">
+
+<h3 id="2-2-通过objdump反汇编后查看versions的值"><a href="#2-2-通过objdump反汇编后查看versions的值" class="headerlink" title="2.2 通过objdump反汇编后查看versions的值"></a>2.2 通过objdump反汇编后查看versions的值</h3><p>首先可以通过<code>objdump -h xxx.ko</code>查看当前ko的section有哪些</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402211105995.png" srcset="/img/loading.gif" lazyload alt="image-20230402211105995" style="zoom: 50%;">
+
+<p>通过<code>objdump --section=__versions -s chrdevbase.ko</code>的值查看当前模块的版本version值</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402211313240.png" srcset="/img/loading.gif" lazyload alt="image-20230402211313240" style="zoom:50%;">
+
+<p>可以看到当前模块的module_layout也匹配上了，另外的几个值，如<code>__unregister_chrdev</code>也对应了上述的CRC值</p>
+<h3 id="2-3-加载模块的过程中何时检验CRC"><a href="#2-3-加载模块的过程中何时检验CRC" class="headerlink" title="2.3 加载模块的过程中何时检验CRC"></a>2.3 加载模块的过程中何时检验CRC</h3>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Linux学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux模块加载时的版本检查机制</div>
+      <div>http://example.com/2023/04/02/Linux模块加载时的版本检查机制/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/30/Makefile%E4%B8%AD%E7%9A%84include%E5%85%B3%E9%94%AE%E5%AD%97/" title="Makefile中的include关键字">
+                        <span class="hidden-mobile">Makefile中的include关键字</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
