@@ -32,8 +32,10 @@
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402210324480.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402211313240.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402213008474.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403230704333.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403231013373.png">
 <meta property="article:published_time" content="2023-04-02T11:29:24.000Z">
-<meta property="article:modified_time" content="2023-04-02T13:32:20.955Z">
+<meta property="article:modified_time" content="2023-04-03T15:10:20.526Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary_large_image">
@@ -218,7 +220,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.8k 字
+          5.1k 字
         
       </span>
     
@@ -229,7 +231,7 @@
         
         
         
-          41 分钟
+          43 分钟
         
       </span>
     
@@ -329,7 +331,12 @@
 <p><strong>我的天，终于看到了第1节报错的报错的来源啦！</strong></p>
 <img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402213008474.png" srcset="/img/loading.gif" lazyload alt="image-20230402213008474" style="zoom:80%;">
 
-<h2 id="3-模块的vermagic检验"><a href="#3-模块的vermagic检验" class="headerlink" title="3.模块的vermagic检验"></a>3.模块的vermagic检验</h2>
+<h2 id="3-模块的vermagic检验"><a href="#3-模块的vermagic检验" class="headerlink" title="3.模块的vermagic检验"></a>3.模块的vermagic检验</h2><h2 id="附录1：module-symvers-文件的内容"><a href="#附录1：module-symvers-文件的内容" class="headerlink" title="附录1：module.symvers 文件的内容"></a>附录1：module.symvers 文件的内容</h2><p>如果打开该文件后看到的符号CRC值都是0x00000000，那是因为你在配置的时并没有设置 <code>CONFIG_MODVERSIONS</code>。一旦设置过这个配置选项，就意味着打开了内核的 <strong>Module versioning</strong>功能。Module versioning 功能应用在我们使用模块的场合。</p>
+<p>如果Module versioning功能被打开的话，它会以每个导出符号的C原型声明作为输入，计算出对应的CRC校验值，保存在文件 Module.symvers 中。如此一来，内核在后面要加载使用模块的时候，会两相比较模块中的CRC值和保存下来的CRC值，如果发现不相等，内核就拒绝加载这个模块。</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403230704333.png" srcset="/img/loading.gif" lazyload alt="image-20230403230704333" style="zoom:100%;">
+
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403231013373.png" srcset="/img/loading.gif" lazyload alt="image-20230403231013373" style="zoom:100%;">
+
                 
               </div>
             
