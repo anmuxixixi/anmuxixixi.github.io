@@ -16,13 +16,20 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="深入理解计算机系统——链接 声明：本文为学习计算机系统的笔记，供自己复习使用；按照yaaangmin的github声明，请勿进行商用 所有内容均整理自：yaaangmin 其github地址为：https:&#x2F;&#x2F;github.com&#x2F;yangminz&#x2F;bcst_csapp  1.1.3 符号表最后，我们要定位到每一个符号在ELF中所处的位置，这就需要一个特别的Section，symtab，也就是符号">
+    <meta name="description" content="深入理解计算机系统——链接 声明：本文为学习计算机系统的笔记，供自己复习使用；按照yaaangmin的github声明，请勿进行商用 所有内容均整理自：yaaangmin 其github地址为：https:&#x2F;&#x2F;github.com&#x2F;yangminz&#x2F;bcst_csapp  1.可执行可链接格式首先，我们考虑什么是文件系统（File System)上的文件。我们知道，文件都是持久地储存在磁盘等设备上">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深入理解计算机系统——链接">
 <meta property="og:url" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="深入理解计算机系统——链接 声明：本文为学习计算机系统的笔记，供自己复习使用；按照yaaangmin的github声明，请勿进行商用 所有内容均整理自：yaaangmin 其github地址为：https:&#x2F;&#x2F;github.com&#x2F;yangminz&#x2F;bcst_csapp  1.1.3 符号表最后，我们要定位到每一个符号在ELF中所处的位置，这就需要一个特别的Section，symtab，也就是符号">
+<meta property="og:description" content="深入理解计算机系统——链接 声明：本文为学习计算机系统的笔记，供自己复习使用；按照yaaangmin的github声明，请勿进行商用 所有内容均整理自：yaaangmin 其github地址为：https:&#x2F;&#x2F;github.com&#x2F;yangminz&#x2F;bcst_csapp  1.可执行可链接格式首先，我们考虑什么是文件系统（File System)上的文件。我们知道，文件都是持久地储存在磁盘等设备上">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405210514169.png">
+<meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405210554302.png">
+<meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405211548347.png">
+<meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405212130069.png">
+<meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405212311898.png">
+<meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405212446493.png">
+<meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405212718033.png">
 <meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405192412069.png">
 <meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405193201163.png">
 <meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405193923601.png">
@@ -34,11 +41,11 @@
 <meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405200642983.png">
 <meta property="og:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405201014924.png">
 <meta property="article:published_time" content="2023-04-05T11:03:35.000Z">
-<meta property="article:modified_time" content="2023-04-05T12:11:24.449Z">
+<meta property="article:modified_time" content="2023-04-05T13:36:44.771Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="操作系统">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405192412069.png">
+<meta name="twitter:image" content="http://example.com/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405210514169.png">
   
   
   
@@ -219,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          8k 字
+          10k 字
         
       </span>
     
@@ -230,7 +237,7 @@
         
         
         
-          67 分钟
+          85 分钟
         
       </span>
     
@@ -278,7 +285,35 @@
 <p>所有内容均整理自：<strong>yaaangmin</strong></p>
 <p>其github地址为：<a target="_blank" rel="noopener" href="https://github.com/yangminz/bcst_csapp">https://github.com/yangminz/bcst_csapp</a></p>
 </blockquote>
-<h4 id="1-1-3-符号表"><a href="#1-1-3-符号表" class="headerlink" title="1.1.3 符号表"></a>1.1.3 符号表</h4><p>最后，我们要定位到每一个符号在ELF中所处的位置，这就需要一个特别的Section，<code>symtab</code>，也就是<strong>符号表</strong>(Symbol Table)。符号表被用来描述.c源文件中可以<strong>被其他ELF使用的符号</strong>。对于什么是符号Symbol，其实有必要先从编译器的角度去观察.c源文件。这部分工作主要是编译中语义分析(Semantic Analysis)的过程，通过语法中的环境(Environment)和范围(Scope)来进行管理。其中Environment映射在编译器中也被称为符号表，我们很快便能发现<strong>编译和链接语境下的符号表其实是含义相同的</strong>。</p>
+<h2 id="1-可执行可链接格式"><a href="#1-可执行可链接格式" class="headerlink" title="1.可执行可链接格式"></a>1.可执行可链接格式</h2><p>首先，我们考虑什么是文件系统（File System)上的文件。我们知道，文件都是持久地储存在磁盘等设备上的，但它的实质仍然是二进制序列。只要我们对序列进行恰当的描述，我们就可以获得想要的全部信息。为了将某一文件的二进制串与其他文件的二进制串区别开，我们需要指定这一文件的类型与大小等信息，这些信息存放在文件二进制串的起始地址，也即首部（Header)。</p>
+<h3 id="1-1-ELF-Header"><a href="#1-1-ELF-Header" class="headerlink" title="1.1 ELF Header"></a>1.1 ELF Header</h3><p>对于ELF，首部的信息包括文件类型、机器类型等信息。在Linux读取ELF文件时，Linux将ELF Header从Byte翻译为内存中的数据结构：</p>
+<img src="/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405210514169.png" srcset="/img/loading.gif" lazyload alt="image-20230405210514169" style="zoom:80%;">
+
+<p>数据结构<strong>Elf64_Ehdr</strong>包含了很多信息，但对我们而言，我们只需要知道Header 是如何定位到节头表( Section Header Table,SHT)的。Header中的 Elf64_Ehdr.e_shoff 是SHT对ELF起始地址的Byte偏置，Elf64_Ehdr.e_shentsize描述SHT每一项的Byte大小，Elf64_Ehdr.e_shentnum 描述 SHT描述表项的数量，这样，我们就可以通过后两项计算出SHT的大小。Header中的Elf64_Ehdr.e_shstrndx则是SHT中一个特殊节<strong>字符串</strong>表的段索引，Header可以借此计算ELF中每一项的字符串。</p>
+<img src="/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405210554302.png" srcset="/img/loading.gif" lazyload alt="image-20230405210554302" style="zoom: 80%;">
+
+<p>我们举一个例子，使我们洞见ELF文件的数据结构，考虑如下的elf.c源文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">long</span> <span class="hljs-type">long</span> data1 = <span class="hljs-number">0xdddddddd11111111</span>;<br><span class="hljs-type">long</span> <span class="hljs-type">long</span> data2 = <span class="hljs-number">0xdddddddd22222222</span>;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">func1</span><span class="hljs-params">()</span> &#123;&#125;;<br><span class="hljs-type">void</span> <span class="hljs-title function_">func2</span><span class="hljs-params">()</span> &#123;&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>使用gcc编译得到它的ELF文件：<code>gcc -c elf.c -o elf.o</code>，其中-c的含义是仅编译源文件生成ELF文件，但不对ELF文件进行链接。生成ELF文件以后，利用hexdump查看ELF文件<code>elf.o</code>的内容。</p>
+<p>hexdump获得elf.o的二进制内容后，按照Elf64_Ehdr的结构格式，我们可以解读ELF的Header。首先，我们可以计算得到sizeof(Elf64_Ehdr) &#x3D; 64Byte，因此Header占据ELF文件的低64Byte。这样我们就得到了elf.o的Header：</p>
+<img src="/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405211548347.png" srcset="/img/loading.gif" lazyload alt="image-20230405211548347" style="zoom:80%;">
+
+<p>起始位置的16Bytes为 Magic Number,在这之后偏移2+2+4+8+8&#x3D;24Bytes,大小为8Bytes的数据为Elf64_Ehdr.e_shoff，也即SHT起始地址对ELF文件的偏移，数值为 0x00000000000002b0。在这之后，对Elf64_Ehdr.e_shoff偏移为4Bytes 的位置储存了ELF文件Header的大小：Elf64_Ehdr.e_ehsize &#x3D;0x0040。再之后2+2&#x3D;4 Bytes即 Elf64_Ehdr.e_shentsize，也即为SHT每一项的大小，数值为0x0040。最后两个2Bytes的数分别是 Elf64_Ehdr.e_shnum &#x3D; 0x000b以及Elf64_Ehdr.e_shstrndx &#x3D; 0x000a。</p>
+<h3 id="1-2-节头表SHT"><a href="#1-2-节头表SHT" class="headerlink" title="1.2 节头表SHT"></a>1.2 节头表SHT</h3><p>SHT描述了ELF中不同的<strong>节(Section)<strong>，包括</strong>数据节(.data)<strong>、</strong>代码节(.text）</strong>等。这些Section中的数据是由编译器生成的，按照Section 的组织写入到磁盘上的ELF文件中。SHT的每一项可以被数据结构Elf64_Shdr所描：</p>
+<img src="/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405212130069.png" srcset="/img/loading.gif" lazyload alt="image-20230405212130069" style="zoom: 80%;">
+
+<p>这样，我们可以通过SHT找到ELF内的任一Section，常见的Section有.text，.data，.rodata，.bss，.symtab，.rel.txt，.rel.data，.strtab，它们可以被Elf64_Shdr.sh_name确定：</p>
+<img src="/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405212311898.png" srcset="/img/loading.gif" lazyload alt="image-20230405212311898" style="zoom:80%;">
+
+<p>在elf.o的Header中，我们可以发现SHT距离ELF文件的起始位置偏移为688Byte，并且每一项的大小为64Byte，共11项，那么我们可以找到SHT对应的二进制段。但由于这段代码太长了，因此只截取了.text和.data这两节：</p>
+<img src="/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405212446493.png" srcset="/img/loading.gif" lazyload alt="image-20230405212446493">
+
+<p>和解析Header一样，对于SHT的每一个表项，按照结构Elf64_Shdr 逐个 Byte解析，我们就得到了.text对 ELF文件的偏移: .sh_offset &#x3D; 0x0000000000000040【.data对ELF文件的偏移为0x0000000000000050】。回忆起我们先前得知Header 的大小就是0x40，也即64 Bytes，因此.text所处的位置正是Header之后。并且，它的大小为.sh_size &#x3D;0x000000000000000e【实际上为了对齐，会进行补零】，就说明func1()与 func2()两个函数占据了14 Bytes(但目前我们并不知道每一个函数的真正位置)。对于.data，我们可以同样进行解析。readelf -s elf.o 会给我们相同的结论（我们省略了其他表项)。</p>
+<p>值得一提的是，SHT中总存在[o]项，它被视为未定义的符号所在Section，SHN_UNDEF，也就是0。同时，这一SHT表项的值总是64 Bytes的0:</p>
+<img src="/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405212718033.png" srcset="/img/loading.gif" lazyload alt="image-20230405212718033" style="zoom:80%;">
+
+<h3 id="1-3-符号表"><a href="#1-3-符号表" class="headerlink" title="1.3 符号表"></a>1.3 符号表</h3><p>最后，我们要定位到每一个符号在ELF中所处的位置，这就需要一个特别的Section，<code>symtab</code>，也就是<strong>符号表</strong>(Symbol Table)。符号表被用来描述.c源文件中可以<strong>被其他ELF使用的符号</strong>。对于什么是符号Symbol，其实有必要先从编译器的角度去观察.c源文件。这部分工作主要是编译中语义分析(Semantic Analysis)的过程，通过语法中的环境(Environment)和范围(Scope)来进行管理。其中Environment映射在编译器中也被称为符号表，我们很快便能发现<strong>编译和链接语境下的符号表其实是含义相同的</strong>。</p>
 <p>考虑赋值语句<code>int a = 0xaaaaaaaa</code>，在这里，终结符a就是我们通常所说的左值，其实它会被处理为一个字符串；终结符0xaaaaaaaa是我们所说的右值，被处理为数值。当我们在在.c源文件中引用终结符a时，其实做了两部映射(Two-Stage Mapping)；</p>
 <img src="/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/image-20230405192412069.png" srcset="/img/loading.gif" lazyload alt="image-20230405192412069" style="zoom:67%;">
 
