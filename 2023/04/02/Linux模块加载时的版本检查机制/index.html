@@ -32,10 +32,13 @@
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402210324480.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402211313240.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402213008474.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230405235046404.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230405235204648.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403230704333.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403231013373.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230405234653884.png">
 <meta property="article:published_time" content="2023-04-02T11:29:24.000Z">
-<meta property="article:modified_time" content="2023-04-03T15:10:20.526Z">
+<meta property="article:modified_time" content="2023-04-05T15:52:39.695Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary_large_image">
@@ -220,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          5.1k 字
+          7.9k 字
         
       </span>
     
@@ -231,7 +234,7 @@
         
         
         
-          43 分钟
+          66 分钟
         
       </span>
     
@@ -331,11 +334,93 @@
 <p><strong>我的天，终于看到了第1节报错的报错的来源啦！</strong></p>
 <img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402213008474.png" srcset="/img/loading.gif" lazyload alt="image-20230402213008474" style="zoom:80%;">
 
+<h3 id="2-4-为什么module-layout导出的符号会发生变化"><a href="#2-4-为什么module-layout导出的符号会发生变化" class="headerlink" title="2.4 为什么module_layout导出的符号会发生变化"></a>2.4 为什么module_layout导出的符号会发生变化</h3><p>根据附录2，我们知道了导出的符号如果是函数时，如果CRC值发生了改变，可能是<strong>参数变化</strong>或者<strong>返回值变化</strong>。</p>
+<p>因此，我们将<strong>module_layout</strong>的参数进行变化，编译后查看其CRC值</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230405235046404.png" srcset="/img/loading.gif" lazyload alt="image-20230405235046404" style="zoom: 50%;">
+
+<blockquote>
+<p>我们在参数中添加了<code>int num</code>，发现值变化成了<code>0x5d01a2ac</code></p>
+</blockquote>
+<p>将<strong>module_layout</strong>的参数恢复成原样，重新编译</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230405235204648.png" srcset="/img/loading.gif" lazyload alt="image-20230405235204648" style="zoom:50%;">
+
+<blockquote>
+<p>可以看到又恢复成了原来的1.1节中的值</p>
+</blockquote>
 <h2 id="3-模块的vermagic检验"><a href="#3-模块的vermagic检验" class="headerlink" title="3.模块的vermagic检验"></a>3.模块的vermagic检验</h2><h2 id="附录1：module-symvers-文件的内容"><a href="#附录1：module-symvers-文件的内容" class="headerlink" title="附录1：module.symvers 文件的内容"></a>附录1：module.symvers 文件的内容</h2><p>如果打开该文件后看到的符号CRC值都是0x00000000，那是因为你在配置的时并没有设置 <code>CONFIG_MODVERSIONS</code>。一旦设置过这个配置选项，就意味着打开了内核的 <strong>Module versioning</strong>功能。Module versioning 功能应用在我们使用模块的场合。</p>
 <p>如果Module versioning功能被打开的话，它会以每个导出符号的C原型声明作为输入，计算出对应的CRC校验值，保存在文件 Module.symvers 中。如此一来，内核在后面要加载使用模块的时候，会两相比较模块中的CRC值和保存下来的CRC值，如果发现不相等，内核就拒绝加载这个模块。</p>
 <img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403230704333.png" srcset="/img/loading.gif" lazyload alt="image-20230403230704333" style="zoom:100%;">
 
 <img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403231013373.png" srcset="/img/loading.gif" lazyload alt="image-20230403231013373" style="zoom:100%;">
+
+<h2 id="附录2：CRC机制"><a href="#附录2：CRC机制" class="headerlink" title="附录2：CRC机制"></a>附录2：CRC机制</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/414290127?utm_id=0">https://zhuanlan.zhihu.com/p/414290127?utm_id=0</a></p>
+</blockquote>
+<p>内核模块符号CRC生成相关代码在scripts&#x2F;genksyms&#x2F;目录下面，注意其中除了c代码会进行解析之外，lex.l和parse.y也会进行初步的解析。CRC即cyclic redundancy check，用于错误检查。只有当内容保持不变的时候，CRC才会保持不变。内核模块主要对导出的符号（EXPORT_SYMBOL）做检查，要求保持两个一致性：</p>
+<ol>
+<li>接口一致：变量、函数参数、函数返回值类型名没有变化，若是结构体，其内部所有成员也没有变化；</li>
+<li>语义一致：结构体成员变量名不能发生变化，函数参数名无需保持一致。</li>
+</ol>
+<h3 id="CRC基本函数"><a href="#CRC基本函数" class="headerlink" title="CRC基本函数"></a>CRC基本函数</h3><p>linux预先定义了256个（0xff）crctab，即用于异或操作的基，并以32位为单位来做CRC操作，相关内核源码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-title function_">partial_crc32_one</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> c, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> crc)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> crctab32[(crc ^ c) &amp; <span class="hljs-number">0xff</span>] ^ (crc &gt;&gt; <span class="hljs-number">8</span>);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-title function_">partial_crc32</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *s, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> crc)</span><br>&#123;<br>    <span class="hljs-keyword">while</span> (*s)<br>        crc = partial_crc32_one(*s++, crc);<br>    <span class="hljs-keyword">return</span> crc;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-title function_">crc32</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *s)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> partial_crc32(s, <span class="hljs-number">0xffffffff</span>) ^ <span class="hljs-number">0xffffffff</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>大致流程是从初始字符开始到最后一个字符，每个字符串都用相同的操作计算crc值，直到字符串结束，得到最终的CRC值。</p>
+<p>对EXPORT_SYMBOL的符号进行crc调用并不由scripts&#x2F;genksyms&#x2F;中的c代码直接发起，而是在编译期的语法生成时由bison的semantic actions发起，相关生成规则如下（在scripts&#x2F;genksyms&#x2F;parse.y）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">export_definition:<br>    EXPORT_SYMBOL_KEYW <span class="hljs-string">&#x27;(&#x27;</span> IDENT <span class="hljs-string">&#x27;)&#x27;</span> <span class="hljs-string">&#x27;;&#x27;</span><br>        &#123; export_symbol((*$<span class="hljs-number">3</span>)-&gt;<span class="hljs-built_in">string</span>); $$ = $<span class="hljs-number">5</span>; &#125;<br>    ;<br></code></pre></td></tr></table></figure>
+
+<p>即碰到EXPROT_SYMBOL关键词时，调用genksyms.c里的export_symbol，生成crc值。</p>
+<h3 id="CRC计算举例"><a href="#CRC计算举例" class="headerlink" title="CRC计算举例"></a>CRC计算举例</h3><p><strong>基本类型</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> abcde;<br>EXPORT_SYMBOL(abcde);<br></code></pre></td></tr></table></figure>
+
+<p>对于符号abcde，计算过程是：</p>
+<ol>
+<li>partial_crc32(“unsigned”, 0xffffffff) ⇒ 0xa9df1ba</li>
+<li>partial_crc32_one(“ “, 0xa9df1ba) ⇒ 0x10d0e7ab</li>
+<li>partial_crc32(“int”, 0x10d0e7ab) ⇒ 0xa9d106cd</li>
+<li>partial_crc32_one(“ “, 0xa9d106cd) ⇒ 0xde124fc3</li>
+<li>partial_crc32(“abcde”, 0xde124fc3) ⇒ 0x2e7e6a97</li>
+<li>partial_crc32_one(“ “, 0x2e7e6a97) ⇒ 0x552b5845</li>
+<li>0x552b5845 ^ 0xffffffff ⇒ 0xaad4a7ba</li>
+</ol>
+<p>最终，abcde的crc值即为0xaad4a7ba，可以通过Module.symvers查看得到。</p>
+<p>可以发现，以上每步相当于把变量声明的每个符号依次计算了一遍crc32值，且每个符号计算后，都会与空格的crc哈希值做异或，最后将结果的值取0xffffffff的异或，即是最终符号的crc值，即如下过程：</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230405234653884.png" srcset="/img/loading.gif" lazyload alt="image-20230405234653884" style="zoom:80%;">
+
+<p>如果变量是个数组或者指针，则对于分号前的所有符号进行如上计算，包括数组大小等。</p>
+<p>对于导出的基本类型，会产生CRC值不同的原因有：</p>
+<ul>
+<li>变量的类型发生改变</li>
+<li>数组变量的大小发生改变</li>
+</ul>
+<p><strong>函数</strong></p>
+<p>若定义如下函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">test_fun</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">char</span> b)</span>;<br>EXPORT_SYMBOL(test_fun);<br></code></pre></td></tr></table></figure>
+
+<p>那么CRC计算如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> -&gt; test_fun -&gt; ( -&gt;<br>    <span class="hljs-type">int</span> -&gt; , -&gt;<br>    <span class="hljs-type">char</span> -&gt; , -&gt;<br>)<br></code></pre></td></tr></table></figure>
+
+<p>此处变量类型使用基础变量以便理解，如果是符合变量，则需要按照需求展开。</p>
+<p>对于导出的函数，会产生CRC值不同的原因有：</p>
+<ul>
+<li>函数的返回值类型发生变化；</li>
+<li>参数的类型发生变化；</li>
+<li>参数名字发生变化不影响CRC值。</li>
+</ul>
+<p><strong>结构体</strong></p>
+<p>若定义如下复合结构体：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_struct</span> &#123;</span><br>        <span class="hljs-type">int</span> a;<br>&#125;;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-type">int</span> my_int;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">test_struct</span> &#123;</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_struct</span> <span class="hljs-title">bb</span>;</span><br>        my_int cc;<br>&#125;;<br><span class="hljs-keyword">extern</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">test_struct</span> *<span class="hljs-title">abcde</span>;</span><br></code></pre></td></tr></table></figure>
+
+<p>对于abcde，其类型struct test_struct包含另一个结构体struct my_struct和typedef后的变量，则计算的时候，需要依次对如下变量进行计算：\</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> → <span class="hljs-title">test_struct</span> → &#123;</span> → <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> → <span class="hljs-title">my_struct</span> → &#123;</span> → <br>        <span class="hljs-type">int</span> → a → ; → <br>    &#125; → bb → ; → <br>        <span class="hljs-keyword">typedef</span> → <span class="hljs-type">int</span> → my_int → cc → ; → <br>&#125; → * → abcde<br></code></pre></td></tr></table></figure>
+
+<p>也就是关于struct或者typedef后的类型，其不直接利用类型名来进行计算，而是递归展开该类型的定义，对定义中的所有元素进行再次计算，最后得出计算的结果。</p>
+<p>需要注意的是，typedef计算与基本类型类似，但是struct计算时，其中的每个变量后的分号都纳入计算范围。</p>
+<p>对于导出的结构体，会产生CRC值不同的原因有：</p>
+<ul>
+<li>结构体内变量发生变化，包括变量类型、变量名字；</li>
+<li>结构体内成员的顺序发生改变</li>
+<li>若有typedef，其对应的名字或者类型发生变化。</li>
+</ul>
 
                 
               </div>
