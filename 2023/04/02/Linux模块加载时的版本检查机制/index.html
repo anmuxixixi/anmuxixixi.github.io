@@ -34,11 +34,14 @@
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402213008474.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230405235046404.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230405235204648.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230406225635425.png">
+<meta property="og:image" content="http://example.com/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230406231443917.png">
+<meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230406233259580.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403230704333.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403231013373.png">
 <meta property="og:image" content="http://example.com/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230405234653884.png">
 <meta property="article:published_time" content="2023-04-02T11:29:24.000Z">
-<meta property="article:modified_time" content="2023-04-05T15:52:39.695Z">
+<meta property="article:modified_time" content="2023-04-06T15:36:05.310Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary_large_image">
@@ -223,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.9k 字
+          11k 字
         
       </span>
     
@@ -234,7 +237,7 @@
         
         
         
-          66 分钟
+          89 分钟
         
       </span>
     
@@ -289,7 +292,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta"># kernel\module.c</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_MODVERSIONS</span><br><span class="hljs-comment">/* Generate the signature for all relevant module structures here.</span><br><span class="hljs-comment"> * If these change, we don&#x27;t want to try to parse the module. */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">module_layout</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> module *mod,</span><br><span class="hljs-params">		   <span class="hljs-keyword">struct</span> modversion_info *ver,</span><br><span class="hljs-params">		   <span class="hljs-keyword">struct</span> kernel_param *kp,</span><br><span class="hljs-params">		   <span class="hljs-keyword">struct</span> kernel_symbol *ks,</span><br><span class="hljs-params">		   <span class="hljs-keyword">struct</span> tracepoint * <span class="hljs-type">const</span> *tp)</span><br>&#123;<br>&#125;<br>EXPORT_SYMBOL(module_layout);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
 
 <p>那么我们如何比对内核的module_layout 和 外部模块的module_layout值呢？</p>
-<h4 id="1-1-比对内核与模块module-layout的CRC"><a href="#1-1-比对内核与模块module-layout的CRC" class="headerlink" title="1.1 比对内核与模块module_layout的CRC"></a>1.1 比对内核与模块module_layout的CRC</h4><p>内核的<code>module_layout</code>的CRC值，我们可以通过内核编译的<code>Module.symvers</code>文件进行查看</p>
+<h3 id="1-1-比对内核与模块module-layout的CRC"><a href="#1-1-比对内核与模块module-layout的CRC" class="headerlink" title="1.1 比对内核与模块module_layout的CRC"></a>1.1 比对内核与模块module_layout的CRC</h3><p>内核的<code>module_layout</code>的CRC值，我们可以通过内核编译的<code>Module.symvers</code>文件进行查看</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat Module.symvers | grep module_layout<br></code></pre></td></tr></table></figure>
 
 <img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230402194808674.png" srcset="/img/loading.gif" lazyload alt="image-20230402194808674" style="zoom:100%;">
@@ -304,7 +307,7 @@
 </blockquote>
 <img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/8d71df88-4caa-436c-b5eb-72d2a53f2b31.png" srcset="/img/loading.gif" lazyload>
 
-<h4 id="1-2-Linux对于模块的两层检验"><a href="#1-2-Linux对于模块的两层检验" class="headerlink" title="1.2 Linux对于模块的两层检验"></a>1.2 Linux对于模块的两层检验</h4><p>inux 对可装载模块采取了两层验证：<strong>模块的 CRC 值校验</strong>和 <strong>vermagic 的检查</strong>。</p>
+<h3 id="1-2-Linux对于模块的两层检验"><a href="#1-2-Linux对于模块的两层检验" class="headerlink" title="1.2 Linux对于模块的两层检验"></a>1.2 Linux对于模块的两层检验</h3><p>inux 对可装载模块采取了两层验证：<strong>模块的 CRC 值校验</strong>和 <strong>vermagic 的检查</strong>。</p>
 <p>其中模块 CRC 值校验针对模块（内核）导出符号，是一种简单的 ABI（即 Application Binary Interface）一致性检查，第一节开头的 hello.ko 加载失败的根本原因就是没有通过 CRC 值校验（即 module_layout 的 CRC 值与当前内核中的不符）。</p>
 <p>而模块 vermagic（即 Version Magic String）则保存了模块编译时的内核版本以及 SMP 等配置信息，当模块 vermagic 与主机信息不相符时亦将终止模块的加载。</p>
 <h2 id="2-模块的CRC值校验"><a href="#2-模块的CRC值校验" class="headerlink" title="2.模块的CRC值校验"></a>2.模块的CRC值校验</h2><p>首先我们了解一下CTC值校验在哪里添加，又是如何进行校验的</p>
@@ -347,7 +350,31 @@
 <blockquote>
 <p>可以看到又恢复成了原来的1.1节中的值</p>
 </blockquote>
-<h2 id="3-模块的vermagic检验"><a href="#3-模块的vermagic检验" class="headerlink" title="3.模块的vermagic检验"></a>3.模块的vermagic检验</h2><h2 id="附录1：module-symvers-文件的内容"><a href="#附录1：module-symvers-文件的内容" class="headerlink" title="附录1：module.symvers 文件的内容"></a>附录1：module.symvers 文件的内容</h2><p>如果打开该文件后看到的符号CRC值都是0x00000000，那是因为你在配置的时并没有设置 <code>CONFIG_MODVERSIONS</code>。一旦设置过这个配置选项，就意味着打开了内核的 <strong>Module versioning</strong>功能。Module versioning 功能应用在我们使用模块的场合。</p>
+<h3 id="2-5-module-layout-完全一样的两份kernel代码，生成CRC值不一样？"><a href="#2-5-module-layout-完全一样的两份kernel代码，生成CRC值不一样？" class="headerlink" title="2.5 module_layout 完全一样的两份kernel代码，生成CRC值不一样？"></a>2.5 module_layout 完全一样的两份kernel代码，生成CRC值不一样？</h3><p>当我们在module.c中<code>EXPORT_SYMBOL(module_layout)</code>之后，在编译阶段，宏会被替换成下面的内容：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include\linux\export.h</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> __CRC_SYMBOL(sym, sec)					\</span><br><span class="hljs-meta">	extern __visible void *__crc_##sym __attribute__((weak));		\</span><br><span class="hljs-meta">	static const unsigned long __kcrctab_##sym		\</span><br><span class="hljs-meta">	__used							\</span><br><span class="hljs-meta">	__attribute__((section(<span class="hljs-string">&quot;___kcrctab&quot;</span> sec <span class="hljs-string">&quot;+&quot;</span> #sym), unused))	\</span><br><span class="hljs-meta">	= (unsigned long) &amp;__crc_##sym;</span><br><br><span class="hljs-comment">/* For every exported symbol, place a struct in the __ksymtab section */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> __EXPORT_SYMBOL(sym, sec)				\</span><br><span class="hljs-meta">	extern typeof(sym) sym;					\</span><br><span class="hljs-meta">	__CRC_SYMBOL(sym, sec)					\</span><br><span class="hljs-meta">	static const char __kstrtab_##sym[]			\</span><br><span class="hljs-meta">	__attribute__((section(<span class="hljs-string">&quot;__ksymtab_strings&quot;</span>), aligned(1))) \</span><br><span class="hljs-meta">	= VMLINUX_SYMBOL_STR(sym);				\</span><br><span class="hljs-meta">	extern const struct kernel_symbol __ksymtab_##sym;	\</span><br><span class="hljs-meta">	__visible const struct kernel_symbol __ksymtab_##sym	\</span><br><span class="hljs-meta">	__used							\</span><br><span class="hljs-meta">	__attribute__((section(<span class="hljs-string">&quot;___ksymtab&quot;</span> sec <span class="hljs-string">&quot;+&quot;</span> #sym), unused))	\</span><br><span class="hljs-meta">	= &#123; (unsigned long)&amp;sym, __kstrtab_##sym &#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>EXPORT_SYMBOL(sym)的这一段代码，其实就是针对模块版本校验机制，生成了某个符号相应的3个段的值。段<code>__ksymtab</code>保存了符号的地址和名字，段<code>__ksymtab_strings</code>是段名字的实际存储位置，段<code>__kcrctab</code>保存了符号crc值的地址。</p>
+<p>可见EXPORT_SYMBOL(sym)宏声明以后，符号的地址名字和CRC值都有了，已经符合版本校验的需要了。可还有一个疑问，符号实际的crc值是怎么生成的呢？宏中引用了一个外部变量<code>extern void *__crc_##sym attribute((weak));</code>，<code>__crc##sym</code>是怎么来的？</p>
+<p>__crc##sym是在编译.o时候做的，查看内核的makefile，makefile.build文件定义了.o的生成规则：<br><img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230406225635425.png" srcset="/img/loading.gif" lazyload alt="image-20230405235204648" style="zoom: 67%;"></p>
+<p>而当CONFIG_MODVERSIONS&#x3D;y 时， cmd_cc_o_c 会将file.c 编译成.tmp_file.o而不是file.o 。cmd_modversions 会检查.tmp_file.o 是否包含<code>__ksymtab</code> ，也就是说file.c 是否包含EXPORT_SYMBOL(xxx)；如果没有__ksymtab ， cmd_modversions 会将.tmp_file.o 直接更名为file.o 。如果确实包含__ksymtab ， cmd_modversions 会通过genksyms 产生xxxx ( export symbol )的符号签名( checksum )，然后调用linker 重新把这些符号以及这些符号的checksum链接进file.o。</p>
+<p>可见符号的CRC值_crc##sym，是在编译.o时，由genksyms脚本生成的。</p>
+<p>通过readelf命令可以，查看内核中关于版本检查的三个段<code>__ksymtab</code>、<code>__ksymtab_strings</code>、<code>__kcrctab</code>：</p>
+<p><img src="/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230406231443917.png" srcset="/img/loading.gif" lazyload alt="image-20230406231443917"></p>
+<p>如果module_layout在符号表中地址不同，则编译生成后期对应的CRC值是不同的！！</p>
+<p>🤖 <strong>如果两份完全一样的module_layout代码，但是生成的CRC值不同</strong>  -&gt; 那么，必定是module_layout在符号表中的位置不同，也就是在module_layout之前肯定EXPORT_SYMBOL了其他的符号，导致module_layout在对应的符号表中位置不同</p>
+<h2 id="3-模块的vermagic检验"><a href="#3-模块的vermagic检验" class="headerlink" title="3.模块的vermagic检验"></a>3.模块的vermagic检验</h2><h3 id="3-1-内核版本是如何生成的"><a href="#3-1-内核版本是如何生成的" class="headerlink" title="3.1 内核版本是如何生成的"></a>3.1 内核版本是如何生成的</h3><p>inux版本：在<code>include/generated/utsrelease.h</code>中定义，文件中的内容如下：**#define UTS_RELEASE “4.1.15”**，utsrelease.h是kernel编译后自动生成的，用户更改里面的内容不会有效果。</p>
+<h3 id="3-2-模块的vermagic是如何生成的"><a href="#3-2-模块的vermagic是如何生成的" class="headerlink" title="3.2 模块的vermagic是如何生成的"></a>3.2 模块的vermagic是如何生成的</h3><p>在<code>include/linux/vermagic.h</code>中定义有VERMAGIC_STRING，VERMAGIC_STRING不仅包含内核版本号，还包含有 内核使用的gcc版本，SMP与PREEMPT等配置信息。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> VERMAGIC_STRING 						\</span><br><span class="hljs-meta">	UTS_RELEASE <span class="hljs-string">&quot; &quot;</span>							\</span><br><span class="hljs-meta">	MODULE_VERMAGIC_SMP MODULE_VERMAGIC_PREEMPT 			\</span><br><span class="hljs-meta">	MODULE_VERMAGIC_MODULE_UNLOAD MODULE_VERMAGIC_MODVERSIONS	\</span><br><span class="hljs-meta">	MODULE_ARCH_VERMAGIC</span><br></code></pre></td></tr></table></figure>
+
+<p>模块在编译时，我们可以看到屏幕上会显示”MODPOST”。在此阶段，VERMAGIC_STRING会添加到模块的modinfo段。在内核源码目录下scripts\mod\modpost.c文件中可以看到模块后续处理部分的代码。</p>
+<p>模块编译生成后，通过<code>modinfo xxx.ko</code>命令可以查看此模块的vermagic等信息。</p>
+<img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230406233259580.png" srcset="/img/loading.gif" lazyload alt="image-20230406233259580" style="zoom: 80%;">
+
+<h3 id="3-3-如何校验模块的vermagic"><a href="#3-3-如何校验模块的vermagic" class="headerlink" title="3.3 如何校验模块的vermagic"></a>3.3 如何校验模块的vermagic</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* kernel/module.c */</span> <br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">check_modinfo</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> module *mod,<span class="hljs-keyword">struct</span> load_info *info)</span> <br>&#123; <br> <span class="hljs-type">const</span> <span class="hljs-type">char</span> *modmagic = get_modinfo(info,<span class="hljs-string">&quot;vermagic&quot;</span>); <br> ... <br> &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!same_magic(modmagic,vermagic,info-&gt;index.vers)) &#123; <br>   ... <br> &#125; <br> ... <br> <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="附录1：module-symvers-文件的内容"><a href="#附录1：module-symvers-文件的内容" class="headerlink" title="附录1：module.symvers 文件的内容"></a>附录1：module.symvers 文件的内容</h2><p>如果打开该文件后看到的符号CRC值都是0x00000000，那是因为你在配置的时并没有设置 <code>CONFIG_MODVERSIONS</code>。一旦设置过这个配置选项，就意味着打开了内核的 <strong>Module versioning</strong>功能。Module versioning 功能应用在我们使用模块的场合。</p>
 <p>如果Module versioning功能被打开的话，它会以每个导出符号的C原型声明作为输入，计算出对应的CRC校验值，保存在文件 Module.symvers 中。如此一来，内核在后面要加载使用模块的时候，会两相比较模块中的CRC值和保存下来的CRC值，如果发现不相等，内核就拒绝加载这个模块。</p>
 <img src="/2023/04/02/Linux%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/image-20230403230704333.png" srcset="/img/loading.gif" lazyload alt="image-20230403230704333" style="zoom:100%;">
 
