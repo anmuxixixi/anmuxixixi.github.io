@@ -1,0 +1,646 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Linux内核编译make defconfig在内核编译时，有各种配置方式可供进行选择，常见的有图形化界面make menuconfig，有make XXX_defconfig。今天以NXP官方的内核为例，记录一下编译默认配置文件make imx_v7_mfg_defconfig   1.2.最终调用conf二进制，生成.config文件当执行make imx_v7_mfg_defconfig时，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核编译make defconfig">
+<meta property="og:url" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="Linux内核编译make defconfig在内核编译时，有各种配置方式可供进行选择，常见的有图形化界面make menuconfig，有make XXX_defconfig。今天以NXP官方的内核为例，记录一下编译默认配置文件make imx_v7_mfg_defconfig   1.2.最终调用conf二进制，生成.config文件当执行make imx_v7_mfg_defconfig时，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/v2-28887f831d79f4d3abf8b153616528d0_720w.webp">
+<meta property="og:image" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/image-20230409152128232.png">
+<meta property="og:image" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/image-20230409152237128.png">
+<meta property="article:published_time" content="2023-04-09T01:36:48.000Z">
+<meta property="article:modified_time" content="2023-04-09T07:28:30.102Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/v2-28887f831d79f4d3abf8b153616528d0_720w.webp">
+  
+  
+  
+  <title>Linux内核编译make defconfig - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux内核编译make defconfig"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-09 09:36" pubdate>
+          2023年4月9日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          55 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux内核编译make defconfig</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Linux内核编译make-defconfig"><a href="#Linux内核编译make-defconfig" class="headerlink" title="Linux内核编译make defconfig"></a>Linux内核编译make defconfig</h1><p>在内核编译时，有各种配置方式可供进行选择，常见的有图形化界面<code>make menuconfig</code>，有<code>make XXX_defconfig</code>。今天以NXP官方的内核为例，记录一下编译默认配置文件<strong>make imx_v7_mfg_defconfig</strong></p>
+<img src="/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/v2-28887f831d79f4d3abf8b153616528d0_720w.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<h2 id="1"><a href="#1" class="headerlink" title="1."></a>1.</h2><h2 id="2-最终调用conf二进制，生成-config文件"><a href="#2-最终调用conf二进制，生成-config文件" class="headerlink" title="2.最终调用conf二进制，生成.config文件"></a>2.最终调用conf二进制，生成.config文件</h2><p>当执行<strong>make imx_v7_mfg_defconfig</strong>时，最后一步就是调用二进制conf，去生成.config文件</p>
+<p>🎨 <strong>conf二进制是由conf.c编译而来</strong></p>
+<blockquote>
+<p>所以最终调用的命令为<code>scripts/kconfig/conf --defconfig=arch/../configs/imx_v7_mfg_defconfig Kconfig</code>，就是调用<strong>conf.c</strong>文件的main函数。我们可以发现传递给conf.c时的main函数的<strong>argv[0]&#x3D;scripts&#x2F;kconfig&#x2F;conf</strong>，<strong>argv[1]&#x3D;–defconfig&#x3D;arch&#x2F;arm&#x2F;configs&#x2F;imx_v7_mfg_defconfig</strong>，<strong>argv[2]&#x3D;Kconfig</strong>。</p>
+</blockquote>
+<p>因此，我们接下来分析一下conf.c的main函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// scripts/kconfig/conf.c</span><br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">option</span> <span class="hljs-title">long_opts</span>[] =</span> &#123;<br>	&#123;<span class="hljs-string">&quot;oldaskconfig&quot;</span>,    no_argument,       <span class="hljs-literal">NULL</span>, oldaskconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;oldconfig&quot;</span>,       no_argument,       <span class="hljs-literal">NULL</span>, oldconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;silentoldconfig&quot;</span>, no_argument,       <span class="hljs-literal">NULL</span>, silentoldconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;defconfig&quot;</span>,       optional_argument, <span class="hljs-literal">NULL</span>, defconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;savedefconfig&quot;</span>,   required_argument, <span class="hljs-literal">NULL</span>, savedefconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;allnoconfig&quot;</span>,     no_argument,       <span class="hljs-literal">NULL</span>, allnoconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;allyesconfig&quot;</span>,    no_argument,       <span class="hljs-literal">NULL</span>, allyesconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;allmodconfig&quot;</span>,    no_argument,       <span class="hljs-literal">NULL</span>, allmodconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;alldefconfig&quot;</span>,    no_argument,       <span class="hljs-literal">NULL</span>, alldefconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;randconfig&quot;</span>,      no_argument,       <span class="hljs-literal">NULL</span>, randconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;listnewconfig&quot;</span>,   no_argument,       <span class="hljs-literal">NULL</span>, listnewconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;olddefconfig&quot;</span>,    no_argument,       <span class="hljs-literal">NULL</span>, olddefconfig&#125;,<br>	&#123;<span class="hljs-string">&quot;oldnoconfig&quot;</span>,     no_argument,       <span class="hljs-literal">NULL</span>, olddefconfig&#125;,<br>	&#123;<span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>&#125;<br>&#125;;<br><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> ac, <span class="hljs-type">char</span> **av)</span><br>&#123;<br>	<span class="hljs-type">const</span> <span class="hljs-type">char</span> *progname = av[<span class="hljs-number">0</span>];<br>	<span class="hljs-type">int</span> opt;<br>	<span class="hljs-type">const</span> <span class="hljs-type">char</span> *name, *defconfig_file = <span class="hljs-literal">NULL</span> <span class="hljs-comment">/* gcc uninit */</span>;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">tmpstat</span>;</span><br>	<br>    <span class="hljs-comment">// 通过getopt_long去解析传进来的参数</span><br>    <span class="hljs-comment">// 传进来时有一个--defconfig，所以从option列表里面匹配到的是defconfig(枚举值为8)</span><br>	<span class="hljs-keyword">while</span> ((opt = getopt_long(ac, av, <span class="hljs-string">&quot;s&quot;</span>, long_opts, <span class="hljs-literal">NULL</span>)) != <span class="hljs-number">-1</span>) &#123;<br>		input_mode = (<span class="hljs-keyword">enum</span> input_mode)opt;<br>		<span class="hljs-keyword">switch</span> (opt) &#123;<br>            <span class="hljs-keyword">case</span> defconfig:<br>            <span class="hljs-keyword">case</span> savedefconfig:<br>                defconfig_file = optarg;<br>                <span class="hljs-keyword">break</span>;<br>        &#125;<br>	&#125;<br><br>	name = av[optind];  <span class="hljs-comment">// 名字为Kconfig</span><br>	conf_parse(name);  <span class="hljs-comment">// 解析Kconfig</span><br><br>	<span class="hljs-keyword">switch</span> (input_mode) &#123;<br>        <span class="hljs-keyword">case</span> defconfig:<br>            <span class="hljs-comment">// 前面在while循环解析参数时， defconfig_file为arch/arm/configs/imx_v7_mfg_defconfig</span><br>            <span class="hljs-keyword">if</span> (!defconfig_file)<br>                defconfig_file = conf_get_default_confname();<br>         	<br>            <span class="hljs-keyword">if</span> (conf_read(defconfig_file)) &#123;<br>                <span class="hljs-built_in">printf</span>(_(<span class="hljs-string">&quot;***\n&quot;</span><br>                    <span class="hljs-string">&quot;*** Can&#x27;t find default configuration \&quot;%s\&quot;!\n&quot;</span><br>                    <span class="hljs-string">&quot;***\n&quot;</span>), defconfig_file);<br>                <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>            &#125;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>	&#125;<br><br>	<span class="hljs-keyword">switch</span> (input_mode) &#123;<br>        <span class="hljs-keyword">case</span> defconfig:<br>            conf_set_all_new_symbols(def_default);<br>            <span class="hljs-keyword">break</span>;<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (sync_kconfig) &#123;<br>        <span class="hljs-comment">// ....</span><br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (input_mode != listnewconfig) &#123;<br>		<span class="hljs-keyword">if</span> (conf_write(<span class="hljs-literal">NULL</span>)) &#123;<br>			<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>, _(<span class="hljs-string">&quot;\n*** Error during writing of the configuration.\n\n&quot;</span>));<br>			<span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>		&#125;<br>    &#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-1-conf-parse解析Kconfig"><a href="#2-1-conf-parse解析Kconfig" class="headerlink" title="2.1 conf_parse解析Kconfig"></a>2.1 conf_parse解析Kconfig</h3><p>调用<code>conf_parse(name)</code>从<code>$(srctree)</code>目录下依次查找名为<code>Kconfig</code>的文件，然后将取得的信息存放到链表中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// scripts\kconfig\zconf.tab.c_shipped</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">conf_parse</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *name)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">symbol</span> *<span class="hljs-title">sym</span>;</span><br>	<span class="hljs-type">int</span> i;<br><br>	zconf_initscan(name);<br><br>	sym_init();<br>	_menu_init();<br>	rootmenu.prompt = menu_add_prompt(P_MENU, <span class="hljs-string">&quot;Linux Kernel Configuration&quot;</span>, <span class="hljs-literal">NULL</span>);<br><br>	<span class="hljs-keyword">if</span> (getenv(<span class="hljs-string">&quot;ZCONF_DEBUG&quot;</span>))<br>		zconfdebug = <span class="hljs-number">1</span>;<br>	zconfparse();<br>	<span class="hljs-keyword">if</span> (zconfnerrs)<br>		<span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>	<span class="hljs-keyword">if</span> (!modules_sym)<br>		modules_sym = sym_find( <span class="hljs-string">&quot;n&quot;</span> );<br><br>	rootmenu.prompt-&gt;text = _(rootmenu.prompt-&gt;text);<br>	rootmenu.prompt-&gt;text = sym_expand_string_value(rootmenu.prompt-&gt;text);<br><br>	menu_finalize(&amp;rootmenu);<br><br>	sym_set_change_count(<span class="hljs-number">1</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-conf-read-defconfig-file-读取配置文件"><a href="#2-2-conf-read-defconfig-file-读取配置文件" class="headerlink" title="2.2 conf_read(defconfig_file)读取配置文件"></a>2.2 conf_read(defconfig_file)读取配置文件</h3><h3 id="2-3-conf-write往-config写配置"><a href="#2-3-conf-write往-config写配置" class="headerlink" title="2.3 conf_write往.config写配置"></a>2.3 conf_write往.config写配置</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">conf_write</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *name)</span><br>&#123;<br>	FILE *out;<br>    <br>	dirname[<span class="hljs-number">0</span>] = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">if</span> (name &amp;&amp; name[<span class="hljs-number">0</span>]) &#123;<br>		<span class="hljs-comment">// ...</span><br>	&#125; <span class="hljs-keyword">else</span><br>		basename = conf_get_configname();<br><br>	<span class="hljs-built_in">sprintf</span>(newname, <span class="hljs-string">&quot;%s%s&quot;</span>, dirname, basename);  <span class="hljs-comment">// newname为.config</span><br>	env = getenv(<span class="hljs-string">&quot;KCONFIG_OVERWRITECONFIG&quot;</span>);  <span class="hljs-comment">// 获取KCONFIG_OVERWRITECONFIG失败</span><br>	<span class="hljs-keyword">if</span> (!env || !*env) &#123;<br>		<span class="hljs-built_in">sprintf</span>(tmpname, <span class="hljs-string">&quot;%s.tmpconfig.%d&quot;</span>, dirname, (<span class="hljs-type">int</span>)getpid());  <span class="hljs-comment">// 临时文件为.tmpconfig.[@pid]</span><br>		out = fopen(tmpname, <span class="hljs-string">&quot;w&quot;</span>);<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		*tmpname = <span class="hljs-number">0</span>;<br>		out = fopen(newname, <span class="hljs-string">&quot;w&quot;</span>);<br>	&#125;<br>	<br>    <span class="hljs-comment">// 2.3.1节</span><br>	conf_write_heading(out, &amp;kconfig_printer_cb, <span class="hljs-literal">NULL</span>);<br><br>	<span class="hljs-keyword">if</span> (!conf_get_changed())<br>		sym_clear_all_valid();<br><br>	menu = rootmenu.<span class="hljs-built_in">list</span>;<br>	<span class="hljs-keyword">while</span> (menu) &#123;<br>		sym = menu-&gt;sym;<br>		<span class="hljs-keyword">if</span> (!sym) &#123;<br>			<span class="hljs-keyword">if</span> (!menu_is_visible(menu))<br>				<span class="hljs-keyword">goto</span> next;<br>			str = menu_get_prompt(menu);<br>			<span class="hljs-built_in">fprintf</span>(out, <span class="hljs-string">&quot;\n&quot;</span><br>				     <span class="hljs-string">&quot;#\n&quot;</span><br>				     <span class="hljs-string">&quot;# %s\n&quot;</span><br>				     <span class="hljs-string">&quot;#\n&quot;</span>, str);<br>		&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!(sym-&gt;flags &amp; SYMBOL_CHOICE)) &#123;<br>			sym_calc_value(sym);<br>			<span class="hljs-keyword">if</span> (!(sym-&gt;flags &amp; SYMBOL_WRITE))<br>				<span class="hljs-keyword">goto</span> next;<br>			sym-&gt;flags &amp;= ~SYMBOL_WRITE;<br><br>			conf_write_symbol(out, sym, &amp;kconfig_printer_cb, <span class="hljs-literal">NULL</span>);<br>		&#125;<br><br>next:<br>		<span class="hljs-keyword">if</span> (menu-&gt;<span class="hljs-built_in">list</span>) &#123;<br>			menu = menu-&gt;<span class="hljs-built_in">list</span>;<br>			<span class="hljs-keyword">continue</span>;<br>		&#125;<br>		<span class="hljs-keyword">if</span> (menu-&gt;next)<br>			menu = menu-&gt;next;<br>		<span class="hljs-keyword">else</span> <span class="hljs-keyword">while</span> ((menu = menu-&gt;parent)) &#123;<br>			<span class="hljs-keyword">if</span> (menu-&gt;next) &#123;<br>				menu = menu-&gt;next;<br>				<span class="hljs-keyword">break</span>;<br>			&#125;<br>		&#125;<br>	&#125;<br>	fclose(out);<br><br>	<span class="hljs-keyword">if</span> (*tmpname) &#123;<br>		<span class="hljs-built_in">strcat</span>(dirname, basename);<br>		<span class="hljs-built_in">strcat</span>(dirname, <span class="hljs-string">&quot;.old&quot;</span>);<br>		rename(newname, dirname);<br>		<span class="hljs-keyword">if</span> (rename(tmpname, newname))<br>			<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>	&#125;<br><br>	conf_message(_(<span class="hljs-string">&quot;configuration written to %s&quot;</span>), newname);  <span class="hljs-comment">// 在编译日志里面打印configuration written to .config</span><br><br>	sym_set_change_count(<span class="hljs-number">0</span>);<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-3-0-真正发挥写文件的函数kconfig-printer-cb"><a href="#2-3-0-真正发挥写文件的函数kconfig-printer-cb" class="headerlink" title="2.3.0 真正发挥写文件的函数kconfig_printer_cb"></a>2.3.0 真正发挥写文件的函数kconfig_printer_cb</h4><p>kconfig_printer_cb中有两个成员变量，一个用来写注释，一个用来写配置</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">conf_printer</span> <span class="hljs-title">kconfig_printer_cb</span> =</span><br>&#123;<br>	.print_symbol = kconfig_print_symbol,   <span class="hljs-comment">// 写配置的函数</span><br>	.print_comment = kconfig_print_comment, <span class="hljs-comment">// 写注释的函数</span><br>&#125;;<br><br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">kconfig_print_symbol</span><span class="hljs-params">(FILE *fp, <span class="hljs-keyword">struct</span> symbol *sym, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *value, <span class="hljs-type">void</span> *arg)</span><br>&#123;<br><br>	<span class="hljs-keyword">switch</span> (sym-&gt;type) &#123;<br>	<span class="hljs-keyword">case</span> S_BOOLEAN:<br>	<span class="hljs-keyword">case</span> S_TRISTATE:<br>		<span class="hljs-keyword">if</span> (*value == <span class="hljs-string">&#x27;n&#x27;</span>) &#123;<br>			<span class="hljs-type">bool</span> skip_unset = (arg != <span class="hljs-literal">NULL</span>);<br><br>			<span class="hljs-keyword">if</span> (!skip_unset)<br>				<span class="hljs-built_in">fprintf</span>(fp, <span class="hljs-string">&quot;# %s%s is not set\n&quot;</span>,<br>				    CONFIG_, sym-&gt;name);<br>			<span class="hljs-keyword">return</span>;<br>		&#125;<br>		<span class="hljs-keyword">break</span>;<br>	<span class="hljs-keyword">default</span>:<br>		<span class="hljs-keyword">break</span>;<br>	&#125;<br><br>	<span class="hljs-built_in">fprintf</span>(fp, <span class="hljs-string">&quot;%s%s=%s\n&quot;</span>, CONFIG_, sym-&gt;name, value);  <span class="hljs-comment">// 往.config中写配置，格式为CONFIG_XXX=XXX</span><br>&#125;<br><br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">kconfig_print_comment</span><span class="hljs-params">(FILE *fp, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *value, <span class="hljs-type">void</span> *arg)</span><br>&#123;<br>	<span class="hljs-type">const</span> <span class="hljs-type">char</span> *p = value;<br>	<span class="hljs-type">size_t</span> l;<br><br>	<span class="hljs-keyword">for</span> (;;) &#123;<br>		l = <span class="hljs-built_in">strcspn</span>(p, <span class="hljs-string">&quot;\n&quot;</span>);<br>		<span class="hljs-built_in">fprintf</span>(fp, <span class="hljs-string">&quot;#&quot;</span>);<br>		<span class="hljs-keyword">if</span> (l) &#123;<br>			<span class="hljs-built_in">fprintf</span>(fp, <span class="hljs-string">&quot; &quot;</span>);<br>			xfwrite(p, l, <span class="hljs-number">1</span>, fp);<br>			p += l;<br>		&#125;<br>		<span class="hljs-built_in">fprintf</span>(fp, <span class="hljs-string">&quot;\n&quot;</span>);<br>		<span class="hljs-keyword">if</span> (*p++ == <span class="hljs-string">&#x27;\0&#x27;</span>)<br>			<span class="hljs-keyword">break</span>;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="2-3-1-向-config写头部注释"><a href="#2-3-1-向-config写头部注释" class="headerlink" title="2.3.1 向.config写头部注释"></a>2.3.1 向.config写头部注释</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c">conf_write_heading:<br><br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">conf_write_heading</span><span class="hljs-params">(FILE *fp, <span class="hljs-keyword">struct</span> conf_printer *printer, <span class="hljs-type">void</span> *printer_arg)</span><br>&#123;<br>	<span class="hljs-type">char</span> buf[<span class="hljs-number">256</span>];<br><br>	<span class="hljs-built_in">snprintf</span>(buf, <span class="hljs-keyword">sizeof</span>(buf),<br>	    <span class="hljs-string">&quot;\n&quot;</span><br>	    <span class="hljs-string">&quot;Automatically generated file; DO NOT EDIT.\n&quot;</span><br>	    <span class="hljs-string">&quot;%s\n&quot;</span>,<br>	    rootmenu.prompt-&gt;text);<br><br>	printer-&gt;print_comment(fp, buf, printer_arg);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>最终写入的注释如下：</p>
+<img src="/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/image-20230409152128232.png" srcset="/img/loading.gif" lazyload alt="image-20230409152128232" style="zoom: 50%;">
+
+
+
+
+
+
+
+<img src="/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/image-20230409152237128.png" srcset="/img/loading.gif" lazyload alt="image-20230409152237128" style="zoom: 50%;">
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux内核编译make defconfig</div>
+      <div>http://example.com/2023/04/09/Linux内核编译make-defconfig/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/04/09/Kconfig%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="Kconfig学习笔记">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Kconfig学习笔记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/04/05/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E2%80%94%E2%80%94%E9%93%BE%E6%8E%A5/" title="深入理解计算机系统——链接">
+                        <span class="hidden-mobile">深入理解计算机系统——链接</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
