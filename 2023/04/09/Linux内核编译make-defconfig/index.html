@@ -16,12 +16,12 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Linux内核编译make defconfig在内核编译时，有各种配置方式可供进行选择，常见的有图形化界面make menuconfig，有make XXX_defconfig。今天以NXP官方的内核为例，记录一下编译默认配置文件make imx_v7_mfg_defconfig   1.2.最终调用conf二进制，生成.config文件当执行make imx_v7_mfg_defconfig时，">
+    <meta name="description" content="Linux内核编译make defconfig 声明：本文部分内容引自正点原子，其资料完整，讲解清晰，非常感谢！  在内核编译时，有各种配置方式可供进行选择，常见的有图形化界面make menuconfig，有make XXX_defconfig。今天以NXP官方的内核为例，记录一下编译默认配置文件make imx_v7_mfg_defconfig   1.make defconfig在Makef">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux内核编译make defconfig">
 <meta property="og:url" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="Linux内核编译make defconfig在内核编译时，有各种配置方式可供进行选择，常见的有图形化界面make menuconfig，有make XXX_defconfig。今天以NXP官方的内核为例，记录一下编译默认配置文件make imx_v7_mfg_defconfig   1.2.最终调用conf二进制，生成.config文件当执行make imx_v7_mfg_defconfig时，">
+<meta property="og:description" content="Linux内核编译make defconfig 声明：本文部分内容引自正点原子，其资料完整，讲解清晰，非常感谢！  在内核编译时，有各种配置方式可供进行选择，常见的有图形化界面make menuconfig，有make XXX_defconfig。今天以NXP官方的内核为例，记录一下编译默认配置文件make imx_v7_mfg_defconfig   1.make defconfig在Makef">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/v2-28887f831d79f4d3abf8b153616528d0_720w.webp">
 <meta property="og:image" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/image-20230409212854271.png">
@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/image-20230409213953366.png">
 <meta property="og:image" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/image-20230409213825095.png">
 <meta property="article:published_time" content="2023-04-09T01:36:48.000Z">
-<meta property="article:modified_time" content="2023-04-09T13:56:32.765Z">
+<meta property="article:modified_time" content="2023-04-09T14:51:38.123Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/v2-28887f831d79f4d3abf8b153616528d0_720w.webp">
@@ -216,7 +216,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.3k 字
+          10k 字
         
       </span>
     
@@ -227,7 +227,7 @@
         
         
         
-          62 分钟
+          88 分钟
         
       </span>
     
@@ -270,10 +270,68 @@
             
               <div class="markdown-body">
                 
-                <h1 id="Linux内核编译make-defconfig"><a href="#Linux内核编译make-defconfig" class="headerlink" title="Linux内核编译make defconfig"></a>Linux内核编译make defconfig</h1><p>在内核编译时，有各种配置方式可供进行选择，常见的有图形化界面<code>make menuconfig</code>，有<code>make XXX_defconfig</code>。今天以NXP官方的内核为例，记录一下编译默认配置文件<strong>make imx_v7_mfg_defconfig</strong></p>
+                <h1 id="Linux内核编译make-defconfig"><a href="#Linux内核编译make-defconfig" class="headerlink" title="Linux内核编译make defconfig"></a>Linux内核编译make defconfig</h1><blockquote>
+<p><strong>声明：</strong>本文部分内容引自正点原子，其资料完整，讲解清晰，非常感谢！</p>
+</blockquote>
+<p>在内核编译时，有各种配置方式可供进行选择，常见的有图形化界面<code>make menuconfig</code>，有<code>make XXX_defconfig</code>。今天以NXP官方的内核为例，记录一下编译默认配置文件<strong>make imx_v7_mfg_defconfig</strong></p>
 <img src="/2023/04/09/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91make-defconfig/v2-28887f831d79f4d3abf8b153616528d0_720w.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
 
-<h2 id="1"><a href="#1" class="headerlink" title="1."></a>1.</h2><h2 id="2-最终调用conf二进制，生成-config文件"><a href="#2-最终调用conf二进制，生成-config文件" class="headerlink" title="2.最终调用conf二进制，生成.config文件"></a>2.最终调用conf二进制，生成.config文件</h2><p>当执行<strong>make imx_v7_mfg_defconfig</strong>时，最后一步就是调用二进制conf，去生成.config文件</p>
+<h2 id="1-make-defconfig在Makefile匹配过程"><a href="#1-make-defconfig在Makefile匹配过程" class="headerlink" title="1.make defconfig在Makefile匹配过程"></a>1.make defconfig在Makefile匹配过程</h2><h3 id="1-1-顶层Makefile匹配"><a href="#1-1-顶层Makefile匹配" class="headerlink" title="1.1 顶层Makefile匹配"></a>1.1 顶层Makefile匹配</h3><p>当我们执行 <strong>make imx_v7_mfg_defconfig</strong> 时，对应于顶层makefile中的<code>%config</code>目标：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">%config: scripts_basic outputmakefile FORCE</span><br>	<span class="hljs-variable">$(Q)</span><span class="hljs-variable">$(MAKE)</span> <span class="hljs-variable">$(build)</span>=scripts/kconfig <span class="hljs-variable">$@</span><br></code></pre></td></tr></table></figure>
+
+<p>“%config”依赖scripts_basic、outputmakefile 和 FORCE，“%config”真正有意义的依赖就只有 scripts_basic，</p>
+<p>scripts_basic 的规则如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">scripts_basic:</span><br>	<span class="hljs-variable">$(Q)</span><span class="hljs-variable">$(MAKE)</span> <span class="hljs-variable">$(build)</span>=scripts/basic<br>	<span class="hljs-variable">$(Q)</span>rm -f .tmp_quiet_recordmcount<br></code></pre></td></tr></table></figure>
+
+<p>build 定义在文件 scripts&#x2F;Kbuild.include 中，值为 build :&#x3D; -f $(srctree)&#x2F;scripts&#x2F;Makefile.build obj，因此展开就是：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">scripts_basic:</span><br>    @make -f ./scripts/Makefile.build obj=scripts/basic  //也可以没有@，视配置而定<br>    @rm -f . tmp_quiet_recordmcount //也可以没有@<br></code></pre></td></tr></table></figure>
+
+<p>接着回到目标“%config”处，内容如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">%config: scripts_basic outputmakefile FORCE</span><br>	<span class="hljs-variable">$(Q)</span><span class="hljs-variable">$(MAKE)</span> <span class="hljs-variable">$(build)</span>=scripts/kconfig <span class="hljs-variable">$@</span><br></code></pre></td></tr></table></figure>
+
+<p>将命令展开就是：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs makefile">@make -f ./scripts/Makefile.build obj=scripts/kconfig imx_v7_mfg_defconfig<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2-Makefile-build脚本解析"><a href="#1-2-Makefile-build脚本解析" class="headerlink" title="1.2 Makefile.build脚本解析"></a>1.2 Makefile.build脚本解析</h3><p>从上一小节可知，“make xxx_defconfig“配置 Linux 的时候如下两行命令会执行脚本scripts&#x2F;Makefile.build：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile">@make -f ./scripts/Makefile.build obj=scripts/basic<br>@make -f ./scripts/Makefile.build obj=scripts/kconfig xxx_defconfig<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-2-1-scripts-basic"><a href="#1-2-1-scripts-basic" class="headerlink" title="1.2.1 scripts_basic"></a>1.2.1 scripts_basic</h4><p>scripts_basic 目标对应的命令为：@make -f .&#x2F;scripts&#x2F;Makefile.build obj&#x3D;scripts&#x2F;basic。打开文件 scripts&#x2F;Makefile.build，有如下代码：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># The filename Kbuild has precedence over Makefile</span><br>kbuild-dir := <span class="hljs-variable">$(<span class="hljs-built_in">if</span> $(<span class="hljs-built_in">filter</span> /%,<span class="hljs-variable">$(src)</span>)</span>,<span class="hljs-variable">$(src)</span>,<span class="hljs-variable">$(srctree)</span>/<span class="hljs-variable">$(src)</span>)<br>kbuild-file := <span class="hljs-variable">$(<span class="hljs-built_in">if</span> $(<span class="hljs-built_in">wildcard</span> $(kbuild-<span class="hljs-built_in">dir</span>)</span>/Kbuild),$(kbuild-dir)/Kbuild,$(kbuild-dir)/Makefile)<br><span class="hljs-keyword">include</span> $(kbuild-file)<br></code></pre></td></tr></table></figure>
+
+<p>将 kbuild-dir 展开后为：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs makefile">kbuild-dir=./scripts/basic<br></code></pre></td></tr></table></figure>
+
+<p>将 kbuild-file 展开后为：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs makefile">kbuild-file= ./scripts/basic/Makefile<br></code></pre></td></tr></table></figure>
+
+<p>最后一行展开：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-keyword">include</span> ./scripts/basic/Makefile<br></code></pre></td></tr></table></figure>
+
+<p>继续分析 scripts&#x2F;Makefile.build，如下代码：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">__build: $(if <span class="hljs-variable">$(KBUILD_BUILTIN)</span>,$(builtin-target) $(lib-target) $(extra-y)) \</span><br>	 <span class="hljs-variable">$(<span class="hljs-built_in">if</span> <span class="hljs-variable">$(KBUILD_MODULES)</span>,$(obj-m)</span> $(modorder-target)) \<br>	 $(subdir-ym) <span class="hljs-variable">$(always)</span><br>	@:<br></code></pre></td></tr></table></figure>
+
+<p>__build 是默认目标，因为命令“@make -f .&#x2F;scripts&#x2F;Makefile.build obj&#x3D;scripts&#x2F;basic”没有指定目标，所以会使用到默认目标__build。在顶层 Makefile 中，KBUILD_BUILTIN 为 1，KBUILD_MODULES 为空，因此展开后目标__build 为：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">__build:$(builtin-target) $(lib-target) $(extra-y)) $(subdir-ym) <span class="hljs-variable">$(always)</span></span><br>	@:<br></code></pre></td></tr></table></figure>
+
+<p>可以看出目标__build 有 5 个依赖：builtin-target、lib-target、extra-y、subdir-ym 和 always。这 5 个依赖的具体内容如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs makefile">builtin-target =<br>lib-target =<br>extra-y =<br>subdir-ym =<br>always = scripts/basic/fixdep scripts/basic/bin2c<br></code></pre></td></tr></table></figure>
+
+<p>只有 always 有效，因此__build 最终为：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">__build: scripts/basic/fixdep scripts/basic/bin2c</span><br>	@<br></code></pre></td></tr></table></figure>
+
+<p>__build 依赖于 scripts&#x2F;basic&#x2F;fixdep 和 scripts&#x2F;basic&#x2F;bin2c，所以要先将 scripts&#x2F;basic&#x2F;fixdep 和 scripts&#x2F;basic&#x2F;bin2c.c 这两个文件编译成 fixdep 和 bin2c。</p>
+<p>🐘 综上所述，scripts_basic 目标的作用就是编译出 <strong>scripts&#x2F;basic&#x2F;fixdep</strong> 和 <strong>scripts&#x2F;basic&#x2F;bin2c</strong> 这两个软件。</p>
+<h4 id="1-2-2-config"><a href="#1-2-2-config" class="headerlink" title="1.2.2 %config"></a>1.2.2 %config</h4><p>%config 目标 对应的命令为 ： @make -f .&#x2F;scripts&#x2F;Makefile.build obj&#x3D;scripts&#x2F;kconfig xxx_defconfig，此命令会使用到的各个变量值如下</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs makefile">src= scripts/kconfig<br>kbuild-dir = ./scripts/kconfig<br>kbuild-file = ./scripts/kconfig/Makefile<br><span class="hljs-keyword">include</span> ./scripts/kconfig/Makefile<br></code></pre></td></tr></table></figure>
+
+<p>可以看出，Makefile.build 会读取 scripts&#x2F;kconfig&#x2F;Makefile 中的内容，此文件有如下所示内容：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">%_defconfig: <span class="hljs-variable">$(obj)</span>/conf</span><br>	<span class="hljs-variable">$(Q)</span><span class="hljs-variable">$&lt;</span> <span class="hljs-variable">$(silent)</span> --defconfig=arch/<span class="hljs-variable">$(SRCARCH)</span>/configs/<span class="hljs-variable">$@</span> <span class="hljs-variable">$(Kconfig)</span><br></code></pre></td></tr></table></figure>
+
+<p>目标%_defconfig 与 xxx_defconfig 匹配，所以会执行这条规则，将其展开就是：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">%_defconfig: scripts/kconfig/conf</span><br>	@scripts/kconfig/conf --defconfig=arch/arm/configs/%_defconfig Kconfig<br></code></pre></td></tr></table></figure>
+
+<p><code>%__defconfig</code> 会依赖于scripts&#x2F;kconfig&#x2F;conf，所以会先编译scripts&#x2F;kconfig&#x2F;conf，然后调用这个二进制，生成最终的<code>.config</code>文件，这就是第二章的内容。</p>
+<h2 id="2-最终调用conf二进制，生成-config文件"><a href="#2-最终调用conf二进制，生成-config文件" class="headerlink" title="2.最终调用conf二进制，生成.config文件"></a>2.最终调用conf二进制，生成.config文件</h2><p>当执行<strong>make imx_v7_mfg_defconfig</strong>时，最后一步就是调用二进制conf，去生成.config文件</p>
 <p>🎨 <strong>conf二进制是由conf.c编译而来</strong></p>
 <blockquote>
 <p>所以最终调用的命令为<code>scripts/kconfig/conf --defconfig=arch/../configs/imx_v7_mfg_defconfig Kconfig</code>，就是调用<strong>conf.c</strong>文件的main函数。我们可以发现传递给conf.c时的main函数的<strong>argv[0]&#x3D;scripts&#x2F;kconfig&#x2F;conf</strong>，<strong>argv[1]&#x3D;–defconfig&#x3D;arch&#x2F;arm&#x2F;configs&#x2F;imx_v7_mfg_defconfig</strong>，<strong>argv[2]&#x3D;Kconfig</strong>。</p>
