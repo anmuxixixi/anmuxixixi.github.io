@@ -25,10 +25,11 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/04/25/DeviceMapper%E9%A9%B1%E5%8A%A8/image-20230425220018537.png">
 <meta property="og:image" content="http://example.com/2023/04/25/DeviceMapper%E9%A9%B1%E5%8A%A8/image-20230425222337318.png">
+<meta property="og:image" content="http://example.com/2023/04/25/DeviceMapper%E9%A9%B1%E5%8A%A8/image-20230425235406381.png">
 <meta property="og:image" content="http://example.com/2023/04/25/DeviceMapper%E9%A9%B1%E5%8A%A8/ec3e80a0f0a490eb7d77c6dbaa8f3df6.png">
 <meta property="og:image" content="http://example.com/2023/04/25/DeviceMapper%E9%A9%B1%E5%8A%A8/image-20230425225647715.png">
 <meta property="article:published_time" content="2023-04-25T13:51:03.000Z">
-<meta property="article:modified_time" content="2023-04-25T15:27:14.502Z">
+<meta property="article:modified_time" content="2023-04-25T15:54:09.548Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/04/25/DeviceMapper%E9%A9%B1%E5%8A%A8/image-20230425220018537.png">
@@ -212,7 +213,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.3k 字
+          4.6k 字
         
       </span>
     
@@ -223,7 +224,7 @@
         
         
         
-          36 分钟
+          39 分钟
         
       </span>
     
@@ -293,6 +294,14 @@
 <img src="/2023/04/25/DeviceMapper%E9%A9%B1%E5%8A%A8/image-20230425222337318.png" srcset="/img/loading.gif" lazyload alt="image-20230425222337318" style="zoom: 67%;">
 
 <p>该cmd告诉内核我们是双向交互数据的，且NR号为3，传输数据的大小为struct dm_ioctl的大小。</p>
+<h2 id="2-DeviceMapper中的数据结构"><a href="#2-DeviceMapper中的数据结构" class="headerlink" title="2.DeviceMapper中的数据结构"></a>2.DeviceMapper中的数据结构</h2><h3 id="2-1-hash-cell"><a href="#2-1-hash-cell" class="headerlink" title="2.1 hash_cell"></a>2.1 hash_cell</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// drivers\md\dm-ioctl.c</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">hash_cell</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">name_list</span>;</span>  <span class="hljs-comment">// 表示name的双向链表，同一个Hash值的形成一个双向链表</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">uuid_list</span>;</span>  <span class="hljs-comment">// 表示uuid的双向链表，同一个Hash值的形成一个双向链表</span><br><br>	<span class="hljs-type">char</span> *name;   <span class="hljs-comment">// 当前mapped device的name</span><br>	<span class="hljs-type">char</span> *uuid;   <span class="hljs-comment">// 当前mapped device的uuid</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mapped_device</span> *<span class="hljs-title">md</span>;</span>  <span class="hljs-comment">// 具体的mapped_device</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dm_table</span> *<span class="hljs-title">new_map</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+
+
+<img src="/2023/04/25/DeviceMapper%E9%A9%B1%E5%8A%A8/image-20230425235406381.png" srcset="/img/loading.gif" lazyload alt="image-20230425235406381" style="zoom:80%;">
+
+
+
 <h2 id="2-创建设备"><a href="#2-创建设备" class="headerlink" title="2.创建设备"></a>2.创建设备</h2><p>前面可以看到用户空间传递进来DM_DEV_CREATE想要创建dm设备，对应的处理函数为：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">dev_create</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> dm_ioctl *param, <span class="hljs-type">size_t</span> param_size)</span><br>&#123;<br>	<span class="hljs-type">int</span> r, m = DM_ANY_MINOR;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mapped_device</span> *<span class="hljs-title">md</span>;</span><br>	<br>    <span class="hljs-comment">// 2.1节去检查传进来的参数中的name是否合法</span><br>	r = check_name(param-&gt;name);<br>    <br>    <span class="hljs-comment">// 用户空间没有传递flag，所以m的值仍然是DM_ANY_MINOR</span><br>    <span class="hljs-comment">// 会影响到2.2.1节</span><br>    <span class="hljs-keyword">if</span> (param-&gt;flags &amp; DM_PERSISTENT_DEV_FLAG)<br>		m = MINOR(huge_decode_dev(param-&gt;dev));<br>	<br>    <span class="hljs-comment">// 2.2节用来创建dm设备</span><br>	r = dm_create(m, &amp;md);<br>	<span class="hljs-keyword">if</span> (r)<br>		<span class="hljs-keyword">return</span> r;<br><br>	r = dm_hash_insert(param-&gt;name, *param-&gt;uuid ? param-&gt;uuid : <span class="hljs-literal">NULL</span>, md);<br>	<span class="hljs-keyword">if</span> (r) &#123;<br>		dm_put(md);<br>		dm_destroy(md);<br>		<span class="hljs-keyword">return</span> r;<br>	&#125;<br><br>	param-&gt;flags &amp;= ~DM_INACTIVE_PRESENT_FLAG;<br><br>	__dev_status(md, param);<br><br>	dm_put(md);<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
