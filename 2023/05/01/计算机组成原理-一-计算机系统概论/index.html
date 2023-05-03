@@ -16,12 +16,12 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="计算机组成原理(一)计算机系统概论2.计算机的基本组成2.0 冯诺依曼计算机历史  冯诺依曼计算机简称为EDVAC(Electronic Discrete Variable Automatic Computer)也叫普林斯顿体系结构（Princetionarchitecture），因为冯诺依曼是普林斯顿大学教授。 EDVAC是世界上第一台存储程序计算机(也有说法是电子数字式计算机)，成为所有现代计">
+    <meta name="description" content="计算机组成原理(一)计算机系统概论1.计算机系统简介2.计算机的基本组成2.0 冯诺依曼计算机历史  冯诺依曼计算机简称为EDVAC(Electronic Discrete Variable Automatic Computer)也叫普林斯顿体系结构（Princetionarchitecture），因为冯诺依曼是普林斯顿大学教授。 EDVAC是世界上第一台存储程序计算机(也有说法是电子数字式计算机">
 <meta property="og:type" content="article">
 <meta property="og:title" content="计算机组成原理(一)计算机系统概论">
 <meta property="og:url" content="http://example.com/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="计算机组成原理(一)计算机系统概论2.计算机的基本组成2.0 冯诺依曼计算机历史  冯诺依曼计算机简称为EDVAC(Electronic Discrete Variable Automatic Computer)也叫普林斯顿体系结构（Princetionarchitecture），因为冯诺依曼是普林斯顿大学教授。 EDVAC是世界上第一台存储程序计算机(也有说法是电子数字式计算机)，成为所有现代计">
+<meta property="og:description" content="计算机组成原理(一)计算机系统概论1.计算机系统简介2.计算机的基本组成2.0 冯诺依曼计算机历史  冯诺依曼计算机简称为EDVAC(Electronic Discrete Variable Automatic Computer)也叫普林斯顿体系结构（Princetionarchitecture），因为冯诺依曼是普林斯顿大学教授。 EDVAC是世界上第一台存储程序计算机(也有说法是电子数字式计算机">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/a825a9ed08e2a58a5d9d462c5d8de1a4.png">
 <meta property="og:image" content="http://example.com/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/image-20230501225515506.png">
@@ -35,8 +35,10 @@
 <meta property="og:image" content="http://example.com/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/image-20230501235504985.png">
 <meta property="og:image" content="http://example.com/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/image-20230501235547197.png">
 <meta property="og:image" content="http://example.com/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/image-20230501235624624.png">
+<meta property="og:image" content="http://example.com/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/image-20230503150830396.png">
+<meta property="og:image" content="http://example.com/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/image-20230503151910628.png">
 <meta property="article:published_time" content="2023-05-01T14:40:05.000Z">
-<meta property="article:modified_time" content="2023-05-01T16:01:09.192Z">
+<meta property="article:modified_time" content="2023-05-03T07:28:41.683Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/a825a9ed08e2a58a5d9d462c5d8de1a4.png">
@@ -220,7 +222,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.7k 字
+          2.4k 字
         
       </span>
     
@@ -231,7 +233,7 @@
         
         
         
-          15 分钟
+          21 分钟
         
       </span>
     
@@ -274,7 +276,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="计算机组成原理-一-计算机系统概论"><a href="#计算机组成原理-一-计算机系统概论" class="headerlink" title="计算机组成原理(一)计算机系统概论"></a>计算机组成原理(一)计算机系统概论</h1><h2 id="2-计算机的基本组成"><a href="#2-计算机的基本组成" class="headerlink" title="2.计算机的基本组成"></a>2.计算机的基本组成</h2><h3 id="2-0-冯诺依曼计算机历史"><a href="#2-0-冯诺依曼计算机历史" class="headerlink" title="2.0 冯诺依曼计算机历史"></a>2.0 冯诺依曼计算机历史</h3><img src="/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/a825a9ed08e2a58a5d9d462c5d8de1a4.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+                <h1 id="计算机组成原理-一-计算机系统概论"><a href="#计算机组成原理-一-计算机系统概论" class="headerlink" title="计算机组成原理(一)计算机系统概论"></a>计算机组成原理(一)计算机系统概论</h1><h2 id="1-计算机系统简介"><a href="#1-计算机系统简介" class="headerlink" title="1.计算机系统简介"></a>1.计算机系统简介</h2><h2 id="2-计算机的基本组成"><a href="#2-计算机的基本组成" class="headerlink" title="2.计算机的基本组成"></a>2.计算机的基本组成</h2><h3 id="2-0-冯诺依曼计算机历史"><a href="#2-0-冯诺依曼计算机历史" class="headerlink" title="2.0 冯诺依曼计算机历史"></a>2.0 冯诺依曼计算机历史</h3><img src="/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/a825a9ed08e2a58a5d9d462c5d8de1a4.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
 
 <p>冯诺依曼计算机简称为EDVAC(Electronic Discrete Variable Automatic Computer)也叫普林斯顿体系结构（Princetionarchitecture），因为冯诺依曼是普林斯顿大学教授。</p>
 <p>EDVAC是世界上第一台存储程序计算机(也有说法是电子数字式计算机)，成为所有现代计算机的原型和范本，它被建造于 1940年.。它是最早的大型二进制系统中央处理器计算机，而不是十进制系统。建造于19世纪40年代,EDVAC 设计于1944年,在这之前它被安装在美国军队的弹道学研究实验室，该实验室建造于1940年８月，位于马里兰州。</p>
@@ -376,8 +378,8 @@
 <li>存储字：存储单元中二进制代码的组合</li>
 <li>存储字长：存储单元中二进制代码的位数，每个存储单元赋予一个地址号</li>
 </ul>
-<p><strong>MAR：</strong>存储器地址寄存器，反应存储单元的个数</p>
-<p><strong>MDR：</strong>存储器数据寄存器，反应存储字长</p>
+<p><strong>MAR：</strong>全称 memory data register，主存数据寄存器，MDR用来保存要被写入地址单元或者从地址单元读入的数据。</p>
+<p><strong>MDR：</strong>全称memory address register，主存地址寄存器，MAR用来保存数据被传输到的位置的地址或者数据来源位置的地址。</p>
 <h4 id="2-3-4-运算器的基本组成及操作过程"><a href="#2-3-4-运算器的基本组成及操作过程" class="headerlink" title="2.3.4 运算器的基本组成及操作过程"></a>2.3.4 运算器的基本组成及操作过程</h4><img src="/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/image-20230501235216541.png" srcset="/img/loading.gif" lazyload alt="image-20230501235216541" style="zoom:80%;">
 
 <p>①加法操作过程</p>
@@ -398,6 +400,66 @@
 <h4 id="2-3-5-控制器的基本组成"><a href="#2-3-5-控制器的基本组成" class="headerlink" title="2.3.5 控制器的基本组成"></a>2.3.5 控制器的基本组成</h4><p>控制器CU主要由IR寄存器、PC寄存器组成；完成一条指令需要有三步：PC取指令、IR分析指令、CU控制单元执行指令。</p>
 <img src="/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/image-20230501235624624.png" srcset="/img/loading.gif" lazyload alt="image-20230501235624624" style="zoom: 67%;">
 
+<h4 id="2-3-6-主机完成一条指令的过程"><a href="#2-3-6-主机完成一条指令的过程" class="headerlink" title="2.3.6 主机完成一条指令的过程"></a>2.3.6 主机完成一条指令的过程</h4><p><strong>（1）以取指令为例</strong></p>
+<img src="/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/image-20230503150830396.png" srcset="/img/loading.gif" lazyload alt="image-20230503150830396" style="zoom: 67%;">
+
+<ul>
+<li><p>先要做的是拿到取数指令，PC中存储了下一条要执行指令的地址</p>
+<ul>
+<li><p>PC将指令的地址送给MAR</p>
+</li>
+<li><p>MAR再送给存储体</p>
+</li>
+<li><p>存储体将具体的指令送到MDR中</p>
+</li>
+<li><p>将取出来的指令送到IR进行分析</p>
+</li>
+<li><p>将指令的操作码部分交给CU控制单元</p>
+</li>
+</ul>
+</li>
+<li><p>然后拿到具体的数值，所以传递具体数值的地址</p>
+<ul>
+<li>因为IR分析指令后，里面有操作码和地址码，操作码表明了是取数指令，已经告诉了CU。现在要把具体数值的取出来。IR吧数值的地址传递到MAR</li>
+<li>MAR再传给存储体</li>
+<li>存储体将具体的数值取出来放到MDR中</li>
+<li>MDR将数值传到ACC寄存器中</li>
+</ul>
+</li>
+</ul>
+<p><strong>（2）以存数指令为例</strong></p>
+<img src="/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/image-20230503151910628.png" srcset="/img/loading.gif" lazyload alt="image-20230503151910628" style="zoom:67%;">
+
+<ul>
+<li>PC中存储了下一条指令的地址<ul>
+<li>PC将指令的地址传给MAR</li>
+<li>MAR将地址传给存储体M</li>
+<li>存储体M将具体的指令传给MDR</li>
+<li>MDR将具体的指令传给IR进行分析</li>
+<li>将指令的操作码部分交给CU控制单元</li>
+</ul>
+</li>
+<li>然后就要存具体的数值了<ul>
+<li>IR将要存的数值的具体地址传给MAR</li>
+<li>MAR传给存储体</li>
+<li>ACC寄存器将具体的数值传给MDR</li>
+<li>MDR将数值传给存储体进行保存</li>
+</ul>
+</li>
+</ul>
+<p><strong>（3）ax^2+bx+c程序的运行过程</strong></p>
+<ul>
+<li>将程序通过输入设备送至计算机</li>
+<li>程序首地址 -&gt; PC</li>
+<li>启动程序运行</li>
+<li>取指令 PC -&gt; MAR -&gt; M -&gt; MDR -&gt; IR， (PC)+1-&gt;PC</li>
+<li>分析指令  OP(IR) -&gt; CU</li>
+<li>执行指令  Ad(IR) -&gt; MAR -&gt; M -&gt; MDR -&gt; ACC</li>
+<li>…</li>
+<li>…</li>
+<li>打印结果</li>
+<li>停机</li>
+</ul>
 
                 
               </div>
@@ -459,6 +521,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2023/05/03/%E8%BD%A6%E6%9C%BAMCU%E7%9F%A5%E8%AF%86%E6%A2%B3%E7%90%86/" title="车机MCU知识梳理">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">车机MCU知识梳理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
