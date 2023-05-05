@@ -16,17 +16,18 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="计算机组成原理(四)存储器1.主存储器1.1 主存储器的基本组成从前面的只是来看，存储器的基本组成如下所示：    基本上主存由三部分组成 存储体 地址寄存器 数据寄存器 寄存器也是存储器 用来存放数据 一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存器中）我来取走 一个写入操作则和取快递稍微不同，我们需要先给地址寄存器">
+    <meta name="description" content="计算机组成原理(四)存储器1.主存储器1.1 概述1.1.1 主存的基本组成从前面的只是来看，存储器的基本组成如下所示：    基本上主存由三部分组成 存储体 地址寄存器 数据寄存器 寄存器也是存储器 用来存放数据 一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存器中）我来取走 一个写入操作则和取快递稍微不同，我们需要先">
 <meta property="og:type" content="article">
 <meta property="og:title" content="计算机组成原理(四)存储器">
 <meta property="og:url" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="计算机组成原理(四)存储器1.主存储器1.1 主存储器的基本组成从前面的只是来看，存储器的基本组成如下所示：    基本上主存由三部分组成 存储体 地址寄存器 数据寄存器 寄存器也是存储器 用来存放数据 一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存器中）我来取走 一个写入操作则和取快递稍微不同，我们需要先给地址寄存器">
+<meta property="og:description" content="计算机组成原理(四)存储器1.主存储器1.1 概述1.1.1 主存的基本组成从前面的只是来看，存储器的基本组成如下所示：    基本上主存由三部分组成 存储体 地址寄存器 数据寄存器 寄存器也是存储器 用来存放数据 一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存器中）我来取走 一个写入操作则和取快递稍微不同，我们需要先">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png">
-<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235625438.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000027708.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000218365.png">
 <meta property="article:published_time" content="2023-05-05T15:51:46.000Z">
-<meta property="article:modified_time" content="2023-05-05T15:58:59.926Z">
+<meta property="article:modified_time" content="2023-05-05T16:02:31.917Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png">
@@ -210,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          429 字
+          503 字
         
       </span>
     
@@ -221,7 +222,7 @@
         
         
         
-          4 分钟
+          5 分钟
         
       </span>
     
@@ -264,7 +265,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="计算机组成原理-四-存储器"><a href="#计算机组成原理-四-存储器" class="headerlink" title="计算机组成原理(四)存储器"></a>计算机组成原理(四)存储器</h1><h2 id="1-主存储器"><a href="#1-主存储器" class="headerlink" title="1.主存储器"></a>1.主存储器</h2><h3 id="1-1-主存储器的基本组成"><a href="#1-1-主存储器的基本组成" class="headerlink" title="1.1 主存储器的基本组成"></a>1.1 主存储器的基本组成</h3><p>从前面的只是来看，存储器的基本组成如下所示：</p>
+                <h1 id="计算机组成原理-四-存储器"><a href="#计算机组成原理-四-存储器" class="headerlink" title="计算机组成原理(四)存储器"></a>计算机组成原理(四)存储器</h1><h2 id="1-主存储器"><a href="#1-主存储器" class="headerlink" title="1.主存储器"></a>1.主存储器</h2><h3 id="1-1-概述"><a href="#1-1-概述" class="headerlink" title="1.1 概述"></a>1.1 概述</h3><h4 id="1-1-1-主存的基本组成"><a href="#1-1-1-主存的基本组成" class="headerlink" title="1.1.1 主存的基本组成"></a>1.1.1 主存的基本组成</h4><p>从前面的只是来看，存储器的基本组成如下所示：</p>
 <img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png" srcset="/img/loading.gif" lazyload alt="image-20230505235435737" style="zoom: 67%;">
 
 <ul>
@@ -274,9 +275,18 @@
 <li>一个写入操作则和取快递稍微不同，我们需要先给地址寄存器一个地址，然后把数据给数据寄存器，这样主存就会帮我们把数据写入存储体。</li>
 </ul>
 <p>这一章节我们将详细介绍主存储器的结构：</p>
-<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235625438.png" srcset="/img/loading.gif" lazyload alt="image-20230505235625438" style="zoom: 67%;">
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000027708.png" srcset="/img/loading.gif" lazyload alt="image-20230506000027708" style="zoom: 67%;">
 
-<p>主存由存储体(程序，指令，数据都是存储在存储体中)，MAR,MDR构成<br>MAR当中保存了我们要访问的那个存储单元的地址，必须要进行译码器译码以后，我们才可以选定指定的存储单元<br>MDR中保存了我们读出或者写入的数据<br>这个数据是读出还是写入需要通过读写电路和控制电路来控制<br>如果是写入的话，则把数据从MDR送入指定的存储体的存储单元中<br>如果是读出的话，那么存储单元的内容就会被送到MDR中</p>
+<p>主存由存储体(程序，指令，数据都是存储在存储体中)，MAR，MDR构成。</p>
+<p>MAR当中保存了我们要访问的那个存储单元的地址，必须要进行译码器译码以后，我们才可以选定指定的存储单元；MDR中保存了我们读出或者写入的数据，这个数据是读出还是写入需要通过读写电路和控制电路来控制</p>
+<ul>
+<li>如果是写入的话，则把数据从MDR送入指定的存储体的存储单元中</li>
+<li>如果是读出的话，那么存储单元的内容就会被送到MDR中</li>
+</ul>
+<p>方向的控制是由读写电路来控制的。</p>
+<h4 id="1-1-2-主存与CPU之间的关系"><a href="#1-1-2-主存与CPU之间的关系" class="headerlink" title="1.1.2 主存与CPU之间的关系"></a>1.1.2 主存与CPU之间的关系</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000218365.png" srcset="/img/loading.gif" lazyload alt="image-20230506000218365" style="zoom: 67%;">
+
+<p>数据总线完成CPU和主存的信息传输<br>地址总线给出要访问的内存单元的地址</p>
 
                 
               </div>
