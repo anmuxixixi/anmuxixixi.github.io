@@ -16,18 +16,30 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="计算机组成原理(四)存储器1.主存储器1.1 概述1.1.1 主存的基本组成从前面的只是来看，存储器的基本组成如下所示：    基本上主存由三部分组成 存储体 地址寄存器 数据寄存器 寄存器也是存储器 用来存放数据 一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存器中）我来取走 一个写入操作则和取快递稍微不同，我们需要先">
+    <meta name="description" content="计算机组成原理(四)存储器1.概述1.1 存储器分类1.2 存储器的层次结构2.主存储器2.1 主存储器概述2.1.1 主存的基本组成从前面的只是来看，存储器的基本组成如下所示：    基本上主存由三部分组成 存储体 地址寄存器 数据寄存器 寄存器也是存储器 用来存放数据 一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存">
 <meta property="og:type" content="article">
 <meta property="og:title" content="计算机组成原理(四)存储器">
 <meta property="og:url" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="计算机组成原理(四)存储器1.主存储器1.1 概述1.1.1 主存的基本组成从前面的只是来看，存储器的基本组成如下所示：    基本上主存由三部分组成 存储体 地址寄存器 数据寄存器 寄存器也是存储器 用来存放数据 一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存器中）我来取走 一个写入操作则和取快递稍微不同，我们需要先">
+<meta property="og:description" content="计算机组成原理(四)存储器1.概述1.1 存储器分类1.2 存储器的层次结构2.主存储器2.1 主存储器概述2.1.1 主存的基本组成从前面的只是来看，存储器的基本组成如下所示：    基本上主存由三部分组成 存储体 地址寄存器 数据寄存器 寄存器也是存储器 用来存放数据 一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png">
 <meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000027708.png">
 <meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000218365.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/88abe0b5048349bdb560acdf4a42ff48.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507213936324.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507214503803.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/a2e5a6340fda4db982f1d4179089a578.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/db1d4fe8d41843e19a4d0ca6b8b53a79.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/bcf1404027e6445eb5a94b473f236bab.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N3YWRpYW4yMDA4,size_16,color_FFFFFF,t_70.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N3YWRpYW4yMDA4,size_16,color_FFFFFF,t_70-1683468907249-13.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/e17c0a8d820143eb953d6bf14339cffc.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507230536721.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507230753703.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/fdfd8ac372a8451dade364a7eba263c9.png">
 <meta property="article:published_time" content="2023-05-05T15:51:46.000Z">
-<meta property="article:modified_time" content="2023-05-05T16:02:31.917Z">
+<meta property="article:modified_time" content="2023-05-07T15:24:05.577Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png">
@@ -211,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          503 字
+          4.5k 字
         
       </span>
     
@@ -222,7 +234,7 @@
         
         
         
-          5 分钟
+          38 分钟
         
       </span>
     
@@ -265,7 +277,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="计算机组成原理-四-存储器"><a href="#计算机组成原理-四-存储器" class="headerlink" title="计算机组成原理(四)存储器"></a>计算机组成原理(四)存储器</h1><h2 id="1-主存储器"><a href="#1-主存储器" class="headerlink" title="1.主存储器"></a>1.主存储器</h2><h3 id="1-1-概述"><a href="#1-1-概述" class="headerlink" title="1.1 概述"></a>1.1 概述</h3><h4 id="1-1-1-主存的基本组成"><a href="#1-1-1-主存的基本组成" class="headerlink" title="1.1.1 主存的基本组成"></a>1.1.1 主存的基本组成</h4><p>从前面的只是来看，存储器的基本组成如下所示：</p>
+                <h1 id="计算机组成原理-四-存储器"><a href="#计算机组成原理-四-存储器" class="headerlink" title="计算机组成原理(四)存储器"></a>计算机组成原理(四)存储器</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><h3 id="1-1-存储器分类"><a href="#1-1-存储器分类" class="headerlink" title="1.1 存储器分类"></a>1.1 存储器分类</h3><h3 id="1-2-存储器的层次结构"><a href="#1-2-存储器的层次结构" class="headerlink" title="1.2 存储器的层次结构"></a>1.2 存储器的层次结构</h3><h2 id="2-主存储器"><a href="#2-主存储器" class="headerlink" title="2.主存储器"></a>2.主存储器</h2><h3 id="2-1-主存储器概述"><a href="#2-1-主存储器概述" class="headerlink" title="2.1 主存储器概述"></a>2.1 主存储器概述</h3><h4 id="2-1-1-主存的基本组成"><a href="#2-1-1-主存的基本组成" class="headerlink" title="2.1.1 主存的基本组成"></a>2.1.1 主存的基本组成</h4><p>从前面的只是来看，存储器的基本组成如下所示：</p>
 <img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png" srcset="/img/loading.gif" lazyload alt="image-20230505235435737" style="zoom: 67%;">
 
 <ul>
@@ -275,7 +287,7 @@
 <li>一个写入操作则和取快递稍微不同，我们需要先给地址寄存器一个地址，然后把数据给数据寄存器，这样主存就会帮我们把数据写入存储体。</li>
 </ul>
 <p>这一章节我们将详细介绍主存储器的结构：</p>
-<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000027708.png" srcset="/img/loading.gif" lazyload alt="image-20230506000027708" style="zoom: 67%;">
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000027708.png" srcset="/img/loading.gif" lazyload alt="image-20230506000027708" style="zoom: 40%;">
 
 <p>主存由存储体(程序，指令，数据都是存储在存储体中)，MAR，MDR构成。</p>
 <p>MAR当中保存了我们要访问的那个存储单元的地址，必须要进行译码器译码以后，我们才可以选定指定的存储单元；MDR中保存了我们读出或者写入的数据，这个数据是读出还是写入需要通过读写电路和控制电路来控制</p>
@@ -284,10 +296,144 @@
 <li>如果是读出的话，那么存储单元的内容就会被送到MDR中</li>
 </ul>
 <p>方向的控制是由读写电路来控制的。</p>
-<h4 id="1-1-2-主存与CPU之间的关系"><a href="#1-1-2-主存与CPU之间的关系" class="headerlink" title="1.1.2 主存与CPU之间的关系"></a>1.1.2 主存与CPU之间的关系</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000218365.png" srcset="/img/loading.gif" lazyload alt="image-20230506000218365" style="zoom: 67%;">
+<h4 id="2-1-2-主存与CPU之间的关系"><a href="#2-1-2-主存与CPU之间的关系" class="headerlink" title="2.1.2 主存与CPU之间的关系"></a>2.1.2 主存与CPU之间的关系</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000218365.png" srcset="/img/loading.gif" lazyload alt="image-20230506000218365" style="zoom: 40%;">
 
 <p>数据总线完成CPU和主存的信息传输<br>地址总线给出要访问的内存单元的地址</p>
+<h4 id="2-1-3-主存中存储单元地址的分配"><a href="#2-1-3-主存中存储单元地址的分配" class="headerlink" title="2.1.3 主存中存储单元地址的分配"></a>2.1.3 主存中存储单元地址的分配</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/88abe0b5048349bdb560acdf4a42ff48.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
 
+<p>假设存储字长为32位(对存储器的某一个单元进行读或写的话，一次最多读或写32位0，1)，主存的编址单位是字节，每一个字节都有自己的地址。在这种情况下，一个存储字是32位，一个字节是八位，都有自己的地址。<br>那么12345678H这个数据怎么在主存储器中进行存储？</p>
+<ul>
+<li>一种方法是高位字节地址作为存储器的地址(字地址)，这种方式也叫大端方式</li>
+<li>第二种方法是低位字节作为字地址，这种方式叫做小端方式</li>
+</ul>
+<h4 id="2-1-4-主存的技术指标"><a href="#2-1-4-主存的技术指标" class="headerlink" title="2.1.4 主存的技术指标"></a>2.1.4 主存的技术指标</h4><p>①存储容量：主存存放二进制代码的总位数<br>②存储速度</p>
+<ul>
+<li>存取时间(从存储器给出地址到获得稳定的输入输出) 存储器的访问时间<ul>
+<li>读出时间 写入时间</li>
+</ul>
+</li>
+<li>存取周期<ul>
+<li>连续两次独立的存储器操作(读或写)所需的最小间隔时间</li>
+<li>存取周期一般大于存取时间</li>
+</ul>
+</li>
+</ul>
+<p>③存储器带宽</p>
+<ul>
+<li>单位时间内存储器存取的信息量，用字&#x2F;秒、字节&#x2F;秒或位&#x2F;秒表示</li>
+<li>衡量数据传输速率的重要指标，决定了以存储器为中心的计算机系统获得信息的速度，是改善机器性能瓶颈的一个关键因素</li>
+</ul>
+<h3 id="2-2-半导体存储芯片简介"><a href="#2-2-半导体存储芯片简介" class="headerlink" title="2.2 半导体存储芯片简介"></a>2.2 半导体存储芯片简介</h3><h4 id="2-2-1-半导体存储芯片的基本结构"><a href="#2-2-1-半导体存储芯片的基本结构" class="headerlink" title="2.2.1 半导体存储芯片的基本结构"></a>2.2.1 半导体存储芯片的基本结构</h4><ul>
+<li>采用超大规模集成电路制造工艺，在一个芯片内集成具有记忆功能的存储矩阵、译码驱动电路和读&#x2F;写电路等</li>
+<li>译码驱动：把地址总线送过来的地址信号翻译成对应存储单元的选择信号</li>
+<li>读写电路：包括读写放大器和写入电路，用于完成读写操作</li>
+</ul>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507213936324.png" srcset="/img/loading.gif" lazyload alt="image-20230507213936324" style="zoom:67%;">
+
+<p>存储芯片通过地址总线、数据总线和控制总线与外部连接</p>
+<ul>
+<li>地址线：单向输入，其位数与芯片容量有关</li>
+<li>数据线：双向输入&#x2F;输出，其位数与芯片可一次读出或写入的数据有关</li>
+</ul>
+<blockquote>
+<p>地址线和数据线的位宽，共同反应了存储芯片的容量。例如：地址线10根，数据线4根，则表示存储芯片的存储单元为2^10，每个单元的数据宽度为4位，则芯片的容量为2^10 * 4b &#x3D; 4Kb</p>
+</blockquote>
+<ul>
+<li>控制线：主要有读写控制线和片选线2种：<ul>
+<li>读写控制线：决定芯片进行读还是写，可以读写分开2根线，也可以合用一根</li>
+<li>片选线：用来在存储矩阵中选择存储芯片，可能有多根线</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-2-2-存储芯片片选线的作用"><a href="#2-2-2-存储芯片片选线的作用" class="headerlink" title="2.2.2 存储芯片片选线的作用"></a>2.2.2 存储芯片片选线的作用</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507214503803.png" srcset="/img/loading.gif" lazyload alt="image-20230507214503803" style="zoom:67%;">
+
+<p>半导体存储芯片它的片选线一般有2中标识方式，<br>$$<br>\overline{\text{CS}}、\overline{\text{CE}}<br>$$<br>上面的一横表示低电平有效，CS是芯片选择的缩写。</p>
+<blockquote>
+<p><strong>16K × 1位</strong>说明芯片的存储容量是16K，每一个存储单元保存1位信息。<br>如果我们用8个这样的芯片，对8个芯片同时进行读写，这8个芯片构成一组，这8个芯片就构成了16K × 8位的存储器<br>为了满足题目的需求，我们就应该布置4组这样的芯片。<br>每一组的8个芯片要同时进行工作<br>接下来对地址空间进行划分<br>第一组芯片: 0到16K-1<br>第二组芯片:16K到32K-1<br>第三组芯片:32K到48K-1<br>第四组芯片:48K到64K-1<br>如果我们要访问的地址是65535，也就是64K-1，按照我们划分的规则，它应该在第四组芯片，此8片的片选有效。片选信号看到这个地址后，就选择第四组芯片，其他三组芯片的片选信号是无效的，也就是高电平，最后一组对应的信号是低电平，也就是有效的。<br>片选信号的作用是让某个芯片或者某些芯片同时进行工作。</p>
+</blockquote>
+<h4 id="2-2-3-半导体存储芯片的译码驱动方式"><a href="#2-2-3-半导体存储芯片的译码驱动方式" class="headerlink" title="2.2.3 半导体存储芯片的译码驱动方式"></a>2.2.3 半导体存储芯片的译码驱动方式</h4><p>译码驱动方式就是说，给出存储单元的地址后，怎么找到指定的存储单元，可以有两种方式来找到指定的存储单元，</p>
+<p><strong>（1）线选法</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/a2e5a6340fda4db982f1d4179089a578.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:50%;">
+
+<p>给出A0到A3四位地址，说明有16个存储单元，每一个存储单元有多少位，就需要看数据线，数据线是从D0到D7，说明有8位，这个存储器是16×8</p>
+<p>接下来看看工作过程：</p>
+<p>如果给出的地址是全0，被译码后的信号只有0的这根线是有效的，其他的线是无效的。如果现在进行的是读操作，读信号会控制电路的通路打开，使数据可以从存储矩阵送到数据总线上，只有给定的单元才可以数据的输出</p>
+<blockquote>
+<p>这种方法对容量稍微大一点的芯片来说是不合适的</p>
+</blockquote>
+<p><strong>（2）重合法</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/db1d4fe8d41843e19a4d0ca6b8b53a79.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:50%;">
+
+<p>线性法进行布局的时候，实际上是把它布局成线性数组，重合法进行布局的时候，实际上是把它布局成二维阵列</p>
+<p>行地址和列地址都只能有一条线是有效的</p>
+<h3 id="2-3-随机存取存储器（RAM）"><a href="#2-3-随机存取存储器（RAM）" class="headerlink" title="2.3 随机存取存储器（RAM）"></a>2.3 随机存取存储器（RAM）</h3><p>RAM分为静态RAM(SRAM)和动态RAM(DRAM)：</p>
+<ul>
+<li>动态RAM是利用电容存储电荷的方式存储数据的；</li>
+<li>静态RAM是利用触发器的稳态特性来存储数据的；</li>
+</ul>
+<hr>
+<p>RAM 有点像“内存”，实际上涵盖了几种不同的类型。大多数人在讨论 RAM 或内存时，他们实际上谈论的内容在技术上是 DRAM（动态随机存取内存），或者更准确地说对于现代系统 <strong>SDRAM</strong>（同步动态随机存取内存）更为准确。除了技术性之外，术语并不重要，但知道这些术语通俗地说可以相互交换是有用的。</p>
+<p>目前销售的最常见的 RAM 类型是 DDR4，尽管较旧的系统可能使用 DDR2 或 DDR3。这些简单地表示在特定系统中使用的 RAM 的生成，每个连续的系统通过更大的带宽提供更快的速度 – 更高的兆赫（MHz）等级。每代人都看到身体的变化，所以不能互换。</p>
+<p>另一个常见术语，特别是在视频游戏领域是 VRAM 或视频 RAM。虽然 VRAM 本身就是一种技术，但它现在用于（技术上错误地）表示可用于图形芯片或内置于图形卡的内存。这实际上称为图形 DDR SDRAM，或更常见的 GDDR。大多数现代显卡都会使用 GDDR5，尽管有些使用更新的 GDDR5X 标准，而未来的几代甚至可能会搭配 GDDR6 内存。</p>
+<p>一些小众图形卡采用称为高带宽内存（HBM 和 HBM2）的独特形式的内存 ，虽然它通常很昂贵，但供应问题意味着它没有被广泛采用，它具有一些独特的性能优势。</p>
+<h3 id="2-4-只读存储器（ROM）"><a href="#2-4-只读存储器（ROM）" class="headerlink" title="2.4 只读存储器（ROM）"></a>2.4 只读存储器（ROM）</h3><p>ROM的发展历程：</p>
+<ul>
+<li>早期的只读存储器—–在厂家就写好了内容</li>
+<li>改进1——–用户可以自己写，不过是一次性的，如果要修改程序就得重新买芯片，原有的芯片的数据不能够擦除</li>
+<li>改进2——可以多次写——并且可以对信息进行擦除(早期的时候，那些可以擦除信息的芯片的设备要单独购买，不是很方便)</li>
+<li>改进3——电可擦写—–需要特定设备</li>
+<li>改进4——电可擦写——直接连接到计算机上</li>
+</ul>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/bcf1404027e6445eb5a94b473f236bab.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:100%;">
+
+<h4 id="2-4-1-掩膜ROM（MROM）——只可读"><a href="#2-4-1-掩膜ROM（MROM）——只可读" class="headerlink" title="2.4.1 掩膜ROM（MROM）——只可读"></a>2.4.1 掩膜ROM（MROM）——只可读</h4><p>这种ROM是由制造厂家利用一种掩膜技术写入程序的，掩膜ROM制成后，用户不能修改，根据制造工艺可以将它们分为MOS型和双极型两种。MOS型ROM功耗小、速度慢，适用于一般微机系统；而双极型则速度快、功耗大，适用于速度较高的计算机系统。</p>
+<h4 id="2-4-2-PROM-一次性编程"><a href="#2-4-2-PROM-一次性编程" class="headerlink" title="2.4.2 PROM (一次性编程)"></a>2.4.2 PROM (一次性编程)</h4><p>可编程只读存储器 （英语：Programmable read-only memory），缩写为 PROM 或 FPROM，是一种电脑存储记忆晶片，它允许使用称为PROM编程器的硬件将数据写入设备中。在PROM被编程后，它就只能专用那些数据，并且不能被再编程，这种记忆体用作永久存放程式之用。通常会用于电子游戏机、或电子词典这类可翻译语言的产品之上。</p>
+<p>采用破坏性编程，且只能编程一次，如果编程有错误，只能重新购买芯片。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N3YWRpYW4yMDA4,size_16,color_FFFFFF,t_70.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:33%;">
+
+<h4 id="2-4-3-EPROM-多次性编程"><a href="#2-4-3-EPROM-多次性编程" class="headerlink" title="2.4.3 EPROM (多次性编程 )"></a>2.4.3 EPROM (多次性编程 )</h4><p>EPROM采用N型沟道浮动栅MOS电路，需要保存0，D端加正电压，形成浮动栅，需要保存1，D端不加正电压，不形成浮动栅。</p>
+<p>编程完成后，EPROM只能用强紫外线照射来擦除。通过封装顶部能看见硅片的透明窗口，很容易识别EPROM，这个窗口同时用来进行紫外线擦除。可以将EPROM的玻璃窗对准阳光直射一段时间就可以擦除。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N3YWRpYW4yMDA4,size_16,color_FFFFFF,t_70-1683468907249-13.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 33%;">
+
+<h4 id="2-4-4-EEPROM-多次性编程"><a href="#2-4-4-EEPROM-多次性编程" class="headerlink" title="2.4.4 EEPROM (多次性编程 )"></a>2.4.4 EEPROM (多次性编程 )</h4><p>EEPROM (Electrically Erasable Programmable read only memory)是指带电可擦可编程只读存储器。是一种掉电后数据不丢失的存储芯片。 EEPROM 可以在电脑上或专用设备上擦除已有信息，重新编程。一般用在即插即用。</p>
+<p>常用在接口卡中，用来存放硬件设置数据。</p>
+<p>也常用在防止软件非法拷贝的”硬件锁”上面。</p>
+<p>EEPROM的特点：</p>
+<ul>
+<li>电可擦写</li>
+<li>局部擦写</li>
+<li>全部擦写</li>
+</ul>
+<h4 id="2-4-5-Flash-Memory-闪速型存储器"><a href="#2-4-5-Flash-Memory-闪速型存储器" class="headerlink" title="2.4.5 Flash Memory (闪速型存储器)"></a>2.4.5 Flash Memory (闪速型存储器)</h4><p>快闪存储器（英语：flash memory），是一种电子式可清除程序化只读存储器的形式，允许在操作中被多次擦或写的存储器。这种科技主要用于一般性数据存储，以及在计算机与其他数字产品间交换传输数据，如储存卡与U盘。</p>
+<p>闪存是一种非易失性存储器，即断电数据也不会丢失。因为闪存不像RAM（随机存取存储器）一样以字节为单位改写数据，因此不能取代RAM。</p>
+<p>闪存卡（Flash Card）是利用闪存（Flash Memory）技术达到存储电子信息的存储器，一般应用在数码相机，掌上电脑，MP3等小型数码产品中作为存储介质，所以样子小巧，有如一张卡片，所以称之为闪存卡。</p>
+<h3 id="2-5-存储器与CPU的连接"><a href="#2-5-存储器与CPU的连接" class="headerlink" title="2.5 存储器与CPU的连接"></a>2.5 存储器与CPU的连接</h3><p>CPU执行的指令需要的数据都保存在主存储器中，运行的结果也保存在主存储器中，所以CPU和存储器要进行正确的连接，才能实现他们之间信息的交换</p>
+<p>一般来说，CPU的地址线比较多，寻址范围也比较大。要构成主存储器，需要多个存储芯片共同组成。</p>
+<h4 id="2-5-1-存储器容量的扩展"><a href="#2-5-1-存储器容量的扩展" class="headerlink" title="2.5.1 存储器容量的扩展"></a>2.5.1 存储器容量的扩展</h4><p>单片存储芯片的容量有限，需要将若干存储芯片连在一起组成具有足够容量的存储器，所需芯片数量的计算公式：</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/e17c0a8d820143eb953d6bf14339cffc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:50%;">
+
+<p>位扩展：增加存储器的横向容量<br>字扩展：增加存储器的纵向容量</p>
+<p><strong>（1）位扩展(为了增加存储字长)</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507230536721.png" srcset="/img/loading.gif" lazyload alt="image-20230507230536721" style="zoom: 50%;">
+
+<p>用2片1K×4位的存储芯片组成1K×8位的存储器</p>
+<p>两个芯片要能同时工作，也就是要把两个芯片的片选用相同信号连接</p>
+<blockquote>
+<p>地址线和控制线公用<br>数据线单独分开</p>
+</blockquote>
+<p><strong>（2）字扩展(增加存储字的数量)</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507230753703.png" srcset="/img/loading.gif" lazyload alt="image-20230507230753703" style="zoom:50%;">
+
+<blockquote>
+<p>地址线和数据线公用<br>读写控制线公用<br>片选使能控制线独立，通过地址的高位字段进行译码决定</p>
+</blockquote>
+<p>对第一个芯片来说，它用的地址线是A0~A9，如果A10为0，我们就选择第一个芯片，A10如果为1.我们就选择第二个芯片，A10就是我们的片选信号</p>
+<p>从00000000000<del>01111111111 ，这1K的存储空间分配给第一个芯片<br>从10000000000</del>11111111111 ，这1K的存储空间分配给第二个芯片</p>
+<p><strong>（3）字、位扩展</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/fdfd8ac372a8451dade364a7eba263c9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<p>通过A10,A11来判断我们要访问的芯片是哪一组<br>00选择第一组芯片<br>01选择第二组芯片<br>10选择第三组芯片<br>11选择第四组芯片</p>
+<h4 id="2-5-2-存储器与CPU的连接"><a href="#2-5-2-存储器与CPU的连接" class="headerlink" title="2.5.2 存储器与CPU的连接"></a>2.5.2 存储器与CPU的连接</h4>
                 
               </div>
             
