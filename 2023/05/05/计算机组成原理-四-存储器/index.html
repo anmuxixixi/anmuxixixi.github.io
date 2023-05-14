@@ -16,13 +16,18 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="计算机组成原理(四)存储器1.概述1.1 存储器分类1.2 存储器的层次结构2.主存储器2.1 主存储器概述2.1.1 主存的基本组成从前面的只是来看，存储器的基本组成如下所示：    基本上主存由三部分组成 存储体 地址寄存器 数据寄存器 寄存器也是存储器 用来存放数据 一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存">
+    <meta name="description" content="计算机组成原理(四)存储器 声明：本文大部分内容转载自不断前进的皮卡丘，感谢辛苦整理的成果 原文地址：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_52797170&#x2F;article&#x2F;details&#x2F;124472835  [TOC] 1.1 存储器分类  1.1.1 按存储介质分类 半导体存储器 TTL、MOS 易失 磁表面存储器 磁头、载磁体 非易失 磁芯存储器 硬磁材料、环状元件 非易失 光">
 <meta property="og:type" content="article">
 <meta property="og:title" content="计算机组成原理(四)存储器">
 <meta property="og:url" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="计算机组成原理(四)存储器1.概述1.1 存储器分类1.2 存储器的层次结构2.主存储器2.1 主存储器概述2.1.1 主存的基本组成从前面的只是来看，存储器的基本组成如下所示：    基本上主存由三部分组成 存储体 地址寄存器 数据寄存器 寄存器也是存储器 用来存放数据 一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存">
+<meta property="og:description" content="计算机组成原理(四)存储器 声明：本文大部分内容转载自不断前进的皮卡丘，感谢辛苦整理的成果 原文地址：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_52797170&#x2F;article&#x2F;details&#x2F;124472835  [TOC] 1.1 存储器分类  1.1.1 按存储介质分类 半导体存储器 TTL、MOS 易失 磁表面存储器 磁头、载磁体 非易失 磁芯存储器 硬磁材料、环状元件 非易失 光">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/3b068c358f4340b580f7f0727c2e0804.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/878f6fcb0db84f4890a7e594f3cb6786.png">
+<meta property="og:image" content="http://example.com/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/340ca3c5d3554a91b7e48c5998e9cbe6.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/332deb6cf51f4ad39270d8e96a1c18c3.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/04816fd2fb45456baf26a7dafd1430dd.png">
 <meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png">
 <meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000027708.png">
 <meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000218365.png">
@@ -53,11 +58,26 @@
 <meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/83d98363c63b4d0fb49bf0cb3832384f.png">
 <meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/d90eac5675564a52ba022f172125991e.png">
 <meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/be5b2e83b30d4c498ed95023a22cfb4e.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/v2-56946c0f3d889d93bcf280f418abc75c_720w.webp">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/a90bc042b0a24a77af0e8e842e189871.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/b4e11ed8f331496d8c5dc3a04dcb1f4c.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/ffaf706f08dc479e9e20a0e117842888.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/81fed2d01dfb457cbadd8f86bcff86cd.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514203908166.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514204043280.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514204208280.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210212152.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210350969.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210507419.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514211224104.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/edc32409f52f4bb08f24ae66a214b1f4.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/9d7cf85354b64dd3bc0816759c0fb788.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/2a1fc2de6ff347d5bdb50ab4a7603b13.png">
 <meta property="article:published_time" content="2023-05-05T15:51:46.000Z">
-<meta property="article:modified_time" content="2023-05-10T14:26:31.839Z">
+<meta property="article:modified_time" content="2023-05-14T13:23:03.698Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png">
+<meta name="twitter:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/3b068c358f4340b580f7f0727c2e0804.png">
   
   
   
@@ -238,7 +258,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.6k 字
+          11k 字
         
       </span>
     
@@ -249,7 +269,7 @@
         
         
         
-          56 分钟
+          92 分钟
         
       </span>
     
@@ -292,7 +312,50 @@
             
               <div class="markdown-body">
                 
-                <h1 id="计算机组成原理-四-存储器"><a href="#计算机组成原理-四-存储器" class="headerlink" title="计算机组成原理(四)存储器"></a>计算机组成原理(四)存储器</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><h3 id="1-1-存储器分类"><a href="#1-1-存储器分类" class="headerlink" title="1.1 存储器分类"></a>1.1 存储器分类</h3><h3 id="1-2-存储器的层次结构"><a href="#1-2-存储器的层次结构" class="headerlink" title="1.2 存储器的层次结构"></a>1.2 存储器的层次结构</h3><h2 id="2-主存储器"><a href="#2-主存储器" class="headerlink" title="2.主存储器"></a>2.主存储器</h2><h3 id="2-1-主存储器概述"><a href="#2-1-主存储器概述" class="headerlink" title="2.1 主存储器概述"></a>2.1 主存储器概述</h3><h4 id="2-1-1-主存的基本组成"><a href="#2-1-1-主存的基本组成" class="headerlink" title="2.1.1 主存的基本组成"></a>2.1.1 主存的基本组成</h4><p>从前面的只是来看，存储器的基本组成如下所示：</p>
+                <h1 id="计算机组成原理-四-存储器"><a href="#计算机组成原理-四-存储器" class="headerlink" title="计算机组成原理(四)存储器"></a>计算机组成原理(四)存储器</h1><blockquote>
+<p>声明：本文大部分内容转载自<strong>不断前进的皮卡丘</strong>，感谢辛苦整理的成果</p>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_52797170/article/details/124472835">https://blog.csdn.net/qq_52797170/article/details/124472835</a></p>
+</blockquote>
+<p>[TOC]</p>
+<h3 id="1-1-存储器分类"><a href="#1-1-存储器分类" class="headerlink" title="1.1 存储器分类"></a>1.1 存储器分类</h3><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/3b068c358f4340b580f7f0727c2e0804.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h4 id="1-1-1-按存储介质分类"><a href="#1-1-1-按存储介质分类" class="headerlink" title="1.1.1 按存储介质分类"></a>1.1.1 按存储介质分类</h4><ul>
+<li>半导体存储器 TTL、MOS 易失</li>
+<li>磁表面存储器 磁头、载磁体 非易失</li>
+<li>磁芯存储器 硬磁材料、环状元件 非易失</li>
+<li>光盘存储器 激光、磁光材料 非易失</li>
+</ul>
+<h4 id="1-1-2-按读取方式分类"><a href="#1-1-2-按读取方式分类" class="headerlink" title="1.1.2 按读取方式分类"></a>1.1.2 按读取方式分类</h4><p>①存取时间和存取单元位置无关(随机访问)</p>
+<ul>
+<li>随机存储器(RAM)<ul>
+<li>存储器中任何存储单元的内容都能被随机存取，和存取时间和存储单元的物理位置无关，这种存储器叫做随机存储器</li>
+<li>随机存储器在程序的执行过程中可读可写</li>
+</ul>
+</li>
+<li>只读存储器(ROM)<ul>
+<li>在程序的执行过程中只读</li>
+</ul>
+</li>
+</ul>
+<p>②存取时间和存取单元位置有关(串行访问)</p>
+<ul>
+<li>顺序存取存储器 磁带<ul>
+<li>存储器只能按照某种顺序来存取，那么这种存储器就是顺序存取存储器，它的存取周期较长</li>
+</ul>
+</li>
+<li>直接存取存储器 磁盘<ul>
+<li>沿着磁道方向顺序存取，垂直半径方向随机存取</li>
+</ul>
+</li>
+</ul>
+<p>③按照在计算机中的作用分类<br><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/878f6fcb0db84f4890a7e594f3cb6786.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;"></p>
+<h3 id="1-2-存储器的层次结构"><a href="#1-2-存储器的层次结构" class="headerlink" title="1.2 存储器的层次结构"></a>1.2 存储器的层次结构</h3><h4 id="1-2-1-存储器的三个主要特性的关系"><a href="#1-2-1-存储器的三个主要特性的关系" class="headerlink" title="1.2.1 存储器的三个主要特性的关系"></a>1.2.1 存储器的三个主要特性的关系</h4><p><img src="/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/340ca3c5d3554a91b7e48c5998e9cbe6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/332deb6cf51f4ad39270d8e96a1c18c3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:50%;">
+
+<h4 id="1-2-2-缓存-主存层次和主存-辅存层次"><a href="#1-2-2-缓存-主存层次和主存-辅存层次" class="headerlink" title="1.2.2 缓存-主存层次和主存-辅存层次"></a>1.2.2 缓存-主存层次和主存-辅存层次</h4><p>计算机的主机由CPU和主存储器构成<br>CPU可以从主存中读取信息，也可以把信息存到主存中，但是主存的容量是有限的，如果程序足够大的话，主存是存不下的，需要辅助存储器帮忙存储，不过程序的运行还是得通过主存</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/04816fd2fb45456baf26a7dafd1430dd.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:50%;">
+
+<h2 id="2-主存储器"><a href="#2-主存储器" class="headerlink" title="2.主存储器"></a>2.主存储器</h2><h3 id="2-1-主存储器概述"><a href="#2-1-主存储器概述" class="headerlink" title="2.1 主存储器概述"></a>2.1 主存储器概述</h3><h4 id="2-1-1-主存的基本组成"><a href="#2-1-1-主存的基本组成" class="headerlink" title="2.1.1 主存的基本组成"></a>2.1.1 主存的基本组成</h4><p>从前面的只是来看，存储器的基本组成如下所示：</p>
 <img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png" srcset="/img/loading.gif" lazyload alt="image-20230505235435737" style="zoom: 67%;">
 
 <ul>
@@ -572,6 +635,113 @@
 <blockquote>
 <p>在DRAM的芯片内集成了一个由SRAM组成的Cache,有利于猝发式读取</p>
 </blockquote>
+<h2 id="3-高速缓冲存储器"><a href="#3-高速缓冲存储器" class="headerlink" title="3.高速缓冲存储器"></a>3.高速缓冲存储器</h2><h3 id="3-1-概述"><a href="#3-1-概述" class="headerlink" title="3.1 概述"></a>3.1 概述</h3><h4 id="3-1-1-使用的原因"><a href="#3-1-1-使用的原因" class="headerlink" title="3.1.1 使用的原因"></a>3.1.1 使用的原因</h4><p>Cache是为了避免CPU空等现象。</p>
+<p>CPU空等现象：IO设备与cpu都需要访问内存，IO设备优先级较高，速度较慢，因此cpu需要等待IO访问内存从而出现空等现象。将热点数据缓存在Cache中可以有效避免cpu空等现象，直接从缓存中访问数据.</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/v2-56946c0f3d889d93bcf280f418abc75c_720w.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<blockquote>
+<p>CPU的频率也基本实现了每18个月翻一番，但是内存的速度一直都没怎么提高。下图曲线描述了20世纪后20年CPU速度和内存速度之间的“剪刀差”。</p>
+</blockquote>
+<h4 id="3-1-2-Cache的工作原理"><a href="#3-1-2-Cache的工作原理" class="headerlink" title="3.1.2 Cache的工作原理"></a>3.1.2 Cache的工作原理</h4><p><strong>(1)主存和缓存的编址</strong><br>我们把主存和Cache分成大小相等的块，主存有M块，Cache有C块。主存的容量远大于Cache的容量，即M&gt;&gt;C</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/a90bc042b0a24a77af0e8e842e189871.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>如果我们把主存和Cache分成若干块，那么CPU给出的内存地址就可以分成两个部分，一部分是块内偏移地址，它的位数决定块的大小，比如说一个块包含16个字节，并且内存的编址单位是字节，那么块内地址部分就是4位，剩余部分就是主存块号。<br>一个块在内存和Cache之间传送的时候，是整体进行传送，块内字节顺序不会发生变化。</p>
+<p>所以，<strong>内存的块内地址部分和Cache的块内地址部分的值是完全相同的</strong>。</p>
+<p>Cache中的标记，标记了主存块和Cache块之间的关系。如果一个主存块调入Cache块中，我们就可以把主存块号写到标记当中。将来CPU给出一个内存地址，它希望在Cache中访问到这个数据，它要首先确认这个块是否已经送到了Cache中，它就需要拿给出地址的主存块号和Cache中的标记进行比较。如果和某一个标记刚好相等，并且这个Cache块是有效的，这个块里面就保存了在内存中要访问的信息，它就可以直接从Cache中获取这些信息，它的速度就会大大提高</p>
+<p>主存和缓存是按照块来存储的，<strong>块的大小相同</strong></p>
+<p><strong>（2）命中和未命中</strong></p>
+<p>缓存有C块，主存有M块，M&gt;&gt;C，主存中只能有部分块被缓存到了Cache中。</p>
+<p>在CPU访问主存时，如果要访问的主存块已经调入缓存中，它的缓存能取到相应的数据，就说<strong>命中</strong><br>命中，就说明主存块和缓存块建立了对应关系，可以用标记记录与某缓存块建立了对应关系的主存块号</p>
+<p>如果要访问的主存块没有调入缓存，那么就说未命中</p>
+<p><strong>（3）Cache命中率</strong></p>
+<p>命中率： 就是在Cache中访问到CPU要访问的字块的概率。设Nc表示访问Cache的总命中次数，Nm未访问主存的总次数，即未命中次数。命中率h&#x3D;Nc&#x2F;(Nc+Nm)<br>命中率与Cache的容量和块长有关。</p>
+<p>一般每块可以取4~8个字<br>块长取一个存取周期内从主存调出的信息长度<br>Cache-主存系统的效率<br>效率e和命中率有关</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/b4e11ed8f331496d8c5dc3a04dcb1f4c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h4 id="3-1-3-Cache的基本结构"><a href="#3-1-3-Cache的基本结构" class="headerlink" title="3.1.3 Cache的基本结构"></a>3.1.3 Cache的基本结构</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/ffaf706f08dc479e9e20a0e117842888.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>CPU要访问内存的话，它要给出地址，包括块号和块内地址，由于Cache和主存之间是以块为基本单位传输数据的，所以主存的块内地址可以直接送到Cache的块内地址,或者形成Cache的块内地址</p>
+<p>我们利用块号在Cache的地址映射变换机构中，去确认是否发生命中。如果发生命中的话，需要给出当前的内存块保存在哪一个Cache块中。如果没有命中，就需要查一下，Cache中是否还有空间可以存入主存块，如果有的话，就访问主存，把主存块装到Cache块中；如果没有空间的话，那么主存块装入的那些Cache块都是满的，我们就要启用Cache替换机构，由Cache的替换机构根据替换算法，来算出哪一些块要从Cache中退出，写回到主存，或者直接作废，并且把主存中要用的块写入到Cache块中，这就是Cache替换机构要做的</p>
+<p><strong>地址映射:</strong></p>
+<blockquote>
+<p>主存中的一个块如果要放到Cache中，它可以被放到Cache的哪一个块或哪一些块中。</p>
+</blockquote>
+<p><strong>变换:</strong></p>
+<blockquote>
+<p>把主存的块号转变成相应的Cache块号，或者把主存的地址转变成相应的Cache的地址，然后在Cache中找到相应的主存块进行访问</p>
+<p>在主存和Cache之间是有一条直接通路的，通过这条通路，可以完成主存和Cache之间的信息交换</p>
+</blockquote>
+<p>我们的信息<strong>以块为基本单位</strong>保存在Cache存储体中</p>
+<h4 id="3-1-4-Cache的读写操作"><a href="#3-1-4-Cache的读写操作" class="headerlink" title="3.1.4 Cache的读写操作"></a>3.1.4 Cache的读写操作</h4><p><strong>（1）读操作</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/81fed2d01dfb457cbadd8f86bcff86cd.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<p>读操作是由CPU发出的，CPU发出这个访问地址，由Cache的地址映射和变换来确认是否发生命中。如果命中，就直接从Cache取出信息。若未命中，则需先判断，Cache是否已满，即是否可以直接将主存中对应的块装入Cache，若是，则访问主存，通过数据总线先将指令和数据传送给CPU，再通过直接通路，将指令和数据传送给Cache缓存。如果Cache已满，则需要通过Cache替换机构来访问主存并替换Cache中的某一个块。<br><strong>（2）写操作</strong></p>
+<p>读操作是不会对内存中信息进行修改的，但是写操作可能造成<strong>主存和Cache中的信息不一致</strong>。</p>
+<p>写操作需要解决Cache和主存的一致性问题，可以采用写直达法和写回法</p>
+<ul>
+<li>写直达法<ul>
+<li>写操作时数据既写入Cache,又写入主存</li>
+<li>写操作时间就是访问主存的时间,Cache块退出时，不需要对主存执行写操作，更新策略比较容易实现</li>
+</ul>
+</li>
+<li>写回法<ul>
+<li>写操作时只把数据写入Cache而不写入主存</li>
+<li>当Cache数据被替换出去时才写回主存</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-1-5-Cache的改进"><a href="#3-1-5-Cache的改进" class="headerlink" title="3.1.5 Cache的改进"></a>3.1.5 Cache的改进</h4><ul>
+<li>增加Cache的级数：离CPU比较近的在CPU内部集成L1缓，L2缓存，在主板上集成L3缓存</li>
+<li>统一缓存和分立缓存：指令Cache和数据Cache分开</li>
+</ul>
+<h3 id="3-2-Cache-主存之间的地址映射"><a href="#3-2-Cache-主存之间的地址映射" class="headerlink" title="3.2 Cache-主存之间的地址映射"></a>3.2 Cache-主存之间的地址映射</h3><h4 id="3-2-1-什么是内存块"><a href="#3-2-1-什么是内存块" class="headerlink" title="3.2.1 什么是内存块"></a>3.2.1 什么是内存块</h4><p><strong>字</strong>：指存放在一个存储单元中的二进制代码组合</p>
+<p><strong>字块：</strong>存储在连续的存储单元中而被看成一个单元的一组字</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514203908166.png" srcset="/img/loading.gif" lazyload alt="image-20230514203908166" style="zoom: 33%;">
+
+<p>字的地址包含2个部分，前m位为指定字块的地址，后b位指定字在字块中的地址</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514204043280.png" srcset="/img/loading.gif" lazyload alt="image-20230514204043280" style="zoom: 50%;">
+$$
+2^m = M，2^b = B
+$$
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514204208280.png" srcset="/img/loading.gif" lazyload alt="image-20230514204208280" style="zoom: 50%;">
+
+<p><strong>机器字长：</strong>CPU进行一次整数运算所能处理的二进制数据的位数。字长是由CPU的类型所决定，不同的计算机系统的字长是不同的，常见的有8位、16位、32位、64位等，字长越长，计算机一次处理的信息位就越多，精度就越高，</p>
+<p><strong>存储字长：</strong>一个存储单元中二进制代码的位数（通常和MDR位数相同）</p>
+<h4 id="3-2-2-直接映射"><a href="#3-2-2-直接映射" class="headerlink" title="3.2.2 直接映射"></a>3.2.2 直接映射</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210212152.png" srcset="/img/loading.gif" lazyload alt="image-20230514210212152" style="zoom: 50%;">
+
+
+
+<p>以<strong>字块</strong>为单位将内存和缓存分割为数组，内存向缓存形成多对一的直接映射关系，内存中的一个字块能够映射到缓存中的索引是确定的。如对于只有8个字块的缓存，21 号内存块内容在缓存块中的话，它一定在 5 号缓存块（21 mod 8 &#x3D; 5）中。</p>
+<p>但是这种映射又重新带来一种问题，图中5,13,21,29都能映射到缓存5上，我们怎么确定我要21的时候拿到的不是其他呢？</p>
+<p>通常我们会把缓存块的数量设置成 2 的 N 次方，那么内存的字块数量也一定是缓存的二次方倍，如8 个缓存字块，就是 2 的 3 次方，32个内存字块就是 2 的 5 次方，我们在通过内存地址的获取缓存数据时候，只需要拿到段地址的低三位，就能确定缓存索引，再根据字块中的偏移量就能拿到唯一对应的字节，道理就是这么个道理。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210350969.png" srcset="/img/loading.gif" lazyload alt="image-20230514210350969" style="zoom:50%;">
+
+<p>那这个字是不是我们想要的，就需要引入另一个概念”组标记”</p>
+<p>这个组标记会记录，当前缓存块内存储的数据对应的内存块，而缓存块本身的地址表示访问地址的低 N 位。就像上面的例子，21 的低 3 位 101，缓存块本身的地址已经涵盖了对应的信息、对应的组标记，我们只需要记录 21 剩余的高 2 位的信息，也就是 10 就可以了。</p>
+<p>除了组标记信息之外，缓存块中还有两个数据。一个自然是从主内存中加载来的实际存放的数据，另一个是有效位用于存放缓存块中的数据是否有效的。如果有效位是 0，无论其中的组标记和 实际的数据内容是什么，CPU 都不会管这些数据，而要直接访问内存，重新加载数据。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210507419.png" srcset="/img/loading.gif" lazyload alt="image-20230514210507419" style="zoom:50%;">
+
+<p><strong>重点来了，</strong>整体进行举例，比如一个64位的CPU，内存地址线宽度为40位，也就是说一个内存地址可以有40位，假设一个字块有64B，即64字节，内存大小为8G，缓存大小为8M。</p>
+<p>由于内存大小为8G，即2的33次方字节，则最少需要33位地址可确定唯一字节。其中64B为一个字块，想要确定唯一字节需要6位地址，即2的6次方，所以偏移量需要6位；缓存大小是8M,即2的23次方字节，但是又因为一个字块是64B,所以缓存行数是2的23次方除以2的6次方，所以需要17位来确定唯一字块，即索引位数为17；缓存8M和内存8G相差2的10次方倍，所以组标记需要10位，高位补0。</p>
+<p><strong>所以一个内存地址的访问，就会经历这样 4 个步骤：</strong></p>
+<p><strong>1.根据内存地址中段地址(字块地址为段地址)的低位，计算在 缓存中的索引；</strong></p>
+<p><strong>2.判断有效位，确认缓存中的数据是有效的；</strong></p>
+<p><strong>3.对比内存访问地址的高位，和缓存中的组标记，确认缓存中的数据就是我们要访问的内存数据</strong></p>
+<p><strong>4.根据内存地址的 偏移量，从字块中读取希望读取到的字节。</strong></p>
+<p>如果在 2、3 这两个步骤中，CPU 发现，缓存中的数据并不是要访问的内存地址的数据，那 CPU 就会访问内存，并把对应的 内存中的数据字块更新到对应的缓存中，同时更新对应的有效位和组标记的数据。</p>
+<h4 id="3-2-3-全相联映射"><a href="#3-2-3-全相联映射" class="headerlink" title="3.2.3 全相联映射"></a>3.2.3 全相联映射</h4><p>全相连映射方式比较灵活，主存的各块可以映射到缓存的任一块中，缓存的利用率高，字块冲突概率低，只要淘汰缓存中的某一块，即可调入主存的任一块。但是，由于缓存比较电路的设计和实现比较困难，这种方式只适合于小容量缓存采用。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514211224104.png" srcset="/img/loading.gif" lazyload alt="image-20230514211224104" style="zoom:50%;">
+
+<h4 id="3-2-4-组相联映射"><a href="#3-2-4-组相联映射" class="headerlink" title="3.2.4 组相联映射"></a>3.2.4 组相联映射</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/edc32409f52f4bb08f24ae66a214b1f4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<p>主存储器中的字块也进行分区，每个区的大小和Cache中的组数相同，Cache被分成几组，主存储器的每一个区就包含多少块</p>
+<blockquote>
+<p>例如主存中的字块0，可以存放到缓存中第0组的其他空余位置</p>
+<p>例如字块2^(c-r)可以存放到缓存中第2^(c-r)-1组的其余空余位置</p>
+</blockquote>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/9d7cf85354b64dd3bc0816759c0fb788.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h3 id="3-3-置换算法"><a href="#3-3-置换算法" class="headerlink" title="3.3 置换算法"></a>3.3 置换算法</h3><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/2a1fc2de6ff347d5bdb50ab4a7603b13.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">
 
                 
               </div>
