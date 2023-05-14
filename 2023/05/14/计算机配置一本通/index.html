@@ -16,28 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="硬盘的接口、协议、总线当我们购买固态硬盘的时候，常常会看到以下的内容：   M.2固态硬盘 NVMe协议，PCIe4.0 ×4到底是什么？   又或者自己在DIY电脑配置的时候硬盘会选择上述配置 1.总线、协议、接口1.1 总线总线是计算机各种功能部件之间传送信息的公共通信干线，它是由导线组成的传输线束。总线是一种内部结构，它是CPU、内存、输入、输出设备传递信息的公用通道，主机的各个部件通过总线">
+    <meta name="description" content="计算机配置一本通1.CPU Intel CPU后缀含义        2.内存 ⭐探索主内存，以DDR5为例 ⭐硬盘的SATA M.2 NGFF NVME是什么意思，详解硬盘的总线协议与接口 【PCIe系列一】PCIe到底是个什么东西？他在电脑里是干什么的？ 【PCIe系列二】详解主板南桥芯片组的功能和作用  3.主板 华硕主板怎么划分  4.硬盘 机械硬盘的结构原理 机械硬盘的工作原理 机械硬盘">
 <meta property="og:type" content="article">
-<meta property="og:title" content="硬盘的接口、协议、总线">
-<meta property="og:url" content="http://example.com/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/index.html">
+<meta property="og:title" content="计算机配置一本通">
+<meta property="og:url" content="http://example.com/2023/05/14/%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%85%8D%E7%BD%AE%E4%B8%80%E6%9C%AC%E9%80%9A/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="硬盘的接口、协议、总线当我们购买固态硬盘的时候，常常会看到以下的内容：   M.2固态硬盘 NVMe协议，PCIe4.0 ×4到底是什么？   又或者自己在DIY电脑配置的时候硬盘会选择上述配置 1.总线、协议、接口1.1 总线总线是计算机各种功能部件之间传送信息的公共通信干线，它是由导线组成的传输线束。总线是一种内部结构，它是CPU、内存、输入、输出设备传递信息的公用通道，主机的各个部件通过总线">
+<meta property="og:description" content="计算机配置一本通1.CPU Intel CPU后缀含义        2.内存 ⭐探索主内存，以DDR5为例 ⭐硬盘的SATA M.2 NGFF NVME是什么意思，详解硬盘的总线协议与接口 【PCIe系列一】PCIe到底是个什么东西？他在电脑里是干什么的？ 【PCIe系列二】详解主板南桥芯片组的功能和作用  3.主板 华硕主板怎么划分  4.硬盘 机械硬盘的结构原理 机械硬盘的工作原理 机械硬盘">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509225117077-1683643878529-1.png">
-<meta property="og:image" content="http://example.com/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509225501897.png">
-<meta property="og:image" content="http://example.com/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/6b2e06dd569540b1ab30437a4581b00e.jpeg">
-<meta property="og:image" content="http://example.com/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509232115580.png">
-<meta property="og:image" content="http://example.com/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509232202877.png">
-<meta property="og:image" content="http://example.com/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509232344100.png">
-<meta property="article:published_time" content="2023-05-09T14:50:42.000Z">
-<meta property="article:modified_time" content="2023-05-10T14:35:24.953Z">
+<meta property="og:image" content="https://p9-pc-sign.douyinpic.com/tos-cn-i-0813c001/af34b36a37414833bf81b018a9e195ce~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=3213915784&s=PackSourceEnum_AWEME_DETAIL&se=false&x-expires=1685278800&x-signature=kDK0s0slMixNx4xlTdNnYhwRjpk%3D">
+<meta property="article:published_time" content="2023-05-14T13:33:02.000Z">
+<meta property="article:modified_time" content="2023-05-14T13:52:44.040Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509225117077-1683643878529-1.png">
+<meta name="twitter:image" content="https://p9-pc-sign.douyinpic.com/tos-cn-i-0813c001/af34b36a37414833bf81b018a9e195ce~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=3213915784&s=PackSourceEnum_AWEME_DETAIL&se=false&x-expires=1685278800&x-signature=kDK0s0slMixNx4xlTdNnYhwRjpk%3D">
   
   
   
-  <title>硬盘的接口、协议、总线 - 一只安慕嘻</title>
+  <title>计算机配置一本通 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -191,7 +186,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="硬盘的接口、协议、总线"></span>
+            <span id="subtitle" data-typed-text="计算机配置一本通"></span>
           
         </div>
 
@@ -202,8 +197,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-05-09 22:50" pubdate>
-          2023年5月9日 晚上
+        <time datetime="2023-05-14 21:33" pubdate>
+          2023年5月14日 晚上
         </time>
       </span>
     
@@ -214,7 +209,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.4k 字
+          264 字
         
       </span>
     
@@ -225,7 +220,7 @@
         
         
         
-          12 分钟
+          3 分钟
         
       </span>
     
@@ -263,145 +258,39 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">硬盘的接口、协议、总线</h1>
+            <h1 style="display: none">计算机配置一本通</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="硬盘的接口、协议、总线"><a href="#硬盘的接口、协议、总线" class="headerlink" title="硬盘的接口、协议、总线"></a>硬盘的接口、协议、总线</h1><p>当我们购买固态硬盘的时候，常常会看到以下的内容：</p>
-<img src="/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509225117077-1683643878529-1.png" srcset="/img/loading.gif" lazyload alt="image-20230509225117077" style="zoom:67%;">
+                <h1 id="计算机配置一本通"><a href="#计算机配置一本通" class="headerlink" title="计算机配置一本通"></a>计算机配置一本通</h1><h2 id="1-CPU"><a href="#1-CPU" class="headerlink" title="1.CPU"></a>1.CPU</h2><ul>
+<li><strong>Intel CPU后缀含义</strong></li>
+</ul>
+<img src="https://p9-pc-sign.douyinpic.com/tos-cn-i-0813c001/af34b36a37414833bf81b018a9e195ce~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=3213915784&s=PackSourceEnum_AWEME_DETAIL&se=false&x-expires=1685278800&x-signature=kDK0s0slMixNx4xlTdNnYhwRjpk%3D" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 33%;">
 
-<p>M.2固态硬盘 NVMe协议，PCIe4.0 ×4到底是什么？</p>
-<img src="/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509225501897.png" srcset="/img/loading.gif" lazyload alt="image-20230509225501897" style="zoom:80%;">
 
-<p>又或者自己在DIY电脑配置的时候硬盘会选择上述配置</p>
-<h2 id="1-总线、协议、接口"><a href="#1-总线、协议、接口" class="headerlink" title="1.总线、协议、接口"></a>1.总线、协议、接口</h2><h3 id="1-1-总线"><a href="#1-1-总线" class="headerlink" title="1.1 总线"></a>1.1 总线</h3><p>总线是计算机各种功能部件之间传送信息的公共通信干线，它是由导线组成的传输线束。总线是一种内部结构，它是CPU、内存、输入、输出设备传递信息的公用通道，主机的各个部件通过总线相连接，外部设备通过相应的接口电路再与总线相连接，从而形成了计算机硬件系统。</p>
-<p>总线有一定的承载能力上限，我们把总线在单位时间内传输的数据量称为总线的带宽。常见的三种总线及其理论最大带宽如下表所示：</p>
-<table>
-<thead>
-<tr>
-<th>总线名称</th>
-<th>应用场合</th>
-<th>传输速率</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>SATA总线</td>
-<td>民用</td>
-<td>600MB&#x2F;s</td>
-<td>目前SATA总线的版本为SATA3.0</td>
-</tr>
-<tr>
-<td>PCIe总线</td>
-<td>民用</td>
-<td>见下表</td>
-<td>目前PCIe总线的版本为PCIe3.0和PCIe4.0</td>
-</tr>
-<tr>
-<td>SAS总线</td>
-<td>服务器</td>
-<td>1.2GB&#x2F;s</td>
-<td>主要用于服务器硬盘，消费级市场不常见</td>
-</tr>
-</tbody></table>
-<p>当前高端的M.2固态硬盘已经支持PCIe 5.0</p>
-<img src="/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/6b2e06dd569540b1ab30437a4581b00e.jpeg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
 
-<h3 id="1-2-协议"><a href="#1-2-协议" class="headerlink" title="1.2 协议"></a>1.2 协议</h3><p>协议是物理设备之间进行通信时的“规则”，其内容主要包括设备间如何相互识别、如何建立链接、使用的讯号类型、数据的编码解码方式、数据传输的类型、数据传 输的方式以及物理层面上的电压、电流、保持时间和截止时间等。</p>
-<p>只有当两个设备之间的协议相同或者相容时，才可以正常进行通讯。不同协议能够支持的最大传输速率也不同。</p>
-<p>目前市场上硬盘所使用的的协议主要有四种，如下表所示：</p>
-<table>
-<thead>
-<tr>
-<th>协议名称</th>
-<th>应用场合</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>IDE</td>
-<td>民用</td>
-<td>早期硬盘所使用的协议，目前基本见不到了</td>
-</tr>
-<tr>
-<td>AHCI</td>
-<td>民用</td>
-<td>机械硬盘、SATA固态硬盘和极少数PCIe固态硬盘使用此协议</td>
-</tr>
-<tr>
-<td>NVMe</td>
-<td>民用</td>
-<td>目前主流的PCIe固态硬盘使用此协议，也是消费级市场上最常见的</td>
-</tr>
-<tr>
-<td>SCSI</td>
-<td>服务器</td>
-<td>常见于企业级固态硬盘，消费级市场不常见</td>
-</tr>
-</tbody></table>
-<h3 id="1-3-接口"><a href="#1-3-接口" class="headerlink" title="1.3 接口"></a>1.3 接口</h3><p>相对于前面较难理解的总线与协议，接口顾名思义，就是硬盘与主板连接的物理接口。目前硬盘接口种类较多，在这里比较主要的三种分别为SATA接口、M.2接口和U.2接口，其他接口类型仅做了解即可。各种接口及其规格由下表给出：</p>
-<table>
-<thead>
-<tr>
-<th>物理接口</th>
-<th>通信通道</th>
-<th>传输数据协议</th>
-<th>体积</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>SATA3</td>
-<td>SATA</td>
-<td>AHCI或者ATA</td>
-<td>大</td>
-<td>主流，速度6Gbps，不支持NVMe标准，体积也比较大，就是技术成熟，但是速度慢</td>
-</tr>
-<tr>
-<td>mSATA（被淘汰）</td>
-<td>SATA</td>
-<td>AHCI或者ATA</td>
-<td>小</td>
-<td>就是为了SATA小型化，但是还是SATA通道，所以需要SATA主控<br>Tips：物理接口上和mini PCI-E接口一样</td>
-</tr>
-<tr>
-<td>SATA - E (不咋地)</td>
-<td>PCI-E x2</td>
-<td>NVMe协议</td>
-<td>大</td>
-<td>为了解决上面mSATA的后继问题，就直接采用了PCI-E通道，但是用的很少</td>
-</tr>
-<tr>
-<td>U.2</td>
-<td>SATA + PCI-E x2, x4</td>
-<td>NVMe协议</td>
-<td>大</td>
-<td>上面的SATA-E再升级，支持了NVMe协议，带宽也达到了32Gbps，但是由于现在很多主板上没有U.2接口，所以很多都是用的U.2转M.2的转接卡</td>
-</tr>
-<tr>
-<td><strong>M.2</strong></td>
-<td>SATA + PCI-E x2, x4</td>
-<td>NVMe协议</td>
-<td>小</td>
-<td>取代mSATA，<strong>同时兼容SATA和PCI-E通道</strong>，非常的主流，现在全面转向PCIe 3.0 x4 通道，理论带宽达到了32Gbps</td>
-</tr>
-<tr>
-<td>PCI-E</td>
-<td>PCI-E x2, x4</td>
-<td>NVMe协议</td>
-<td>大</td>
-<td>跟显卡类似，规格大小也有多种，目前直接走PCI-E接口的硬盘还不是很多，属于高端</td>
-</tr>
-</tbody></table>
-<h2 id="2-M-2接口真实的样子"><a href="#2-M-2接口真实的样子" class="headerlink" title="2.M.2接口真实的样子"></a>2.M.2接口真实的样子</h2><p>现在的主板上一般M.2固态都散热片，需要我们拆开散热片</p>
-<img src="/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509232115580.png" srcset="/img/loading.gif" lazyload alt="image-20230509232115580" style="zoom: 33%;">
 
-<p>拆开散热片后，就可以看到真实的M.2接口了</p>
-<img src="/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509232202877.png" srcset="/img/loading.gif" lazyload alt="image-20230509232202877" style="zoom:50%;">
 
-<p>将M.2固态的金手指对准M.2接口，插入后即可：</p>
-<img src="/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/image-20230509232344100.png" srcset="/img/loading.gif" lazyload alt="image-20230509232344100" style="zoom: 50%;">
+<h2 id="2-内存"><a href="#2-内存" class="headerlink" title="2.内存"></a>2.内存</h2><ul>
+<li>⭐<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1vP411c7pt/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click&vd_source=0a2a531b678f5afe0a34f933b2fbdcb4">探索主内存，以DDR5为例</a></li>
+<li>⭐<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Qv411t7ZL/?spm_id_from=333.999.0.0&vd_source=0a2a531b678f5afe0a34f933b2fbdcb4">硬盘的SATA M.2 NGFF NVME是什么意思，详解硬盘的总线协议与接口</a></li>
+<li>【PCIe系列一】<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1n4411m7HX/?spm_id_from=333.999.0.0&vd_source=0a2a531b678f5afe0a34f933b2fbdcb4">PCIe到底是个什么东西？他在电脑里是干什么的？</a></li>
+<li>【PCIe系列二】<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1cJ411K7HW/?spm_id_from=333.788&vd_source=0a2a531b678f5afe0a34f933b2fbdcb4">详解主板南桥芯片组的功能和作用</a></li>
+</ul>
+<h2 id="3-主板"><a href="#3-主板" class="headerlink" title="3.主板"></a>3.主板</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.douyin.com/user/self?modal_id=7085253674473180447&showTab=like">华硕主板怎么划分</a></li>
+</ul>
+<h2 id="4-硬盘"><a href="#4-硬盘" class="headerlink" title="4.硬盘"></a>4.硬盘</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.douyin.com/video/7180506336273173792">机械硬盘的结构原理</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.douyin.com/video/7180231042966506785">机械硬盘的工作原理</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.douyin.com/video/7223806080290196792">机械硬盘是如何制造的</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.douyin.com/user/self?modal_id=7163175761438919973&showTab=like">固态硬盘的工作原理</a></li>
+</ul>
+<h2 id="5-电源"><a href="#5-电源" class="headerlink" title="5.电源"></a>5.电源</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1mD4y1D77y/?spm_id_from=333.999.0.0&vd_source=0a2a531b678f5afe0a34f933b2fbdcb4">什么是模组电源？他和普通电源有什么区别？模组电源定制线又是什么东西</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1bT4y1E777/?spm_id_from=333.788&vd_source=0a2a531b678f5afe0a34f933b2fbdcb4">电源的金银铜牌指的是什么参数？金牌电源比铜牌好吗？详解电源80PLUS认证</a></li>
+</ul>
 
                 
               </div>
@@ -419,8 +308,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>硬盘的接口、协议、总线</div>
-      <div>http://example.com/2023/05/09/硬盘的接口、协议、总线/</div>
+      <div>计算机配置一本通</div>
+      <div>http://example.com/2023/05/14/计算机配置一本通/</div>
     </div>
     <div class="license-meta">
       
@@ -432,7 +321,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年5月9日</div>
+          <div>2023年5月14日</div>
         </div>
       
       
@@ -464,18 +353,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/05/14/%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%85%8D%E7%BD%AE%E4%B8%80%E6%9C%AC%E9%80%9A/" title="计算机配置一本通">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">计算机配置一本通</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/" title="计算机组成原理(四)存储器">
-                        <span class="hidden-mobile">计算机组成原理(四)存储器</span>
+                      <a href="/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/" title="硬盘的接口、协议、总线">
+                        <span class="hidden-mobile">硬盘的接口、协议、总线</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
