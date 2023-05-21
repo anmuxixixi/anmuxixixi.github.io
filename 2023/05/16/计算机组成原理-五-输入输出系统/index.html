@@ -42,11 +42,12 @@
 <meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/90cdfcdc9f8fd6dd18da25ddd3c15f60.png">
 <meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/daa49d98c2cb0b40b1e8ead9503f8cd0.png">
 <meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/a6000fe130974f4789bb1051dc38156c.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/image-20230521124247578.png">
 <meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/7ae608e212abd526ea9e3611cdbf51bb.png">
 <meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/102fc43b2c1c4a7b9709c59811da028e.png">
 <meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/22f2e2f319714d9193b6c95807f6ab9d.png">
 <meta property="article:published_time" content="2023-05-16T15:44:20.000Z">
-<meta property="article:modified_time" content="2023-05-21T04:01:11.054Z">
+<meta property="article:modified_time" content="2023-05-21T04:57:06.106Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/57eed5f957a849f9ac5ab2be50107f64.png">
@@ -230,7 +231,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.7k 字
+          7.2k 字
         
       </span>
     
@@ -241,7 +242,7 @@
         
         
         
-          56 分钟
+          60 分钟
         
       </span>
     
@@ -536,11 +537,38 @@
 </ul>
 <h4 id="5-4-2-数据传送"><a href="#5-4-2-数据传送" class="headerlink" title="5.4.2 数据传送"></a>5.4.2 数据传送</h4><img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/a6000fe130974f4789bb1051dc38156c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
 
-<p><strong>以数据传送过程为例：</strong></p>
+<p><strong>以输入为例：</strong></p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/image-20230521124247578.png" srcset="/img/loading.gif" lazyload alt="image-20230521124247578" style="zoom: 25%;">
+
+<ol>
+<li>IO设备将数据存储到数据存储寄存器BR</li>
+<li>存入数据后，IO设备通过设备请求信号DREQ告诉DMA接口已经准备好了</li>
+<li>DMA控制逻辑向CPU申请总线控制</li>
+<li>CPU发出信号告诉DMA控制逻辑此时已经放弃了总线的占用和控制</li>
+<li>此时进行数据传输，就要给出主存的地址。地址寄存器AR存放了要访问主存的地址，使得系统总线中的地址总线有效</li>
+<li>DMA控制器给出设备应答信号，此时已经开始传输数据了</li>
+<li>DMA控制器发出对内存的读写控制指令， 同时BR寄存器把数据通过传输线送到数据总线上</li>
+<li>此过程AR+1，WC+1</li>
+<li>….</li>
+<li>当WC溢出，传输结束</li>
+</ol>
+<hr>
+<p><strong>以输出为例：</strong></p>
 <img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/7ae608e212abd526ea9e3611cdbf51bb.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
 
-
-
+<ol>
+<li>把BR中数据送到设备中</li>
+<li>设备发出DREQ告诉DMA控制器此时BR已经空了，可以接收下一个数据了</li>
+<li>DMA向CPU发出对总线和内存的控制请求</li>
+<li>CPU向DMA控制器发出应答信号【此时系统总线和内存的控制权都转移到了DMA接口】</li>
+<li>AR通过地址线告诉内存访问地址</li>
+<li>DMA控制器向设备发出DACK应答信号，告诉设备已经开始新的数据传输了</li>
+<li>主存中的数据通过数据线再次写入到BR中</li>
+<li>同时修改AR+1，WC+1</li>
+<li>…【判断传输是否结束，如果没有结束，继续循环执行】</li>
+<li>WC溢出，传输结束</li>
+</ol>
+<hr>
 <h4 id="5-4-3-后处理"><a href="#5-4-3-后处理" class="headerlink" title="5.4.3 后处理"></a>5.4.3 后处理</h4><p>当DMA的中断请求得到响应后，CPU停止原程序的执行，转去执行中断服务程序，执行DMA的结束工作：</p>
 <ul>
 <li>校验送入主存的数据是否正确；</li>
