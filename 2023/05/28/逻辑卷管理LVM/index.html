@@ -16,21 +16,32 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="哈工大刘宏伟老师计算机组成原理 计算机组成原理(一)计算机系统概论_ 计算机组成原理(三)总线_ 计算机组成原理(四)存储器 计算机组成原理(五)输入输出系统">
+    <meta name="description" content="逻辑卷管理LVM1.为什么会出现逻辑卷每个Linux使用者在安装Linux时 都会遇到这样的困境：在为系统分区时，如何精确评估和分配各个硬盘分区的容量，因为系统管理员不但要考虑到当前某个分区需要的容量，还要预见该分区以后可能需要的容量的最大值。因为如果估计不准确，当遇到某个分区不够用时管理员可能甚至要备份整个系统、清除硬盘、重新对硬盘分区，然后恢复数据到新分区。 虽然现在有很多动态调整磁盘的工具可">
 <meta property="og:type" content="article">
-<meta property="og:title" content="哈工大刘宏伟老师计算机组成原理">
-<meta property="og:url" content="http://example.com/2023/05/22/%E5%93%88%E5%B7%A5%E5%A4%A7%E5%88%98%E5%AE%8F%E4%BC%9F%E8%80%81%E5%B8%88%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:title" content="逻辑卷管理LVM">
+<meta property="og:url" content="http://example.com/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="哈工大刘宏伟老师计算机组成原理 计算机组成原理(一)计算机系统概论_ 计算机组成原理(三)总线_ 计算机组成原理(四)存储器 计算机组成原理(五)输入输出系统">
+<meta property="og:description" content="逻辑卷管理LVM1.为什么会出现逻辑卷每个Linux使用者在安装Linux时 都会遇到这样的困境：在为系统分区时，如何精确评估和分配各个硬盘分区的容量，因为系统管理员不但要考虑到当前某个分区需要的容量，还要预见该分区以后可能需要的容量的最大值。因为如果估计不准确，当遇到某个分区不够用时管理员可能甚至要备份整个系统、清除硬盘、重新对硬盘分区，然后恢复数据到新分区。 虽然现在有很多动态调整磁盘的工具可">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-05-22T14:29:45.000Z">
-<meta property="article:modified_time" content="2023-05-22T14:31:50.457Z">
+<meta property="og:image" content="http://example.com/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/5f6824ed3294480aa7d2d13a293a3cdf.jpeg">
+<meta property="og:image" content="http://example.com/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/image-20230528220753173.png">
+<meta property="og:image" content="http://example.com/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/980b51f31966e6d9d5e5245f04c1cedcf46905.jpg">
+<meta property="og:image" content="https://dl-harmonyos.51cto.com/images/202101/980b51f31966e6d9d5e5245f04c1cedcf46905.jpg">
+<meta property="og:image" content="https://dl-harmonyos.51cto.com/images/202101/55f57c1699f0f7186137194b65b95fb109435f.png">
+<meta property="og:image" content="http://example.com/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/04457b6915ed6816e27022c660e5ff0520395e.jpg">
+<meta property="og:image" content="https://dl-harmonyos.51cto.com/images/202101/11476c03152237e8f1a533caa7b1aeaecaf618.jpg">
+<meta property="og:image" content="https://dl-harmonyos.51cto.com/images/202101/094608f00cd07bc6ae6632a3d6eec1b17f5b25.jpg">
+<meta property="og:image" content="https://dl-harmonyos.51cto.com/images/202101/838bfd311007d0d077f1443f83161fdc7833db.jpg">
+<meta property="og:image" content="https://dl-harmonyos.51cto.com/images/202101/471b8156850e604a8f9098ea07c682d086fee4.jpg">
+<meta property="article:published_time" content="2023-05-28T13:20:20.000Z">
+<meta property="article:modified_time" content="2023-05-28T14:20:53.974Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/5f6824ed3294480aa7d2d13a293a3cdf.jpeg">
   
   
   
-  <title>哈工大刘宏伟老师计算机组成原理 - 一只安慕嘻</title>
+  <title>逻辑卷管理LVM - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -184,7 +195,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="哈工大刘宏伟老师计算机组成原理"></span>
+            <span id="subtitle" data-typed-text="逻辑卷管理LVM"></span>
           
         </div>
 
@@ -195,8 +206,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-05-22 22:29" pubdate>
-          2023年5月22日 晚上
+        <time datetime="2023-05-28 21:20" pubdate>
+          2023年5月28日 晚上
         </time>
       </span>
     
@@ -207,7 +218,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          75 字
+          2.3k 字
         
       </span>
     
@@ -218,7 +229,7 @@
         
         
         
-          1 分钟
+          19 分钟
         
       </span>
     
@@ -256,17 +267,62 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">哈工大刘宏伟老师计算机组成原理</h1>
+            <h1 style="display: none">逻辑卷管理LVM</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="哈工大刘宏伟老师计算机组成原理"><a href="#哈工大刘宏伟老师计算机组成原理" class="headerlink" title="哈工大刘宏伟老师计算机组成原理"></a>哈工大刘宏伟老师计算机组成原理</h1><ul>
-<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/05/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%80-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%AE%BA/">计算机组成原理(一)计算机系统概论_</a></li>
-<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/05/03/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%89-%E6%80%BB%E7%BA%BF/">计算机组成原理(三)总线_</a></li>
-<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/">计算机组成原理(四)存储器</a></li>
-<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/">计算机组成原理(五)输入输出系统</a></li>
-</ul>
+                <h1 id="逻辑卷管理LVM"><a href="#逻辑卷管理LVM" class="headerlink" title="逻辑卷管理LVM"></a>逻辑卷管理LVM</h1><h2 id="1-为什么会出现逻辑卷"><a href="#1-为什么会出现逻辑卷" class="headerlink" title="1.为什么会出现逻辑卷"></a>1.为什么会出现逻辑卷</h2><p>每个Linux使用者在安装Linux时 都会遇到这样的困境：在为系统分区时，如何精确评估和分配各个硬盘分区的容量，因为系统管理员不但要考虑到当前某个分区需要的容量，还要预见该分区以后可能需要的容量的最大值。因为如果估计不准确，当遇到某个分区不够用时管理员可能甚至要备份整个系统、清除硬盘、重新对硬盘分区，然后恢复数据到新分区。</p>
+<p>虽然现在有很多动态调整磁盘的工具可以使用，例如Partation Magic等等，但是它并不能完全解决问题，因为某个分区可能会再次被耗尽；另外一个方面这需要重新引导系统才能实现，对于很多关键的服务器，停机是不可接受的，而且对于添加新硬盘，希望一个能跨越多个硬盘驱动器的文件系统时，分区调整程序就不能解决问题。</p>
+<p>因此完美的解决方法应该是在零停机前提下可以自如对文件系统的大小进行调整，可以方便实现文件系统跨越不同磁盘和分区。那么我们可以通过逻辑盘卷管理（LVM，Logical Volume Manager）的方式来非常完美的实现这一功能。</p>
+<p>LVM是逻辑盘卷管理（Logical Volume Manager）的简称，他是磁盘管理的另一种工具，就目前基本上所有操作系统均支持，LVM是建立在硬盘和分区之上的一个逻辑层，来提高磁盘分区管理的灵活性。通过LVM系统管理员可以轻松管理磁盘分区，如：将若干个磁盘分区连接为一个整块的卷组（volume group），形成一个存储池。管理员可以在卷组上随意创建逻辑卷组（logical volumes），并进一步在逻辑卷组上创建文件系统。管理员通过LVM可以方便的调整存储卷组的大小，并且可以对磁盘存储按照组的方式进行命名、管理和分配，例如按照使用用途进行定义：“DBdata”和“DBSoft”，而不是使用物理磁盘名“sda”和“sdb”或”hda”和”hdb”。而且当系统添加了新的磁盘，通过LVM管理员就不必将磁盘的文件移动到新的磁盘上以充分利用新的存储空间，而是直接扩展文件系统跨越磁盘即可，架构可以参考如下图：</p>
+<img src="/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/5f6824ed3294480aa7d2d13a293a3cdf.jpeg" srcset="/img/loading.gif" lazyload alt="磁盘、分区、物理卷、卷组、逻辑卷关系" style="zoom:67%;">
+
+<h2 id="2-LVM基本结构"><a href="#2-LVM基本结构" class="headerlink" title="2.LVM基本结构"></a>2.LVM基本结构</h2><p><strong>物理存储介质（The physical media）</strong></p>
+<p>这里指系统的存储设备：硬盘，如：&#x2F;dev&#x2F;hda、&#x2F;dev&#x2F;sda等等，是存储系统最低层的存储单元。</p>
+<p><strong>物理卷（physicalvolume）</strong></p>
+<p>物理卷就是指硬盘分区或从逻辑上与磁盘分区具有同样功能的设备(如RAID)，是LVM的基本存储逻辑块，但和基本的物理存储介质（如分区、磁盘等）比较，却包含有与LVM相关的管理参数。</p>
+<p><strong>卷组（Volume Group）</strong></p>
+<p>LVM卷组类似于非LVM系统中的物理硬盘，其由物理卷组成。可以在卷组上创建一个或多个“LVM分区”（逻辑卷），LVM卷组由一个或多个物理卷组成。</p>
+<p><strong>逻辑卷（logicalvolume）</strong></p>
+<p>LVM的逻辑卷类似于非LVM系统中的硬盘分区，在逻辑卷之上可以建立文件系统(比如&#x2F;home或者&#x2F;usr等)。</p>
+<p><strong>PE（physical extent）</strong></p>
+<p>每一个物理卷被划分为称为PE(Physical Extents)的基本单元，具有唯一编号的PE是可以被LVM寻址的最小单元。PE的大小是可配置的，默认为4MB。</p>
+<p><strong>LE（logical extent）</strong></p>
+<p>逻辑卷也被划分为被称为LE(Logical Extents) 的可被寻址的基本单位。在同一个卷组中，LE的大小和PE是相同的，并且一一对应。</p>
+<img src="/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/image-20230528220753173.png" srcset="/img/loading.gif" lazyload alt="image-20230528220753173" style="zoom:67%;">
+
+<p>🤖<strong>注意：一个逻辑卷只能来自于一个卷组</strong></p>
+<h2 id="3-LVM管理命令"><a href="#3-LVM管理命令" class="headerlink" title="3.LVM管理命令"></a>3.LVM管理命令</h2><img src="/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/980b51f31966e6d9d5e5245f04c1cedcf46905.jpg" srcset="/img/loading.gif" lazyload alt="Linux学习笔记——逻辑卷管理（LVM）-开源基础软件社区" style="zoom:67%;">
+
+
+<p><img src="https://dl-harmonyos.51cto.com/images/202101/980b51f31966e6d9d5e5245f04c1cedcf46905.jpg" srcset="/img/loading.gif" lazyload alt="Linux学习笔记——逻辑卷管理（LVM）-开源基础软件社区"></p>
+<p>主要命令的用法<br>（1）pvcreate 设备名<br>（2）vgcreate -s 8M 卷组名 物理卷名1 物理卷名2<br>（3）lvcreate -L 大小 -n 逻辑卷名 卷组名<br>（4）lvextend -L +大小 &#x2F;dev&#x2F;卷组名&#x2F;逻辑卷名<br>（5）lvreduce –L +大小 &#x2F;dev&#x2F;卷组名&#x2F;逻辑卷名</p>
+<p>其余操作见：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/cloudos/p/9348315.html">https://www.cnblogs.com/cloudos/p/9348315.html</a></p>
+<h2 id="4-LVM应用示例"><a href="#4-LVM应用示例" class="headerlink" title="4.LVM应用示例"></a>4.LVM应用示例</h2><p><strong>需求描述：</strong></p>
+<blockquote>
+<p>公司的邮件服务器由于用户数量众多，邮件存储需要大量的空间，考虑到动态扩容的需要，计划增加两块SCSI硬盘并构建LVM逻辑卷，挂载到“&#x2F;mail”目录专门用于存放邮件数</p>
+</blockquote>
+<p><strong>推荐步骤：</strong></p>
+<blockquote>
+<p>PV -&gt; VG -&gt; LV -&gt; 格式化-&gt;挂载使用文件系统</p>
+</blockquote>
+<img src="https://dl-harmonyos.51cto.com/images/202101/55f57c1699f0f7186137194b65b95fb109435f.png" srcset="/img/loading.gif" lazyload alt="Linux学习笔记——逻辑卷管理（LVM）-开源基础软件社区" style="zoom:67%;">
+
+<p>第一步：转化物理卷<br>（1）使用fdisk命令规划两个分区，类型设置为“8e”：&#x2F;dev&#x2F;sdb1、&#x2F;dev&#x2F;sdc1<br>（2）使用pvcreate命令转换上述分区为物理卷</p>
+<img src="/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/04457b6915ed6816e27022c660e5ff0520395e.jpg" srcset="/img/loading.gif" lazyload alt="Linux学习笔记——逻辑卷管理（LVM）-开源基础软件社区" style="zoom:67%;">
+
+<p>第二步：创建卷组<br>（1）使用vgcreate命令创建卷组mail_store（包括物卷：&#x2F;dec&#x2F;sdb1、&#x2F;dev&#x2F;sdc1）</p>
+<img src="https://dl-harmonyos.51cto.com/images/202101/11476c03152237e8f1a533caa7b1aeaecaf618.jpg" srcset="/img/loading.gif" lazyload alt="Linux学习笔记——逻辑卷管理（LVM）-开源基础软件社区" style="zoom: 67%;">
+
+<p>第三步：创建逻辑卷<br>（1）使用lvcreate命令创建逻辑卷mail， 从卷组mail_store上划出60GB空间<br>（2）使用mkfs命令创建ext4文件系统</p>
+<img src="https://dl-harmonyos.51cto.com/images/202101/094608f00cd07bc6ae6632a3d6eec1b17f5b25.jpg" srcset="/img/loading.gif" lazyload alt="Linux学习笔记——逻辑卷管理（LVM）-开源基础软件社区" style="zoom:67%;">
+
+<p>为逻辑卷扩容：<br>（1）使用lvextend命令为逻辑卷mail扩充容量， 从卷组mail_store上再划出10GB给逻辑卷mail<br>（2）使用resize2fs命令更新系统识别的文件系统大小</p>
+<img src="https://dl-harmonyos.51cto.com/images/202101/838bfd311007d0d077f1443f83161fdc7833db.jpg" srcset="/img/loading.gif" lazyload alt="Linux学习笔记——逻辑卷管理（LVM）-开源基础软件社区" style="zoom:67%;">
+
+<p>为逻辑卷缩减<br>（1）使用lvreduce命令为逻辑卷 mail缩减容量,必须先卸载， 从卷组 mail_store 上缩小逻辑卷mail到10G<br>（2）使用resize2fs命令更新系统识别的文件系统大小<br>（3）使用fsck 命令清理文件系统数据结构</p>
+<img src="https://dl-harmonyos.51cto.com/images/202101/471b8156850e604a8f9098ea07c682d086fee4.jpg" srcset="/img/loading.gif" lazyload alt="Linux学习笔记——逻辑卷管理（LVM）-开源基础软件社区" style="zoom:67%;">
 
                 
               </div>
@@ -284,8 +340,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>哈工大刘宏伟老师计算机组成原理</div>
-      <div>http://example.com/2023/05/22/哈工大刘宏伟老师计算机组成原理/</div>
+      <div>逻辑卷管理LVM</div>
+      <div>http://example.com/2023/05/28/逻辑卷管理LVM/</div>
     </div>
     <div class="license-meta">
       
@@ -297,7 +353,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年5月22日</div>
+          <div>2023年5月28日</div>
         </div>
       
       
@@ -329,18 +385,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/" title="逻辑卷管理LVM">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">逻辑卷管理LVM</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/05/22/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%85%AD-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9A%84%E8%BF%90%E7%AE%97%E6%96%B9%E6%B3%95/" title="计算机组成原理(六)计算机的运算方法">
-                        <span class="hidden-mobile">计算机组成原理(六)计算机的运算方法</span>
+                      <a href="/2023/05/22/%E5%93%88%E5%B7%A5%E5%A4%A7%E5%88%98%E5%AE%8F%E4%BC%9F%E8%80%81%E5%B8%88%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/" title="哈工大刘宏伟老师计算机组成原理">
+                        <span class="hidden-mobile">哈工大刘宏伟老师计算机组成原理</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
