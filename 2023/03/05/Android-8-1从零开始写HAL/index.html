@@ -1,0 +1,851 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Android 8.1从零开始写HAL 🍛版权声明：本文为CSDN博主「Qidi_Huang」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。🍜原文链接：https:&#x2F;&#x2F;blog.csdn.net&#x2F;Qidi_Huang&#x2F;article&#x2F;details&#x2F;107426961  1.定义接口【前言】我们都知道从 Android 8.0 开始， Google 启动了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android 8.1从零开始写HAL">
+<meta property="og:url" content="http://example.com/2023/03/05/Android-8-1%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99HAL/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="Android 8.1从零开始写HAL 🍛版权声明：本文为CSDN博主「Qidi_Huang」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。🍜原文链接：https:&#x2F;&#x2F;blog.csdn.net&#x2F;Qidi_Huang&#x2F;article&#x2F;details&#x2F;107426961  1.定义接口【前言】我们都知道从 Android 8.0 开始， Google 启动了">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/03/05/Android-8-1%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99HAL/20200717231917282.png">
+<meta property="og:image" content="http://example.com/2023/03/05/Android-8-1%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99HAL/20200720203213989.png">
+<meta property="og:image" content="http://example.com/2023/03/05/Android-8-1%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99HAL/2020072020305469.png">
+<meta property="og:image" content="http://example.com/2023/03/05/Android-8-1%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99HAL/20200720203133940.png">
+<meta property="article:published_time" content="2023-03-05T12:10:23.000Z">
+<meta property="article:modified_time" content="2023-03-05T13:25:41.766Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/03/05/Android-8-1%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99HAL/20200717231917282.png">
+  
+  
+  
+  <title>Android 8.1从零开始写HAL - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android 8.1从零开始写HAL"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-05 20:10" pubdate>
+          2023年3月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          27k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          222 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android 8.1从零开始写HAL</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Android-8-1从零开始写HAL"><a href="#Android-8-1从零开始写HAL" class="headerlink" title="Android 8.1从零开始写HAL"></a>Android 8.1从零开始写HAL</h1><blockquote>
+<p>🍛版权声明：本文为CSDN博主「Qidi_Huang」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>🍜原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Qidi_Huang/article/details/107426961">https://blog.csdn.net/Qidi_Huang/article/details/107426961</a></p>
+</blockquote>
+<h2 id="1-定义接口"><a href="#1-定义接口" class="headerlink" title="1.定义接口"></a>1.定义接口</h2><p>【前言】<br>我们都知道从 <code>Android 8.0</code> 开始， Google 启动了 <code>Treble 项目</code>，自此开始推行 Binder 化的 HAL 实现。除少数类型 HAL 外，在 Android 9.0 及其之后的版本，Google 甚至要求大部分<strong>外设</strong>(peripherals) 必须支持使用 Binder 化的 HAL，否则都不再视为合规。因此，本文中的 HAL 指的是用 HIDL 语言描述、使用 Binder 方式实现的 HAL。</p>
+<p>在阅读本系列文章前，如果你已经大致了解 <code>Android SELinux</code> 概念（比如 <code>*.te</code> 文件和 <code>file_contexts</code>），以及 Binder 的基本调用方法（比如知道序列化的概念、 transact()&#x2F;onTransact()的调用时机），对于理解本文的内容会很有帮助。</p>
+<p>根据项目不同，有的时候我们也许希望在设备上使用一种新的外设，比如某种传感器；或者有的时候，我们可能需要在 Android native 层运行一个特定进程，用来辅助处理来自 Android Frameworks 的数据，或者用于和其它 native 层的进程进行交互。对于前一种场景，我们需要为外设编写全新的 HAL；对于后一种场景，我们不需要编写 HAL，但需要实现一个很类似的 vendor service。这二者的实现方式极其类似，区别只在于他们使用的设备节点不同（一个使用<code>/dev/hwbinder</code>，另一个使用 <code>/dev/vndbinder</code>），还有各自申请的 sepolicy 权限有别。</p>
+<p>以下正文以实现一个全新的 HAL 为例进行说明，但并不涉及对设备节点的操作。</p>
+<h3 id="1-1-明确HAL接口"><a href="#1-1-明确HAL接口" class="headerlink" title="1.1 明确HAL接口"></a>1.1 明确HAL接口</h3><p>Android 大量采用面向接口编程的理念，HAL 也不例外。常用的 HAL 模块接口已经由 Google 和业界充分讨论并预定义，比如 Audio 和 Camera，这些模块需要支持的功能也已经明确，其接口描述可以在 <code>/hardware/interfaces/</code> 目录下找到。</p>
+<p>同理，我们实现自己的 HAL 时，也应该先明确新 HAL 要支持的功能，再根据需求需要设计要暴露给给其它进程的接口。</p>
+<p><strong>为了说明方便，我们不以真实的外设 HAL 来描述，而是做一系列假设，自己给自己设计需求。虽然这样的 HAL 不对应具体的使用场景，但道理是相通的，完全可以照猫画虎、举一反三。</strong></p>
+<p>我们假设新 HAL 需要支持 3 个功能：</p>
+<ul>
+<li>允许其它进程主动设置状态</li>
+<li>允许其它进程注册回调函数</li>
+<li>允许其它进程注销回调函数</li>
+</ul>
+<p>给 <strong>新外设</strong>取名为 <code>demoComponent</code>，给<strong>新 HAL 的进程</strong>取名为 <code>demoService</code>。给支持上述 3 项功能的接口分别取名为 <code>setStatus() </code>、 <code>registerCallback()</code> 和 <code>unregisterCallback()</code>。假设其它进程所设置的“状态”是一个 <code>DemoData</code> 结构体，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-built_in">string</span>  name;<br>    <span class="hljs-type">int</span>     value;<br>&#125; DemoData;<br></code></pre></td></tr></table></figure>
+
+<p>假设回调函数方法为 <code>onCallbackEvent()</code>， 参数同样为 <code>DemoData</code> 结构。</p>
+<h3 id="1-2-编写接口描述文件"><a href="#1-2-编写接口描述文件" class="headerlink" title="1.2 编写接口描述文件"></a>1.2 编写接口描述文件</h3><p>通常，经过前述步骤明确接口之后，我们就可以写出完整的头文件来了，继而对应实现各接口。但是在 HAL 实现过程中，我们首先要写的不是头文件，而是创作出用 HIDL 语言编写的 <code>*.hal</code> 接口描述文件。（<strong>不过，在 Android R 上将支持用 AIDL 语言来编写接口描述文件，以后可能逐步废弃 HIDL 语言</strong>）</p>
+<p>按照目前的开发规范，我们的自定义接口描述文件通常放在 <code>/vendor/&lt;CompanyName&gt;/hardware/interfaces/&lt;ComponentName&gt;/&lt;SubComponentName&gt;/&lt;VersionCode&gt;/</code> 目录下。 根据我们前文的假设，这里的<code>&lt;ComponentName&gt;</code>就是 demoComponent。<code>&lt;SubComponentName&gt;</code> 可有可无，在这个例子中对应的是 demoService。VersionCode 表示 HAL 接口的版本号，因为我们编写的是一个全新的 HAL，所以版本号是 1.0。</p>
+<p>因为我们的实现涉及 <strong>HAL 进程、回调函数、参数数据</strong> 3 个部分，所以对应的 hal 文件也有 3 个，分别是：</p>
+<ul>
+<li><strong>IDemoServiceDef.hal</strong>:</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">package vendor.harman.hardware.demoComponent.demoService@<span class="hljs-number">1.0</span>;<br><br>import IDemoCallback;<br><br>interface IDemoServiceDef &#123;<br><br>    setStatus(DemoData data) generates (<span class="hljs-type">int32_t</span> status);<br>    registerCallback(IDemoCallback cb) generates (<span class="hljs-type">int32_t</span> status);<br>    unregisterCallback(IDemoCallback cb) generates (<span class="hljs-type">int32_t</span> status);<br>&#125;;<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>IDemoCallback.hal</strong>:</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">package vendor.harman.hardware.demoComponent.demoService@<span class="hljs-number">1.0</span>;<br><br>interface IDemoCallback &#123;<br><br>   onCallbackEvent(DemoData payload) generates (<span class="hljs-type">int32_t</span> status);<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>types.hal</strong>:</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">package vendor.harman.hardware.demoComponent.demoService@<span class="hljs-number">1.0</span>;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">DemoData</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-built_in">string</span>  name;<br>    <span class="hljs-type">int32_t</span> value;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>这里有四个基本点需要注意。</p>
+<ol>
+<li><p><strong>数据类型描述文件的文件名是个固定名称</strong> <code>types.hal</code>；接口描述文件的文件名要以<strong>大写字母 I</strong> 开头写作 <code>IXxxx.hal</code>，并且相应地以<code>interface IXxxx &#123;&#125; </code>进行描述；<strong>generates</strong> 后加数据类型表示接口的返回值类型。</p>
+</li>
+<li><p>每个<code> *.hal</code> 文件都需要在文件头声明它所属的包。这里的包名为<code> package vendor.harman.hardware.demoComponent.demoService@1.0;</code>。</p>
+</li>
+<li><p>HIDL 语言所使用的数据类型和 C&#x2F;C++&#x2F;Java 的数据类型稍有区别。举个简单例子，对比 DemoData 结构体的原始写法与 HIDL 写法，可以看到 int32 被替换成了 int32_t。 再比如说，HIDL 数据类型也不支持 C&#x2F;C++ 的原始指针。关于 HIDL 数据类型的详细介绍可以参考《HIDL 数据类型》。</p>
+</li>
+<li><p>另外，<code>*.hal</code> 文件之间相互引用时，使用 <code>import</code> 关键字进行声明。</p>
+</li>
+</ol>
+<p>这些固定形式是由 HIDL 框架决定的，我们必须遵从。</p>
+<p>编写完成后用 <code>ls</code> 命令查看，就是下图中 3 个绿色文件的样子（<code>Android.*</code> 是自动生成的，1.3节就要讲到。<code>default/</code> 的含义和作用留待第2章进行介绍）：</p>
+<img src="/2023/03/05/Android-8-1%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99HAL/20200717231917282.png" srcset="/img/loading.gif" lazyload>
+
+<h3 id="1-3-生成-Makefile"><a href="#1-3-生成-Makefile" class="headerlink" title="1.3 生成 Makefile"></a>1.3 生成 Makefile</h3><p>编写好接口描述文件后，我们需要执行脚本 <code>/vendor/&lt;CompanyName&gt;/hardware/interfaces/update-makefiles.sh</code> 为接口描述文件自动生成 2 个 Makefile —— <code>Android.bp</code> 和 <code>Android.mk</code>。</p>
+<p>有了这 2 个 Makefile，在编译阶段就可以自动从接口描述文件生成 Binder 框架的源文件、头文件以和对应的库，而无需我们手动敲一遍，十分方便。</p>
+<h2 id="2-实现-HAL-主体"><a href="#2-实现-HAL-主体" class="headerlink" title="2.实现 HAL 主体"></a>2.实现 HAL 主体</h2><h3 id="2-1-配置HAL"><a href="#2-1-配置HAL" class="headerlink" title="2.1 配置HAL"></a>2.1 配置HAL</h3><p>因为不同的产品可能使用不同的外设，所以每个产品都有自己的资源清单 <code>manifest.xml</code>，位于目录 <code>/device/&lt;CompanyName&gt;/&lt;PlatformName&gt;/&lt;ProductName&gt;/</code> 下。清单中会列出该款产品支持的所有外设、服务和它们的 HAL 类型。</p>
+<p>我们也应该把正在创建的 demoComponent HAL 添加进这个清单里。以我用的 Intel 平台为例，产品代号就不说了，<code>manifest.xml</code> 位于 <code>/device/harman/broxton/XXXX/</code> 目录下。添加完成后看起来类似下面这个样子：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">manifest</span> <span class="hljs-attr">version</span>=<span class="hljs-string">&quot;1.0&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;device&quot;</span>&gt;</span><br><br>    ......<br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">hal</span> <span class="hljs-attr">format</span>=<span class="hljs-string">&quot;hidl&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>vendor.harman.hardware.demoComponent.demoService<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">transport</span>&gt;</span>hwbinder<span class="hljs-tag">&lt;/<span class="hljs-name">transport</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.0<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">interface</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>IDemoServiceDef<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">instance</span>&gt;</span>default<span class="hljs-tag">&lt;/<span class="hljs-name">instance</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">interface</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">hal</span>&gt;</span><br><br>    ......<br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">sepolicy</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>27.0<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">sepolicy</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">manifest</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>其中 <code>&lt;hal format=&quot;hidl&quot;&gt;</code> 表示 HAL 使用 HIDL 描述； <code>&lt;name&gt;</code> 的值可以看出来就是接口描述文件所在的位置，但中间少了个 <strong>“.interfaces”</strong> ；<code>&lt;transport&gt;</code> 表示 HAL 实现所依赖的 binder 类型；<code>&lt;version&gt;</code> 表示 HAL 版本，回忆上一节，我们在编写接口描述文件时，文件存放路径里也有个 HAL 版本号，这两个版本号要一致； <code>&lt;interface&gt;</code> 节点用来标明 HAL 接口，下属的<code> &lt;name&gt;</code> 指定了 HAL 的接口描述文件为 <code>IDemoServiceDef.hal</code>， <code>&lt;instance&gt;</code> 指定了 HAL 的实现位于 <code>default/</code> 目录下。</p>
+<p>default&#x2F; <strong>目录需要我们自己创建，位于</strong> <code>/vendor/&lt;CompanyName&gt;/hardware/interfaces/&lt;ComponentName&gt;/&lt;SubComponentName&gt;/&lt;VersionCode&gt;/</code>。 还是以我用的平台为例，完整路径为 <code>/vendor/harman/hardware/interfaces/demoComponent/demoService/1.0/default</code>。</p>
+<h3 id="2-2-实现HAL主体"><a href="#2-2-实现HAL主体" class="headerlink" title="2.2 实现HAL主体"></a>2.2 实现HAL主体</h3><p>接下来我们要实现 demoComponent HAL 的主体。 因为 <strong>Binder 化后的 HAL 是以服务进程的形式运行在 Android native 层</strong>的，所以我给这个主体取名为 demoService。在 <code>default/</code> 目录下新建 <code>DemoServiceImpl.h</code> 和<code>DemoServiceImpl.cpp</code>。</p>
+<p>这之后要做的事大家就很熟悉了 —— 在 <code>DemoServiceImpl.h</code> 里引用必要的头文件、声明类和方法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> once</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;hardware/hardware.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;binder/IServiceManager.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;binder/IPCThreadState.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vendor/harman/hardware/demoComponent/demoService/1.0/IDemoServiceDef.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vendor/harman/hardware/demoComponent/demoService/1.0/IDemoCallback.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;DemoServiceBinderInterface.h&quot;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> android;<br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> vendor::harman::hardware::demoComponent::demoService::V1_0;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">DemoServiceImpl</span> : <span class="hljs-keyword">public</span> IDemoServiceDef &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">DemoServiceImpl</span>();<br>    ~<span class="hljs-built_in">DemoServiceImpl</span>() &#123;&#125;<br><br>    <span class="hljs-keyword">virtual</span> ::android::<span class="hljs-function">hardware::Return&lt;<span class="hljs-type">int32_t</span>&gt; <span class="hljs-title">setStatus</span><span class="hljs-params">(<span class="hljs-type">const</span> DemoData&amp; sta)</span> <span class="hljs-keyword">override</span></span>;<br>    <span class="hljs-keyword">virtual</span> ::android::<span class="hljs-function">hardware::Return&lt;<span class="hljs-type">int32_t</span>&gt; <span class="hljs-title">registerCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span> <span class="hljs-keyword">override</span></span>;<br>    <span class="hljs-keyword">virtual</span> ::android::<span class="hljs-function">hardware::Return&lt;<span class="hljs-type">int32_t</span>&gt; <span class="hljs-title">unregisterCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span> <span class="hljs-keyword">override</span></span>;<br><br><br><span class="hljs-keyword">private</span>:<br>    android::sp&lt;IDemoCallback&gt; callback = <span class="hljs-literal">nullptr</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>DemoServiceImpl</code> 类继承自 <code>IDemoServiceDef</code> 类，并对接口进行覆写，同时声明了一个 <code>IDemoCallback</code> 指针用来保存回调函数。</strong></p>
+<p>大家可能会困惑<strong>IDemoServiceDef</strong> 类和接口声明是哪里来的？我们可以通过名字推测它是由 <strong>IDemoServiceDef.hal</strong> 生成的。实际上和推测一样，编译阶段自动生成的文件会被放在 <code>/out/soong/.intermediates/vendor/harman/hardware/interfaces/demoComponent/demoService/1.0/</code> 目录，头文件和源文件可以分别在 <code>vendor.harman.hardware.demoComponent.demoService@1.0_genc++_headers</code> 和 <code>vendor.harman.hardware.demoComponent.demoService@1.0_genc++ </code>中找到。 <strong>在 <code>DemoServiceImpl.h</code> 里需要 <code>#include</code> 引用这些自动生成的头文件。</strong></p>
+<p>下方展示的是自动生成的头文件 <code>IDemoServiceDef.h</code> 的部分代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> HIDL_GENERATED_VENDOR_HARMAN_HARDWARE_DEMOCOMPONENT_DEMOSERVICE_V1_0_IDEMOSERVICEDEF_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> HIDL_GENERATED_VENDOR_HARMAN_HARDWARE_DEMOCOMPONENT_DEMOSERVICE_V1_0_IDEMOSERVICEDEF_H</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;android/hidl/base/1.0/IBase.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vendor/harman/hardware/demoComponent/demoService/1.0/IDemoCallback.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vendor/harman/hardware/demoComponent/demoService/1.0/types.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;android/hidl/manager/1.0/IServiceNotification.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;hidl/HidlSupport.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;hidl/MQDescriptor.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;hidl/Status.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utils/NativeHandle.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utils/misc.h&gt;</span></span><br><br><span class="hljs-keyword">namespace</span> vendor &#123;<br><span class="hljs-keyword">namespace</span> harman &#123;<br><span class="hljs-keyword">namespace</span> hardware &#123;<br><span class="hljs-keyword">namespace</span> demoComponent &#123;<br><span class="hljs-keyword">namespace</span> demoService &#123;<br><span class="hljs-keyword">namespace</span> V1_0 &#123;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">IDemoServiceDef</span> : <span class="hljs-keyword">public</span> ::android::hidl::base::V1_0::IBase &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">bool</span> <span class="hljs-title">isRemote</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> <span class="hljs-keyword">override</span> </span>&#123; <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; &#125;<br><br><br>    <span class="hljs-keyword">virtual</span> ::android::<span class="hljs-function">hardware::Return&lt;<span class="hljs-type">int32_t</span>&gt; <span class="hljs-title">setStatus</span><span class="hljs-params">(<span class="hljs-type">const</span> DemoData&amp; data)</span> </span>= <span class="hljs-number">0</span>;<br><br>    <span class="hljs-keyword">virtual</span> ::android::<span class="hljs-function">hardware::Return&lt;<span class="hljs-type">int32_t</span>&gt; <span class="hljs-title">registerCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span> </span>= <span class="hljs-number">0</span>;<br><br>    <span class="hljs-keyword">virtual</span> ::android::<span class="hljs-function">hardware::Return&lt;<span class="hljs-type">int32_t</span>&gt; <span class="hljs-title">unregisterCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span> </span>= <span class="hljs-number">0</span>;<br><br>    <span class="hljs-comment">// ....省略</span><br>&#125;;<br><br><span class="hljs-function">std::string <span class="hljs-title">toString</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoServiceDef&gt;&amp;)</span></span>;<br><br>&#125;  <span class="hljs-comment">// namespace V1_0</span><br>&#125;  <span class="hljs-comment">// namespace demoService</span><br>&#125;  <span class="hljs-comment">// namespace demoComponent</span><br>&#125;  <span class="hljs-comment">// namespace hardware</span><br>&#125;  <span class="hljs-comment">// namespace harman</span><br>&#125;  <span class="hljs-comment">// namespace vendor</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span>  <span class="hljs-comment">// HIDL_GENERATED_VENDOR_HARMAN_HARDWARE_DEMOCOMPONENT_DEMOSERVICE_V1_0_IDEMOSERVICEDEF_H</span></span><br></code></pre></td></tr></table></figure>
+
+<p>然后在 <code>DemoServiceImpl.cpp</code> 中实现各方法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;DemoServiceImpl.h&quot;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> vendor::harman::hardware::demoComponent::demoService::V1_0;<br><br>DemoServiceImpl::<span class="hljs-built_in">DemoServiceImpl</span>() &#123;<br><br>&#125;<br><br>::android::<span class="hljs-function">hardware::Return&lt;<span class="hljs-type">int32_t</span>&gt; <span class="hljs-title">DemoServiceImpl::setStatus</span><span class="hljs-params">(<span class="hljs-type">const</span> DemoData&amp; sta)</span> </span>&#123;<br>    <span class="hljs-built_in">ALOGI</span>(<span class="hljs-string">&quot;DemoServiceImpl setStatus&quot;</span>);<br>    <span class="hljs-comment">// 省略设置状态的代码</span><br>    <span class="hljs-built_in">ALOGI</span>(<span class="hljs-string">&quot;DemoService invokes callback&quot;</span>);<br>    <span class="hljs-comment">// 在最后执行回调函数发送通知</span><br>    callback-&gt;<span class="hljs-built_in">onCallbackEvent</span>(sta);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br>::android::<span class="hljs-function">hardware::Return&lt;<span class="hljs-type">int32_t</span>&gt; <span class="hljs-title">DemoServiceImpl::registerCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span> </span>&#123;<br>    <span class="hljs-built_in">ALOGI</span>(<span class="hljs-string">&quot;DemoServiceImpl registerCallback&quot;</span>);<br>    <span class="hljs-comment">// 保存回调函数</span><br>    callback = cb;<br>    <span class="hljs-built_in">ALOGI</span>(<span class="hljs-string">&quot;DemoService callback function saved&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br>::android::<span class="hljs-function">hardware::Return&lt;<span class="hljs-type">int32_t</span>&gt; <span class="hljs-title">DemoServiceImpl::unregisterCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span> </span>&#123;<br>    <span class="hljs-built_in">ALOGI</span>(<span class="hljs-string">&quot;DemoServiceImpl unregisterCallback&quot;</span>);<br>    <span class="hljs-keyword">if</span> (callback == cb) &#123;<br>        <span class="hljs-built_in">ALOGI</span>(<span class="hljs-string">&quot;DemoService callback function cleared.&quot;</span>);<br>        <span class="hljs-comment">// 清空回调函数</span><br>        callback = <span class="hljs-literal">nullptr</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-built_in">ALOGI</span>(<span class="hljs-string">&quot;DemoService callback function mismatch, uncleared.&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这 3 个接口的实现写得很简单，直接看代码注释就可以，无需赘言。</p>
+<h3 id="2-3-将-HAL-注册为-Binder-服务"><a href="#2-3-将-HAL-注册为-Binder-服务" class="headerlink" title="2.3 将 HAL 注册为 Binder 服务"></a>2.3 将 HAL 注册为 Binder 服务</h3><p><strong>因为 Binder 化的 HAL 以独立本地进程的形式运行</strong>，<strong>所以必定需要 main() 函数作为进程启动入口</strong>。我们当然可以把 main() 写在 DemoServiceImpl.cpp 中，但为了与接口实现进行区分，我在<code>default/ </code>目录下新建源文件 <code>DemoService.cpp</code>，在该文件中实现且仅实现 main() 函数。如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG_TAG <span class="hljs-string">&quot;vendor.harman.demoComponent.demoService@1.0-service&quot;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;android/log.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;binder/ProcessState.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;hidl/LegacySupport.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;DemoServiceImpl.h&quot;</span></span><br><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> <span class="hljs-comment">/* argc */</span>, <span class="hljs-type">char</span>* <span class="hljs-comment">/* argv */</span> [])</span> </span>&#123;<br>    android::ProcessState::<span class="hljs-built_in">initWithDriver</span>(<span class="hljs-string">&quot;/dev/hwbinder&quot;</span>);  <span class="hljs-comment">// 初始化 Binder 驱动</span><br>    <span class="hljs-keyword">auto</span> service = std::<span class="hljs-built_in">make_unique</span>&lt;DemoServiceImpl&gt;();      <span class="hljs-comment">// 构造 DemoServiceImpl 实例</span><br>    android::hardware::<span class="hljs-built_in">configureRpcThreadpool</span>(<span class="hljs-number">4</span>, <span class="hljs-literal">true</span> <span class="hljs-comment">/* callerWillJoin */</span>);<br>    <span class="hljs-built_in">ALOGI</span>(<span class="hljs-string">&quot;DemoService registerAsService&quot;</span>);<br>    android::<span class="hljs-type">status_t</span> status = service-&gt;<span class="hljs-built_in">registerAsService</span>();  <span class="hljs-comment">// 注册为 Binder 服务</span><br>    <span class="hljs-keyword">if</span> (status != android::OK) &#123;<br>        <span class="hljs-built_in">ALOGE</span>(<span class="hljs-string">&quot;Unable to register DemoService (%d)&quot;</span>, status);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>    &#125;<br>    android::hardware::<span class="hljs-built_in">joinRpcThreadpool</span>();<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>在 <strong>main()</strong> 函数中主要干了些事：使用设备节点 <code>/dev/hwbinder</code> 初始化 Binder 驱动，并以单例（Singleton）的方式将 <code>DemoServiceImpl</code> 类的一个实例注册为 Binder 服务。</p>
+<p><strong>如果你希望 HAL 进程也能与其它本地进程交互，那么在初始化驱动的时候应该使用</strong> <code>/dev/vndbinder</code>。</p>
+<h2 id="3-实现-Bp、Bn-端"><a href="#3-实现-Bp、Bn-端" class="headerlink" title="3.实现 Bp、Bn 端"></a>3.实现 Bp、Bn 端</h2><p><strong>【前言】</strong></p>
+<p>既然 Binder 化的 HAL 依赖于 Binder 机制进行实现，那么我们自然必须按照 Binder 框架，相应编写 <strong>demoComponent HAL</strong> 的 <strong>Bp</strong> 端和 <strong>Bn</strong> 端。只有这样，才能打通客户端进程调用到服务端进程 —— 我们的 demoService —— 的通路。</p>
+<h3 id="3-1-定义demoService接口类"><a href="#3-1-定义demoService接口类" class="headerlink" title="3.1 定义demoService接口类"></a>3.1 定义demoService接口类</h3><p>要将 demoService 接入 Binder，就必须定义一个我们自己的接口类，继承 Binder 的接口基类 <code>IInterface</code>，并实现所有 Binder 通信过程中要用到的方法。不过我们并不需要事无巨细地完成这项繁杂的工作，因为 Binder 框架提供了数个模板类和宏，大大方便了我们实现。</p>
+<p>还记得在上一节《实现 HAL 主体》里我们创建了 <code>default/</code> 目录。在该目录下新建头文件 <code>DemoServiceBinderInterface.h</code>，并在这个头文件里定义接口类 <code>IDemoService</code>。如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> once</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;binder/IInterface.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vendor/harman/hardware/demoComponent/demoService/1.0/IDemoCallback.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DEMOSERVICE_NAME <span class="hljs-string">&quot;com.qidi.demoService&quot;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> vendor::harman::hardware::demoComponent::demoService::V1_0;<br><span class="hljs-keyword">using</span> ::vendor::harman::hardware::demoComponent::demoService::V1_0::IDemoCallback;<br><span class="hljs-keyword">using</span> ::vendor::harman::hardware::demoComponent::demoService::V1_0::DemoData;<br><br><span class="hljs-keyword">namespace</span> android &#123;<br><br>    <span class="hljs-comment">// command codes for binder transactions</span><br>    <span class="hljs-keyword">enum</span> <span class="hljs-title class_">eDemoServiceTransactionID</span><br>    &#123;<br>        SET_STATUS = android::IBinder::FIRST_CALL_TRANSACTION,<br>        REGISTER_CALLBACK,<br>        UNREGISTER_CALLBACK<br>    &#125;;<br><br><br>    <span class="hljs-keyword">class</span> <span class="hljs-title class_">IDemoService</span>: <span class="hljs-keyword">public</span> IInterface &#123;<br>    <span class="hljs-keyword">public</span>:<br>        <span class="hljs-built_in">DECLARE_META_INTERFACE</span>(DemoService);<br><br>        <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">int32_t</span> <span class="hljs-title">setStatus</span><span class="hljs-params">(<span class="hljs-type">const</span> DemoData&amp; sta)</span> </span>= <span class="hljs-number">0</span>;<br>        <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">int32_t</span> <span class="hljs-title">registerCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span> </span>= <span class="hljs-number">0</span>;<br>        <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">int32_t</span> <span class="hljs-title">unregisterCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span> </span>= <span class="hljs-number">0</span>;<br>    &#125;;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>除了定义类 <code>IDemoService</code>，我们还在头文件 <code>DemoServiceBinderInterface.h</code> 里以<strong>枚举数据的形式</strong>定义了和 demoService Binder 调用相关的 Command code。 三个 Command code <code>SET_STATUS</code>、<code>REGISTER_CALLBACK</code> 和 <code>UNREGISTER_CALLBACK</code> 分别对应 demoService 的三个接口。<strong>第一个 Command code 必须赋值为</strong> <code>android::IBinder::FIRST_CALL_TRANSACTION</code>。</p>
+<p>宏 <code>DECLARE_META_INTERFACE()</code> 主要用来声明用于 Binder 通信的成员变量 <code>descriptor</code> 和通用接口 <code>asInterface()</code> 、 <code>getInterfaceDescriptor()</code>。 相关代码位于 <code>IInterface.h</code> 中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECLARE_META_INTERFACE(INTERFACE)                               \</span><br><span class="hljs-meta">    static const ::android::String16 descriptor;                        \</span><br><span class="hljs-meta">    static ::android::sp<span class="hljs-string">&lt;I##INTERFACE&gt;</span> asInterface(                     \</span><br><span class="hljs-meta">            const ::android::sp<span class="hljs-string">&lt;::android::IBinder&gt;</span>&amp; obj);              \</span><br><span class="hljs-meta">    virtual const ::android::String16&amp; getInterfaceDescriptor() const;  \</span><br><span class="hljs-meta">    I##INTERFACE();                                                     \</span><br><span class="hljs-meta">    virtual ~I##INTERFACE();                                            \</span><br></code></pre></td></tr></table></figure>
+
+<p>至此，demoService 的接口类就定义好了。</p>
+<h3 id="3-2-声明-Bp、Bn-端"><a href="#3-2-声明-Bp、Bn-端" class="headerlink" title="3.2 声明 Bp、Bn 端"></a>3.2 声明 Bp、Bn 端</h3><p>有了接口类之后，就可以正式着手 Bp、Bn 端的工作了。依照先声明后实现的顺序，我们继续在 <code>default/</code> 目录下新建头文件 <code>BpDemoService.h</code> 和 <code>BnDemoService.h</code>。<strong>Binder 框架提供了模板类<code>BpInterface&lt;&gt;</code>和 <code>BnInterface&lt;&gt;</code> 来简化这一过程</strong>。</p>
+<ul>
+<li><strong><code>BpDemoService.h</code> 代码如下：</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> once</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;DemoServiceBinderInterface.h&quot;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> vendor::harman::hardware::demoComponent::demoService::V1_0;<br><br><span class="hljs-keyword">namespace</span> android &#123;<br><br>    <span class="hljs-keyword">class</span> <span class="hljs-title class_">BpDemoService</span>: <span class="hljs-keyword">public</span> BpInterface&lt;android::IDemoService&gt; &#123;<br>    <span class="hljs-keyword">public</span>:<br>        <span class="hljs-built_in">BpDemoService</span>(<span class="hljs-type">const</span> sp&lt;IBinder&gt;&amp; impl);<br><br>        <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">int32_t</span> <span class="hljs-title">setStatus</span><span class="hljs-params">(<span class="hljs-type">const</span> DemoData&amp; sta)</span></span>;<br>        <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">int32_t</span> <span class="hljs-title">registerCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span></span>;<br>        <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">int32_t</span> <span class="hljs-title">unregisterCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span></span>;<br>    &#125;;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>Bp 端头文件中将 <code>IDemoService</code> 作为参数传入 <code>BpInterface&lt;&gt;</code> 模板，所以需要引用 <code>DemoServiceBinderInterface.h</code>。由于模板类的设计，文件中声明的 demoService 的 3 个接口将被整合到 Binder 框架代码中。我们即便不去关注其中的细节也没关系，只要负责填入接口类和接口声明，剩下的交给 Binder 框架就好。当然，如果你充满好奇且时间充裕，也可以一头扎进去理一理思路。 <code>BpInterface&lt;&gt;</code> 模板类的定义如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> INTERFACE&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">BpInterface</span> : <span class="hljs-keyword">public</span> INTERFACE, <span class="hljs-keyword">public</span> BpRefBase<br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span>                    <span class="hljs-title">BpInterface</span><span class="hljs-params">(<span class="hljs-type">const</span> sp&lt;IBinder&gt;&amp; remote)</span></span>;<br><br><span class="hljs-keyword">protected</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> IBinder*            <span class="hljs-title">onAsBinder</span><span class="hljs-params">()</span></span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong><code>BnDemoService.h</code> 代码如下：</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> once</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;DemoServiceBinderInterface.h&quot;</span></span><br><br><span class="hljs-keyword">namespace</span> android &#123;<br><br>    <span class="hljs-keyword">class</span> <span class="hljs-title class_">BnDemoService</span>: <span class="hljs-keyword">public</span> BnInterface&lt;IDemoService&gt; &#123;<br>        <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">status_t</span> <span class="hljs-title">onTransact</span><span class="hljs-params">( <span class="hljs-type">uint32_t</span> code, <span class="hljs-type">const</span> Parcel&amp; data,</span></span><br><span class="hljs-params"><span class="hljs-function">                Parcel* reply, <span class="hljs-type">uint32_t</span> flags = <span class="hljs-number">0</span>)</span></span>;<br>    &#125;;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Bn 端头文件的内容与 Bp 端类似，但需要注意，由于 Binder 框架的设计原因，这里的方法名 <code>onTransact()</code> 及参数都是固定的，我们不能写成其它形式。</strong> <code>BnInterface&lt;&gt;</code> 模板类在 <code>IInterface.h</code> 中的定义如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> INTERFACE&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">BnInterface</span> : <span class="hljs-keyword">public</span> INTERFACE, <span class="hljs-keyword">public</span> BBinder<br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> sp&lt;IInterface&gt;      <span class="hljs-title">queryLocalInterface</span><span class="hljs-params">(<span class="hljs-type">const</span> String16&amp; _descriptor)</span></span>;<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">const</span> String16&amp;     <span class="hljs-title">getInterfaceDescriptor</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>;<br><br><span class="hljs-keyword">protected</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> IBinder*            <span class="hljs-title">onAsBinder</span><span class="hljs-params">()</span></span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-实现-Bp、Bn-端"><a href="#3-3-实现-Bp、Bn-端" class="headerlink" title="3.3 实现 Bp、Bn 端"></a>3.3 实现 Bp、Bn 端</h3><p>声明之后，该进行实现了。继续在 <code>default/</code> 目录下新建源文件 <code>BpDemoService.cpp</code> 和 <code>BnDemoService.cpp</code>。</p>
+<p>实现过程只是顺水推舟而已，直接看代码吧。</p>
+<ul>
+<li><strong>BpDemoService.cpp:</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utils/Log.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;binder/IServiceManager.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;binder/Parcel.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;BpDemoService.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;DemoServiceBinderInterface.h&quot;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG_D ALOGD</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG_E ALOGE</span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> android;<br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> vendor::harman::hardware::demoComponent::demoService::V1_0;<br><br><span class="hljs-function"><span class="hljs-type">int32_t</span> <span class="hljs-title">BpDemoService::setStatus</span><span class="hljs-params">(<span class="hljs-type">const</span> DemoData&amp; sta)</span> </span>&#123;<br>    Parcel data, reply;<br><br>    data.<span class="hljs-built_in">writeInterfaceToken</span>(IDemoService::<span class="hljs-built_in">getInterfaceDescriptor</span>());<br>    data.<span class="hljs-built_in">write</span>(&amp;sta, <span class="hljs-built_in">sizeof</span>(DemoData));<br><br>    <span class="hljs-type">status_t</span> status = <span class="hljs-built_in">remote</span>()-&gt;<span class="hljs-built_in">transact</span>(SET_STATUS, data, &amp;reply);<br>    <span class="hljs-keyword">if</span> (status != NO_ERROR) &#123;<br>        <span class="hljs-built_in">LOG_E</span>(<span class="hljs-string">&quot;BpDemoService::setStatus transact failed&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> reply.<span class="hljs-built_in">readInt32</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int32_t</span> <span class="hljs-title">BpDemoService::registerCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span> </span>&#123;<br>    Parcel data, reply;<br><br>    data.<span class="hljs-built_in">writeInterfaceToken</span>(IDemoService::<span class="hljs-built_in">getInterfaceDescriptor</span>());<br>    data.<span class="hljs-built_in">write</span>(&amp;cb, <span class="hljs-built_in">sizeof</span>(::android::sp&lt;IDemoCallback&gt;));<br><br>    <span class="hljs-type">status_t</span> status = <span class="hljs-built_in">remote</span>()-&gt;<span class="hljs-built_in">transact</span>(REGISTER_CALLBACK, data, &amp;reply);<br>    <span class="hljs-keyword">if</span> (status != NO_ERROR) &#123;<br>        <span class="hljs-built_in">LOG_E</span>(<span class="hljs-string">&quot;BpDemoService::registerCallback transact failed&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> reply.<span class="hljs-built_in">readInt32</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int32_t</span> <span class="hljs-title">BpDemoService::unregisterCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ::android::sp&lt;IDemoCallback&gt;&amp; cb)</span> </span>&#123;<br>    Parcel data, reply;<br><br>    data.<span class="hljs-built_in">writeInterfaceToken</span>(IDemoService::<span class="hljs-built_in">getInterfaceDescriptor</span>());<br>    data.<span class="hljs-built_in">write</span>(&amp;cb, <span class="hljs-built_in">sizeof</span>(::android::sp&lt;IDemoCallback&gt;));<br><br>    <span class="hljs-type">status_t</span> status = <span class="hljs-built_in">remote</span>()-&gt;<span class="hljs-built_in">transact</span>(UNREGISTER_CALLBACK, data, &amp;reply);<br>    <span class="hljs-keyword">if</span> (status == NO_ERROR) &#123;<br>        <span class="hljs-built_in">LOG_E</span>(<span class="hljs-string">&quot;BpDemoService::unregisterCallback transact failed&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> reply.<span class="hljs-built_in">readInt32</span>();<br>&#125;<br><br>BpDemoService::<span class="hljs-built_in">BpDemoService</span>(<span class="hljs-type">const</span> sp&lt;IBinder&gt; &amp;impl) : <span class="hljs-built_in">BpInterface</span>&lt;IDemoService&gt;(impl) &#123;&#125;<br><span class="hljs-built_in">IMPLEMENT_META_INTERFACE</span>(DemoService, DEMOSERVICE_NAME);<br><br></code></pre></td></tr></table></figure>
+
+<p>Bp 端的源文件里使用了宏 <code>IMPLEMENT_META_INTERFACE()</code>，扩展之后即是宏 <code>DECLARE_META_INTERFACE()</code> 所声明的接口的实现。</p>
+<p>这个宏同样定义在 <code>IInterface.h</code> 中，如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> IMPLEMENT_META_INTERFACE(INTERFACE, NAME)                       \</span><br><span class="hljs-meta">    const ::android::String16 I##INTERFACE::descriptor(NAME);           \</span><br><span class="hljs-meta">    const ::android::String16&amp;                                          \</span><br><span class="hljs-meta">            I##INTERFACE::getInterfaceDescriptor() const &#123;              \</span><br><span class="hljs-meta">        return I##INTERFACE::descriptor;                                \</span><br><span class="hljs-meta">    &#125;                                                                   \</span><br><span class="hljs-meta">    ::android::sp<span class="hljs-string">&lt;I##INTERFACE&gt;</span> I##INTERFACE::asInterface(              \</span><br><span class="hljs-meta">            const ::android::sp<span class="hljs-string">&lt;::android::IBinder&gt;</span>&amp; obj)               \</span><br><span class="hljs-meta">    &#123;                                                                   \</span><br><span class="hljs-meta">        ::android::sp<span class="hljs-string">&lt;I##INTERFACE&gt;</span> intr;                               \</span><br><span class="hljs-meta">        <span class="hljs-keyword">if</span> (obj != NULL) &#123;                                              \</span><br><span class="hljs-meta">            intr = static_cast<span class="hljs-string">&lt;I##INTERFACE*&gt;</span>(                          \</span><br><span class="hljs-meta">                obj-&gt;queryLocalInterface(                               \</span><br><span class="hljs-meta">                        I##INTERFACE::descriptor).get());               \</span><br><span class="hljs-meta">            <span class="hljs-keyword">if</span> (intr == NULL) &#123;                                         \</span><br><span class="hljs-meta">                intr = new Bp##INTERFACE(obj);                          \</span><br><span class="hljs-meta">            &#125;                                                           \</span><br><span class="hljs-meta">        &#125;                                                               \</span><br><span class="hljs-meta">        return intr;                                                    \</span><br><span class="hljs-meta">    &#125;                                                                   \</span><br><span class="hljs-meta">    I##INTERFACE::I##INTERFACE() &#123; &#125;                                    \</span><br><span class="hljs-meta">    I##INTERFACE::~I##INTERFACE() &#123; &#125;                                   \</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>BnDemoService.cpp:</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utils/Log.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utils/Errors.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;binder/Parcel.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;BnDemoService.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;DemoServiceBinderInterface.h&quot;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG_D ALOGD</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG_E ALOGE</span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> android;<br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> vendor::harman::hardware::demoComponent::demoService::V1_0;<br><span class="hljs-keyword">using</span> ::vendor::harman::hardware::demoComponent::demoService::V1_0::DemoData;<br><br><span class="hljs-function"><span class="hljs-type">status_t</span> <span class="hljs-title">BnDemoService::onTransact</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> code, <span class="hljs-type">const</span> Parcel &amp;data, Parcel *reply, <span class="hljs-type">uint32_t</span> flags)</span> </span>&#123;<br>    <span class="hljs-type">status_t</span> retCode = NO_ERROR;<br>    <span class="hljs-keyword">switch</span> (code) &#123;<br>        <span class="hljs-keyword">case</span> SET_STATUS:&#123;<br>            <span class="hljs-built_in">LOG_D</span>(<span class="hljs-string">&quot;BnDemoService SET_STATUS()&quot;</span>);<br>            <span class="hljs-built_in">CHECK_INTERFACE</span>(IDemoService, data, reply);<br>            DemoData sta;<br>            data.<span class="hljs-built_in">read</span>(&amp;sta, <span class="hljs-built_in">sizeof</span>(DemoData));<br>            reply-&gt;<span class="hljs-built_in">writeInt32</span>(<span class="hljs-built_in">setStatus</span>(sta));<br>        &#125;<br>        <span class="hljs-keyword">break</span>;<br><br>        <span class="hljs-keyword">case</span> REGISTER_CALLBACK:&#123;<br>            <span class="hljs-built_in">LOG_D</span>(<span class="hljs-string">&quot;BnDemoService REGISTER_CALLBACK()&quot;</span>);<br>            <span class="hljs-built_in">CHECK_INTERFACE</span>(IDemoService, data, reply);<br>            ::android::sp&lt;IDemoCallback&gt; rcb;<br>            data.<span class="hljs-built_in">read</span>(&amp;rcb, <span class="hljs-built_in">sizeof</span>(::android::sp&lt;IDemoCallback&gt;));<br>            reply-&gt;<span class="hljs-built_in">writeInt32</span>(<span class="hljs-built_in">registerCallback</span>(rcb));<br>        &#125;<br>        <span class="hljs-keyword">break</span>;<br><br>        <span class="hljs-keyword">case</span> UNREGISTER_CALLBACK: &#123;<br>            <span class="hljs-built_in">LOG_D</span>(<span class="hljs-string">&quot;BnDemoService UNREGISTER_CALLBACK()&quot;</span>);<br>            <span class="hljs-built_in">CHECK_INTERFACE</span>(IDemoService, data, reply);<br>            sp&lt;IDemoCallback&gt; urcb;<br>            data.<span class="hljs-built_in">read</span>(&amp;urcb, <span class="hljs-built_in">sizeof</span>(::android::sp&lt;IDemoCallback&gt;));<br>            reply-&gt;<span class="hljs-built_in">writeInt32</span>(<span class="hljs-built_in">unregisterCallback</span>(urcb));<br>        &#125;<br>        <span class="hljs-keyword">break</span>;<br><br>        <span class="hljs-keyword">default</span>: &#123;<br>            <span class="hljs-built_in">LOG_E</span>(<span class="hljs-string">&quot;BnDemoService::onTransact(0x%x,0x%x)&quot;</span>, code, flags);<br>            retCode = BBinder::<span class="hljs-built_in">onTransact</span>(code, data, reply, flags);<br>        &#125;<br>        <span class="hljs-keyword">break</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> retCode;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>Bn 端的源文件里对 <code>onTransact()</code> 进行实现，使用 <code>switch...case...</code> 对 Command code 进行处理。<strong>在每个 case 的末尾可以看到对 demoService 里各个方法的调用</strong>，并将调用的返回值写入 reply。</p>
+<h2 id="4-编译与打包"><a href="#4-编译与打包" class="headerlink" title="4.编译与打包"></a>4.编译与打包</h2><h3 id="4-1-编写Makefile"><a href="#4-1-编写Makefile" class="headerlink" title="4.1 编写Makefile"></a>4.1 编写Makefile</h3><p><strong>这里说的 Makefile 是指 <code>Android.bp</code>（当然也可以使用 <code>Android.mk</code>，语法稍有区别）</strong>。</p>
+<p>在 <code>default/</code> 目录下新建文件 <code>Android.bp</code>，内容如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs cpp">cc_defaults &#123;<br>    name: <span class="hljs-string">&quot;demoSvc_v1_0_default&quot;</span>,<br>    shared_libs: [<br>        <span class="hljs-string">&quot;libhidlbase&quot;</span>,<br>        <span class="hljs-string">&quot;libhidltransport&quot;</span>,<br>        <span class="hljs-string">&quot;liblog&quot;</span>,<br>        <span class="hljs-string">&quot;libutils&quot;</span>,<br>        <span class="hljs-string">&quot;libhardware&quot;</span>,<br>        <span class="hljs-string">&quot;libbinder&quot;</span>,<br>        <span class="hljs-string">&quot;vendor.harman.hardware.demoComponent.demoService@1.0_vendor&quot;</span>,<br>    ],<br>    cflags: [<br>        <span class="hljs-string">&quot;-Wall&quot;</span>,<br>        <span class="hljs-string">&quot;-Wextra&quot;</span>,<br>        <span class="hljs-string">&quot;-Werror&quot;</span>,<br>    ],<br>&#125;<br><br>cc_binary &#123;<br>    name: <span class="hljs-string">&quot;vendor.harman.demoComponent.demoService@1.0-service&quot;</span>,<br>    defaults: [<span class="hljs-string">&quot;demoSvc_v1_0_default&quot;</span>],<br>    init_rc: [<span class="hljs-string">&quot;vendor.harman.demoComponent.demoService@1.0-service.rc&quot;</span>],<br>    vendor: <span class="hljs-literal">true</span>,<br>    relative_install_path: <span class="hljs-string">&quot;hw&quot;</span>,<br><br>    include_dirs:[<span class="hljs-string">&quot;vendor/harman/hardware/interfaces/demoComponent/demoService/1.0/default&quot;</span>],<br>    srcs: [<br>        <span class="hljs-string">&quot;DemoService.cpp&quot;</span>,<br>        <span class="hljs-string">&quot;DemoServiceImpl.cpp&quot;</span>,<br>        <span class="hljs-string">&quot;BpDemoService.cpp&quot;</span>,<br>        <span class="hljs-string">&quot;BnDemoService.cpp&quot;</span><br>    ],<br>    shared_libs: [<br>        <span class="hljs-string">&quot;libbase&quot;</span>,<br>        <span class="hljs-string">&quot;libprotobuf-cpp-lite&quot;</span>,<br>        <span class="hljs-string">&quot;vendor.harman.hardware.demoComponent.demoService@1.0_vendor&quot;</span><br>    ],<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>目标 demoSvc_v1_0_default 可以理解成是将和 Binder 框架相关的库打包而成的一个总的库文件，<a href="mailto:&#x76;&#101;&#x6e;&#100;&#111;&#114;&#x2e;&#x68;&#x61;&#x72;&#x6d;&#x61;&#x6e;&#x2e;&#104;&#x61;&#114;&#100;&#x77;&#97;&#114;&#101;&#46;&#x64;&#x65;&#109;&#111;&#67;&#x6f;&#x6d;&#x70;&#111;&#x6e;&#101;&#110;&#x74;&#46;&#100;&#x65;&#109;&#111;&#x53;&#x65;&#114;&#118;&#x69;&#x63;&#101;&#x40;&#x31;&#46;&#x30;&#x5f;&#x76;&#x65;&#x6e;&#x64;&#111;&#114;">&#x76;&#101;&#x6e;&#100;&#111;&#114;&#x2e;&#x68;&#x61;&#x72;&#x6d;&#x61;&#x6e;&#x2e;&#104;&#x61;&#114;&#100;&#x77;&#97;&#114;&#101;&#46;&#x64;&#x65;&#109;&#111;&#67;&#x6f;&#x6d;&#x70;&#111;&#x6e;&#101;&#110;&#x74;&#46;&#100;&#x65;&#109;&#111;&#x53;&#x65;&#114;&#118;&#x69;&#x63;&#101;&#x40;&#x31;&#46;&#x30;&#x5f;&#x76;&#x65;&#x6e;&#x64;&#111;&#114;</a> 是通过接口描述文件自动生成的，同样可以在 &#x2F;out&#x2F;soong&#x2F;.intermediates&#x2F;… 目录下找到；</p>
+</li>
+<li><p>目标 <a href="mailto:&#118;&#x65;&#110;&#x64;&#x6f;&#x72;&#x2e;&#x68;&#x61;&#114;&#x6d;&#97;&#x6e;&#46;&#100;&#x65;&#x6d;&#x6f;&#67;&#111;&#109;&#x70;&#x6f;&#110;&#x65;&#110;&#x74;&#46;&#x64;&#x65;&#109;&#x6f;&#x53;&#x65;&#114;&#118;&#x69;&#x63;&#101;&#x40;&#x31;&#x2e;&#48;&#45;&#115;&#x65;&#114;&#x76;&#105;&#x63;&#x65;">&#118;&#x65;&#110;&#x64;&#x6f;&#x72;&#x2e;&#x68;&#x61;&#114;&#x6d;&#97;&#x6e;&#46;&#100;&#x65;&#x6d;&#x6f;&#67;&#111;&#109;&#x70;&#x6f;&#110;&#x65;&#110;&#x74;&#46;&#x64;&#x65;&#109;&#x6f;&#x53;&#x65;&#114;&#118;&#x69;&#x63;&#101;&#x40;&#x31;&#x2e;&#48;&#45;&#115;&#x65;&#114;&#x76;&#105;&#x63;&#x65;</a> 就是最终要生成的可执行文件；</p>
+</li>
+<li><p>属性 vendor: true 表示这是一个自定义的文件；</p>
+</li>
+<li><p>属性 relative_install_path: “hw” 和前一个属性共同作用，表示生成文件的相对存放位置在 <code>out/target/product/&lt;ProductName&gt;/vendor/bin/hw/ </code>目录；</p>
+</li>
+<li><p>属性 srcs 属性下包含了我们在之前几篇文章里编写的所有源文件 —— DemoService.cpp、DemoServiceImpl.cpp、BpDemoService.cpp 和 BnDemoService.cpp。</p>
+</li>
+</ul>
+<h3 id="4-2-编写HAL启动脚本"><a href="#4-2-编写HAL启动脚本" class="headerlink" title="4.2 编写HAL启动脚本"></a>4.2 编写HAL启动脚本</h3><p>基于上述的 Makefile 在 <code>default/</code> 目录下<strong>手动（mm 命令）</strong>进行编译，我们能得到名为 <code>vendor.harman.demoComponent.demoService@1.0-service</code> 的可执行文件。为了让 demoComponent HAL 随系统启动而启动，我们还需要编写 <code>*.rc</code> 脚本，并在脚本中标注进程名、可执行文件、用户组等信息。</p>
+<p>一般以可执行文件名作为脚本名，也就是 <code>vendor.harman.demoComponent.demoService@1.0-service.rc</code>。</p>
+<p>在 <code>default/</code> 目录下新建脚本，内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">service MyDemoService /vendor/bin/hw/vendor.harman.demoComponent.demoService@1.0-service<br>    class main<br>    user system<br>    group system<br>    capabilities sys_nice net_bind_service net_admin net_raw<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>关键字 service 用来定义一个进程（或称为本地服务），后面第一个参数 MyDemoService 是进程名，第二个参数是可执行文件的绝对路径；</p>
+</li>
+<li><p>class main 表示把 MyDemoService 归属到 main 类；</p>
+</li>
+<li><p>user system 和 group system 表示 MyDemoService 的用户和组用户都是 system；</p>
+</li>
+<li><p>capabilities 指定了一些权限相关的属性。</p>
+</li>
+</ul>
+<h3 id="4-3-打包可执行文件到系统镜像"><a href="#4-3-打包可执行文件到系统镜像" class="headerlink" title="4.3 打包可执行文件到系统镜像"></a>4.3 打包可执行文件到系统镜像</h3><p>要实现 demoComponent HAL 随系统启动而启动，需要将它的 <code>可执行文件</code> 和 <code>*.rc</code> 文件都打包进系统镜像。通过修改产品的 Makefile 可以实现这一目的。</p>
+<p>先在 <code>/device/&lt;CompanyName&gt;/&lt;PlatformName&gt;/common/</code> 路径下为 demoComponent HAL 新建一个名为 <code>demoComponent/</code> 的专属目录，再在这个目录下创建名为 <code>device_demoComponent.mk</code> 的 Makefile。（其实叫什么名字都可以，但是用 demoComponent 更直观）</p>
+<p><strong>如此一来我们就有了 <code>/device/harman/broxton/common/demoComponent/device_demoComponent.mk</code>。</strong> 除去注释，Makefile 内容只有一句话：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment">############################</span><br><span class="hljs-comment"># DemoService</span><br><span class="hljs-comment">############################</span><br><br>PRODUCT_PACKAGES += vendor.harman.demoComponent.demoService@1.0-service<br></code></pre></td></tr></table></figure>
+
+<p>这句话表示要将可执行文件 <code>vendor.harman.demoComponent.demoService@1.0-service</code> 打包进系统镜像，确切地说是打包进 <code>vendor.img</code>。</p>
+<p>切记，不要忘了把我们新建的 Makefile 添加到产品的 Makefile 中。 产品 Makefile 一般位于 <code>/device/&lt;CompanyName&gt;/&lt;PlatformName&gt;/&lt;ProductName&gt;/device.mk</code>，所以我们在 <code>/device/harman/broxton/XXXX/device.mk</code> 中增加以下语句（以 diff 形式展示）：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs makefile">diff --git a/XXXX/device.mk b/XXXX/device.mk<br>index b0866f3d2..d7a7d8ef7 100755<br>--- a/XXXX/device.mk<br>+++ b/XXXX/device.mk<br>@@ -1,5 +1,6 @@<br> <span class="hljs-keyword">include</span> device/harman/broxton/common/device_common.mk<br> <span class="hljs-keyword">include</span> <span class="hljs-variable">$(LOCAL_PATH)</span>/audio/device_audio.mk<br>+<span class="hljs-keyword">include</span> device/harman/broxton/common/demoComponent/device_demoComponent.mk<br> <span class="hljs-keyword">include</span> device/harman/broxton/common/tuner/device_radioTuner.mk<br> <span class="hljs-keyword">include</span> device/harman/broxton/common/speech/vpa.mk<br></code></pre></td></tr></table></figure>
+
+<p>注意上面以 <code>+</code> 开头的 <code>include</code> 语句，就是在引用我们的新建 Makefile。</p>
+<hr>
+<p><strong>【结语】</strong></p>
+<p>打包已经完成，我们的 demoComponent HAL 正跃跃欲试。但如果你将打包好的系统镜像烧写到设备上，会发现 demoComponent HAL 不能按照预期工作，甚至连自启动都做不到。相反，我们会在 logcat 或 dmesg 里发现有很多日志提示我们没有操作权限。 下一节《添加执行权限》将介绍如何给 demoComponent HAL 添加必要的权限。</p>
+<p>如果你急切地想看一看刚刚写好的 HAL 进程运行的样子，可以执行命令 <code>setenforce 0</code> 将设备的 SELinux 策略暂时关闭。 这样尽管系统仍然会报告权限错误，但不会禁止运行。</p>
+<h2 id="5-添加执行权限"><a href="#5-添加执行权限" class="headerlink" title="5.添加执行权限"></a>5.添加执行权限</h2><p><strong>【前言】</strong></p>
+<p>demoComponent HAL 已经成功编译且打包到系统镜像中，但到目前为止还没有被赋予访问 Binder 的权限。所以我们至少会看到，在将 demoService 注册为 Binder 服务时，日志中会打印类似下方的提示：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">[   <span class="hljs-number">10.368517</span>] type=<span class="hljs-number">1400</span> <span class="hljs-built_in">audit</span>(<span class="hljs-number">1483292256.112</span>:<span class="hljs-number">14</span>): avc: denied &#123; add &#125; ...<br></code></pre></td></tr></table></figure>
+
+<p>这篇文章就是要说明完善 demoComponent HAL 所需要的 SELinux 权限的方法。</p>
+<h3 id="5-1-编写策略文件"><a href="#5-1-编写策略文件" class="headerlink" title="5.1 编写策略文件"></a>5.1 编写策略文件</h3><p>依各公司习惯不同，用于配置产品权限的文件一般放在 <code>/device/&lt;CompanyName&gt;/sepolicy/</code> 或 <code>/device/&lt;CompanyName&gt;/common/sepolicy/</code> 目录下（也不排除是其它路径的可能性，但肯定是在<code>device/</code> 目录下的某个 <code>sepolicy/ </code>子目录）。在这个目录下，再为不同的部件分别创建相应的子目录，并在这个子目录中新建 <code>*.te</code> 文件和 <code>*_contexts</code> 文件，以添加必要的权限。</p>
+<p>还是以我正在使用的平台为例，创建新目录 <code>/device/harman/sepolicy/demoComponent/</code>，并在该目录下新建如下图所示的文件：</p>
+<img src="/2023/03/05/Android-8-1%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99HAL/20200720203213989.png" srcset="/img/loading.gif" lazyload>
+
+<p>说明下各文件的内容和作用：</p>
+<ul>
+<li><strong>file_contexts:</strong><ul>
+<li>首先编写 <code>file_contexts</code> 文件。这个文件名是由 SELinux 框架固定的。我们在 <code>file_contexts</code> 中将 demoService 的可执行文件定义为安全对象。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta"># <span class="hljs-keyword">define</span> demoService executable binary as a security object</span><br>/vendor/bin/hw/vendor.harman.demoComponent.demoService@<span class="hljs-number">1.0</span>-service   u:object_r:demoService_exec:s0<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>hwservice_contexts:</strong><ul>
+<li>然后，因为 demoComponent HAL 依赖 hwbinder 进行通信，所以我们还需要编写 <code>hwservice_contexts</code>。这个文件名也是由 SELinux 框架固定的。我们在这个文件中将新增的接口定义为一个安全对象，作用和 file_contexts 类似。（如果使用 vndbinder，则应编写 vndservice_contexts）</li>
+<li>从 Android 8.0 开始，SELinux 也一分为二成为了 system 部分和 vendor 部分。其中 vendor 部分又因为不同部件使用的 binder 节点不同，从原先唯一的的 <code>service_contexts</code> 中剥离出了 <code>hwservice_contexts</code> 和 <code>vndservice_contexts</code> 两个文件。当使用 &#x2F;dev&#x2F;hwbinder 时手动创建前者并在文件中添加定义，当使用 &#x2F;dev&#x2F;vndbinder 时创建后者并同样在文件中添加定义。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta"># <span class="hljs-keyword">define</span> HAL interface as a security object</span><br>vendor.harman.hardware.demoComponent.demoService::IDemoServiceDef  u:object_r:vendor_demoService_hwservice:s0<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>hwservicemanager.te</strong>:<ul>
+<li>由于我们使用的是 hwbinder 节点，所以还应该编写 hwservicemanager.te。文件名也是固定的。在这个文件中声明 demoService 需要使用 hwbinder。（如果使用 vndbinder，则应编写 vndservicemanager.te）</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta"># grant demoService permission of using hwbinder</span><br><span class="hljs-built_in">hwbinder_use</span>(demoService)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>hwservice.te:</strong><ul>
+<li>同理，编写 <code>hwservice.te</code>。文件名依然是固定的。在这个文件中为 demoService 定义了专属的 hwservice 类型，在添加 “注册服务” 权限时会用到。（如果使用 vndbinder，则应编写 <code>vndservice.te</code>）</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta"># <span class="hljs-keyword">define</span> demoService as hwservice_manager, so it can be added as a hwservice</span><br>type vendor_demoService_hwservice, hwservice_manager_type;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>demoService.te:</strong><ul>
+<li>接着编写 demoService.te 文件。 这个文件通常以需要添加权限的对象为名。在这个文件中，我们为 demoService 定义了一个专属的安全域，赋予可 demoService 的执行文件以需要的文件属性，并且为 demoService 域添加和 Binder 操作相关的必要权限，比如 “注册为服务”、“允许 hwbinder 调用” 等。</li>
+<li>不同的 HAL 进程或本地服务要操作的文件不同，其实现的作用也不同，所以这个文件里的内容差异也很大。依照最小权限规则，根据自己的实际需要添加权限即可。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta"># <span class="hljs-keyword">define</span> a security domain for demo service</span><br>type demoService, domain;<br><br><span class="hljs-meta"># specify demo service attributes</span><br>type demoService_exec, exec_type, file_type, vendor_file_type;<br><br><span class="hljs-meta"># initialize demo service domain</span><br><span class="hljs-built_in">init_daemon_domain</span>(demoService)<br><br><span class="hljs-built_in">add_hwservice</span>(demoService, vendor_demoService_hwservice)<br><br><span class="hljs-built_in">binder_call</span>(demoService, vndservicemanager)<br><span class="hljs-built_in">binder_call</span>(demoService, hwservicemanager)<br><span class="hljs-built_in">binder_call</span>(demoService, system_app)<br><br>allow demoService vndbinder_device:chr_file rw_file_perms;<br>allow demoService hwservicemanager_prop:file r_file_perms;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>system_app.te:</strong><ul>
+<li>最后，还要为用户进程添加调用权限。我们通常会以 APP 对 demoService 的调用为例说明调用过程，所以这里新建 <code>system_app.te</code>。为 system_app 添加通过 hwservice_manager 查找服务、以及通过 binder 调用 demoService 的权限。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"># <span class="hljs-function">APP access priviledges <span class="hljs-keyword">for</span> demoService</span><br><span class="hljs-function"><span class="hljs-title">binder_call</span><span class="hljs-params">(system_app, demoService)</span></span><br><span class="hljs-function">allow system_app vendor_demoService_hwservice:hwservice_manager find;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5-2-应用策略文件"><a href="#5-2-应用策略文件" class="headerlink" title="5.2 应用策略文件"></a>5.2 应用策略文件</h3><p>为了使新增的安全规则生效，需要将刚刚创建的目录添加到 Makefile 中，这样一来编译镜像时就可以扫描到了。我们一般把这个改动添加到 <code>/device/&lt;CompanyName&gt;/&lt;PlatformName&gt;/&lt;ProductName&gt;/BoardConfig.mk</code>。</p>
+<p>这里我改动的文件是 <code>/device/harman/broxton/XXXX/BoardConfig.mk</code>，修改部分如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs makefile">diff --git a/XXXX/BoardConfig.mk b/XXXX/BoardConfig.mk<br>index 4979507a7..8e700f22d 100755<br>--- a/XXXX/BoardConfig.mk<br>+++ b/XXXX/BoardConfig.mk<br>@@ -72,6 +72,12 @@ BOARD_SEPOLICY_DIRS += device/harman/sepolicy/vold<br> INTEL_AUDIO_HAL=imc<br> BOARD_SEPOLICY_DIRS += device/harman/sepolicy/audio<br>+<br>+<span class="hljs-comment">########################################################</span><br>+<span class="hljs-comment"># DemoService</span><br>+<span class="hljs-comment">########################################################</span><br>+BOARD_SEPOLICY_DIRS += device/harman/sepolicy/demoComponent<br>+<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>【结语】</strong></p>
+<p>完全编译后，烧写镜像到设备上。待设备启动后，执行命令 <code>ps -A | grep -i demo</code> ，终于可以看到我们的 demoComponent HAL 进程已经随系统启动成功。</p>
+<img src="/2023/03/05/Android-8-1%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99HAL/2020072020305469.png" srcset="/img/loading.gif" lazyload>
+
+<p>如果在系统刚启动时执行命令 <code>logcat | grep -i demo</code>，还可以看到 demoComponent HAL 注册为 Binder 服务的日志打印：</p>
+<img src="/2023/03/05/Android-8-1%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99HAL/20200720203133940.png" srcset="/img/loading.gif" lazyload>
+
+<h2 id="6-感谢"><a href="#6-感谢" class="headerlink" title="6.感谢"></a>6.感谢</h2><p>🎊再次感谢大佬【Qidi_Huang】的精彩博客！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android 8.1从零开始写HAL</div>
+      <div>http://example.com/2023/03/05/Android-8-1从零开始写HAL/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/05/Binder%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="Binder系统学习笔记">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Binder系统学习笔记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/02/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="编译原理学习笔记">
+                        <span class="hidden-mobile">编译原理学习笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

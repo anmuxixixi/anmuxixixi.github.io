@@ -1,0 +1,966 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="计算机组成原理(五)输入输出系统1.概述1.1 发展概况（1）早期阶段 早期的I&#x2F;O设备种类较少，I&#x2F;O设备与主存交换信息都必须通过CPU：、    每个I&#x2F;O设备都必须配有一套独立的逻辑电路与CPU相连，线路十分散乱、庞杂。 输入输出过程是穿插在CPU执行程序过程之中进行的，工作效率低。 每个I&#x2F;0设备的逻辑控制电路与CPU的控制器紧密构成一个不可分割的整">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机组成原理(五)输入输出系统">
+<meta property="og:url" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="计算机组成原理(五)输入输出系统1.概述1.1 发展概况（1）早期阶段 早期的I&#x2F;O设备种类较少，I&#x2F;O设备与主存交换信息都必须通过CPU：、    每个I&#x2F;O设备都必须配有一套独立的逻辑电路与CPU相连，线路十分散乱、庞杂。 输入输出过程是穿插在CPU执行程序过程之中进行的，工作效率低。 每个I&#x2F;0设备的逻辑控制电路与CPU的控制器紧密构成一个不可分割的整">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/57eed5f957a849f9ac5ab2be50107f64.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/b1988599f220489cb0da4cc73805a1ea.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/d3f62d3e4e79426c9eefbd41ee0955af.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/cff0204f4b7149fab529243358674241.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/dcc5b2d6616f4681ae293a882871ea68.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/image-20230520203459094-1684586104268-1.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/1684586383766-3.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/fa24e287e4d14e29bc4f22bfb527a47a.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/4439606cc51d4233a82533a8a4638525.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/134f67493baa806ed044c2370cbfdd3d.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/8c07a6229bc94849683b1ef307305055.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/image-20230521114406266.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/image-20230521114538376.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/fbff124410ee60a4d3b5fa33c1c8b7ed.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/b50da7fe2155210fc105496e47127184.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/cf3ecee8377f2043ddbbde12a780665e.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/90cdfcdc9f8fd6dd18da25ddd3c15f60.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/daa49d98c2cb0b40b1e8ead9503f8cd0.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/a6000fe130974f4789bb1051dc38156c.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/image-20230521124247578.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/7ae608e212abd526ea9e3611cdbf51bb.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/102fc43b2c1c4a7b9709c59811da028e.png">
+<meta property="og:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/22f2e2f319714d9193b6c95807f6ab9d.png">
+<meta property="article:published_time" content="2023-05-16T15:44:20.000Z">
+<meta property="article:modified_time" content="2023-05-21T08:13:29.506Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/57eed5f957a849f9ac5ab2be50107f64.png">
+  
+  
+  
+  <title>计算机组成原理(五)输入输出系统 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="计算机组成原理(五)输入输出系统"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-05-16 23:44" pubdate>
+          2023年5月16日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          61 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">计算机组成原理(五)输入输出系统</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="计算机组成原理-五-输入输出系统"><a href="#计算机组成原理-五-输入输出系统" class="headerlink" title="计算机组成原理(五)输入输出系统"></a>计算机组成原理(五)输入输出系统</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><h3 id="1-1-发展概况"><a href="#1-1-发展概况" class="headerlink" title="1.1 发展概况"></a>1.1 发展概况</h3><p><strong>（1）早期阶段</strong></p>
+<p>早期的I&#x2F;O设备种类较少，I&#x2F;O设备与主存交换信息都必须通过CPU：、</p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/57eed5f957a849f9ac5ab2be50107f64.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<ul>
+<li>每个I&#x2F;O设备都必须配有一套独立的逻辑电路与CPU相连，<strong>线路十分散乱、庞杂</strong>。</li>
+<li>输入输出过程是穿插在CPU执行程序过程之中进行的，<strong>工作效率低</strong>。</li>
+<li>每个I&#x2F;0设备的逻辑控制电路与CPU的控制器紧密构成一个不可分割的整体，<strong>可扩展性低</strong>。</li>
+</ul>
+<p><strong>（2）接口模块和DMA阶段</strong></p>
+<p>这个阶段I&#x2F;O设备通过接口模块与主机连接，计算机系统采用了总线结构：</p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/b1988599f220489cb0da4cc73805a1ea.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<ul>
+<li>数据经过接口既起到缓冲作用，又可完成串并变换。</li>
+<li>接口能满足中断请求处理的要求，使I&#x2F;O设备与CPU可按并行方式工作，大大地提高了CPU的工作效率。</li>
+<li>接口技术还可以使多台I&#x2F;O设备分时占用总线，使多台I&#x2F;O设备互相之间也可实现并行工作方式，有利于整机工作效率的提高。</li>
+</ul>
+<p>为了进一步提高CPU的工作效率，又出现了直接存储器存取(Direct Memory Access,DMA)技术：</p>
+<ul>
+<li>I&#x2F;O设备与主存之间有一条直接数据通路；</li>
+<li>I&#x2F;O设备可以与主存直接交换信息，使CPU在I&#x2F;O设备与主存交换信息时能继续完成自身的工作，故资源利用率得到了进一步提高。</li>
+</ul>
+<p><strong>（3）具有通道结构的阶段</strong></p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/d3f62d3e4e79426c9eefbd41ee0955af.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<ul>
+<li>通道是用来负责管理I&#x2F;O设备以及实现主存与I&#x2F;O设备之间交换信息的部件。</li>
+<li>通道有专用的通道指令，能独立地执行用通道指令所编写的输入输出程序，是从属于CPU的一个专用处理器。</li>
+<li>依赖通道管理的I&#x2F;O设备在与主机交换信息时，CPU不直接参与管理，故提高了CPU的资源利用率。</li>
+</ul>
+<p><strong>（4）具有I&#x2F;O处理机的阶段</strong></p>
+<p>输入输出系统发展到第四阶段，出现了I&#x2F;O处理机：</p>
+<ul>
+<li>I&#x2F;O处理机又称为外围处理机(Peripheral Processor)；</li>
+<li>它基本独立于主机工作，既可完成I&#x2F;O通道要完成的I&#x2F;O控制，又可完成码制变换、格式处理、数据块检错、纠错等操作。</li>
+<li>具有I&#x2F;O处理机的输入输出系统与CPU工作的并行性更高，这说明I&#x2F;O系统对主机来说具有更大的独立性。</li>
+</ul>
+<h3 id="1-2-输入输出系统的组成"><a href="#1-2-输入输出系统的组成" class="headerlink" title="1.2 输入输出系统的组成"></a>1.2 输入输出系统的组成</h3><p>输入输出系统：</p>
+<ul>
+<li>I&#x2F;O软件</li>
+<li>I&#x2F;O硬件</li>
+</ul>
+<p><strong>（1）I&#x2F;O 软件</strong></p>
+<p>输入输出系统软件的主要任务如下：</p>
+<ul>
+<li>将用户编制的程序（或数据）输入主机内。</li>
+<li>将运算结果输送给用户。</li>
+<li>实现输入输出系统与主机工作的协调等。</li>
+</ul>
+<p>组成：</p>
+<ul>
+<li>I&#x2F;O指令：机器指令的一类，其设备码相当于设备的地址，用于选择某台设备与主机交换信息。</li>
+<li>通道指令：又称为通道控制字(Channel Control Word,CCW)，是通道自身的指令，用来执行I&#x2F;O操作，如读、写、磁带走带及磁盘找道等。</li>
+</ul>
+<p><strong>（2）I&#x2F;O 硬件</strong></p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/cff0204f4b7149fab529243358674241.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
+
+<p>输入输出系统的硬件组成是多种多样的，在带有接口的I&#x2F;O系统中，一般包括：</p>
+<ul>
+<li>接口模块</li>
+<li>I&#x2F;O设备</li>
+</ul>
+<p>如上图所示：</p>
+<ul>
+<li>具有通道的I&#x2F;O系统；</li>
+<li>一个通道可以和一个以上的设备控制器相连，一个设备控制器又可以控制若干台同一类型的设备。</li>
+</ul>
+<h3 id="1-3-I-x2F-O设备与主机的联系方式"><a href="#1-3-I-x2F-O设备与主机的联系方式" class="headerlink" title="1.3 I&#x2F;O设备与主机的联系方式"></a>1.3 I&#x2F;O设备与主机的联系方式</h3><p>I&#x2F;O 设备与主机交换信息时，共有5种控制方式：</p>
+<ul>
+<li>程序查询方式：程序查询方式是由CPU通过程序不断查询I&#x2F;O设备是否已做好准备，从而控制I&#x2F;O设备与主机交换信息。</li>
+<li>程序中断方式：当I&#x2F;O设备准备就绪并向 CPU发出中断请求后才予以响应。</li>
+<li>直接存储器存取方式(DMA)：主存与I&#x2F;O设备之间有一条数据通路，主存与I&#x2F;0设备交换信息时，无须调用中断服务程序。</li>
+<li>I&#x2F;O 通道方式；</li>
+<li>I&#x2F;O处理机方式。</li>
+</ul>
+<h2 id="2-I-x2F-O设备"><a href="#2-I-x2F-O设备" class="headerlink" title="2.I&#x2F;O设备"></a>2.I&#x2F;O设备</h2><h3 id="2-1-I-x2F-O设备概述"><a href="#2-1-I-x2F-O设备概述" class="headerlink" title="2.1 I&#x2F;O设备概述"></a>2.1 I&#x2F;O设备概述</h3><p>I&#x2F;O设备大致可分为三类：</p>
+<ul>
+<li>人机交互设备：·实现操作者与计算机之间互相交流信息的设备。</li>
+<li>计算机信息的存储设备：系统软件和各种计算机的有用信息，其信息量极大，需存储保留起来。</li>
+<li>机——机通信设备：实现一台计算机与其他计算机或与其他系统之间完成通信任务的设备。</li>
+</ul>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/dcc5b2d6616f4681ae293a882871ea68.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 40%;">
+
+<p>下面是《深入理解计算机系统》中的“一个典型系统的硬件组成”</p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/image-20230520203459094-1684586104268-1.png" srcset="/img/loading.gif" lazyload alt="image-20230520203459094" style="zoom:80%;">
+
+<p>每一个I&#x2F;O涉笔都是通过一个控制器或适配器与I&#x2F;O总线连接起来耳朵。控制器和适配器的区别在于他们的组成方式。控制器是I&#x2F;O设备本身中或是系统的主印刷电路（通常称为主板）上的芯片组，而适配器则是一块插在主板插槽上的卡。无论如何，他们的功能否是在I&#x2F;O总线和I&#x2F;O设备之间传递信息。</p>
+<blockquote>
+<p>以图形适配器为例，说的其实就是显卡。显卡全称显示接口卡，又称显示适配器。</p>
+</blockquote>
+<p>我们再看一下杨一涛老师在操作系统课程讲解的图片</p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/1684586383766-3.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
+
+
+
+<h3 id="2-2-输入设备"><a href="#2-2-输入设备" class="headerlink" title="2.2 输入设备"></a>2.2 输入设备</h3><p>输入设备完成输入程序、数据和操作命令等功能：</p>
+<ul>
+<li>键盘：通过键盘上的各个键，按某种规范向主机输入各种信息，如汉字、外文、数字等。</li>
+<li>鼠标：手持式的定位设备，由于它拖着一根长线与接口相连，外形有点像老鼠，故取名为鼠标。</li>
+<li>触摸屏：是一种对物体的接触或靠近能产生反应的定位设备。按原理的不同，触摸屏大致可分为5类：电阻式、电容式、表面超声波式、扫描红外线式和压感式。</li>
+<li>其他输人设备：<ul>
+<li>光笔：外形与钢笔相似，头部装有一个透镜系统，能把进入的光会聚成一个光点。光笔的后端用导线连到计算机输入电路上。</li>
+<li>画笔与图形板：画笔(Stylus)同样为笔状，但必须配合图形板(Tablet)使用。</li>
+<li>图像输入设备：最直接的图像输入设备是摄像机(Camera)，它能被拍摄物经数字量化后变成数字图像存入磁带或磁盘。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-3-输出设备"><a href="#2-3-输出设备" class="headerlink" title="2.3 输出设备"></a>2.3 输出设备</h3><h4 id="2-3-1-显示设备"><a href="#2-3-1-显示设备" class="headerlink" title="2.3.1 显示设备"></a>2.3.1 显示设备</h4><hr>
+<ul>
+<li>字符显示器：<ul>
+<li>显示存储器（刷新存储器）VRAM：显示存储器存放欲显示字符的ASCII码，其容量与显示屏能显示的字符个数有关。</li>
+<li>字符发生器：将每个ASCII字符码转变为一组5×7或7×9的光点矩阵信息。</li>
+<li>CRT控制器：可接收来自CPU的数据和控制信号，并给出访问显示存储器的地址和访问字符发生器的光栅地址，还能给出CRT所需的水平同步和垂直同步信号。</li>
+</ul>
+</li>
+<li>图形显示器：图形显示器是用点、线（直线和曲线）、面（平面和曲面）组合成平面或立体图形的显示设备；</li>
+<li>图像显示器：图形显示器所显示的图形是由计算机用一定的算法形成的点、线、面、阴影等，来自主观世界，故又称为主观图像或计算机图像。</li>
+<li>IBM PC系列微型计算机的显示标准：<ul>
+<li>MDA(Monochrome Display Adapter)标准： MDA是单色字符显示标准，采用9×14点阵的字符窗口，满屏显示80列、25行字符，对应分辨率为720×350像素。MDA不能兼容图形显示。</li>
+<li>CGA(Color Graphics Adapter)标准： CGA是彩色图形&#x2F;字符显示标准，可兼容字符和图形两种显示方式。在字符方式下，字符窗口为8×8点阵，故字符质量不如MDA,但字符的背景可以选择颜色。</li>
+<li>EGA(Enhanced Graphics Adapter)标准： EGA标准集中了MDA和CGA两个显示标准的优点，并有所增强。其字符窗口为8×14点阵，字符显示质量优于CGA而接近MDA。</li>
+<li>VGA(Video Graphics Array)标准： VGA标准在字符方式下，字符窗口为9×16点阵，在图形方式下分辨率为640×480像素、 16种颜色，或320×200像素、256种颜色，还有720×400像素的文本模式。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-3-2-打印设备"><a href="#2-3-2-打印设备" class="headerlink" title="2.3.2 打印设备"></a>2.3.2 打印设备</h4><hr>
+<ul>
+<li>点阵针式打印机：结构简单、体积小、重量轻、价格低、字符种类不受限制、较易实现汉字打印，还可打印图形和图像。</li>
+<li>激光打印机：采用了激光技术和照相技术，印字质量好，应用广泛。</li>
+<li>喷墨打印机：是串行非击打式打印机，印字原理是将墨水喷射到普通打印纸上。若采用红、绿、蓝三色喷墨头，便可实现彩色打印。</li>
+</ul>
+<h2 id="3-I-x2F-O接口"><a href="#3-I-x2F-O接口" class="headerlink" title="3.I&#x2F;O接口"></a>3.I&#x2F;O接口</h2><h3 id="3-1-I-x2F-O接口概述"><a href="#3-1-I-x2F-O接口概述" class="headerlink" title="3.1 I&#x2F;O接口概述"></a>3.1 I&#x2F;O接口概述</h3><p>接口可以看做是两个系统或两个部件之间的交接部分，它<strong>既可以是两种硬设备之间的连接电路，也可以是两个软件之间的共同逻辑边界。</strong></p>
+<p>设置接口理由如下：</p>
+<ul>
+<li>一台机器通常配有多台I&#x2F;O设备，它们各自有设备号（地址），通过接口可实现I&#x2F;0设备的选择。</li>
+<li>I&#x2F;O设备种类繁多，速度不一，与CPU速度相差可能很大，通过接口可实现数据缓冲.</li>
+<li>有些I&#x2F;O设备可能串行传送数据，而CPU一般为并行传送，通过接口可实现数据串——并格式的转换。</li>
+<li>I&#x2F;O设备的输人输出电平可能与CPU的输入输出电平不同，通过接口可实现电平转换。</li>
+<li>CPU启动I&#x2F;O设备工作，要向I&#x2F;O设备发各种控制信号，通过接口可传送控制命令。</li>
+<li>I&#x2F;O设备需将其工作状态及时向CPU报告，通过接口可监视设备的工作状态，并可保存状态信息，供CPU查询。</li>
+</ul>
+<h3 id="3-2-接口的功能和组成"><a href="#3-2-接口的功能和组成" class="headerlink" title="3.2 接口的功能和组成"></a>3.2 接口的功能和组成</h3><img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/fa24e287e4d14e29bc4f22bfb527a47a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:60%;">
+
+<p>如上图所示为总线结构的计算机，每一台I&#x2F;O设备都是通过I&#x2F;O接口挂到系统总线上的。图中的I&#x2F;O总线包括数据线、设备选择线、命令线和状态线。</p>
+<p>根据上述设置接口的理由，可归纳出接口通常应具有以下几个功能以及相应的硬件配置：</p>
+<ul>
+<li>选址功能：当设备选择线上的设备码与本设备码相符时，应发出设备选中信号SEL；</li>
+<li>传送命令的功能：通常在I&#x2F;O接口中设有存放命令的命令寄存器以及命令译码器，来对CPU的命令进行响应。</li>
+<li>传送数据的功能：接口中通常设有数据缓冲寄存器(Data Buffer Register,DBR)，它用来暂存I&#x2F;O设备与主机准备交换的信息，与I&#x2F;O总线中的数据线是相连的。</li>
+<li>反映I&#x2F;0设备工作状态的功能：为了使CPU能及时了解各I&#x2F;O设备的工作状态，接口内必须设置一些反映设备工作状态的触发器。</li>
+</ul>
+<h3 id="3-3-接口类型"><a href="#3-3-接口类型" class="headerlink" title="3.3 接口类型"></a>3.3 接口类型</h3><img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/4439606cc51d4233a82533a8a4638525.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
+
+<ul>
+<li>按数据传送方式分类：<ul>
+<li>并行接口：将一个字节（或一个字）的所有位同时传送；</li>
+<li>串行接口：在设备与接口间一位一位传送，由于接口与主机之间是按字节或字并行传送，因此对串行接口而言，其内部还必须设有串——并转换装置。</li>
+</ul>
+</li>
+<li>按功能选择的灵活性分类：<ul>
+<li>可编程接口：其功能及操作方式可用程序来改变或选择；</li>
+<li>不可编程接口：不能由程序来改变其功能，但可通过硬连线逻辑来实现不同的功能。</li>
+</ul>
+</li>
+<li>按通用性分类：<ul>
+<li>通用接口：可供多种I&#x2F;O设备使用；</li>
+<li>专用接口：为某类外设或某种用途专门设计的。</li>
+</ul>
+</li>
+<li>按数据传送的控制方式分类：<ul>
+<li>程序型接口：用于连接速度较慢的I&#x2F;O设备，如显示终端、键盘、打印机等；</li>
+<li>DMA型接口：用于连接高速I&#x2F;0设备，如磁盘、磁带等。</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-程序中断方式"><a href="#4-程序中断方式" class="headerlink" title="4.程序中断方式"></a>4.程序中断方式</h2><h3 id="4-1-I-x2F-O中断的概念"><a href="#4-1-I-x2F-O中断的概念" class="headerlink" title="4.1 I&#x2F;O中断的概念"></a>4.1 I&#x2F;O中断的概念</h3><p><strong>中断</strong>：计算机在执行程序的过程中，当出现异常情况或特殊请求时，计算机停止现行程序的运行，转向对这些异常情况或特殊请求的处理，处理结束后再返回到现行程序的间断处，继续执行原程序。</p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/134f67493baa806ed044c2370cbfdd3d.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<h3 id="4-2-I-x2F-O中断的产生"><a href="#4-2-I-x2F-O中断的产生" class="headerlink" title="4.2 I&#x2F;O中断的产生"></a>4.2 I&#x2F;O中断的产生</h3><p>在I&#x2F;O设备与主机交换信息时，由于设备本身机电特性的影响，其工作速度较低，与CPU无法匹配，因此，CPU启动设备后，往往需要等待一段时间才能实现主机与I&#x2F;O设备之间的信息交换。</p>
+<p>如果在设备准备的同时，CPU不作无谓的等待，而继续执行现行程序，<strong>只有当I&#x2F;O设备准备就绪向CPU提出请求后，再暂时中断CPU现行程序转入I&#x2F;O服务程序，这便产生了I&#x2F;O中断。</strong></p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/8c07a6229bc94849683b1ef307305055.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:75%;">
+
+<h3 id="4-3-程序中断方式的接口电路"><a href="#4-3-程序中断方式的接口电路" class="headerlink" title="4.3 程序中断方式的接口电路"></a>4.3 程序中断方式的接口电路</h3><p>本文关于电路部分不做研究，故省略</p>
+<h2 id="5-DMA方式"><a href="#5-DMA方式" class="headerlink" title="5.DMA方式"></a>5.DMA方式</h2><h3 id="5-1-DMA科普"><a href="#5-1-DMA科普" class="headerlink" title="5.1 DMA科普"></a>5.1 DMA科普</h3><p>首先我们要明确一点，<strong>MDA接口就是第3节中所说的I&#x2F;O接口中的一种</strong>。</p>
+<p>有一种特殊的IO接口-DMA接口，它可以用DMA总线与主存直接相连，只要CPU告诉DMA接口要把数据存在主存中的哪个地址DMA接口就会根据地址把数据放进主存。</p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/image-20230521114406266.png" srcset="/img/loading.gif" lazyload alt="image-20230521114406266" style="zoom:67%;">
+
+<p>对于DMA接口而言，CPU还需要告诉它主存地址，如果有多个DMA接口，CPU依旧会很忙碌。为了进一步解放CPU，<strong>通道</strong>可以接替CPU做一些基础操作。</p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/image-20230521114538376.png" srcset="/img/loading.gif" lazyload alt="image-20230521114538376" style="zoom:67%;">
+
+<p>它就像一个低级CPU，有自己的指令系统——<strong>通道指令</strong>，能够执行一些有限的操作。当它接收到CPU发出的IO指令后，可以按照要求启动IO设备，或者执行通道指令——就像CPU的小弟。</p>
+<h3 id="5-2-DMA的特点"><a href="#5-2-DMA的特点" class="headerlink" title="5.2 DMA的特点"></a>5.2 DMA的特点</h3><img src="https://img-blog.csdnimg.cn/img_convert/fbff124410ee60a4d3b5fa33c1c8b7ed.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 75%;">
+
+<p>由图中可见，由于<strong>主存和DMA接口之间有一条数据通路</strong>，因此主存和设备交换信息时，不通过CPU，也不需要CPU暂停现行程序为设备服务，省去了保护现场和恢复现场，因此工作速度比程序中断方式的工作速度高。</p>
+<p>在DMA方式中，由于DMA接口与CPU共享主存，这就有可能出现两者争用主存的冲突。为了有效地分时使用主存，通常DMA与主存交换数据时采用如下三种方法：</p>
+<p><strong>（1）停止CPU访问主存</strong></p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/b50da7fe2155210fc105496e47127184.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<ul>
+<li>方式：当外设要求传送一批数据时，由DMA接口向CPU发一个停止信号，要求CPU放弃地址线数据线和有关控制线的使用权。DMA接口获得总线控制权后，开始进行数据传送，在数据传送结束后，DMA接口通知CPU可以使用主存，并把总线控制权交回给CPU。</li>
+<li>优点：控制简单，适用于数据传输率很高的I&#x2F;O设备实现成组数据的传送。</li>
+<li>缺点：DMA接口在访问主存时，CPU基本上处于不工作状态或保持原状态。</li>
+</ul>
+<p><strong>（2）周期挪用（或周期窃取）</strong></p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/cf3ecee8377f2043ddbbde12a780665e.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<ul>
+<li>方式：在这种方法中，每当I&#x2F;O设备发出DMA请求时，I&#x2F;O设备便挪用或窃取总线占用权一个或几个主存周期，而DMA不请求时，CPU仍继续访问主存。</li>
+<li>优点：这种方式既实现了I&#x2F;O传送，又较好地发挥了主存与CPU的效率，是一种广泛采用的方法。</li>
+<li>缺点：比较适合于I&#x2F;O设备的读&#x2F;写周期大于主存周期的情况，其他情况不推荐使用。</li>
+</ul>
+<p><strong>（3）DMA和CPU交替访问</strong></p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/90cdfcdc9f8fd6dd18da25ddd3c15f60.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
+
+<ul>
+<li>方式：不需要总线使用权的申请、建立和归还过程，总线使用权是通过C1和C2分别控制的。 CPU与DMA接口各自有独立的访存地址寄存器、数据寄存器和读&#x2F;写信号。</li>
+<li>优点：CPU既不停止主程序的运行也不进入等待状态，即完成了 DMA的数据传送，效率较高。</li>
+<li>缺点：相应的硬件逻辑复杂。</li>
+</ul>
+<h3 id="5-3-DMA接口的功能和组成"><a href="#5-3-DMA接口的功能和组成" class="headerlink" title="5.3 DMA接口的功能和组成"></a>5.3 DMA接口的功能和组成</h3><h4 id="5-3-1-DMA接口功能"><a href="#5-3-1-DMA接口功能" class="headerlink" title="5.3.1 DMA接口功能"></a>5.3.1 DMA接口功能</h4><p>利用DMA方式传送数据时，DMA接口应具有如下几个功能：</p>
+<ul>
+<li>向CPU申请DMA传送。</li>
+<li>在CPU允许DMA工作时，处理总线控制权的转交，避免因进入DMA工作而影响CPU正常活动或引起总线竞争。</li>
+<li>在DMA期间管理系统总线，控制数据传送。</li>
+<li>确定数据传送的起始地址和数据长度，修正数据传送过程中的数据地址和数据长度。</li>
+<li>在数据块传送结束时，给出DMA操作完成的信号。</li>
+</ul>
+<h4 id="5-3-2-DMA接口基本组成"><a href="#5-3-2-DMA接口基本组成" class="headerlink" title="5.3.2 DMA接口基本组成"></a>5.3.2 DMA接口基本组成</h4><img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/daa49d98c2cb0b40b1e8ead9503f8cd0.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<ul>
+<li>主存地址寄存器(AR) ：用于存放主存中需要交换数据的地址。</li>
+<li>字计数器(WC) ：用于记录传送数据的总字数，通常以交换字数的补码值预置。</li>
+<li>数据缓冲寄存器(BR) ：用于暂存每次传送的数据。</li>
+<li>DMA控制逻辑： 负责管理DMA的传送过程，由控制电路、时序电路及命令状态控制寄存器等组成。</li>
+<li>中断机构：当字计数器溢出（全“0”）时，表示一批数据交换完华，由“溢出信号”通过中断机构向CPU提出中断请求，请求CPU作DMA操作的后处理。</li>
+<li>设备地址寄存器(DAR) ：存放I&#x2F;O设备的设备码或表示设备信息存储区的寻址信息，如磁盘数据所在的区号盘面号和柱面号。</li>
+</ul>
+<h3 id="5-4-DMA的工作过程"><a href="#5-4-DMA的工作过程" class="headerlink" title="5.4 DMA的工作过程"></a>5.4 DMA的工作过程</h3><p>DMA的数据传送过程分为三个阶段：</p>
+<ul>
+<li>预处理</li>
+<li>数据传送</li>
+<li>后处理</li>
+</ul>
+<h4 id="5-4-1-预处理"><a href="#5-4-1-预处理" class="headerlink" title="5.4.1 预处理"></a>5.4.1 预处理</h4><ul>
+<li>给DMA控制逻辑指明数据传送方向是输入（写主存）还是输出（读主存）。</li>
+<li>向DMA设备地址寄存器送入设备号，并启动设备。</li>
+<li>向DMA主存地址寄存器送入交换数据的主存起始地址。</li>
+<li>对字计数器赋予交换数据的个数。</li>
+</ul>
+<h4 id="5-4-2-数据传送"><a href="#5-4-2-数据传送" class="headerlink" title="5.4.2 数据传送"></a>5.4.2 数据传送</h4><img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/a6000fe130974f4789bb1051dc38156c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
+
+<p><strong>以输入为例：</strong></p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/image-20230521124247578.png" srcset="/img/loading.gif" lazyload alt="image-20230521124247578" style="zoom: 25%;">
+
+<ol>
+<li>IO设备将数据存储到数据存储寄存器BR</li>
+<li>存入数据后，IO设备通过设备请求信号DREQ告诉DMA接口已经准备好了</li>
+<li>DMA控制逻辑向CPU申请总线控制</li>
+<li>CPU发出信号告诉DMA控制逻辑此时已经放弃了总线的占用和控制</li>
+<li>此时进行数据传输，就要给出主存的地址。地址寄存器AR存放了要访问主存的地址，使得系统总线中的地址总线有效</li>
+<li>DMA控制器给出设备应答信号，此时已经开始传输数据了</li>
+<li>DMA控制器发出对内存的读写控制指令， 同时BR寄存器把数据通过传输线送到数据总线上</li>
+<li>此过程AR+1，WC+1</li>
+<li>….</li>
+<li>当WC溢出，传输结束</li>
+</ol>
+<hr>
+<p><strong>以输出为例：</strong></p>
+<img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/7ae608e212abd526ea9e3611cdbf51bb.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<ol>
+<li>把BR中数据送到设备中</li>
+<li>设备发出DREQ告诉DMA控制器此时BR已经空了，可以接收下一个数据了</li>
+<li>DMA向CPU发出对总线和内存的控制请求</li>
+<li>CPU向DMA控制器发出应答信号【此时系统总线和内存的控制权都转移到了DMA接口】</li>
+<li>AR通过地址线告诉内存访问地址</li>
+<li>DMA控制器向设备发出DACK应答信号，告诉设备已经开始新的数据传输了</li>
+<li>主存中的数据通过数据线再次写入到BR中</li>
+<li>同时修改AR+1，WC+1</li>
+<li>…【判断传输是否结束，如果没有结束，继续循环执行】</li>
+<li>WC溢出，传输结束</li>
+</ol>
+<hr>
+<h4 id="5-4-3-后处理"><a href="#5-4-3-后处理" class="headerlink" title="5.4.3 后处理"></a>5.4.3 后处理</h4><p>当DMA的中断请求得到响应后，CPU停止原程序的执行，转去执行中断服务程序，执行DMA的结束工作：</p>
+<ul>
+<li>校验送入主存的数据是否正确；</li>
+<li>决定是否继续用DMA传送其他数据块，若继续传送，则又要对DMA接口进行初始化，若不需要传送，则停止外设；</li>
+<li>测试在传送过程中是否发生错误，若出错，则转错误诊断及处理错误程序。</li>
+</ul>
+<h3 id="5-5-DMA接口类型"><a href="#5-5-DMA接口类型" class="headerlink" title="5.5 DMA接口类型"></a>5.5 DMA接口类型</h3><h4 id="5-5-1-选择型DMA接口"><a href="#5-5-1-选择型DMA接口" class="headerlink" title="5.5.1 选择型DMA接口"></a>5.5.1 选择型DMA接口</h4><img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/102fc43b2c1c4a7b9709c59811da028e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
+
+<p><strong>特点</strong>：</p>
+<ul>
+<li>在物理上可连接多个设备，在逻辑上只允许连接一个设备，即在某一段时间内，DMA接口只能为一个设备服务；</li>
+<li>关键是在预处理时将所选设备的设备号送入设备地址寄存器。</li>
+</ul>
+<h4 id="5-5-2-多路型DMA接口"><a href="#5-5-2-多路型DMA接口" class="headerlink" title="5.5.2 多路型DMA接口"></a>5.5.2 多路型DMA接口</h4><img src="/2023/05/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%BA%94-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%B3%BB%E7%BB%9F/22f2e2f319714d9193b6c95807f6ab9d.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
+
+<p><strong>特点</strong>：</p>
+<ul>
+<li>多路型DMA接口不仅在物理上可以连接多个设备，而且在逻辑上也允许多个设备同时工作，各个设备采用字节交叉的方式通过DMA接口进行数据传送。</li>
+<li>这类接口特别适合于同时为多个数据传输率不十分高的设备服务。</li>
+</ul>
+<h3 id="5-6-DMA方式和程序中断方式比较"><a href="#5-6-DMA方式和程序中断方式比较" class="headerlink" title="5.6 DMA方式和程序中断方式比较"></a>5.6 DMA方式和程序中断方式比较</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>中断方式</th>
+<th>DMA方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据传送</td>
+<td>程序</td>
+<td>硬件</td>
+</tr>
+<tr>
+<td>响应时间</td>
+<td>指令执行结束</td>
+<td>存取周期结束</td>
+</tr>
+<tr>
+<td>处理异常情况</td>
+<td>能</td>
+<td>不能</td>
+</tr>
+<tr>
+<td>中断请求</td>
+<td>传送数据</td>
+<td>后处理</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>低</td>
+<td>高</td>
+</tr>
+</tbody></table>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>计算机组成原理(五)输入输出系统</div>
+      <div>http://example.com/2023/05/16/计算机组成原理-五-输入输出系统/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年5月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/05/22/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%85%AD-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9A%84%E8%BF%90%E7%AE%97%E6%96%B9%E6%B3%95/" title="计算机组成原理(六)计算机的运算方法">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">计算机组成原理(六)计算机的运算方法</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/05/14/%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%85%8D%E7%BD%AE%E4%B8%80%E6%9C%AC%E9%80%9A/" title="计算机配置一本通">
+                        <span class="hidden-mobile">计算机配置一本通</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
