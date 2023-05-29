@@ -1,0 +1,710 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="安卓内部存储和外部存储 声明：以下内容摘录自各大神的博客，用于自己学习备忘，十分感激！  https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;a39bc4b3a1a6   1.内部存储内部存储，其实是手机ROM上的一块存储区域，主要用于存储系统以及应用程序的数据。内部存储在Android系统对应的根目录是 &#x2F;data&#x2F;data&#x2F;，这个目录普通用户是无权访问的，用户需要">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安卓内部存储和外部存储">
+<meta property="og:url" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="安卓内部存储和外部存储 声明：以下内容摘录自各大神的博客，用于自己学习备忘，十分感激！  https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;a39bc4b3a1a6   1.内部存储内部存储，其实是手机ROM上的一块存储区域，主要用于存储系统以及应用程序的数据。内部存储在Android系统对应的根目录是 &#x2F;data&#x2F;data&#x2F;，这个目录普通用户是无权访问的，用户需要">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp.webp">
+<meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp-1685371597396-3.webp">
+<meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/v2-76c6e06d688756944ccba4a85236dd7b_r.jpg">
+<meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp-1685373896034-6.webp">
+<meta property="article:published_time" content="2023-05-29T14:44:04.000Z">
+<meta property="article:modified_time" content="2023-05-29T15:32:01.885Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp.webp">
+  
+  
+  
+  <title>安卓内部存储和外部存储 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="安卓内部存储和外部存储"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-05-29 22:44" pubdate>
+          2023年5月29日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          58 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">安卓内部存储和外部存储</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="安卓内部存储和外部存储"><a href="#安卓内部存储和外部存储" class="headerlink" title="安卓内部存储和外部存储"></a>安卓内部存储和外部存储</h1><blockquote>
+<p>声明：以下内容摘录自各大神的博客，用于自己学习备忘，十分感激！</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a39bc4b3a1a6">https://www.jianshu.com/p/a39bc4b3a1a6</a></li>
+</ul>
+</blockquote>
+<h2 id="1-内部存储"><a href="#1-内部存储" class="headerlink" title="1.内部存储"></a>1.内部存储</h2><p>内部存储，其实是手机ROM上的一块存储区域，主要用于存储系统以及应用程序的数据。内部存储在Android系统对应的根目录是 &#x2F;data&#x2F;data&#x2F;，这个目录普通用户是无权访问的，用户需要root权限才可以查看。不过我们可以通过Android Studio的View—-Tool Windows—-Device File Explorer工具来查看该目录，内部存储目录的大致结构如下所示。</p>
+<img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 80%;">
+
+<p>从上图可以看到，&#x2F;data&#x2F;data目录是按照应用的包名来组织的，每个应用都是属于自己的内部存储目录，而且目录的名称就是该应用的包名，这个目录是在安装应用的时候自动创建的，当应用被卸载后，该目录也会被系统自动删除。所以，如果你将数据存储于内部存储中，其实就是把数据存储到自己应用包名对应的内部存储目录中。每个应用的内部存储目录都是私有的，也就是说内部存储目录下的文件只能被应用自己访问到，其他应用是没有权限访问的。应用访问自己的内部存储目录时不需要申请任何权限。</p>
+<p>一个应用典型的内部存储目录结构如下所示。</p>
+<img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp-1685371597396-3.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>相信很多人看到内部存储的目录结构，都有似曾相识的感觉，没错我们平常经常和内部存储打交道，只不过我们不知道罢了，下面我们来看下内部存储目录下各个子目录的作用。</p>
+<ul>
+<li><strong>app_webview</strong>：主要用于存储webview加载过程中的数据，例如Cookie，LocalStorage等。</li>
+<li><strong>cache</strong>：主要用于存储使用应用过程中产生的缓存数据。</li>
+<li><strong>databases</strong>：主要用于存储数据库类型的数据。我们平常创建的数据库文件就是存储在这里。</li>
+<li><strong>files</strong>：可以在该目录下存储配置文件，敏感数据等。</li>
+<li><strong>shared_prefs</strong>：用于存储SharedPreference文件。我们使用SharedPreference的时候只指定了文件名，并没有指定存储路径，其实SP的文件就是保存到了这个目录下。</li>
+</ul>
+<p>那么有哪些API可以获取到内部存储目录呢，我们主要是使用Context类提供的接口来访问内部存储目录。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-number">1.</span>getDataDir()  <span class="hljs-comment">//获取的目录是/data/user/0/package_name，即应用内部存储的根目录</span><br><span class="hljs-number">2.</span>getFilesDir() <span class="hljs-comment">//获取的目录是/data/user/0/package_name/files，即应用内部存储的files目录</span><br><span class="hljs-number">3.</span>getCacheDir() <span class="hljs-comment">//获取的目录是/data/user/0/package_name/cache，即应用内部存储的cache目录</span><br><span class="hljs-number">4.</span>getDir(String name, <span class="hljs-type">int</span> mode) <span class="hljs-comment">//获取的目录是/data/user/0/package_name/app_name，如果该目录不存在，系统会自动创建该目录。</span><br></code></pre></td></tr></table></figure>
+
+<p>获取到对应的目录后，我们就可以对目录下的文件进行读写。细心的同学可能会发现代码中获取的内部存储根目录是 &#x2F;data&#x2F;user&#x2F;0，并不是前面提到的&#x2F;data&#x2F;data，这是怎么回事呢？因为在Android4.2以后增加了多用户的功能，为了适应多用户的功能，原来的&#x2F;data&#x2F;data&#x2F;相当于直接链接到当前用户文件夹的，变成了&#x2F;data&#x2F;user&#x2F;0&#x2F;，所以我们代码中打印出来的路径是&#x2F;data&#x2F;user&#x2F;0，而不是&#x2F;data&#x2F;data，说白了**&#x2F;data&#x2F;data和&#x2F;data&#x2F;user&#x2F;0&#x2F;是一个东西**。</p>
+<p>内部存储空间容量有限，如果内部存储空间被用完，系统会报内存不足。所以，不要把所有的数据都放到内部存储中。在开发应用过程中，我们可以把较敏感的应用数据放在内部存储中，而其他的数据可以放在外部存储中。那外部存储又是什么呢？下面我们接着来学习外部存储。</p>
+<h2 id="2-外部存储"><a href="#2-外部存储" class="headerlink" title="2.外部存储"></a>2.外部存储</h2><p>我们知道内部存储中的数据对应用来说是私密的，用户和其他应用都没有访问权限，而外部存储中的数据是可以被其他应用或用户访问甚至删除的，用户可以通过USB方式和PC之间交互外部存储中的数据。我们平常在Android手机的文件管理工具下看到的目录其实就是外部存储。在Android4.4以前，外部存储就是指SD卡，手机自带的存储就是内部存储；但是在Android4.4以后，随着手机机身存储越来越大，手机的机身存储已经可以满足大多数用户的需求，所以很多手机都不需要再安装SD卡。此时外部存储和内部存储都位于手机机身存储上，他们只是同一个存储介质上的不同存储区域。但是很多手机还是保留了SD卡插槽，方便用户自行拓展。如果手机安装了SD卡，那么很显然SD卡目录也属于外部存储目录。这时手机都有了两个外部存储空间，一个位于手机机身存储上，一个位于SD卡上。但是随着机身存储越累越大，SD卡一般可能只适用于转移文件，对于一般应用来说应该也不会把数据写到外置的SD卡上了，所以这里主要以机身存储为例来分析外部存储。</p>
+<h3 id="2-1-外部私有存储目录"><a href="#2-1-外部私有存储目录" class="headerlink" title="2.1 外部私有存储目录"></a>2.1 外部私有存储目录</h3><p>通常来说，应用涉及到的持久化数据一般分为两类：应用相关数据和应用无关数据。前者是指应用使用的数据信息，比如一些配置信息，调试信息，缓存文件等。当应用被卸载，这些信息也应该被随之删除，避免占用不必要的存储空间。例如下面两种场景。</p>
+<ul>
+<li>在用户使用应用过程中，产生的文件，图片，视频，音频等数据，这些数据不太敏感但是占用空间比较大，卸载App时不希望这些数据继续保留在用户手机中。</li>
+<li>当应用发生闪退时，希望把一些闪退信息保存下来，让用户获取闪退信息文件后通过特定渠道发送给开发人员进行问题定位。同样的，这些信息在卸载App后也不希望继续留在用户手机中。</li>
+</ul>
+<p>对于问题一，我们可以直接把数据存储在内部存储中，但是考虑到内部存储空间有限，把这些数据存储到内部存储会浪费内部存储的空间。对于问题二，普通用户（指没有root权限的用户）无法直接查看其中的文件，把数据直接存储在内部存储中是行不通的。这些数据有一个共同点就是他们的生命周期和应用是一致的，而且不太适合于放在内部存储中。为了存储这种类型的数据，Android规定来一个专门的存储空间，这个空间被称为外部私有存储空间。外部私有存储空间属于外部存储，对于某个应用来说，外部私有存储的根目录（这里暂时不考虑SD卡）是 &#x2F;storage&#x2F;emulated&#x2F;0&#x2F;Android&#x2F;data&#x2F;package_name，这个目录有点类似于内部存储目录，都是以包名来命名私有存储空间的。外部私有存储空间有以下特点</p>
+<ul>
+<li>内部私有存储中的数据会随着App的卸载一起删除</li>
+<li>仅仅安装应用不会在&#x2F;storage&#x2F;emulated&#x2F;0&#x2F;Android&#x2F;data&#x2F;目录下生成该应用的外部私有存储目录，只有在应用中调用API访问外部私有存储目录时，才会创建以package_name命名的私有存储目录。</li>
+<li>App在访问自己的外部私有存储目录时不需要任何权限</li>
+<li>自 Android 7.0 开始，系统对外部存储目录中 应用私有目录的访问权限进一步限制。其他 App 无法通过 file:&#x2F;&#x2F; 这种形式的 Uri 直接读写其他应用的外部私有存储目录，而是需要通过 FileProvider 访问</li>
+</ul>
+<p>在代码中我们可以通过以下方式来获取外部私有存储目录。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-number">1.</span>getExternalCacheDir() <br><span class="hljs-comment">/*获取到的目录是/storage/emulated/0/Android/data/package_name/cache，如果该目录不存在，调用这个方法会自动创建该目录。*/</span><br><span class="hljs-number">2.</span>getExternalFilesDir(String type) <br><span class="hljs-comment">/* 1.如果type为&quot;&quot;，那么获取到的目录是 /storage/emulated/0/Android/data/package_name/files</span><br><span class="hljs-comment">   2.如果type不为空，则会在/storage/emulated/0/Android/data/package_name/files目录下创建一个以传入的type值为名称的目录，例如你将type设为了test，那么就会创建/storage/emulated/0/Android/data/package_name/files/test目录，这个其实有点类似于内部存储getDir方法传入的name参数。但是android官方推荐使用以下的type类型</span><br><span class="hljs-comment">   public static String DIRECTORY_MUSIC = &quot;Music&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_PODCASTS = &quot;Podcasts&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_RINGTONES = &quot;Ringtones&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_ALARMS = &quot;Alarms&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_NOTIFICATIONS = &quot;Notifications&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_PICTURES = &quot;Pictures&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_MOVIES = &quot;Movies&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_DOWNLOADS = &quot;Download&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_DCIM = &quot;DCIM&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_DOCUMENTS = &quot;Documents&quot;;*/</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-外部共有存储目录"><a href="#2-2-外部共有存储目录" class="headerlink" title="2.2 外部共有存储目录"></a>2.2 外部共有存储目录</h3><p>外部存储目录还有一个存储空间就是外部共有存储目录，顾名思义，外部共有存储目录存储的数据无论对应用还是用户都是可见的应用只要有外部访问权限，就可以读取外部公共目录下的文件。外部公共目录主要存放和应用无关的数据，这些数据在卸载App的时候不会被删除。外部共有存储目录有以下特点。</p>
+<ul>
+<li>当卸载App时，共有存储目录下的文件不会被删除</li>
+<li>应用在访问外部公有目录之前，首先要申请外部存储权限，在Android6.0以后，外部存储权限还要动态申请。</li>
+<li>任何应用只要有外部存储权限，都可以访问共有存储目录下的数据。</li>
+</ul>
+<p>在代码中，我们可以通过以下方式来访问外部公共存储目录：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-number">1.</span>Environment.getExternalStorageDirectory() <br><span class="hljs-comment">//获取到的目录是/storage/emulated/0,这个也是外部存储的根目录。</span><br><span class="hljs-number">2.</span>Environment.getExternalStoragePublicDirectory(String type) <br><span class="hljs-comment">/* 1.如果type为&quot;&quot;，那么获取到的目录是外部存储的根目录即  /storage/emulated/0</span><br><span class="hljs-comment">   2.如果type不为空，则会在/storage/emulated/0目录下创建一个以传入的type值为名称的目录，例如你将type设为了test，那么就在外部存储根目录下创建test目录，这个方法和getExternalFilesDir的用法一样。android官方推荐使用以下的type类型，我们在SK卡的根目录下也经常可以看到下面的某些目录。</span><br><span class="hljs-comment">   public static String DIRECTORY_MUSIC = &quot;Music&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_PODCASTS = &quot;Podcasts&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_RINGTONES = &quot;Ringtones&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_ALARMS = &quot;Alarms&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_NOTIFICATIONS = &quot;Notifications&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_PICTURES = &quot;Pictures&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_MOVIES = &quot;Movies&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_DOWNLOADS = &quot;Download&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_DCIM = &quot;DCIM&quot;;</span><br><span class="hljs-comment">   public static String DIRECTORY_DOCUMENTS = &quot;Documents&quot;;*/</span><br></code></pre></td></tr></table></figure>
+
+<img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/v2-76c6e06d688756944ccba4a85236dd7b_r.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<blockquote>
+<p>图片来源：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/165140637%EF%BC%8C%E4%BD%9C%E8%80%85%EF%BC%9A[Bgwan](https://www.zhihu.com/people/qydq)">https://zhuanlan.zhihu.com/p/165140637，作者：[Bgwan](https://www.zhihu.com/people/qydq)</a></p>
+</blockquote>
+<h2 id="3-外部存储和内部存储对比"><a href="#3-外部存储和内部存储对比" class="headerlink" title="3.外部存储和内部存储对比"></a>3.外部存储和内部存储对比</h2><p>要区分外部存储和内部存储，我们最好从逻辑上来理解这两个概念，而不是从物理上。虽然在Android4.4以前，逻辑上和物理上是统一的，但是Android4.4以后，随着外置SD卡的使用越来越少，内部存储和外部存储和物理介质的内外就没有任何关系了。</p>
+<img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp-1685373896034-6.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<h2 id="4-疑惑解答"><a href="#4-疑惑解答" class="headerlink" title="4.疑惑解答"></a>4.疑惑解答</h2><h3 id="4-1-内置的外部存储和SD卡有啥区别"><a href="#4-1-内置的外部存储和SD卡有啥区别" class="headerlink" title="4.1 内置的外部存储和SD卡有啥区别"></a>4.1 内置的外部存储和SD卡有啥区别</h3><p>在4.4以后的系统中，API提供了这样一个方法来遍历手机的外部存储路径：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java">File[] files;<br><span class="hljs-keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.KITKAT) &#123;<br>    files = getExternalFilesDirs(Environment.MEDIA_MOUNTED);<br>    <span class="hljs-keyword">for</span>(File file:files)&#123;<br>        Log.e(<span class="hljs-string">&quot;main&quot;</span>,file);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果你的手机插了SD卡的话，那么它打印的路径就有两条了，例如我的华为荣耀7插了SD卡，它的结果如下：</p>
+<ul>
+<li>&#x2F;storage&#x2F;emulated&#x2F;0&#x2F;Android&#x2F;data&#x2F;packname&#x2F;files&#x2F;mounted</li>
+<li>&#x2F;storage&#x2F;B3E4-1711&#x2F;Android&#x2F;data&#x2F;packname&#x2F;files&#x2F;mounted</li>
+</ul>
+<p>其中&#x2F;storage&#x2F;emulated&#x2F;0目录就是机身存储的外部存储路径，而&#x2F;storage&#x2F;B3E4-1711&#x2F;就是SD卡的路径，他们统称为外部存储</p>
+<h3 id="4-2-主存储是什么"><a href="#4-2-主存储是什么" class="headerlink" title="4.2 主存储是什么"></a>4.2 主存储是什么</h3><blockquote>
+<p>来源：<a target="_blank" rel="noopener" href="https://fqzhanghao.github.io/post/android-cun-chu-wa-keng-ji/">https://fqzhanghao.github.io/post/android-cun-chu-wa-keng-ji/</a></p>
+</blockquote>
+<p>这个Primary和Secondary是怎么来的呢？实际上最开始Android也没有考虑这个区分，但是后来有一个情况发生了，就是上面所说到的：</p>
+<p>后来部分手机开始将最初定义的“Internal Storage”，即内置存储，分成Internal和External两部分。</p>
+<p>那么如果这个时候手机再插入sd卡，那不是有多个External Storage了吗？</p>
+<p>这个时候，从Internal Storage里面分出来的那块“External Storage”我们称之为主存储(Primary Storage)，插入的外置储存称之为副存储(Secondary Storage)。</p>
+<p>主存储路径的获取方式非常简单，可以通过Environment.getExternalStorageDirectory()或者Context.getExternalFilesDir(null)来获取。</p>
+<p>副存储路径在4.4及以上的Android系统中，可以使用Context.getExternalFilesDirs(null)(注意最后多了一个’s’)，它返回的是一个字符串数组。第0个就是主存储路径，第1个是副存储路径（如果有的话）。从4.1也可以证明！！！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Android学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>安卓内部存储和外部存储</div>
+      <div>http://example.com/2023/05/29/安卓内部存储和外部存储/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年5月29日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/05/28/%E9%80%BB%E8%BE%91%E5%8D%B7%E7%AE%A1%E7%90%86LVM/" title="逻辑卷管理LVM">
+                        <span class="hidden-mobile">逻辑卷管理LVM</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
