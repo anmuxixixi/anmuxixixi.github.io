@@ -1,0 +1,1088 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="计算机组成原理(四)存储器 声明：本文大部分内容转载自不断前进的皮卡丘，感谢辛苦整理的成果 原文地址：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_52797170&#x2F;article&#x2F;details&#x2F;124472835  [TOC] 1.1 存储器分类  1.1.1 按存储介质分类 半导体存储器 TTL、MOS 易失 磁表面存储器 磁头、载磁体 非易失 磁芯存储器 硬磁材料、环状元件 非易失 光">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机组成原理(四)存储器">
+<meta property="og:url" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="计算机组成原理(四)存储器 声明：本文大部分内容转载自不断前进的皮卡丘，感谢辛苦整理的成果 原文地址：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_52797170&#x2F;article&#x2F;details&#x2F;124472835  [TOC] 1.1 存储器分类  1.1.1 按存储介质分类 半导体存储器 TTL、MOS 易失 磁表面存储器 磁头、载磁体 非易失 磁芯存储器 硬磁材料、环状元件 非易失 光">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/3b068c358f4340b580f7f0727c2e0804.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/878f6fcb0db84f4890a7e594f3cb6786.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/340ca3c5d3554a91b7e48c5998e9cbe6.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/332deb6cf51f4ad39270d8e96a1c18c3.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/04816fd2fb45456baf26a7dafd1430dd.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000027708.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000218365.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/88abe0b5048349bdb560acdf4a42ff48.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507213936324.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507214503803.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/a2e5a6340fda4db982f1d4179089a578.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/db1d4fe8d41843e19a4d0ca6b8b53a79.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/bcf1404027e6445eb5a94b473f236bab.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N3YWRpYW4yMDA4,size_16,color_FFFFFF,t_70.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N3YWRpYW4yMDA4,size_16,color_FFFFFF,t_70-1683468907249-13.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/e17c0a8d820143eb953d6bf14339cffc.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507230536721.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507230753703.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/fdfd8ac372a8451dade364a7eba263c9.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/680eeb03576f492486b0aeddd407ada5.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/c4112880392d4101a60d444103db1470.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230508232722251.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230508232750023.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/1f00a8fe5b1b4e0db3a7d48a82f165f5.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230508232909198.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/2ad6f7d4165b44b1b875a976a9977ca0.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/c8552a74c7cd4bedbb02d9d1e24f7400.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/4d9d942d74874f0199486b4e71a2dad7.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/87a0b27134564de98358e5fa09ff5030.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/698fd0d23bc14441a2c0f2a3eb30bb8c.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/3c693c78095844c6a4103cbada1d6208.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/83d98363c63b4d0fb49bf0cb3832384f.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/d90eac5675564a52ba022f172125991e.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/be5b2e83b30d4c498ed95023a22cfb4e.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/v2-56946c0f3d889d93bcf280f418abc75c_720w.webp">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/a90bc042b0a24a77af0e8e842e189871.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/b4e11ed8f331496d8c5dc3a04dcb1f4c.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/ffaf706f08dc479e9e20a0e117842888.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/81fed2d01dfb457cbadd8f86bcff86cd.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514203908166.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514204043280.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514204208280.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210212152.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210350969.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210507419.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514211224104.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/edc32409f52f4bb08f24ae66a214b1f4.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/9d7cf85354b64dd3bc0816759c0fb788.png">
+<meta property="og:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/2a1fc2de6ff347d5bdb50ab4a7603b13.png">
+<meta property="article:published_time" content="2023-05-05T15:51:46.000Z">
+<meta property="article:modified_time" content="2023-05-20T12:33:19.190Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/3b068c358f4340b580f7f0727c2e0804.png">
+  
+  
+  
+  <title>计算机组成原理(四)存储器 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="计算机组成原理(四)存储器"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-05-05 23:51" pubdate>
+          2023年5月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          92 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">计算机组成原理(四)存储器</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="计算机组成原理-四-存储器"><a href="#计算机组成原理-四-存储器" class="headerlink" title="计算机组成原理(四)存储器"></a>计算机组成原理(四)存储器</h1><blockquote>
+<p>声明：本文大部分内容转载自<strong>不断前进的皮卡丘</strong>，感谢辛苦整理的成果</p>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_52797170/article/details/124472835">https://blog.csdn.net/qq_52797170/article/details/124472835</a></p>
+</blockquote>
+<p>[TOC]</p>
+<h3 id="1-1-存储器分类"><a href="#1-1-存储器分类" class="headerlink" title="1.1 存储器分类"></a>1.1 存储器分类</h3><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/3b068c358f4340b580f7f0727c2e0804.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h4 id="1-1-1-按存储介质分类"><a href="#1-1-1-按存储介质分类" class="headerlink" title="1.1.1 按存储介质分类"></a>1.1.1 按存储介质分类</h4><ul>
+<li>半导体存储器 TTL、MOS 易失</li>
+<li>磁表面存储器 磁头、载磁体 非易失</li>
+<li>磁芯存储器 硬磁材料、环状元件 非易失</li>
+<li>光盘存储器 激光、磁光材料 非易失</li>
+</ul>
+<h4 id="1-1-2-按读取方式分类"><a href="#1-1-2-按读取方式分类" class="headerlink" title="1.1.2 按读取方式分类"></a>1.1.2 按读取方式分类</h4><p>①存取时间和存取单元位置无关(随机访问)</p>
+<ul>
+<li>随机存储器(RAM)<ul>
+<li>存储器中任何存储单元的内容都能被随机存取，和存取时间和存储单元的物理位置无关，这种存储器叫做随机存储器</li>
+<li>随机存储器在程序的执行过程中可读可写</li>
+</ul>
+</li>
+<li>只读存储器(ROM)<ul>
+<li>在程序的执行过程中只读</li>
+</ul>
+</li>
+</ul>
+<p>②存取时间和存取单元位置有关(串行访问)</p>
+<ul>
+<li>顺序存取存储器 磁带<ul>
+<li>存储器只能按照某种顺序来存取，那么这种存储器就是顺序存取存储器，它的存取周期较长</li>
+</ul>
+</li>
+<li>直接存取存储器 磁盘<ul>
+<li>沿着磁道方向顺序存取，垂直半径方向随机存取</li>
+</ul>
+</li>
+</ul>
+<p>③按照在计算机中的作用分类<br><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/878f6fcb0db84f4890a7e594f3cb6786.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;"></p>
+<h3 id="1-2-存储器的层次结构"><a href="#1-2-存储器的层次结构" class="headerlink" title="1.2 存储器的层次结构"></a>1.2 存储器的层次结构</h3><h4 id="1-2-1-存储器的三个主要特性的关系"><a href="#1-2-1-存储器的三个主要特性的关系" class="headerlink" title="1.2.1 存储器的三个主要特性的关系"></a>1.2.1 存储器的三个主要特性的关系</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/340ca3c5d3554a91b7e48c5998e9cbe6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 80%;">
+
+
+
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/332deb6cf51f4ad39270d8e96a1c18c3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:50%;">
+
+<h4 id="1-2-2-缓存-主存层次和主存-辅存层次"><a href="#1-2-2-缓存-主存层次和主存-辅存层次" class="headerlink" title="1.2.2 缓存-主存层次和主存-辅存层次"></a>1.2.2 缓存-主存层次和主存-辅存层次</h4><p>计算机的主机由CPU和主存储器构成<br>CPU可以从主存中读取信息，也可以把信息存到主存中，但是主存的容量是有限的，如果程序足够大的话，主存是存不下的，需要辅助存储器帮忙存储，不过程序的运行还是得通过主存</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/04816fd2fb45456baf26a7dafd1430dd.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:50%;">
+
+<h2 id="2-主存储器"><a href="#2-主存储器" class="headerlink" title="2.主存储器"></a>2.主存储器</h2><h3 id="2-1-主存储器概述"><a href="#2-1-主存储器概述" class="headerlink" title="2.1 主存储器概述"></a>2.1 主存储器概述</h3><h4 id="2-1-1-主存的基本组成"><a href="#2-1-1-主存的基本组成" class="headerlink" title="2.1.1 主存的基本组成"></a>2.1.1 主存的基本组成</h4><p>从前面的只是来看，存储器的基本组成如下所示：</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230505235435737.png" srcset="/img/loading.gif" lazyload alt="image-20230505235435737" style="zoom: 67%;">
+
+<ul>
+<li>基本上主存由三部分组成 存储体 地址寄存器 数据寄存器</li>
+<li>寄存器也是存储器 用来存放数据</li>
+<li>一个读取操作就像是从菜鸟驿站拿快递一样，我需要提供取件码给店员（数据地址），然后从货架（存储体）中找到快递，放在柜台（数据寄存器中）我来取走</li>
+<li>一个写入操作则和取快递稍微不同，我们需要先给地址寄存器一个地址，然后把数据给数据寄存器，这样主存就会帮我们把数据写入存储体。</li>
+</ul>
+<p>这一章节我们将详细介绍主存储器的结构：</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000027708.png" srcset="/img/loading.gif" lazyload alt="image-20230506000027708" style="zoom: 40%;">
+
+<p>主存由存储体(程序，指令，数据都是存储在存储体中)，MAR，MDR构成。</p>
+<p>MAR当中保存了我们要访问的那个存储单元的地址，必须要进行译码器译码以后，我们才可以选定指定的存储单元；MDR中保存了我们读出或者写入的数据，这个数据是读出还是写入需要通过读写电路和控制电路来控制</p>
+<ul>
+<li>如果是写入的话，则把数据从MDR送入指定的存储体的存储单元中</li>
+<li>如果是读出的话，那么存储单元的内容就会被送到MDR中</li>
+</ul>
+<p>方向的控制是由读写电路来控制的。</p>
+<h4 id="2-1-2-主存与CPU之间的关系"><a href="#2-1-2-主存与CPU之间的关系" class="headerlink" title="2.1.2 主存与CPU之间的关系"></a>2.1.2 主存与CPU之间的关系</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230506000218365.png" srcset="/img/loading.gif" lazyload alt="image-20230506000218365" style="zoom: 40%;">
+
+<p>数据总线完成CPU和主存的信息传输<br>地址总线给出要访问的内存单元的地址</p>
+<h4 id="2-1-3-主存中存储单元地址的分配"><a href="#2-1-3-主存中存储单元地址的分配" class="headerlink" title="2.1.3 主存中存储单元地址的分配"></a>2.1.3 主存中存储单元地址的分配</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/88abe0b5048349bdb560acdf4a42ff48.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>假设存储字长为32位(对存储器的某一个单元进行读或写的话，一次最多读或写32位0，1)，主存的编址单位是字节，每一个字节都有自己的地址。在这种情况下，一个存储字是32位，一个字节是八位，都有自己的地址。<br>那么12345678H这个数据怎么在主存储器中进行存储？</p>
+<ul>
+<li>一种方法是高位字节地址作为存储器的地址(字地址)，这种方式也叫大端方式</li>
+<li>第二种方法是低位字节作为字地址，这种方式叫做小端方式</li>
+</ul>
+<h4 id="2-1-4-主存的技术指标"><a href="#2-1-4-主存的技术指标" class="headerlink" title="2.1.4 主存的技术指标"></a>2.1.4 主存的技术指标</h4><p>①存储容量：主存存放二进制代码的总位数<br>②存储速度</p>
+<ul>
+<li>存取时间(从存储器给出地址到获得稳定的输入输出) 存储器的访问时间<ul>
+<li>读出时间 写入时间</li>
+</ul>
+</li>
+<li>存取周期<ul>
+<li>连续两次独立的存储器操作(读或写)所需的最小间隔时间</li>
+<li>存取周期一般大于存取时间</li>
+</ul>
+</li>
+</ul>
+<p>③存储器带宽</p>
+<ul>
+<li>单位时间内存储器存取的信息量，用字&#x2F;秒、字节&#x2F;秒或位&#x2F;秒表示</li>
+<li>衡量数据传输速率的重要指标，决定了以存储器为中心的计算机系统获得信息的速度，是改善机器性能瓶颈的一个关键因素</li>
+</ul>
+<h3 id="2-2-半导体存储芯片简介"><a href="#2-2-半导体存储芯片简介" class="headerlink" title="2.2 半导体存储芯片简介"></a>2.2 半导体存储芯片简介</h3><h4 id="2-2-1-半导体存储芯片的基本结构"><a href="#2-2-1-半导体存储芯片的基本结构" class="headerlink" title="2.2.1 半导体存储芯片的基本结构"></a>2.2.1 半导体存储芯片的基本结构</h4><ul>
+<li>采用超大规模集成电路制造工艺，在一个芯片内集成具有记忆功能的存储矩阵、译码驱动电路和读&#x2F;写电路等</li>
+<li>译码驱动：把地址总线送过来的地址信号翻译成对应存储单元的选择信号</li>
+<li>读写电路：包括读写放大器和写入电路，用于完成读写操作</li>
+</ul>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507213936324.png" srcset="/img/loading.gif" lazyload alt="image-20230507213936324" style="zoom:67%;">
+
+<p>存储芯片通过地址总线、数据总线和控制总线与外部连接</p>
+<ul>
+<li>地址线：单向输入，其位数与芯片容量有关</li>
+<li>数据线：双向输入&#x2F;输出，其位数与芯片可一次读出或写入的数据有关</li>
+</ul>
+<blockquote>
+<p>地址线和数据线的位宽，共同反应了存储芯片的容量。例如：地址线10根，数据线4根，则表示存储芯片的存储单元为2^10，每个单元的数据宽度为4位，则芯片的容量为2^10 * 4b &#x3D; 4Kb</p>
+</blockquote>
+<ul>
+<li>控制线：主要有读写控制线和片选线2种：<ul>
+<li>读写控制线：决定芯片进行读还是写，可以读写分开2根线，也可以合用一根</li>
+<li>片选线：用来在存储矩阵中选择存储芯片，可能有多根线</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-2-2-存储芯片片选线的作用"><a href="#2-2-2-存储芯片片选线的作用" class="headerlink" title="2.2.2 存储芯片片选线的作用"></a>2.2.2 存储芯片片选线的作用</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507214503803.png" srcset="/img/loading.gif" lazyload alt="image-20230507214503803" style="zoom:67%;">
+
+<p>半导体存储芯片它的片选线一般有2中标识方式，<br>$$<br>\overline{\text{CS}}、\overline{\text{CE}}<br>$$<br>上面的一横表示低电平有效，CS是芯片选择的缩写。</p>
+<blockquote>
+<p><strong>16K × 1位</strong>说明芯片的存储容量是16K，每一个存储单元保存1位信息。<br>如果我们用8个这样的芯片，对8个芯片同时进行读写，这8个芯片构成一组，这8个芯片就构成了16K × 8位的存储器<br>为了满足题目的需求，我们就应该布置4组这样的芯片。<br>每一组的8个芯片要同时进行工作<br>接下来对地址空间进行划分<br>第一组芯片: 0到16K-1<br>第二组芯片:16K到32K-1<br>第三组芯片:32K到48K-1<br>第四组芯片:48K到64K-1<br>如果我们要访问的地址是65535，也就是64K-1，按照我们划分的规则，它应该在第四组芯片，此8片的片选有效。片选信号看到这个地址后，就选择第四组芯片，其他三组芯片的片选信号是无效的，也就是高电平，最后一组对应的信号是低电平，也就是有效的。<br>片选信号的作用是让某个芯片或者某些芯片同时进行工作。</p>
+</blockquote>
+<h4 id="2-2-3-半导体存储芯片的译码驱动方式"><a href="#2-2-3-半导体存储芯片的译码驱动方式" class="headerlink" title="2.2.3 半导体存储芯片的译码驱动方式"></a>2.2.3 半导体存储芯片的译码驱动方式</h4><p>译码驱动方式就是说，给出存储单元的地址后，怎么找到指定的存储单元，可以有两种方式来找到指定的存储单元，</p>
+<p><strong>（1）线选法</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/a2e5a6340fda4db982f1d4179089a578.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:50%;">
+
+<p>给出A0到A3四位地址，说明有16个存储单元，每一个存储单元有多少位，就需要看数据线，数据线是从D0到D7，说明有8位，这个存储器是16×8</p>
+<p>接下来看看工作过程：</p>
+<p>如果给出的地址是全0，被译码后的信号只有0的这根线是有效的，其他的线是无效的。如果现在进行的是读操作，读信号会控制电路的通路打开，使数据可以从存储矩阵送到数据总线上，只有给定的单元才可以数据的输出</p>
+<blockquote>
+<p>这种方法对容量稍微大一点的芯片来说是不合适的</p>
+</blockquote>
+<p><strong>（2）重合法</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/db1d4fe8d41843e19a4d0ca6b8b53a79.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:50%;">
+
+<p>线性法进行布局的时候，实际上是把它布局成线性数组，重合法进行布局的时候，实际上是把它布局成二维阵列</p>
+<blockquote>
+<p>行地址和列地址都只能有一条线是有效的，DDR4和DDR5的原理都是基于这个</p>
+</blockquote>
+<h3 id="2-3-随机存取存储器（RAM）"><a href="#2-3-随机存取存储器（RAM）" class="headerlink" title="2.3 随机存取存储器（RAM）"></a>2.3 随机存取存储器（RAM）</h3><p>RAM分为静态RAM(SRAM)和动态RAM(DRAM)：</p>
+<ul>
+<li>动态RAM是利用电容存储电荷的方式存储数据的；</li>
+<li>静态RAM是利用触发器的稳态特性来存储数据的；</li>
+</ul>
+<hr>
+<p>RAM 有点像“内存”，实际上涵盖了几种不同的类型。大多数人在讨论 RAM 或内存时，他们实际上谈论的内容在技术上是 DRAM（动态随机存取内存），或者更准确地说对于现代系统 <strong>SDRAM</strong>（同步动态随机存取内存）更为准确。除了技术性之外，术语并不重要，但知道这些术语通俗地说可以相互交换是有用的。</p>
+<p>目前销售的最常见的 RAM 类型是 DDR4，尽管较旧的系统可能使用 DDR2 或 DDR3。这些简单地表示在特定系统中使用的 RAM 的生成，每个连续的系统通过更大的带宽提供更快的速度 – 更高的兆赫（MHz）等级。每代人都看到身体的变化，所以不能互换。</p>
+<p>另一个常见术语，特别是在视频游戏领域是 VRAM 或视频 RAM。虽然 VRAM 本身就是一种技术，但它现在用于（技术上错误地）表示可用于图形芯片或内置于图形卡的内存。这实际上称为图形 DDR SDRAM，或更常见的 GDDR。大多数现代显卡都会使用 GDDR5，尽管有些使用更新的 GDDR5X 标准，而未来的几代甚至可能会搭配 GDDR6 内存。</p>
+<p>一些小众图形卡采用称为高带宽内存（HBM 和 HBM2）的独特形式的内存 ，虽然它通常很昂贵，但供应问题意味着它没有被广泛采用，它具有一些独特的性能优势。</p>
+<h3 id="2-4-只读存储器（ROM）"><a href="#2-4-只读存储器（ROM）" class="headerlink" title="2.4 只读存储器（ROM）"></a>2.4 只读存储器（ROM）</h3><p>ROM的发展历程：</p>
+<ul>
+<li>早期的只读存储器—–在厂家就写好了内容</li>
+<li>改进1——–用户可以自己写，不过是一次性的，如果要修改程序就得重新买芯片，原有的芯片的数据不能够擦除</li>
+<li>改进2——可以多次写——并且可以对信息进行擦除(早期的时候，那些可以擦除信息的芯片的设备要单独购买，不是很方便)</li>
+<li>改进3——电可擦写—–需要特定设备</li>
+<li>改进4——电可擦写——直接连接到计算机上</li>
+</ul>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/bcf1404027e6445eb5a94b473f236bab.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:100%;">
+
+<h4 id="2-4-1-掩膜ROM（MROM）——只可读"><a href="#2-4-1-掩膜ROM（MROM）——只可读" class="headerlink" title="2.4.1 掩膜ROM（MROM）——只可读"></a>2.4.1 掩膜ROM（MROM）——只可读</h4><p>这种ROM是由制造厂家利用一种掩膜技术写入程序的，掩膜ROM制成后，用户不能修改，根据制造工艺可以将它们分为MOS型和双极型两种。MOS型ROM功耗小、速度慢，适用于一般微机系统；而双极型则速度快、功耗大，适用于速度较高的计算机系统。</p>
+<h4 id="2-4-2-PROM-一次性编程"><a href="#2-4-2-PROM-一次性编程" class="headerlink" title="2.4.2 PROM (一次性编程)"></a>2.4.2 PROM (一次性编程)</h4><p>可编程只读存储器 （英语：Programmable read-only memory），缩写为 PROM 或 FPROM，是一种电脑存储记忆晶片，它允许使用称为PROM编程器的硬件将数据写入设备中。在PROM被编程后，它就只能专用那些数据，并且不能被再编程，这种记忆体用作永久存放程式之用。通常会用于电子游戏机、或电子词典这类可翻译语言的产品之上。</p>
+<p>采用破坏性编程，且只能编程一次，如果编程有错误，只能重新购买芯片。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N3YWRpYW4yMDA4,size_16,color_FFFFFF,t_70.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:33%;">
+
+<h4 id="2-4-3-EPROM-多次性编程"><a href="#2-4-3-EPROM-多次性编程" class="headerlink" title="2.4.3 EPROM (多次性编程 )"></a>2.4.3 EPROM (多次性编程 )</h4><p>EPROM采用N型沟道浮动栅MOS电路，需要保存0，D端加正电压，形成浮动栅，需要保存1，D端不加正电压，不形成浮动栅。</p>
+<p>编程完成后，EPROM只能用强紫外线照射来擦除。通过封装顶部能看见硅片的透明窗口，很容易识别EPROM，这个窗口同时用来进行紫外线擦除。可以将EPROM的玻璃窗对准阳光直射一段时间就可以擦除。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3N3YWRpYW4yMDA4,size_16,color_FFFFFF,t_70-1683468907249-13.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 33%;">
+
+<h4 id="2-4-4-EEPROM-多次性编程"><a href="#2-4-4-EEPROM-多次性编程" class="headerlink" title="2.4.4 EEPROM (多次性编程 )"></a>2.4.4 EEPROM (多次性编程 )</h4><p>EEPROM (Electrically Erasable Programmable read only memory)是指带电可擦可编程只读存储器。是一种掉电后数据不丢失的存储芯片。 EEPROM 可以在电脑上或专用设备上擦除已有信息，重新编程。一般用在即插即用。</p>
+<p>常用在接口卡中，用来存放硬件设置数据。</p>
+<p>也常用在防止软件非法拷贝的”硬件锁”上面。</p>
+<p>EEPROM的特点：</p>
+<ul>
+<li>电可擦写</li>
+<li>局部擦写</li>
+<li>全部擦写</li>
+</ul>
+<h4 id="2-4-5-Flash-Memory-闪速型存储器"><a href="#2-4-5-Flash-Memory-闪速型存储器" class="headerlink" title="2.4.5 Flash Memory (闪速型存储器)"></a>2.4.5 Flash Memory (闪速型存储器)</h4><p>快闪存储器（英语：flash memory），是一种电子式可清除程序化只读存储器的形式，允许在操作中被多次擦或写的存储器。这种科技主要用于一般性数据存储，以及在计算机与其他数字产品间交换传输数据，如储存卡与U盘。</p>
+<p>闪存是一种非易失性存储器，即断电数据也不会丢失。因为闪存不像RAM（随机存取存储器）一样以字节为单位改写数据，因此不能取代RAM。</p>
+<p>闪存卡（Flash Card）是利用闪存（Flash Memory）技术达到存储电子信息的存储器，一般应用在数码相机，掌上电脑，MP3等小型数码产品中作为存储介质，所以样子小巧，有如一张卡片，所以称之为闪存卡。</p>
+<h3 id="2-5-存储器与CPU的连接"><a href="#2-5-存储器与CPU的连接" class="headerlink" title="2.5 存储器与CPU的连接"></a>2.5 存储器与CPU的连接</h3><p>CPU执行的指令需要的数据都保存在主存储器中，运行的结果也保存在主存储器中，所以CPU和存储器要进行正确的连接，才能实现他们之间信息的交换</p>
+<p>一般来说，CPU的地址线比较多，寻址范围也比较大。要构成主存储器，需要多个存储芯片共同组成。</p>
+<h4 id="2-5-1-存储器容量的扩展"><a href="#2-5-1-存储器容量的扩展" class="headerlink" title="2.5.1 存储器容量的扩展"></a>2.5.1 存储器容量的扩展</h4><p>单片存储芯片的容量有限，需要将若干存储芯片连在一起组成具有足够容量的存储器，所需芯片数量的计算公式：</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/e17c0a8d820143eb953d6bf14339cffc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:50%;">
+
+<p>位扩展：增加存储器的横向容量<br>字扩展：增加存储器的纵向容量</p>
+<p><strong>（1）位扩展(为了增加存储字长)</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507230536721.png" srcset="/img/loading.gif" lazyload alt="image-20230507230536721" style="zoom: 50%;">
+
+<p>用2片1K×4位的存储芯片组成1K×8位的存储器</p>
+<p>两个芯片要能同时工作，也就是要把两个芯片的片选用相同信号连接</p>
+<blockquote>
+<p>地址线和控制线公用<br>数据线单独分开</p>
+</blockquote>
+<p><strong>（2）字扩展(增加存储字的数量)</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230507230753703.png" srcset="/img/loading.gif" lazyload alt="image-20230507230753703" style="zoom:50%;">
+
+<blockquote>
+<p>地址线和数据线公用<br>读写控制线公用<br>片选使能控制线独立，通过地址的高位字段进行译码决定</p>
+</blockquote>
+<p>对第一个芯片来说，它用的地址线是A0~A9，如果A10为0，我们就选择第一个芯片，A10如果为1.我们就选择第二个芯片，A10就是我们的片选信号</p>
+<p>从00000000000 ~ 01111111111，这1K的存储空间分配给第一个芯片</p>
+<p>从10000000000 ~ 11111111111 ，这1K的存储空间分配给第二个芯片</p>
+<p><strong>（3）字、位扩展</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/fdfd8ac372a8451dade364a7eba263c9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<p>通过A10,A11来判断我们要访问的芯片是哪一组<br>00选择第一组芯片<br>01选择第二组芯片<br>10选择第三组芯片<br>11选择第四组芯片</p>
+<h4 id="2-5-2-存储器与CPU的连接"><a href="#2-5-2-存储器与CPU的连接" class="headerlink" title="2.5.2 存储器与CPU的连接"></a>2.5.2 存储器与CPU的连接</h4><ul>
+<li>存储芯片与CPU芯片相连，主要注意片与片之间的三种信号线的连接</li>
+<li>地址线的连接<ul>
+<li>CPU的地址线一般比存储芯片的地址线多</li>
+<li>CPU地址线的低位线与存储芯片的地址线相连</li>
+<li>CPU地址线的高位线或用于存储扩展，或用于片选等其他用途</li>
+</ul>
+</li>
+<li>数据线的连接<ul>
+<li>存储芯片的数据线应与CPU的数据线数量相同，若存储芯片数据线不够，需对其进行位扩展</li>
+</ul>
+</li>
+<li>读写命令控制线的连接<ul>
+<li>CPU的读写命令线一般可以直接连到存储芯片的读写控制器，通常高电平为读，低电平为写</li>
+<li>若读写命令线分开，则分别连到对应的芯片控制端</li>
+</ul>
+</li>
+<li>片选线的连接<ul>
+<li>CPU与存储芯片正确工作的关键</li>
+<li>片选有效信号与CPU的访存控制信号MREQ（低电平有效）有关，海域地址线（一般为高位线）有关</li>
+<li>通常需要用到一些逻辑电路来产生片选信号，如译码器和门电路</li>
+</ul>
+</li>
+<li>合理选择存储芯片<ul>
+<li>存储芯片类型（RAM或ROM）和数量的选择</li>
+<li>ROM：通常用于存放系统程序、标准函数库或各类常数等</li>
+<li>RAM：用于用户程序使用，为用户编程而设置</li>
+<li>考虑芯片数量时，应尽量使连线简单方便</li>
+</ul>
+</li>
+<li>其他考虑，如时序配合、速度、负载等</li>
+</ul>
+<p>【<strong>例题1</strong>】</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/680eeb03576f492486b0aeddd407ada5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:90%;">
+
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/c4112880392d4101a60d444103db1470.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:90%;">
+
+<p>①写出对应的二进制地址码【CPU低地址线对应存储器地址线】</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230508232722251.png" srcset="/img/loading.gif" lazyload alt="image-20230508232722251" style="zoom: 50%;">
+
+<p>我们可以看成出A15到A11是固定的，A10到A0是连续的地址，从全0到全1，一共是2K×8位，这部分存放系统程序。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230508232750023.png" srcset="/img/loading.gif" lazyload alt="image-20230508232750023" style="zoom:50%;">
+
+<p>们可以看成出A15到A10是固定的，A9到A0是连续的地址，从全0到全1，一共是1K×8位，这部分存放用户程序，1K×8位我们可以用两个1K×4位的芯片。</p>
+<p>②芯片的选择</p>
+<ul>
+<li>对应系统程序区，我们应该选择ROM,用1片2K×8</li>
+<li>用户程序区要可读可写，选择RAM，用2片1K×4</li>
+</ul>
+<p>③分配地址线</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/1f00a8fe5b1b4e0db3a7d48a82f165f5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<p>④确定片选信号</p>
+<p>根据74138译码逻辑关系，必须保证控制端G1为高电平，G2A和G2B为低电平，译码器才能正常工作</p>
+<p>A15始终为低、A14始终为高，分别接G2A和G1；而MREQ低电平有效，接G2B<br>剩下A13、A12、A11，分别接译码器的输入端C、B、A译码结果为4（Y4有效），选中ROM；译码结果为5（Y5有效），与A10一起通过与门，都为低电平有效时，选中2片RAM。<br><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230508232909198.png" srcset="/img/loading.gif" lazyload alt="image-20230508232909198" style="zoom: 67%;"></p>
+<p>【<strong>例题2</strong>】</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/2ad6f7d4165b44b1b875a976a9977ca0.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/c8552a74c7cd4bedbb02d9d1e24f7400.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/4d9d942d74874f0199486b4e71a2dad7.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h3 id="2-6-存储器的校验"><a href="#2-6-存储器的校验" class="headerlink" title="2.6 存储器的校验"></a>2.6 存储器的校验</h3><p>编码的检测能力和纠错能力与任意两组合法代码之间二进制位的最少差异数有关</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/87a0b27134564de98358e5fa09ff5030.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>如果出错后的代码依然是合法代码，计算机压根检测不出出错的代码</p>
+<blockquote>
+<p>编码的最小距离就是指任意的两组合法代码之间二进制位数的最少差异</p>
+<p>编码的纠错，校错能力和编码的最小距离有关</p>
+</blockquote>
+<h3 id="2-7-提高访存速度的措施"><a href="#2-7-提高访存速度的措施" class="headerlink" title="2.7 提高访存速度的措施"></a>2.7 提高访存速度的措施</h3><ul>
+<li>采用高速器件，让内存速度更快</li>
+<li>采用层次结构Cache-主存，把常用信息放在Cache中，Cache由静态RAM做的，速度快，集成度高，功耗低</li>
+<li>调整主存结构</li>
+<li>高性能存储芯片</li>
+</ul>
+<h4 id="2-7-1-调整主存结构"><a href="#2-7-1-调整主存结构" class="headerlink" title="2.7.1 调整主存结构"></a>2.7.1 调整主存结构</h4><p><strong>（1）单体多字系统</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/698fd0d23bc14441a2c0f2a3eb30bb8c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<blockquote>
+<p>关于存储字长，机器字长：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45609535/article/details/124323238">https://blog.csdn.net/weixin_45609535/article/details/124323238</a></p>
+<ul>
+<li>存储字长：一个存储单元中二进制代码的位数（通常和MDR位数相同）</li>
+<li>机器字长：CPU进行一次整数运算所能处理的二进制数据的位数</li>
+</ul>
+<p>一般来说，单独说字或字长时，往往指的是 机器字，其字长即为计算机一次能直接处理的二进制数据的位数，这个主要取决于CPU内部数据总线的位宽，也就是说一次能传输多少数据到CPU中进行处理。比如8086的CPU内部数据总线的宽度为16位，即说明8086是16位机，所以其字长为16。同理，32位机其机器字长为32，64位机其机器字长为64.</p>
+</blockquote>
+<p>假设CPU是16位，存储器的存储字长是64位，CPU每一次访问存储器，都可以访问出4个机器字，这4个机器字，每一个都可以是一条机器指令，又或者是长度为16的数据。</p>
+<p>CPU一次把这四个值取出放在数据寄存器中，下一次在用的时候，就可以直接把需要使用的指令或数据取走，用这种方法可以增加存储器的带宽。</p>
+<p>但是这种方法也有问题，假设现在CPU要向存储器中某一共个存储单元写一共长度为16的字，它要先把字写到单字长寄存器中，然后再写入到4个字长的数据寄存器中，之后再写到存储器中。这样产生的问题就是，我们可能只需要写一个16位，但是其他的48位也会写到给定的存储单元中，这就会造成给定的存储字有48位被修改了，这个修改可能是错误的修改.</p>
+<p>第二个问题，如果我们要取出的数据或指令不是连续的存放在相邻的指令中的，那么我们取出的指令可能就只有一条是有用的，其他的指令并没有用<br>出现这些问题的原因：虽然每一个存储单元包括四个机器字，但是这四个机器字存取的时候是以整体的方式进行存取的</p>
+<p>为了解决这个问题，我们可以采用多体并行的方式</p>
+<p><strong>（2）多体并行系统</strong> </p>
+<ul>
+<li>高位交叉 顺序编址</li>
+</ul>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/3c693c78095844c6a4103cbada1d6208.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<p>高位交叉会造成一个问题，传进来的地址一直是连续的， 那么同一个存储体会很繁忙，其余的存储体会很闲。</p>
+<ul>
+<li>低位交叉 各个体轮流编址</li>
+</ul>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/83d98363c63b4d0fb49bf0cb3832384f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<p>低位交叉的特点：在不改变存取周期的前提下，增加存储器的带宽</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/d90eac5675564a52ba022f172125991e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
+
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/be5b2e83b30d4c498ed95023a22cfb4e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h4 id="2-7-2-高性能存储芯片"><a href="#2-7-2-高性能存储芯片" class="headerlink" title="2.7.2 高性能存储芯片"></a>2.7.2 高性能存储芯片</h4><p>（1）SDRAM（同步DRAM)</p>
+<blockquote>
+<p>在系统时钟的控制下进行读出和写入<br>CPU无需等待</p>
+</blockquote>
+<p>（2）RDRAM</p>
+<blockquote>
+<p>主要解决存储器带宽问题</p>
+</blockquote>
+<p>（3）带Cache的DRAM</p>
+<blockquote>
+<p>在DRAM的芯片内集成了一个由SRAM组成的Cache,有利于猝发式读取</p>
+</blockquote>
+<h2 id="3-高速缓冲存储器"><a href="#3-高速缓冲存储器" class="headerlink" title="3.高速缓冲存储器"></a>3.高速缓冲存储器</h2><h3 id="3-1-概述"><a href="#3-1-概述" class="headerlink" title="3.1 概述"></a>3.1 概述</h3><h4 id="3-1-1-使用的原因"><a href="#3-1-1-使用的原因" class="headerlink" title="3.1.1 使用的原因"></a>3.1.1 使用的原因</h4><p>Cache是为了避免CPU空等现象。</p>
+<p>CPU空等现象：IO设备与cpu都需要访问内存，IO设备优先级较高，速度较慢，因此cpu需要等待IO访问内存从而出现空等现象。将热点数据缓存在Cache中可以有效避免cpu空等现象，直接从缓存中访问数据.</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/v2-56946c0f3d889d93bcf280f418abc75c_720w.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<blockquote>
+<p>CPU的频率也基本实现了每18个月翻一番，但是内存的速度一直都没怎么提高。下图曲线描述了20世纪后20年CPU速度和内存速度之间的“剪刀差”。</p>
+</blockquote>
+<h4 id="3-1-2-Cache的工作原理"><a href="#3-1-2-Cache的工作原理" class="headerlink" title="3.1.2 Cache的工作原理"></a>3.1.2 Cache的工作原理</h4><p><strong>(1)主存和缓存的编址</strong><br>我们把主存和Cache分成大小相等的块，主存有M块，Cache有C块。主存的容量远大于Cache的容量，即M&gt;&gt;C</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/a90bc042b0a24a77af0e8e842e189871.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>如果我们把主存和Cache分成若干块，那么CPU给出的内存地址就可以分成两个部分，一部分是块内偏移地址，它的位数决定块的大小，比如说一个块包含16个字节，并且内存的编址单位是字节，那么块内地址部分就是4位，剩余部分就是主存块号。<br>一个块在内存和Cache之间传送的时候，是整体进行传送，块内字节顺序不会发生变化。</p>
+<p>所以，<strong>内存的块内地址部分和Cache的块内地址部分的值是完全相同的</strong>。</p>
+<p>Cache中的标记，标记了主存块和Cache块之间的关系。如果一个主存块调入Cache块中，我们就可以把主存块号写到标记当中。将来CPU给出一个内存地址，它希望在Cache中访问到这个数据，它要首先确认这个块是否已经送到了Cache中，它就需要拿给出地址的主存块号和Cache中的标记进行比较。如果和某一个标记刚好相等，并且这个Cache块是有效的，这个块里面就保存了在内存中要访问的信息，它就可以直接从Cache中获取这些信息，它的速度就会大大提高</p>
+<p>主存和缓存是按照块来存储的，<strong>块的大小相同</strong></p>
+<p><strong>（2）命中和未命中</strong></p>
+<p>缓存有C块，主存有M块，M&gt;&gt;C，主存中只能有部分块被缓存到了Cache中。</p>
+<p>在CPU访问主存时，如果要访问的主存块已经调入缓存中，它的缓存能取到相应的数据，就说<strong>命中</strong><br>命中，就说明主存块和缓存块建立了对应关系，可以用标记记录与某缓存块建立了对应关系的主存块号</p>
+<p>如果要访问的主存块没有调入缓存，那么就说未命中</p>
+<p><strong>（3）Cache命中率</strong></p>
+<p>命中率： 就是在Cache中访问到CPU要访问的字块的概率。设Nc表示访问Cache的总命中次数，Nm未访问主存的总次数，即未命中次数。命中率h&#x3D;Nc&#x2F;(Nc+Nm)<br>命中率与Cache的容量和块长有关。</p>
+<p>一般每块可以取4~8个字<br>块长取一个存取周期内从主存调出的信息长度<br>Cache-主存系统的效率<br>效率e和命中率有关</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/b4e11ed8f331496d8c5dc3a04dcb1f4c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h4 id="3-1-3-Cache的基本结构"><a href="#3-1-3-Cache的基本结构" class="headerlink" title="3.1.3 Cache的基本结构"></a>3.1.3 Cache的基本结构</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/ffaf706f08dc479e9e20a0e117842888.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>CPU要访问内存的话，它要给出地址，包括块号和块内地址，由于Cache和主存之间是以块为基本单位传输数据的，所以主存的块内地址可以直接送到Cache的块内地址,或者形成Cache的块内地址</p>
+<p>我们利用块号在Cache的地址映射变换机构中，去确认是否发生命中。如果发生命中的话，需要给出当前的内存块保存在哪一个Cache块中。如果没有命中，就需要查一下，Cache中是否还有空间可以存入主存块，如果有的话，就访问主存，把主存块装到Cache块中；如果没有空间的话，那么主存块装入的那些Cache块都是满的，我们就要启用Cache替换机构，由Cache的替换机构根据替换算法，来算出哪一些块要从Cache中退出，写回到主存，或者直接作废，并且把主存中要用的块写入到Cache块中，这就是Cache替换机构要做的</p>
+<p><strong>地址映射:</strong></p>
+<blockquote>
+<p>主存中的一个块如果要放到Cache中，它可以被放到Cache的哪一个块或哪一些块中。</p>
+</blockquote>
+<p><strong>变换:</strong></p>
+<blockquote>
+<p>把主存的块号转变成相应的Cache块号，或者把主存的地址转变成相应的Cache的地址，然后在Cache中找到相应的主存块进行访问</p>
+<p>在主存和Cache之间是有一条直接通路的，通过这条通路，可以完成主存和Cache之间的信息交换</p>
+</blockquote>
+<p>我们的信息<strong>以块为基本单位</strong>保存在Cache存储体中</p>
+<h4 id="3-1-4-Cache的读写操作"><a href="#3-1-4-Cache的读写操作" class="headerlink" title="3.1.4 Cache的读写操作"></a>3.1.4 Cache的读写操作</h4><p><strong>（1）读操作</strong></p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/81fed2d01dfb457cbadd8f86bcff86cd.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<p>读操作是由CPU发出的，CPU发出这个访问地址，由Cache的地址映射和变换来确认是否发生命中。如果命中，就直接从Cache取出信息。若未命中，则需先判断，Cache是否已满，即是否可以直接将主存中对应的块装入Cache，若是，则访问主存，通过数据总线先将指令和数据传送给CPU，再通过直接通路，将指令和数据传送给Cache缓存。如果Cache已满，则需要通过Cache替换机构来访问主存并替换Cache中的某一个块。<br><strong>（2）写操作</strong></p>
+<p>读操作是不会对内存中信息进行修改的，但是写操作可能造成<strong>主存和Cache中的信息不一致</strong>。</p>
+<p>写操作需要解决Cache和主存的一致性问题，可以采用写直达法和写回法</p>
+<ul>
+<li>写直达法<ul>
+<li>写操作时数据既写入Cache,又写入主存</li>
+<li>写操作时间就是访问主存的时间,Cache块退出时，不需要对主存执行写操作，更新策略比较容易实现</li>
+</ul>
+</li>
+<li>写回法<ul>
+<li>写操作时只把数据写入Cache而不写入主存</li>
+<li>当Cache数据被替换出去时才写回主存</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-1-5-Cache的改进"><a href="#3-1-5-Cache的改进" class="headerlink" title="3.1.5 Cache的改进"></a>3.1.5 Cache的改进</h4><ul>
+<li>增加Cache的级数：离CPU比较近的在CPU内部集成L1缓，L2缓存，在主板上集成L3缓存</li>
+<li>统一缓存和分立缓存：指令Cache和数据Cache分开</li>
+</ul>
+<h3 id="3-2-Cache-主存之间的地址映射"><a href="#3-2-Cache-主存之间的地址映射" class="headerlink" title="3.2 Cache-主存之间的地址映射"></a>3.2 Cache-主存之间的地址映射</h3><h4 id="3-2-1-什么是内存块"><a href="#3-2-1-什么是内存块" class="headerlink" title="3.2.1 什么是内存块"></a>3.2.1 什么是内存块</h4><p><strong>字</strong>：指存放在一个存储单元中的二进制代码组合</p>
+<p><strong>字块：</strong>存储在连续的存储单元中而被看成一个单元的一组字</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514203908166.png" srcset="/img/loading.gif" lazyload alt="image-20230514203908166" style="zoom: 33%;">
+
+<p>字的地址包含2个部分，前m位为指定字块的地址，后b位指定字在字块中的地址</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514204043280.png" srcset="/img/loading.gif" lazyload alt="image-20230514204043280" style="zoom: 50%;">
+$$
+2^m = M，2^b = B
+$$
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514204208280.png" srcset="/img/loading.gif" lazyload alt="image-20230514204208280" style="zoom: 50%;">
+
+<p><strong>机器字长：</strong>CPU进行一次整数运算所能处理的二进制数据的位数。字长是由CPU的类型所决定，不同的计算机系统的字长是不同的，常见的有8位、16位、32位、64位等，字长越长，计算机一次处理的信息位就越多，精度就越高，</p>
+<p><strong>存储字长：</strong>一个存储单元中二进制代码的位数（通常和MDR位数相同）</p>
+<h4 id="3-2-2-直接映射"><a href="#3-2-2-直接映射" class="headerlink" title="3.2.2 直接映射"></a>3.2.2 直接映射</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210212152.png" srcset="/img/loading.gif" lazyload alt="image-20230514210212152" style="zoom: 50%;">
+
+
+
+<p>以<strong>字块</strong>为单位将内存和缓存分割为数组，内存向缓存形成多对一的直接映射关系，内存中的一个字块能够映射到缓存中的索引是确定的。如对于只有8个字块的缓存，21 号内存块内容在缓存块中的话，它一定在 5 号缓存块（21 mod 8 &#x3D; 5）中。</p>
+<p>但是这种映射又重新带来一种问题，图中5,13,21,29都能映射到缓存5上，我们怎么确定我要21的时候拿到的不是其他呢？</p>
+<p>通常我们会把缓存块的数量设置成 2 的 N 次方，那么内存的字块数量也一定是缓存的二次方倍，如8 个缓存字块，就是 2 的 3 次方，32个内存字块就是 2 的 5 次方，我们在通过内存地址的获取缓存数据时候，只需要拿到段地址的低三位，就能确定缓存索引，再根据字块中的偏移量就能拿到唯一对应的字节，道理就是这么个道理。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210350969.png" srcset="/img/loading.gif" lazyload alt="image-20230514210350969" style="zoom:50%;">
+
+<p>那这个字是不是我们想要的，就需要引入另一个概念”组标记”</p>
+<p>这个组标记会记录，当前缓存块内存储的数据对应的内存块，而缓存块本身的地址表示访问地址的低 N 位。就像上面的例子，21 的低 3 位 101，缓存块本身的地址已经涵盖了对应的信息、对应的组标记，我们只需要记录 21 剩余的高 2 位的信息，也就是 10 就可以了。</p>
+<p>除了组标记信息之外，缓存块中还有两个数据。一个自然是从主内存中加载来的实际存放的数据，另一个是有效位用于存放缓存块中的数据是否有效的。如果有效位是 0，无论其中的组标记和 实际的数据内容是什么，CPU 都不会管这些数据，而要直接访问内存，重新加载数据。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514210507419.png" srcset="/img/loading.gif" lazyload alt="image-20230514210507419" style="zoom:50%;">
+
+<p><strong>重点来了，</strong>整体进行举例，比如一个64位的CPU，内存地址线宽度为40位，也就是说一个内存地址可以有40位，假设一个字块有64B，即64字节，内存大小为8G，缓存大小为8M。</p>
+<p>由于内存大小为8G，即2的33次方字节，则最少需要33位地址可确定唯一字节。其中64B为一个字块，想要确定唯一字节需要6位地址，即2的6次方，所以偏移量需要6位；缓存大小是8M,即2的23次方字节，但是又因为一个字块是64B,所以缓存行数是2的23次方除以2的6次方，所以需要17位来确定唯一字块，即索引位数为17；缓存8M和内存8G相差2的10次方倍，所以组标记需要10位，高位补0。</p>
+<p><strong>所以一个内存地址的访问，就会经历这样 4 个步骤：</strong></p>
+<p><strong>1.根据内存地址中段地址(字块地址为段地址)的低位，计算在 缓存中的索引；</strong></p>
+<p><strong>2.判断有效位，确认缓存中的数据是有效的；</strong></p>
+<p><strong>3.对比内存访问地址的高位，和缓存中的组标记，确认缓存中的数据就是我们要访问的内存数据</strong></p>
+<p><strong>4.根据内存地址的 偏移量，从字块中读取希望读取到的字节。</strong></p>
+<p>如果在 2、3 这两个步骤中，CPU 发现，缓存中的数据并不是要访问的内存地址的数据，那 CPU 就会访问内存，并把对应的 内存中的数据字块更新到对应的缓存中，同时更新对应的有效位和组标记的数据。</p>
+<h4 id="3-2-3-全相联映射"><a href="#3-2-3-全相联映射" class="headerlink" title="3.2.3 全相联映射"></a>3.2.3 全相联映射</h4><p>全相连映射方式比较灵活，主存的各块可以映射到缓存的任一块中，缓存的利用率高，字块冲突概率低，只要淘汰缓存中的某一块，即可调入主存的任一块。但是，由于缓存比较电路的设计和实现比较困难，这种方式只适合于小容量缓存采用。</p>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/image-20230514211224104.png" srcset="/img/loading.gif" lazyload alt="image-20230514211224104" style="zoom:50%;">
+
+<h4 id="3-2-4-组相联映射"><a href="#3-2-4-组相联映射" class="headerlink" title="3.2.4 组相联映射"></a>3.2.4 组相联映射</h4><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/edc32409f52f4bb08f24ae66a214b1f4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<p>主存储器中的字块也进行分区，每个区的大小和Cache中的组数相同，Cache被分成几组，主存储器的每一个区就包含多少块</p>
+<blockquote>
+<p>例如主存中的字块0，可以存放到缓存中第0组的其他空余位置</p>
+<p>例如字块2^(c-r)可以存放到缓存中第2^(c-r)-1组的其余空余位置</p>
+</blockquote>
+<img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/9d7cf85354b64dd3bc0816759c0fb788.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h3 id="3-3-置换算法"><a href="#3-3-置换算法" class="headerlink" title="3.3 置换算法"></a>3.3 置换算法</h3><img src="/2023/05/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E5%9B%9B-%E5%AD%98%E5%82%A8%E5%99%A8/2a1fc2de6ff347d5bdb50ab4a7603b13.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>计算机组成原理(四)存储器</div>
+      <div>http://example.com/2023/05/05/计算机组成原理-四-存储器/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年5月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/05/09/%E7%A1%AC%E7%9B%98%E7%9A%84%E6%8E%A5%E5%8F%A3%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E6%80%BB%E7%BA%BF/" title="硬盘的接口、协议、总线">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">硬盘的接口、协议、总线</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/05/03/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86-%E4%B8%89-%E6%80%BB%E7%BA%BF/" title="计算机组成原理(三)总线">
+                        <span class="hidden-mobile">计算机组成原理(三)总线</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
