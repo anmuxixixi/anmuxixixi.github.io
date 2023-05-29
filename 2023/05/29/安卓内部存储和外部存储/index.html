@@ -28,7 +28,7 @@
 <meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/v2-76c6e06d688756944ccba4a85236dd7b_r.jpg">
 <meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp-1685373896034-6.webp">
 <meta property="article:published_time" content="2023-05-29T14:44:04.000Z">
-<meta property="article:modified_time" content="2023-05-29T15:32:01.885Z">
+<meta property="article:modified_time" content="2023-05-29T15:36:25.007Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
@@ -341,7 +341,7 @@
 <p>这个Primary和Secondary是怎么来的呢？实际上最开始Android也没有考虑这个区分，但是后来有一个情况发生了，就是上面所说到的：</p>
 <p>后来部分手机开始将最初定义的“Internal Storage”，即内置存储，分成Internal和External两部分。</p>
 <p>那么如果这个时候手机再插入sd卡，那不是有多个External Storage了吗？</p>
-<p>这个时候，从Internal Storage里面分出来的那块“External Storage”我们称之为主存储(Primary Storage)，插入的外置储存称之为副存储(Secondary Storage)。</p>
+<p>🎈这个时候，**从Internal Storage里面分出来的那块“External Storage”我们称之为主存储(Primary Storage)，插入的外置储存称之为副存储(Secondary Storage)**。</p>
 <p>主存储路径的获取方式非常简单，可以通过Environment.getExternalStorageDirectory()或者Context.getExternalFilesDir(null)来获取。</p>
 <p>副存储路径在4.4及以上的Android系统中，可以使用Context.getExternalFilesDirs(null)(注意最后多了一个’s’)，它返回的是一个字符串数组。第0个就是主存储路径，第1个是副存储路径（如果有的话）。从4.1也可以证明！！！</p>
 
