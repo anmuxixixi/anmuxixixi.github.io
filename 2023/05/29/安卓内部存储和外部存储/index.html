@@ -28,7 +28,7 @@
 <meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/v2-76c6e06d688756944ccba4a85236dd7b_r.jpg">
 <meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp-1685373896034-6.webp">
 <meta property="article:published_time" content="2023-05-29T14:44:04.000Z">
-<meta property="article:modified_time" content="2023-05-29T15:36:25.007Z">
+<meta property="article:modified_time" content="2023-05-31T12:43:35.631Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
@@ -329,7 +329,7 @@
 <p>那么有哪些API可以获取到内部存储目录呢，我们主要是使用Context类提供的接口来访问内部存储目录。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-number">1.</span>getDataDir()  <span class="hljs-comment">//获取的目录是/data/user/0/package_name，即应用内部存储的根目录</span><br><span class="hljs-number">2.</span>getFilesDir() <span class="hljs-comment">//获取的目录是/data/user/0/package_name/files，即应用内部存储的files目录</span><br><span class="hljs-number">3.</span>getCacheDir() <span class="hljs-comment">//获取的目录是/data/user/0/package_name/cache，即应用内部存储的cache目录</span><br><span class="hljs-number">4.</span>getDir(String name, <span class="hljs-type">int</span> mode) <span class="hljs-comment">//获取的目录是/data/user/0/package_name/app_name，如果该目录不存在，系统会自动创建该目录。</span><br></code></pre></td></tr></table></figure>
 
-<p>获取到对应的目录后，我们就可以对目录下的文件进行读写。细心的同学可能会发现代码中获取的内部存储根目录是 &#x2F;data&#x2F;user&#x2F;0，并不是前面提到的&#x2F;data&#x2F;data，这是怎么回事呢？因为在Android4.2以后增加了多用户的功能，为了适应多用户的功能，原来的&#x2F;data&#x2F;data&#x2F;相当于直接链接到当前用户文件夹的，变成了&#x2F;data&#x2F;user&#x2F;0&#x2F;，所以我们代码中打印出来的路径是&#x2F;data&#x2F;user&#x2F;0，而不是&#x2F;data&#x2F;data，说白了**&#x2F;data&#x2F;data和&#x2F;data&#x2F;user&#x2F;0&#x2F;是一个东西**。</p>
+<p>获取到对应的目录后，我们就可以对目录下的文件进行读写。细心的同学可能会发现代码中获取的内部存储根目录是 &#x2F;data&#x2F;user&#x2F;0，并不是前面提到的&#x2F;data&#x2F;data，这是怎么回事呢？因为在Android4.2以后增加了多用户的功能，为了适应多用户的功能，原来的&#x2F;data&#x2F;data&#x2F;相当于直接链接到当前用户文件夹的，变成了&#x2F;data&#x2F;user&#x2F;0&#x2F;，所以我们代码中打印出来的路径是&#x2F;data&#x2F;user&#x2F;0，而不是&#x2F;data&#x2F;data，说白了**&#x2F;data&#x2F;data和&#x2F;data&#x2F;user&#x2F;0&#x2F;是一个东西。**</p>
 <p>内部存储空间容量有限，如果内部存储空间被用完，系统会报内存不足。所以，不要把所有的数据都放到内部存储中。在开发应用过程中，我们可以把较敏感的应用数据放在内部存储中，而其他的数据可以放在外部存储中。那外部存储又是什么呢？下面我们接着来学习外部存储。</p>
 <h2 id="2-外部存储"><a href="#2-外部存储" class="headerlink" title="2.外部存储"></a>2.外部存储</h2><p>我们知道内部存储中的数据对应用来说是私密的，用户和其他应用都没有访问权限，而外部存储中的数据是可以被其他应用或用户访问甚至删除的，用户可以通过USB方式和PC之间交互外部存储中的数据。我们平常在Android手机的文件管理工具下看到的目录其实就是外部存储。在Android4.4以前，外部存储就是指SD卡，手机自带的存储就是内部存储；但是在Android4.4以后，随着手机机身存储越来越大，手机的机身存储已经可以满足大多数用户的需求，所以很多手机都不需要再安装SD卡。此时外部存储和内部存储都位于手机机身存储上，他们只是同一个存储介质上的不同存储区域。但是很多手机还是保留了SD卡插槽，方便用户自行拓展。如果手机安装了SD卡，那么很显然SD卡目录也属于外部存储目录。这时手机都有了两个外部存储空间，一个位于手机机身存储上，一个位于SD卡上。但是随着机身存储越累越大，SD卡一般可能只适用于转移文件，对于一般应用来说应该也不会把数据写到外置的SD卡上了，所以这里主要以机身存储为例来分析外部存储。</p>
 <h3 id="2-1-外部私有存储目录"><a href="#2-1-外部私有存储目录" class="headerlink" title="2.1 外部私有存储目录"></a>2.1 外部私有存储目录</h3><p>通常来说，应用涉及到的持久化数据一般分为两类：应用相关数据和应用无关数据。前者是指应用使用的数据信息，比如一些配置信息，调试信息，缓存文件等。当应用被卸载，这些信息也应该被随之删除，避免占用不必要的存储空间。例如下面两种场景。</p>
@@ -379,7 +379,7 @@
 <p>这个Primary和Secondary是怎么来的呢？实际上最开始Android也没有考虑这个区分，但是后来有一个情况发生了，就是上面所说到的：</p>
 <p>后来部分手机开始将最初定义的“Internal Storage”，即内置存储，分成Internal和External两部分。</p>
 <p>那么如果这个时候手机再插入sd卡，那不是有多个External Storage了吗？</p>
-<p>🎈这个时候，**从Internal Storage里面分出来的那块“External Storage”我们称之为主存储(Primary Storage)，插入的外置储存称之为副存储(Secondary Storage)**。</p>
+<p>这个时候，<strong>从Internal Storage里面分出来的那块“External Storage”我们称之为主存储(Primary Storage)，插入的外置储存称之为副存储(Secondary Storage)。</strong></p>
 <p>主存储路径的获取方式非常简单，可以通过Environment.getExternalStorageDirectory()或者Context.getExternalFilesDir(null)来获取。</p>
 <p>副存储路径在4.4及以上的Android系统中，可以使用Context.getExternalFilesDirs(null)(注意最后多了一个’s’)，它返回的是一个字符串数组。第0个就是主存储路径，第1个是副存储路径（如果有的话）。从4.1也可以证明！！！</p>
 
