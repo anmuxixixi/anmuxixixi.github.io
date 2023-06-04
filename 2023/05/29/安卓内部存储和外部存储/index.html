@@ -27,8 +27,13 @@
 <meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp-1685371597396-3.webp">
 <meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/v2-76c6e06d688756944ccba4a85236dd7b_r.jpg">
 <meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/webp-1685373896034-6.webp">
+<meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/731da63df8dcd100f5e720dd758b4710b8122f29.jpg">
+<meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/d7e7c1dcd100baa19d579f474010b912c9fc2e29.jpg">
+<meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/f27bf411728b4710ea542530c4cec3fdfd032329.jpg">
+<meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/85cb4b8b4710b9129cba2e02c4fdfc0393452229.jpg">
+<meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/3a517e10b912c8fc96882e31fb039245d7882129.jpg">
 <meta property="article:published_time" content="2023-05-29T14:44:04.000Z">
-<meta property="article:modified_time" content="2023-05-31T12:47:21.596Z">
+<meta property="article:modified_time" content="2023-06-04T11:00:13.106Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
@@ -243,7 +248,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.9k 字
+          7.1k 字
         
       </span>
     
@@ -254,7 +259,7 @@
         
         
         
-          58 分钟
+          60 分钟
         
       </span>
     
@@ -382,6 +387,18 @@
 <p>这个时候，<strong>从Internal Storage里面分出来的那块“External Storage”我们称之为主存储(Primary Storage)，插入的外置储存称之为副存储(Secondary Storage)。</strong></p>
 <p>主存储路径的获取方式非常简单，可以通过Environment.getExternalStorageDirectory()或者Context.getExternalFilesDir(null)来获取。</p>
 <p>副存储路径在4.4及以上的Android系统中，可以使用Context.getExternalFilesDirs(null)(注意最后多了一个’s’)，它返回的是一个字符串数组。第0个就是主存储路径，第1个是副存储路径（如果有的话）。从4.1也可以证明！！！</p>
+<h3 id="4-3-Adoptable-Storage"><a href="#4-3-Adoptable-Storage" class="headerlink" title="4.3 Adoptable Storage"></a>4.3 Adoptable Storage</h3><p>由于External Storage的缺点（有时不可用，存储内容没有被保护），在6.0之后多出了<code>Adoptable</code>存储方式。</p>
+<p>当Android系统<code>Adopt</code>了一块External存储区域的时候，它会被视为Internal Storage，同时会被格式化与加密。格式化之后是GPT分区，存储上线为9ZB。</p>
+<p>当你在一个支持<code>Adoptable Storage</code>的手机上插入一个sd卡，它会提示你是否将这个sd卡格式化并用作Internal Storage，或者正常作为External Storage使用。</p>
+<img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/731da63df8dcd100f5e720dd758b4710b8122f29.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/d7e7c1dcd100baa19d579f474010b912c9fc2e29.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/f27bf411728b4710ea542530c4cec3fdfd032329.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/85cb4b8b4710b9129cba2e02c4fdfc0393452229.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/3a517e10b912c8fc96882e31fb039245d7882129.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
 
                 
               </div>
