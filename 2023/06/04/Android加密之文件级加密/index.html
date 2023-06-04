@@ -1,0 +1,902 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Android加密之文件级加密 声明：本文整理自  https:&#x2F;&#x2F;blog.csdn.net&#x2F;myfriend0&#x2F;article&#x2F;details&#x2F;77094890&#x2F;?spm&#x3D;1001.2014.3001.5506 https:&#x2F;&#x2F;blog.csdn.net&#x2F;cs_tech&#x2F;article&#x2F;details&#x2F;127579028  仅作为自己学习备忘使用，如有侵权，联系删除！再次感谢2位前辈精彩的博客">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android加密之文件级加密">
+<meta property="og:url" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="Android加密之文件级加密 声明：本文整理自  https:&#x2F;&#x2F;blog.csdn.net&#x2F;myfriend0&#x2F;article&#x2F;details&#x2F;77094890&#x2F;?spm&#x3D;1001.2014.3001.5506 https:&#x2F;&#x2F;blog.csdn.net&#x2F;cs_tech&#x2F;article&#x2F;details&#x2F;127579028  仅作为自己学习备忘使用，如有侵权，联系删除！再次感谢2位前辈精彩的博客">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/image-20230604201431654.png">
+<meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/e09ee7d3490e49b1bd615011c7ecfc77.png">
+<meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/450367269c4d4d3781406d3411f3e6e4.png">
+<meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/7227b1872aed453187f68be2bbd5c74e.png">
+<meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/7575d136392e43b2be21ae3b9494fb43.png">
+<meta property="article:published_time" content="2023-06-04T11:23:08.000Z">
+<meta property="article:modified_time" content="2023-06-04T12:37:07.607Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/image-20230604201431654.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Android加密之文件级加密 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android加密之文件级加密"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-04 19:23" pubdate>
+          2023年6月4日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          60 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android加密之文件级加密</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Android加密之文件级加密"><a href="#Android加密之文件级加密" class="headerlink" title="Android加密之文件级加密"></a>Android加密之文件级加密</h1><blockquote>
+<p>声明：本文整理自</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/myfriend0/article/details/77094890/?spm=1001.2014.3001.5506">https://blog.csdn.net/myfriend0/article/details/77094890/?spm=1001.2014.3001.5506</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/cs_tech/article/details/127579028">https://blog.csdn.net/cs_tech/article/details/127579028</a></li>
+</ul>
+<p>仅作为自己学习备忘使用，如有侵权，联系删除！再次感谢2位前辈精彩的博客！</p>
+</blockquote>
+<h2 id="1-什么是文件级加密"><a href="#1-什么是文件级加密" class="headerlink" title="1.什么是文件级加密"></a>1.什么是文件级加密</h2><p>Android 7.0 及更高版本支持文件级加密 (FBE)。采用文件级加密时，可以使用不同的密钥对不同的文件进行加密，并且可以对这些文件进行单独解密。</p>
+<h2 id="2-全盘加密和文件级加密的区别"><a href="#2-全盘加密和文件级加密的区别" class="headerlink" title="2.全盘加密和文件级加密的区别"></a>2.全盘加密和文件级加密的区别</h2><p>借助文件级加密，Android 7.0 中引入了一项称为直接启动的新功能。该功能处于启用状态时，已加密设备在启动后将直接进入锁定屏幕。之前，在使用全盘加密 (FDE) 的已加密设备上，用户在访问任何数据之前都需要先提供凭据，从而导致手机无法执行除最基本操作之外的所有其他操作。例如，闹钟无法运行，无障碍服务不可用，手机无法接电话，而只能进行基本的紧急拨号操作。</p>
+<h2 id="3-文件级加密概述"><a href="#3-文件级加密概述" class="headerlink" title="3.文件级加密概述"></a>3.文件级加密概述</h2><p>引入文件级加密 (FBE) 和新 API 后，便可以将应用设为加密感知型应用，这样一来，它们将能够在受限环境中运行。这些应用将可以在用户提供凭据之前运行，同时系统仍能保护私密用户信息。</p>
+<p>在启用了 FBE 的设备上，每位用户均有两个可供应用使用的存储位置：</p>
+<ul>
+<li>🥇凭据加密 (CE) 存储空间：<strong>这是默认存储位置，只有在用户解锁设备后才可用。</strong></li>
+<li>🥈设备加密 (DE) 存储空间：<strong>在直接启动模式期间以及用户解锁设备后均可用。</strong></li>
+</ul>
+<p>这种区分能够使工作资料更加安全，因为这样一来，加密不再只基于启动时密码，从而能够同时保护多位用户。</p>
+<p>Direct Boot API 允许加密感知型应用访问上述每个区域。应用生命周期会发生一些变化，以便在用户的 CE 存储空间因用户在锁定屏幕上首次输入凭据而解锁时，或者在工作资料提供工作挑战时，通知应用。无论是否实现了 FBE，运行 Android 7.0 的设备都必须要支持这些新的 API 和生命周期。不过，如果没有 FBE，DE 和 CE 存储空间将始终处于解锁状态。</p>
+<h3 id="3-1-启动文件级加密"><a href="#3-1-启动文件级加密" class="headerlink" title="3.1 启动文件级加密"></a>3.1 启动文件级加密</h3><p>如需在设备上启用文件级加密 (FBE)，就必须在内部存储设备 (userdata) 上启用 FBE。这也会自动为可合并的存储设备启用 FBE；但是，如有必要，可以覆盖可合并的存储设备的加密格式。内部存储设备通过将 fileencryption&#x3D;contents_encryption_mode[:filenames_encryption_mode[:flags]] 选项<strong>添加到 userdata 的 fstab 行 fs_mgr_flags 列，可启用 FBE</strong>。此选项用于定义内部存储设备的加密格式。它最多包含三个以英文冒号分隔的参数：</p>
+<p>Android10：ext4 fileencryption&#x3D;ice,</p>
+<p>Android11：f2fs fileencryption&#x3D;aes-256-xts:</p>
+<ul>
+<li>contents_encryption_mode 参数指定将哪种加密算法用于加密文件内容，可为 aes-256-xts 或 adiantum</li>
+<li>filenames_encryption_mode 参数指定将哪种加密算法用于加密文件名，可为 aes-256-cts、aes-256-heh 或 adiantum。如果不指定，则当 contents_encryption_mode 为 aes-256-xts 时该参数默认为 aes-256-cts，当 contents_encryption_mode 为 adiantum 时该参数默认为 adiantum。</li>
+<li>Android 11 中新增的 flags 参数是以 + 字符分隔的一个标记列表。支持以下标记：<ul>
+<li>v1 标记用于选择第 1 版加密政策；v2 标记用于选择第 2 版加密政策。第 2 版加密政策使用更安全、更灵活的密钥派生函数。如果设备搭载的是 Android 11 或更高版本（由 ro.product.first_api_level 确定），则默认选择第 2 版；如果设备搭载的是 Android 10 或更低版本，则默认选择第 1 </li>
+<li>inlinecrypt_optimized 标记用于选择针对无法高效处理大量密钥的内嵌加密硬件进行了优化的加密格式。其具体做法是仅为每个 CE 或 DE 密钥派生一个文件内容加密密钥，而不是为每个文件派生一个。IV（初始化向量）的生成也会相应地进行调整。</li>
+<li>emmc_optimized 标记与 inlinecrypt_optimized 类似，但它还选择了将 IV 限制为 32 位的 IV 生成方法。此标记应仅在符合 JEDEC eMMC v5.2 规范的内嵌加密硬件上使用，因此仅支持 32 位 IV。在其他内嵌加密硬件上，请改用 inlinecrypt_optimized。此标记一律不得在基于 UFS 的存储设备上使用；UFS 规范允许使用 64 位 IV。</li>
+<li>wrappedkey_v0 标记允许使用硬件封装的密钥。启用该标记后，FBE 密钥就不会由软件生成，而是由 Keymaster 使用 STORAGE_KEY 标签生成。然后，实际向内核提供的每个 FBE 密钥都是从 Keymaster 导出的 STORAGE_KEY 密钥，这会导致每次启动时都使用临时密钥对密钥进行封装。然后，内核会将封装的密钥直接提供给内嵌加密硬件。正确实现后，系统内存中永远不会显示解封的密钥，并且已破解的封装密钥在重新启动后将无法使用。此标记需要硬件支持、对 STORAGE_KEY 的 Keymaster 支持、内核驱动程序支持、inlinecrypt 装载选项以及 inlinecrypt_optimized 标记或 emmc_optimized 标记。</li>
+</ul>
+</li>
+</ul>
+<p>如果不使用内嵌加密硬件，则对于大多数设备推荐设置为 fileencryption&#x3D;aes-256-xts。如果使用内嵌加密硬件，则对于大多数设备推荐设置为 fileencryption&#x3D;aes-256-xts:aes-256-cts:inlinecrypt_optimized。在没有采用任何形式的 AES 加速的设备上，可以设置 fileencryption&#x3D;adiantum，从而用 Adiantum代替 AES。</p>
+<p>在搭载 Android 10 或更低版本的设备上，也可以使用 fileencryption&#x3D;ice 来指定使用 FSCRYPT_MODE_PRIVATE 文件内容加密模式。Android 通用内核未实现该模式，但供应商可使用自定义内核补丁程序实现该模式。该模式生成的磁盘格式因供应商而异。在搭载 Android 11 或更高版本的设备上，不允许再使用该模式，而必须使用标准加密格式。</p>
+<p>设备制造商还可以执行以下手动测试。在启用了 FBE 的设备上进行以下手动测试：</p>
+<ul>
+<li>检查 ro.crypto.state 是否存在<ul>
+<li>确认 ro.crypto.state 是否已加密</li>
+</ul>
+</li>
+<li>检查 ro.crypto.type 是否存在<ul>
+<li>确认 ro.crypto.type 是否已设置为 file</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-2-直接启动"><a href="#3-2-直接启动" class="headerlink" title="3.2 直接启动"></a>3.2 直接启动</h3><blockquote>
+<p>安卓官网：<a target="_blank" rel="noopener" href="https://developer.android.google.cn/training/articles/direct-boot?hl=zh-cn">https://developer.android.google.cn/training/articles/direct-boot?hl=zh-cn</a></p>
+</blockquote>
+<p>当设备已开机但用户尚未解锁设备时，Android 7.0 将在安全的“直接启动”模式下运行。为支持此模式，系统为数据提供了两个存储位置：</p>
+<ul>
+<li>凭据加密存储，这是默认存储位置，仅在用户解锁设备后可用。</li>
+<li>设备加密存储，该存储位置在“直接启动”模式下和用户解锁设备后均可使用。</li>
+</ul>
+<p>默认情况下，应用不会在“直接启动”模式下运行。如果您的应用需要在“直接启动”模式下执行操作，您可以注册应在此模式下运行的应用组件。需要在“直接启动”模式下运行的一些常见应用用例包括：</p>
+<ul>
+<li>已安排通知的应用，如闹钟应用。</li>
+<li>提供重要用户通知的应用，如短信应用。</li>
+<li>提供无障碍服务的应用，如 Talkback。</li>
+</ul>
+<p>如果应用在“直接启动”模式下运行时需要访问数据，请使用DE设备加密存储。设备加密存储包含使用密钥加密的数据，该密钥只有在设备成功执行启动时验证后才可用。</p>
+<p>对于应使用与用户凭据（如 PIN 码或密码）关联的密钥加密的数据，请使用CE凭据加密存储。凭据加密存储仅在用户成功解锁设备后可用，直到用户再次重启设备。如果用户在解锁设备后启用锁定屏幕，则不会锁定凭据加密存储。</p>
+<p><strong>（1）请求在“直接启动”模式下运行</strong></p>
+<p>应用必须先向系统注册其组件，然后才能在“直接启动”模式下运行或访问设备加密存储。应用通过将组件标记为加密感知来向系统注册。如需将您的组件标记为加密感知，请在清单中将 <code>android:directBootAware</code> 属性设为 true。</p>
+<p>当设备重启后，加密感知组件可以注册以接收来自系统的 <code>ACTION_LOCKED_BOOT_COMPLETED</code> 广播消息。此时，设备加密存储可用，您的组件可以执行需要在“直接启动”模式下运行的任务，例如触发已设定的闹铃。</p>
+<p>以下代码段示例说明了如何在应用清单中将 <code>BroadcastReceiver</code> 注册为加密感知并为 <code>ACTION_LOCKED_BOOT_COMPLETED</code> 添加 intent 过滤器：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">receiver</span></span><br><span class="hljs-tag">    <span class="hljs-attr">android:directBootAware</span>=<span class="hljs-string">&quot;true&quot;</span> &gt;</span><br>    ...<br>    <span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;android.intent.action.LOCKED_BOOT_COMPLETED&quot;</span> /&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">receiver</span>&gt;</span><br>    <br></code></pre></td></tr></table></figure>
+
+<p>在用户解锁设备后，所有组件均可访问设备加密存储和凭据加密存储。</p>
+<p><strong>（2）接收用户解锁通知</strong></p>
+<p>当用户在重启后解锁设备时，应用可以切换至访问凭据加密CE存储，并使用依赖用户凭据的常规系统服务。</p>
+<p>为了在重启后用户解锁设备时收到通知，请从正在运行的组件注册 <code>BroadcastReceiver</code> 以监听解锁通知消息。在用户重启后解锁设备时：</p>
+<ul>
+<li>如果应用具有需要立即获得通知的前台进程，请监听 <code>ACTION_USER_UNLOCKED</code> 消息。</li>
+<li>如果应用仅使用可以对延迟通知执行操作的后台进程，请监听 <code>ACTION_BOOT_COMPLETED</code> 消息。</li>
+</ul>
+<p>您可以通过调用 <code>UserManager.isUserUnlocked()</code> 直接查询用户是否已解锁设备。</p>
+<h3 id="3-3-设计概览"><a href="#3-3-设计概览" class="headerlink" title="3.3 设计概览"></a>3.3 设计概览</h3><blockquote>
+<p>采用文件级加密时：</p>
+<ul>
+<li>可以使用不同的密钥对不同的文件进行加密，也可以对加密文件单独解密</li>
+<li>可以有的放矢，没有安全要求的文件可以不加密</li>
+<li>支持多用户，不同用户使用不同的密钥</li>
+</ul>
+</blockquote>
+<p>基于这些特性，Google 对 Android 用户数据分区的目录做了安全等级划分，一些非用户隐私数据可以在设备启动后直接可以访问，解决了 FDE（Full Disk Encryption）的弊端。</p>
+<p>在 FBE 的设计中，根据文件内容的私密性，Google 把用户数据分区的存储位置划分安全等级，包括下几类：</p>
+<p>①. 不加密的存储位置</p>
+<ul>
+<li>Unencrypted</li>
+</ul>
+<p>②. 加密的存储位置 </p>
+<ul>
+<li>与用户无关的系统设备存储位置<ul>
+<li>System Device Encrypted (DE) Storage ：一般存储一些设备相关，Framework 相关等用户无关的数据。</li>
+</ul>
+</li>
+<li>与用户相关的存储位置 ：<ul>
+<li>Device Encrypted (DE) Storage ：与用户相关的数据，安全性要求一般，在设备启动后以及用户解锁设备后都可以直接访问。</li>
+<li>Credential Encrypted (CE) Storage ：与用户相关的数据，安全性等级高，如果用户设置了锁屏密码，必须在用户解锁设备后这些存储位置的数据才可用。</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/image-20230604201431654.png" srcset="/img/loading.gif" lazyload alt="image-20230604201431654" style="zoom: 67%;">
+
+<p>需要注意的点：</p>
+<p>①. 从 User.x DE&#x2F;CE 以及对应文件夹的命名可知，FBE 天然支持多用户 ：</p>
+<ul>
+<li>每个用户都拥有2个单独的加密密钥： DE Master Key 和 CE Master Key。</li>
+</ul>
+<p>②. 当用户未设置锁屏密码时：</p>
+<ul>
+<li>DE 密钥和 CE 密钥安全等级一致，即开机过程中，APP 就可以直接访问 Device Encrypted (DE) Storage 和 Credential Encrypted (CE) Storage。</li>
+</ul>
+<p>③. 当用户设置锁屏密码时：</p>
+<ul>
+<li>只有校验用户密码成功后，用户的 CE 密钥才可用。即用户输入锁屏密码解锁设备后，APP 才可访问 Credential Encrypted (CE) Storage，同时访问到文件的明文数据。</li>
+<li>用户 0 由于是特殊用户，必须先登录设备（设备启动后会自动登录用户0）；<br>不同存储位置的加解密顺序存在依赖关系：<ul>
+<li>解密 System DE Storage 所需的密钥信息被存储在未加密目录 &#x2F;data&#x2F;unencrypted；</li>
+<li>解密 User Device Encrypted (DE) Storage 和 User Credential Encrypted (CE) Storage 所需的密钥信息被存储在 System DE Storage 路径 &#x2F;data&#x2F;misc&#x2F;vold&#x2F;user_keys；</li>
+</ul>
+</li>
+</ul>
+<p>🎈 这里再次重复磁盘数据加密解决的问题，对于后面理解 FBE 的设计很重要。</p>
+<blockquote>
+<p>解决设备被盗，丢失或者送修等机器不在用户手中的情况下，依然保护用户的隐私数据不被窃取。<strong>但是对于用户正常使用过程中，黑客通过提权等手段窃取数据的行为，这些技术基本无能为力，目前主要还是靠传统的 DAC（user、group、others） 和 MAC（selinux）</strong>。</p>
+</blockquote>
+<h3 id="3-4-秘钥管理"><a href="#3-4-秘钥管理" class="headerlink" title="3.4 秘钥管理"></a>3.4 秘钥管理</h3><p>①.对不同安全等级的加密存储位置，至少涉及 3 个密钥，包括：</p>
+<ul>
+<li>System DE key</li>
+<li>User DE key for user 0</li>
+<li>User CE key for user 0</li>
+</ul>
+<p>②. 密钥的安全管理，包括：</p>
+<ul>
+<li>在安全的内核密钥环（kernel keyring）和 ARM TZ 环境中管理密钥</li>
+<li>密钥不允许出现在 HLOS</li>
+<li>每个文件及其名称都应使用不同且唯一的密钥进行加密</li>
+<li>根据 HLOS 请求，创建，更新和失效密钥等（支持远程擦除密钥）</li>
+<li>……</li>
+</ul>
+<h2 id="4-HLOS软件流程"><a href="#4-HLOS软件流程" class="headerlink" title="4.HLOS软件流程"></a>4.HLOS软件流程</h2><h3 id="4-1-Native软件流程"><a href="#4-1-Native软件流程" class="headerlink" title="4.1 Native软件流程"></a>4.1 Native软件流程</h3><p>Android 在 init rc 中 触发 FBE 软件流程：</p>
+<blockquote>
+<ul>
+<li>在启动过程中，准备 FBE Master key，设置和校验各加密存储位置的加密策略（Encryption Policy）。</li>
+<li>真正数据加密和解密是发生在文件 I&#x2F;O 时，而加密和解密所需的信息来源于文件的 Encryption Policy。Encryption Policy 包括：<ul>
+<li>使用哪个 Master Key 加密；</li>
+<li>文件数据的加密算法；</li>
+<li>文件名的加密算法；</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<img src="/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/e09ee7d3490e49b1bd615011c7ecfc77.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+
+
+<img src="/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/450367269c4d4d3781406d3411f3e6e4.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 50%;">
+
+<p><strong>① installkey &#x2F;data</strong></p>
+<p>软件流程进入 Vold 函数 fscrypt_initialize_systemwide_keys()。</p>
+<p>设备第一次启动时：</p>
+<ul>
+<li>创建 System DE Master Key 和生成 System DE Encryption Policy；</li>
+<li>把 System DE Encryption Policy 保存到文件  &#x2F;data&#x2F;unencrypted&#x2F;ref；</li>
+</ul>
+<p>后续每次启动时：</p>
+<ul>
+<li>加载 System DE Master Key；</li>
+</ul>
+<p><strong>② mkdir &lt;system de storage&gt;</strong></p>
+<ul>
+<li>如果 System DE Storage 不存在，创建并为文件夹设置 System DE Encryption Policy；</li>
+<li>如果 System DE Storage 已经存在，则校验 System DE  Encryption Policy；<br>校验失败会强制设备启动到 recovery ，格式化 userdata 分区；</li>
+</ul>
+<p><strong>③ init_user0</strong></p>
+<p>软件流程进入 Vold 函数 fscrypt_init_user0()。</p>
+<p>设备第一次启动时：</p>
+<ul>
+<li>创建 User 0 DE Master Key 和生成 User 0 DE Encryption Policy；</li>
+<li>创建 User 0 CE  Master Key 和生成 User 0 CE Encryption Policy；</li>
+<li>创建 User 0 DE Storage，并为这些文件夹设置 User 0 DE Encryption Policy</li>
+</ul>
+<p>后续每次启动时：</p>
+<ul>
+<li>加载 User 0 DE Master Key；</li>
+<li>准备 User 0 DE Storage，并校验文件夹 Encryption Policy；<ul>
+<li>校验失败，不会强制格式化 userdata ，但是用户数据将无法使用，可能无法开机。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-2-Framework软件流程"><a href="#4-2-Framework软件流程" class="headerlink" title="4.2 Framework软件流程"></a>4.2 Framework软件流程</h3><p>可以发现在 Native 软件流程中， init_user0 中关于 User 0 CE 的流程相比 User 0 DE 存在缺失，主要包括：</p>
+<p><strong>(1) 第一次启动时， User 0 CE Storage 是什么时候创建的呢？</strong></p>
+<p>设备继续启动，由框架 UserController 通过 binder 触发 Vold 创建 User 0 CE Storage 和为相关文件夹设置 User 0 CE Encryption Policy</p>
+<p><strong>(2) 后续每次启动时，加载 User 0 DE Master Key、准备 User 0 DE Storage 、校验 User 0 CE Encryption Policy 是什么时候发生？</strong></p>
+<p>① 用户未设置锁屏密码时，设备启动 completed 后，ActivityManagerService 层层触发 Vold 完成这些任务；</p>
+<img src="/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/7227b1872aed453187f68be2bbd5c74e.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:50%;">
+
+<p> <strong>②</strong> 用户设置锁屏密码时，用户输入密码并校验通过后，LockSettingsService 层层触发 Vold 完成这些任务；</p>
+<img src="/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/7575d136392e43b2be21ae3b9494fb43.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 50%;">
+
+<p>从图中可以看到，无论是设置用户密码，软件流程又回到了 Vold：</p>
+<ul>
+<li>fscrypt_unlock_user_key ： 加载 User 0 CE Master Key</li>
+<li>fscrypt_prepare_user_storage：准备 User 0 CE Storage，并校验文件夹 Encryption Policy；</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Android学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android加密之文件级加密</div>
+      <div>http://example.com/2023/06/04/Android加密之文件级加密/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/01/%E5%AE%89%E5%8D%93%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6/" title="安卓多用户机制">
+                        <span class="hidden-mobile">安卓多用户机制</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
