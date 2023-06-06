@@ -16,18 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="安卓fuse文件系统https:&#x2F;&#x2F;xie.infoq.cn&#x2F;article&#x2F;655c0893ed150ff65f2b7a16f 主要介绍了：  Fuse是什么 FUSE 原理 FUSE 协议格式 内核态、用户态的纽带">
+    <meta name="description" content="安卓fuse文件系统https:&#x2F;&#x2F;xie.infoq.cn&#x2F;article&#x2F;655c0893ed150ff65f2b7a16f 1.Fuse是什么Linux内核官方文档对 FUSE 的解释如下：  What is FUSE?FUSE is a userspace filesystem framework. It consists of a kernel module (fuse.ko), a u">
 <meta property="og:type" content="article">
 <meta property="og:title" content="安卓fuse文件系统">
 <meta property="og:url" content="http://example.com/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="安卓fuse文件系统https:&#x2F;&#x2F;xie.infoq.cn&#x2F;article&#x2F;655c0893ed150ff65f2b7a16f 主要介绍了：  Fuse是什么 FUSE 原理 FUSE 协议格式 内核态、用户态的纽带">
+<meta property="og:description" content="安卓fuse文件系统https:&#x2F;&#x2F;xie.infoq.cn&#x2F;article&#x2F;655c0893ed150ff65f2b7a16f 1.Fuse是什么Linux内核官方文档对 FUSE 的解释如下：  What is FUSE?FUSE is a userspace filesystem framework. It consists of a kernel module (fuse.ko), a u">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/b360be6f915a98e85780454c03160882-1686063758401-3.png">
+<meta property="og:image" content="http://example.com/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/fuse1.gif">
+<meta property="og:image" content="http://example.com/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/daa6faab9efe0b3c4271bc9db2eba122.gif">
+<meta property="og:image" content="http://example.com/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/0b7beda12f1ffea18de8c62fbfc3c941.gif">
 <meta property="article:published_time" content="2023-05-31T15:46:33.000Z">
-<meta property="article:modified_time" content="2023-06-06T13:55:17.558Z">
+<meta property="article:modified_time" content="2023-06-06T15:08:03.391Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/b360be6f915a98e85780454c03160882-1686063758401-3.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -238,7 +243,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          101 字
+          2.6k 字
         
       </span>
     
@@ -249,7 +254,7 @@
         
         
         
-          1 分钟
+          22 分钟
         
       </span>
     
@@ -301,13 +306,82 @@
               <div class="markdown-body">
                 
                 <h1 id="安卓fuse文件系统"><a href="#安卓fuse文件系统" class="headerlink" title="安卓fuse文件系统"></a>安卓fuse文件系统</h1><p><a target="_blank" rel="noopener" href="https://xie.infoq.cn/article/655c0893ed150ff65f2b7a16f">https://xie.infoq.cn/article/655c0893ed150ff65f2b7a16f</a></p>
-<p>主要介绍了：</p>
+<h2 id="1-Fuse是什么"><a href="#1-Fuse是什么" class="headerlink" title="1.Fuse是什么"></a>1.Fuse是什么</h2><p>Linux内核官方文档对 FUSE 的解释如下：</p>
+<blockquote>
+<p>What is FUSE?FUSE is a userspace filesystem framework. It consists of a kernel module (fuse.ko), a userspace library (libfuse.*) and a mount utility (fusermount).</p>
+</blockquote>
+<p><strong>划重点：FUSE 是一个用来实现用户态文件系统的框架</strong>，这套 FUSE 框架包含 3 个组件：</p>
+<ol>
+<li><strong>内核模块</strong> <code>fuse.ko</code> ：用来接收 vfs 传递下来的 IO 请求，并且把这个 IO 封装之后通过管道发送到用户态；</li>
+<li><strong>用户态 lib 库</strong> <code>libfuse</code> ：解析内核态转发出来的协议包，拆解成常规的 IO 请求；</li>
+<li><strong>mount 工具</strong> <code>fusermount</code> ；</li>
+</ol>
+<p>这就是 FUSE 框架的 3 大内容了，下面我们解释下。这 3 个组件只为了完成一件事：让 IO 在内核态和用户态之间自由穿梭。</p>
+<p>一般我们认为 FUSE 是 Filesystem in Userspace 的缩写，也就是常说的用户态文件系统。</p>
+<h2 id="2-Fuse原理"><a href="#2-Fuse原理" class="headerlink" title="2.Fuse原理"></a>2.Fuse原理</h2><p>接下来我们看下 IO 的路径，来理解下 FUSE 的原理。首先看一眼 wiki 上有对 FUSE 的 <code>ls -l /tmp/fuse</code> 命令的演示图：</p>
+<img src="/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/b360be6f915a98e85780454c03160882-1686063758401-3.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 50%;">
+
+<p>这个图的意思是：</p>
+<ol>
+<li>背景：一个用户态文件系统，挂载点为 <code>/tmp/fuse</code> ，用户二进制程序文件为 <code>./hello</code> ；</li>
+<li>当执行 <code>ls -l /tmp/fuse</code> 命令的时候，流程如下：</li>
+<li>IO 请求先进内核，经 vfs 传递给内核 FUSE 文件系统模块；</li>
+<li>内核 FUSE 模块把请求发给到用户态，由 <code>./hello</code> 程序接收并且处理。处理完成之后，响应原路返回；</li>
+</ol>
+<p>简化的 IO 动画示意图：</p>
+<img src="/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/fuse1.gif" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
+
+<p>通过这两张图，对 FUSE IO 的流程应该就清晰了，内核 FUSE 模块在内核态中间做协议包装和协议解析的工作。承接 vfs 下来的请求并按照 FUSE 协议转发到用户态，然后接收用户态的响应，回复给用户。</p>
+<p>FUSE 在这条 IO 路径是是指做了一个透明中转站的作用，用户完全不感知这套框架。我们把中间的 FUSE 当作一个黑盒遮住，就更容易理解了。<img src="/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/daa6faab9efe0b3c4271bc9db2eba122.gif" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;"></p>
+<p><strong>思考问题：内核的 fuse.ko 模块，还有 libfuse 库。这两个角色是的作用？</strong></p>
+<p>⭐ 划重点：这两个模块一个位于内核，一个位于用户态，是配套使用的，<strong>最核心的功能是协议封装和解析</strong>。</p>
+<p>举给例子，内核 fuse.ko 用于承接 vfs 下来的 io 请求，然后封装成 FUSE 数据包，转发给用户态。这个时候，用户态文件系统收到这个 FUSE 数据包，它如果想要看懂这个数据包，就必须实现一套 FUSE 协议的代码，这套代码是公开透明的，属于 FUSE 框架的公共的代码，这种代码不能够让所有的用户文件系统都重复实现一遍，<strong>于是 libfuse 用户库就诞生了</strong>。</p>
+<blockquote>
+<p>🔴<strong>安卓对于libfuse的引入：</strong></p>
 <ul>
-<li>Fuse是什么</li>
-<li>FUSE 原理</li>
-<li>FUSE 协议格式</li>
-<li>内核态、用户态的纽带</li>
+<li>文件路径: external\libfuse</li>
+<li>编译生成：libfuse.so</li>
 </ul>
+<p>顺便介绍一下安卓源码目录external: Android引入的第三方库，Google会把一些比较优秀的开源库纳入到源码里面，比如app开发常用的okhttp，zxing，sqlite等</p>
+</blockquote>
+<p>回到开篇的问题，FUSE 能做什么？</p>
+<p>看到这里你应该就清晰了，FUSE 能够转运 vfs 下来的 io 请求到用户态，用户程序处理之后，经由 FUSE 框架回应给用户。<strong>从而就可以把文件系统的实现全部放到用户态实现了</strong>。</p>
+<h2 id="3-Fuse协议格式"><a href="#3-Fuse协议格式" class="headerlink" title="3.Fuse协议格式"></a>3.Fuse协议格式</h2><p>我们分析一眼 FUSE 数据转运的数据格式（ fuse 协议的格式 ），请求包和响应包是什么样子的呢？好奇不？</p>
+<h3 id="3-1-Fuse请求包"><a href="#3-1-Fuse请求包" class="headerlink" title="3.1 Fuse请求包"></a>3.1 Fuse请求包</h3><ul>
+<li><code>Header</code> ： 这个是所有请求共用的，比如 <code>open</code> 请求，<code>read</code> 请求，<code>write</code> 请求，<code>getxattr</code> 请求，头部都至少有这个结构体，<code>Header</code> 结构体能描述整个 FUSE 请求，其中字段能区分请求类型；</li>
+<li><code>Payload</code> ：这个东西是每个 IO 类型会是不同的，比如 <code>read</code> 请求就没这个，<code>write</code> 请求就有这个，因为 <code>write</code> 请求是携带数据的；</li>
+</ul>
+<p>数据包分为两部分：header，payload 。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c++">type inHeader <span class="hljs-keyword">struct</span> &#123;<br>  Len    uint32<br>  Opcode uint32<br>  Unique uint64<br>  Nodeid uint64<br>  Uid    uint32<br>  Gid    uint32<br>  Pid    uint32<br>  _      uint32<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Len: 是整个请求的字节数长度（<code>Header</code> + <code>Payload</code>）</li>
+<li>Opcode: 请求的类型，比如区分 open、read、write 等等；</li>
+<li>Unique: 请求唯一标识（和响应中要对应）</li>
+<li>Nodeid: 请求针对的文件 nodeid，目标文件或者文件夹的 nodeid；</li>
+<li>Uid: 文件&#x2F;文件夹操作的进程的用户 ID</li>
+<li>Gid: 文件&#x2F;文件夹操作的进程的用户组 ID</li>
+<li>Pid: 文件&#x2F;文件夹操作的进程的进程 ID</li>
+</ul>
+<h3 id="3-2-Fuse响应包"><a href="#3-2-Fuse响应包" class="headerlink" title="3.2 Fuse响应包"></a>3.2 Fuse响应包</h3><p>FUSE 响应包也分为两部分：</p>
+<ul>
+<li><code>Header</code> ：这个结构体也是在数据头部的，所有 IO 类型的响应都至少有这个结构体。该结构体用于描述整个响应请求；</li>
+<li><code>Payload</code> ：每个请求的类型可能不同，比如 <code>read</code> 请求就会有这个，因为要携带 <code>read</code> 出来的用户数据，<code>write</code> 请求就不会有；</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp">type outHeader <span class="hljs-keyword">struct</span> &#123;<br>  Len    uint32<br>  Error  int32<br>  Unique uint64<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Len: 整个响应的字节数长度（ <code>Header</code> + <code>Payload</code> ）；</li>
+<li>Error: 响应错误码，成功返回 0，其他对应着系统的错误代码，负数；</li>
+<li>Unique: 对应者请求的唯一标识，和请求对应；</li>
+</ul>
+<h2 id="4-内核态、用户态的纽带"><a href="#4-内核态、用户态的纽带" class="headerlink" title="4.内核态、用户态的纽带"></a>4.内核态、用户态的纽带</h2><p>现在对数据协议的格式，转发和转运的模块我们也知道了。现在还差一个关键的点：<strong>数据包的通道</strong>，也就是高速公路。</p>
+<p>换句话说，内核模块的“包裹”发到哪里？用户程序又从哪里读取拿到这个“包裹”。</p>
+<p><strong>答案是：</strong><code>/dev/fuse</code> <strong>，这个虚设备文件就是内核模块和用户程序的桥梁。</strong></p>
+<p>一切都顺理成章了，内核在这个过程中相当于一个信使，用户的 io 通过正常的系统调用进来，走到内核文件系统 fuse ，fuse 文件系统把这个 io 请求封装起来，打包成特定的格式，通过 <code>/dev/fuse</code> 这个管道传递到用户态。在此之前有守护进程监听这个管道，看到有消息出来之后，立马读出来，然后利用 <code>libfuse</code> 库解析协议，之后就是用户文件系统的代码逻辑了。</p>
+<p>示意图如下（省略了拆解包的步骤）：</p>
+<img src="/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/0b7beda12f1ffea18de8c62fbfc3c941.gif" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
+
 
                 
               </div>
