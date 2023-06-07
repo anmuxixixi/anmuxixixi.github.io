@@ -1,0 +1,764 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="安卓12多用户机制1.CPP中的基类指针指向子类对象☃️ 基类指针指向子类对象时：调用的是基类的函数，因为子类的函数被隐藏。 但是当基类函数有virtual关键字修饰的时候调用的是子类的函数 12345678910111213141516171819202122232425262728293031323334353637383940class Base&amp;#123;public:    Base(i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安卓12多用户机制">
+<meta property="og:url" content="http://example.com/2023/06/01/%E5%AE%89%E5%8D%9312%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="安卓12多用户机制1.CPP中的基类指针指向子类对象☃️ 基类指针指向子类对象时：调用的是基类的函数，因为子类的函数被隐藏。 但是当基类函数有virtual关键字修饰的时候调用的是子类的函数 12345678910111213141516171819202122232425262728293031323334353637383940class Base&amp;#123;public:    Base(i">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/06/01/%E5%AE%89%E5%8D%9312%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6/image-20230607223135870.png">
+<meta property="article:published_time" content="2023-06-01T14:15:32.000Z">
+<meta property="article:modified_time" content="2023-06-07T15:03:59.465Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/06/01/%E5%AE%89%E5%8D%9312%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6/image-20230607223135870.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>安卓12多用户机制 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="安卓12多用户机制"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-01 22:15" pubdate>
+          2023年6月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          105 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">安卓12多用户机制</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="安卓12多用户机制"><a href="#安卓12多用户机制" class="headerlink" title="安卓12多用户机制"></a>安卓12多用户机制</h1><h2 id="1-CPP中的基类指针指向子类对象"><a href="#1-CPP中的基类指针指向子类对象" class="headerlink" title="1.CPP中的基类指针指向子类对象"></a>1.CPP中的基类指针指向子类对象</h2><p>☃️ 基类指针指向子类对象时：调用的是基类的函数，因为子类的函数被隐藏。 但是当基类函数有virtual关键字修饰的时候调用的是子类的函数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span><br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Base</span>(<span class="hljs-type">int</span> age) &#123;<br>        mAge = age;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">printName</span><span class="hljs-params">(string name)</span> </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;Base -&gt; name = &quot;</span> &lt;&lt; name &lt;&lt; endl;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">mount</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-built_in">doMount</span>();<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">doMount</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> mAge;<br><br>&#125;;<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Child</span> : <span class="hljs-keyword">public</span> Base<br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Child</span>():<span class="hljs-built_in">Base</span>(<span class="hljs-number">24</span>)&#123;&#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doMount</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;child do Mount&quot;</span> &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">auto</span> child = <span class="hljs-built_in">shared_ptr</span>&lt;Base&gt;(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Child</span>());<br><br>    child-&gt;<span class="hljs-built_in">printName</span>(<span class="hljs-string">&quot;amxixixi&quot;</span>);<br>    child-&gt;<span class="hljs-built_in">mount</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/06/01/%E5%AE%89%E5%8D%9312%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6/image-20230607223135870.png" srcset="/img/loading.gif" lazyload alt="image-20230607223135870" style="zoom:80%;">
+
+
+
+<h2 id="3-切换用户"><a href="#3-切换用户" class="headerlink" title="3.切换用户"></a>3.切换用户</h2><p>Android多用户的切换函数入口ActivityManagerService.switchUser方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">switchUser</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-type">int</span> targetUserId)</span> &#123;<br>    <span class="hljs-keyword">return</span> mUserController.switchUser(targetUserId);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用UserController的switchUser方法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// frameworks\base\services\core\java\com\android\server\am\UserController.java</span><br><span class="hljs-function">boolean <span class="hljs-title">switchUser</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-type">int</span> targetUserId)</span> </span>&#123;<br>    <span class="hljs-type">int</span> currentUserId = <span class="hljs-built_in">getCurrentUserId</span>();  <span class="hljs-comment">// 获取当前用户的userId</span><br>    UserInfo targetUserInfo = <span class="hljs-built_in">getUserInfo</span>(targetUserId);  <span class="hljs-comment">// 获取即将切换用户的信息</span><br>	<br>    <span class="hljs-comment">// ...</span><br>    <br>    boolean userSwitchUiEnabled;<br>    <span class="hljs-built_in">synchronized</span> (mLock) &#123;<br>        mTargetUserId = targetUserId;<br>        userSwitchUiEnabled = mUserSwitchUiEnabled;<br>    &#125;<br>    <br>    <span class="hljs-keyword">if</span> (userSwitchUiEnabled) &#123;<br>        UserInfo currentUserInfo = <span class="hljs-built_in">getUserInfo</span>(currentUserId);<br>        Pair&lt;UserInfo, UserInfo&gt; userNames = <span class="hljs-keyword">new</span> Pair&lt;&gt;(currentUserInfo, targetUserInfo);<br>        mUiHandler.<span class="hljs-built_in">removeMessages</span>(START_USER_SWITCH_UI_MSG);<br>        mUiHandler.<span class="hljs-built_in">sendMessage</span>(mUiHandler.<span class="hljs-built_in">obtainMessage</span>(START_USER_SWITCH_UI_MSG, userNames));<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        mHandler.<span class="hljs-built_in">removeMessages</span>(START_USER_SWITCH_FG_MSG);<br>        mHandler.<span class="hljs-built_in">sendMessage</span>(mHandler.<span class="hljs-built_in">obtainMessage</span>(START_USER_SWITCH_FG_MSG, targetUserId, <span class="hljs-number">0</span>));<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最终会传递一个Handler消息<strong>START_USER_SWITCH_UI_MSG</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> START_USER_SWITCH_UI_MSG:<br>	<span class="hljs-comment">// 拿到Handler的参数</span><br>    <span class="hljs-keyword">final</span> Pair&lt;UserInfo, UserInfo&gt; fromToUserPair = (Pair&lt;UserInfo, UserInfo&gt;) msg.obj;	<br>    showUserSwitchDialog(fromToUserPair);<br>    <span class="hljs-keyword">break</span>;<br></code></pre></td></tr></table></figure>
+
+<p>调用切换用户的对话框【在切换用户的时候，主界面会有一个UI显示】</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">showUserSwitchDialog</span><span class="hljs-params">(Pair&lt;UserInfo, UserInfo&gt; fromToUserPair)</span> &#123;<br>    mInjector.showUserSwitchingDialog(fromToUserPair.first, fromToUserPair.second,<br>                                      getSwitchingFromSystemUserMessage(), getSwitchingToSystemUserMessage());<br>&#125;<br><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">showUserSwitchingDialog</span><span class="hljs-params">(UserInfo fromUser, UserInfo toUser,</span><br><span class="hljs-params">                             String switchingFromSystemUserMessage, String switchingToSystemUserMessage)</span> &#123;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">Dialog</span> <span class="hljs-variable">d</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserSwitchingDialog</span>(mService, mService.mContext, fromUser,<br>                                             toUser, <span class="hljs-literal">true</span> <span class="hljs-comment">/* above system */</span>, switchingFromSystemUserMessage,<br>                                             switchingToSystemUserMessage);<br>    d.show();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用一个继承自Dialog的自定义对话框类UserSwitchingDialog，然后调用其show方法在主界面进行显示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">show</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-built_in">super</span>.show();<br>    mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_START_USER), WINDOW_SHOWN_TIMEOUT_MS);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>又传递了一个Handler信息<strong>MSG_START_USER</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> MSG_START_USER:<br>    startUser();<br>    <span class="hljs-keyword">break</span>;<br><br><span class="hljs-comment">// 调用UserSwitchingDialog的startUser</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">startUser</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) &#123;<br>        <span class="hljs-keyword">if</span> (!mStartedUser) &#123;<br>            mService.mUserController.startUserInForeground(mUserId);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            Slog.i(TAG, <span class="hljs-string">&quot;user &quot;</span> + mUserId + <span class="hljs-string">&quot; already started&quot;</span>);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>又重新调用到了UserController的startUserInForeground方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">void</span> <span class="hljs-title function_">startUserInForeground</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-type">int</span> targetUserId)</span> &#123;<br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">success</span> <span class="hljs-operator">=</span> startUser(targetUserId, <span class="hljs-comment">/* foreground */</span> <span class="hljs-literal">true</span>);<br>&#125;<br><br><span class="hljs-type">boolean</span> <span class="hljs-title function_">startUser</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-meta">@UserIdInt</span> <span class="hljs-type">int</span> userId, <span class="hljs-keyword">final</span> <span class="hljs-type">boolean</span> foreground)</span> &#123;<br>    <span class="hljs-keyword">return</span> startUser(userId, foreground, <span class="hljs-literal">null</span>);<br>&#125;<br><br><span class="hljs-type">boolean</span> <span class="hljs-title function_">startUser</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-meta">@UserIdInt</span> <span class="hljs-type">int</span> userId, <span class="hljs-keyword">final</span> <span class="hljs-type">boolean</span> foreground, <span class="hljs-meta">@Nullable</span> IProgressListener unlockListener)</span> &#123;<br>    <span class="hljs-keyword">return</span> startUserNoChecks(userId, foreground, unlockListener);<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">startUserNoChecks</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-meta">@UserIdInt</span> <span class="hljs-type">int</span> userId, <span class="hljs-keyword">final</span> <span class="hljs-type">boolean</span> foreground,</span><br><span class="hljs-params">                                  <span class="hljs-meta">@Nullable</span> IProgressListener unlockListener)</span> &#123;<br>    <span class="hljs-keyword">return</span> startUserInternal(userId, foreground, unlockListener, t);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最终调用到了startUserInternal</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">startUserInternal</span><span class="hljs-params">(<span class="hljs-meta">@UserIdInt</span> <span class="hljs-type">int</span> userId, <span class="hljs-type">boolean</span> foreground,</span><br><span class="hljs-params">                                  <span class="hljs-meta">@Nullable</span> IProgressListener unlockListener, <span class="hljs-meta">@NonNull</span> TimingsTraceAndSlog t)</span> &#123;<br><br>    <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">callingUid</span> <span class="hljs-operator">=</span> Binder.getCallingUid();<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">callingPid</span> <span class="hljs-operator">=</span> Binder.getCallingPid();<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">ident</span> <span class="hljs-operator">=</span> Binder.clearCallingIdentity();<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">oldUserId</span> <span class="hljs-operator">=</span> getCurrentUserId();  <span class="hljs-comment">// 获取当前用户的userId</span><br>        <span class="hljs-keyword">final</span> <span class="hljs-type">UserInfo</span> <span class="hljs-variable">userInfo</span> <span class="hljs-operator">=</span> getUserInfo(userId); <span class="hljs-comment">// 获取当前用户的信息</span><br><br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">needStart</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">updateUmState</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>        UserState uss;<br><br>        <span class="hljs-keyword">synchronized</span> (mLock) &#123;<br>            uss = mStartedUsers.get(userId);<br>            <span class="hljs-keyword">if</span> (uss == <span class="hljs-literal">null</span>) &#123;<br>                uss = <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserState</span>(UserHandle.of(userId));<br>                uss.mUnlockProgress.addListener(<span class="hljs-keyword">new</span> <span class="hljs-title class_">UserProgressListener</span>());<br>                mStartedUsers.put(userId, uss);<br>                updateStartedUserArrayLU();<br>                needStart = <span class="hljs-literal">true</span>;<br>                updateUmState = <span class="hljs-literal">true</span>;<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (uss.state == UserState.STATE_SHUTDOWN &amp;&amp; !isCallingOnHandlerThread()) &#123;<br>                mHandler.post(() -&gt; startUser(userId, foreground, unlockListener));<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>            &#125;<br>            <span class="hljs-keyword">final</span> <span class="hljs-type">Integer</span> <span class="hljs-variable">userIdInt</span> <span class="hljs-operator">=</span> userId;<br>            mUserLru.remove(userIdInt);<br>            mUserLru.add(userIdInt);<br>        &#125;<br>        <span class="hljs-keyword">if</span> (unlockListener != <span class="hljs-literal">null</span>) &#123;<br>            uss.mUnlockProgress.addListener(unlockListener);<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (updateUmState) &#123;<br>            mInjector.getUserManagerInternal().setUserState(userId, uss.state);<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (foreground) &#123;<br>            mInjector.reportGlobalUsageEvent(UsageEvents.Event.SCREEN_NON_INTERACTIVE);<br>            <span class="hljs-type">boolean</span> userSwitchUiEnabled;<br>            <span class="hljs-keyword">synchronized</span> (mLock) &#123;<br>                mCurrentUserId = userId;<br>                mTargetUserId = UserHandle.USER_NULL; <span class="hljs-comment">// reset, mCurrentUserId has caught up</span><br>                userSwitchUiEnabled = mUserSwitchUiEnabled;<br>            &#125;<br>            mInjector.updateUserConfiguration();<br>            updateCurrentProfileIds();<br>            mInjector.getWindowManager().setCurrentUser(userId, getCurrentProfileIds());<br>            mInjector.reportCurWakefulnessUsageEvent();<br>            <span class="hljs-keyword">if</span> (userSwitchUiEnabled) &#123;<br>                mInjector.getWindowManager().setSwitchingUser(<span class="hljs-literal">true</span>);<br>                mInjector.getWindowManager().lockNow(<span class="hljs-literal">null</span>);<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">final</span> <span class="hljs-type">Integer</span> <span class="hljs-variable">currentUserIdInt</span> <span class="hljs-operator">=</span> mCurrentUserId;<br>            updateCurrentProfileIds();<br>            mInjector.getWindowManager().setCurrentProfileIds(getCurrentProfileIds());<br>            <span class="hljs-keyword">synchronized</span> (mLock) &#123;<br>                mUserLru.remove(currentUserIdInt);<br>                mUserLru.add(currentUserIdInt);<br>            &#125;<br>        &#125;<br><br><br>        <span class="hljs-keyword">if</span> (uss.state == UserState.STATE_STOPPING) &#123;.<br>            uss.setState(uss.lastState);<br>            mInjector.getUserManagerInternal().setUserState(userId, uss.state);<br>            <span class="hljs-keyword">synchronized</span> (mLock) &#123;<br>                updateStartedUserArrayLU();<br>            &#125;<br>            needStart = <span class="hljs-literal">true</span>;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (uss.state == UserState.STATE_SHUTDOWN) &#123;<br>            uss.setState(UserState.STATE_BOOTING);<br>            mInjector.getUserManagerInternal().setUserState(userId, uss.state);<br>            <span class="hljs-keyword">synchronized</span> (mLock) &#123;<br>                updateStartedUserArrayLU();<br>            &#125;<br>            needStart = <span class="hljs-literal">true</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (uss.state == UserState.STATE_BOOTING) &#123;<br>            mInjector.getUserManager().onBeforeStartUser(userId);<br><br>            mHandler.sendMessage(mHandler.obtainMessage(USER_START_MSG, userId, <span class="hljs-number">0</span>));<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (foreground) &#123;<br>            mHandler.sendMessage(mHandler.obtainMessage(USER_CURRENT_MSG, userId, oldUserId));<br>            mHandler.removeMessages(REPORT_USER_SWITCH_MSG);<br>            mHandler.removeMessages(USER_SWITCH_TIMEOUT_MSG);<br>            mHandler.sendMessage(mHandler.obtainMessage(REPORT_USER_SWITCH_MSG,<br>                                                        oldUserId, userId, uss));<br>            mHandler.sendMessageDelayed(mHandler.obtainMessage(USER_SWITCH_TIMEOUT_MSG,<br>                                                               oldUserId, userId, uss), USER_SWITCH_TIMEOUT_MS);<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (userInfo.preCreated) &#123;<br>            needStart = <span class="hljs-literal">false</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (needStart) &#123;<br>            <span class="hljs-comment">// Send USER_STARTED broadcast</span><br>            <span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(Intent.ACTION_USER_STARTED);<br>            intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY<br>                            | Intent.FLAG_RECEIVER_FOREGROUND);<br>            intent.putExtra(Intent.EXTRA_USER_HANDLE, userId);<br>            mInjector.broadcastIntent(intent,<br>                                      <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, AppOpsManager.OP_NONE,<br>                                      <span class="hljs-literal">null</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>, MY_PID, SYSTEM_UID, callingUid, callingPid, userId);<br>        &#125;<br>        t.traceEnd();<br><br>        <span class="hljs-keyword">if</span> (foreground) &#123;<br>            t.traceBegin(<span class="hljs-string">&quot;moveUserToForeground&quot;</span>);<br>            moveUserToForeground(uss, oldUserId, userId);<br>            t.traceEnd();<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            t.traceBegin(<span class="hljs-string">&quot;finishUserBoot&quot;</span>);<br>            finishUserBoot(uss);<br>            t.traceEnd();<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (needStart) &#123;<br>            t.traceBegin(<span class="hljs-string">&quot;sendRestartBroadcast&quot;</span>);<br>            <span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(Intent.ACTION_USER_STARTING);<br>            intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);<br>            intent.putExtra(Intent.EXTRA_USER_HANDLE, userId);<br>            mInjector.broadcastIntent(intent,<br>                                      <span class="hljs-literal">null</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">IIntentReceiver</span>.Stub() &#123;<br>                                          <span class="hljs-meta">@Override</span><br>                                          <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">performReceive</span><span class="hljs-params">(Intent intent, <span class="hljs-type">int</span> resultCode,</span><br><span class="hljs-params">                                                                     String data, Bundle extras, <span class="hljs-type">boolean</span> ordered,</span><br><span class="hljs-params">                                                                     <span class="hljs-type">boolean</span> sticky,</span><br><span class="hljs-params">                                                                     <span class="hljs-type">int</span> sendingUser)</span> <span class="hljs-keyword">throws</span> RemoteException &#123;<br>                                          &#125;<br>                                      &#125;, <span class="hljs-number">0</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>,<br>                                      <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>[]&#123;INTERACT_ACROSS_USERS&#125;, AppOpsManager.OP_NONE,<br>                                      <span class="hljs-literal">null</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>, MY_PID, SYSTEM_UID, callingUid, callingPid,<br>                                      UserHandle.USER_ALL);<br>            t.traceEnd();<br>        &#125;<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        Binder.restoreCallingIdentity(ident);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<h4 id="切换用户结束finishUserBoot"><a href="#切换用户结束finishUserBoot" class="headerlink" title="切换用户结束finishUserBoot"></a>切换用户结束finishUserBoot</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">finishUserBoot</span><span class="hljs-params">(UserState uss)</span> &#123;<br>    finishUserBoot(uss, <span class="hljs-literal">null</span>);<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">finishUserBoot</span><span class="hljs-params">(UserState uss, IIntentReceiver resultTo)</span> &#123;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">userId</span> <span class="hljs-operator">=</span> uss.mHandle.getIdentifier();<br>	<br>    <span class="hljs-comment">// 设置用户状态，从booting设置为running_locked</span><br>    <span class="hljs-keyword">if</span> (uss.setState(STATE_BOOTING, STATE_RUNNING_LOCKED)) &#123;<br>        logUserLifecycleEvent(userId, USER_LIFECYCLE_EVENT_USER_RUNNING_LOCKED,<br>                              USER_LIFECYCLE_EVENT_STATE_NONE);<br>        <span class="hljs-comment">// UserManagerService维护的用户状态中添加userid,uss</span><br>        mInjector.getUserManagerInternal().setUserState(userId, uss.state);<br><br>        <span class="hljs-keyword">if</span> (!mInjector.getUserManager().isPreCreated(userId)) &#123;<br>            mHandler.sendMessage(mHandler.obtainMessage(REPORT_LOCKED_BOOT_COMPLETE_MSG,<br>                                                        userId, <span class="hljs-number">0</span>));<br>            <span class="hljs-keyword">if</span> (!(UserManager.isHeadlessSystemUserMode() &amp;&amp; uss.mHandle.isSystem())) &#123;<br>                sendLockedBootCompletedBroadcast(resultTo, userId);<br>            &#125;<br>        &#125;<br>    &#125;<br><br>	<br>    <span class="hljs-comment">// 如果当前用户是profile类型</span><br>    <span class="hljs-keyword">if</span> (mInjector.getUserManager().isProfile(userId)) &#123;<br>		<span class="hljs-comment">// ...</span><br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        maybeUnlockUser(userId);<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>调用maybeUnlockUser</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">maybeUnlockUser</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-meta">@UserIdInt</span> <span class="hljs-type">int</span> userId)</span> &#123;<br>    <span class="hljs-keyword">return</span> unlockUserCleared(userId, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>);<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">unlockUserCleared</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-meta">@UserIdInt</span> <span class="hljs-type">int</span> userId, <span class="hljs-type">byte</span>[] token, <span class="hljs-type">byte</span>[] secret, IProgressListener listener)</span> &#123;<br>    UserState uss;<br>    <span class="hljs-comment">// 如果用户没有解锁</span><br>    <span class="hljs-keyword">if</span> (!StorageManager.isUserKeyUnlocked(userId)) &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">UserInfo</span> <span class="hljs-variable">userInfo</span> <span class="hljs-operator">=</span> getUserInfo(userId);<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">IStorageManager</span> <span class="hljs-variable">storageManager</span> <span class="hljs-operator">=</span> mInjector.getStorageManager();<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// We always want to unlock user storage, even user is not started yet</span><br>            storageManager.unlockUserKey(userId, userInfo.serialNumber, token, secret);<br>        &#125; <span class="hljs-keyword">catch</span> (RemoteException | RuntimeException e) &#123;<br>            Slogf.w(TAG, <span class="hljs-string">&quot;Failed to unlock: &quot;</span> + e.getMessage());<br>        &#125;<br>    &#125;<br><br><br>    <span class="hljs-keyword">if</span> (!finishUserUnlocking(uss)) &#123;<br>        notifyFinished(userId, listener);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// We just unlocked a user, so let&#x27;s now attempt to unlock any</span><br>    <span class="hljs-comment">// managed profiles under that user.</span><br><br>    <span class="hljs-comment">// First, get list of userIds. Requires mLock, so we cannot make external calls, e.g. to UMS</span><br>    <span class="hljs-type">int</span>[] userIds;<br>    <span class="hljs-keyword">synchronized</span> (mLock) &#123;<br>        userIds = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[mStartedUsers.size()];<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; userIds.length; i++) &#123;<br>            userIds[i] = mStartedUsers.keyAt(i);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> testUserId : userIds) &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">UserInfo</span> <span class="hljs-variable">parent</span> <span class="hljs-operator">=</span> mInjector.getUserManager().getProfileParent(testUserId);<br>        <span class="hljs-keyword">if</span> (parent != <span class="hljs-literal">null</span> &amp;&amp; parent.id == userId &amp;&amp; testUserId != userId) &#123;<br>            Slogf.d(TAG, <span class="hljs-string">&quot;User &quot;</span> + testUserId + <span class="hljs-string">&quot; (parent &quot;</span> + parent.id<br>                    + <span class="hljs-string">&quot;): attempting unlock because parent was just unlocked&quot;</span>);<br>            maybeUnlockUser(testUserId);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h4 id="用户类型managed-profile"><a href="#用户类型managed-profile" class="headerlink" title="用户类型managed profile"></a>用户类型managed profile</h4><p><a target="_blank" rel="noopener" href="https://source.android.com/docs/devices/admin/multi-user?hl=zh-cn#user_types">https://source.android.com/docs/devices/admin/multi-user?hl=zh-cn#user_types</a></p>
+<p>用户经常想在企业环境中使用他们的私人设备。这种情况可能让企业陷入困境。如果用户使用他们的私人设备，企业不得不担心在这个不受控制的设备上的机密信息（例如员工的电子邮件和通讯录）。</p>
+<p>为了处理这种情况，Android 5.0（API 21）允许企业设置 managed profile。如果设备有 managed profile，这个 profile 的设置是在企业管理员的控制之下的。管理员可以选择在这个 profile 之下，什么应用程序可以运行，什么设备功能可以允许。</p>
+<p>如果一个设备有 managed profile，那么，无论应用程序在哪个 profile 之下运行，都意味着：</p>
+<ul>
+<li><p>默认情况下，大部分的 intent 无法从一个 profile 跨越到另一个。如果在某个 profile 之下的一个应用程序创建了 intent，而这个 profile 无法响应，又因为 profile 的限制这个 intent 不允许跨越到其他 profile，那么，这个请求就失败了，应用程序可能意外关闭。</p>
+</li>
+<li><p>profile 管理员可以在 managed profile 中限制哪个系统应用程序可以运行。这个限制可能导致在 managed profile 中一些常见的 intent 无法处理。</p>
+</li>
+<li><p>因为 managed profile 和非 managed profile 有各自的存储区域，导致文件 URI 在一个 profile 中有效，但在其他 profile 中无效。在一个 profile 中创建的 intent 可能在其他 profile（取决于 profile 设置）中被响应，所以在 intent 中放置文件 URI 是不安全的。</p>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://www.w3cschool.cn/android_training_course/android_training_course-t3xv27in.html">https://www.w3cschool.cn/android_training_course/android_training_course-t3xv27in.html</a></p>
+<h4 id="存储了已解锁的用户"><a href="#存储了已解锁的用户" class="headerlink" title="存储了已解锁的用户"></a>存储了已解锁的用户</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// /frameworks/base/core/java/android/os/storage/StorageManager.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isUserKeyUnlocked</span><span class="hljs-params">(<span class="hljs-type">int</span> userId)</span> &#123;<br><br>    sStorageManager = IStorageManager.Stub.asInterface(ServiceManager.getService(<span class="hljs-string">&quot;mount&quot;</span>));<br>   <br>    <span class="hljs-keyword">return</span> sStorageManager.isUserKeyUnlocked(userId);<br>&#125;<br><br><span class="hljs-comment">// /frameworks/base/services/core/java/com/android/server/StorageManagerService.java</span><br><span class="hljs-comment">// WatchedLockedUsers中维护了列表，表示已经解锁的用户</span><br><span class="hljs-keyword">private</span> <span class="hljs-type">WatchedLockedUsers</span> <span class="hljs-variable">mLocalUnlockedUsers</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">WatchedLockedUsers</span>();<br><br><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isUserKeyUnlocked</span><span class="hljs-params">(<span class="hljs-type">int</span> userId)</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (mLock) &#123;<br>        <span class="hljs-keyword">return</span> mLocalUnlockedUsers.contains(userId);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Android学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>安卓12多用户机制</div>
+      <div>http://example.com/2023/06/01/安卓12多用户机制/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/" title="Android加密之文件级加密">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android加密之文件级加密</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/05/31/%E5%AE%89%E5%8D%93fuse%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" title="安卓fuse文件系统">
+                        <span class="hidden-mobile">安卓fuse文件系统</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
