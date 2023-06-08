@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/85cb4b8b4710b9129cba2e02c4fdfc0393452229.jpg">
 <meta property="og:image" content="http://example.com/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/3a517e10b912c8fc96882e31fb039245d7882129.jpg">
 <meta property="article:published_time" content="2023-05-29T14:44:04.000Z">
-<meta property="article:modified_time" content="2023-06-04T11:00:13.106Z">
+<meta property="article:modified_time" content="2023-06-08T15:10:15.051Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
@@ -248,7 +248,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.1k 字
+          7.9k 字
         
       </span>
     
@@ -259,7 +259,7 @@
         
         
         
-          60 分钟
+          66 分钟
         
       </span>
     
@@ -399,6 +399,14 @@
 <img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/85cb4b8b4710b9129cba2e02c4fdfc0393452229.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
 
 <img src="/2023/05/29/%E5%AE%89%E5%8D%93%E5%86%85%E9%83%A8%E5%AD%98%E5%82%A8%E5%92%8C%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8/3a517e10b912c8fc96882e31fb039245d7882129.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
+
+<h3 id="4-4-私有卷PrivateVolume"><a href="#4-4-私有卷PrivateVolume" class="headerlink" title="4.4 私有卷PrivateVolume"></a>4.4 私有卷PrivateVolume</h3><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/woai110120130/article/details/107701932">https://blog.csdn.net/woai110120130/article/details/107701932</a></p>
+<p>PrivateVolume分区用于将外置存储转为内置存储使用的，并且PrivateVolume是使用全盘加密的。所以PrivateVolume是和Android设备强相关的，把包含PrivateVolume的磁盘介质拿到其他手机上是无法解密挂载的。所以PrivateVolume必然是在Android设备上来进行格式化的。每个PrivateVolume还对应一个EmulatedVolume分区，这个EmulatedVolume可以作为主分区挂载。 <strong>对于&#x2F;data分区的挂载不由Vold服务来管理</strong>，所以MountService会主动添加一个PrivateVolume来对应&#x2F;data分区，Vold服务会主动添加一个EmulatedVolume来对应&#x2F;data这个PrivateVolume分区。</p>
+<ul>
+<li>当没有其他设备被格式化为PrivateVolume且要求使用Private分区来作为主存储的时候，就使用&#x2F;data分区对应的EmulatedVolume来作为主外置存储。</li>
+<li>当我们格式化了一个PrivateVolume的时候，我们可以选择将主分区移动到新增的这个PrivateVolume对应的EmulatedVolume上。</li>
+</ul>
+<p>EmulatedVolume 为主分区的时才会被挂载，一个EmulatedVolume一般使用PrivateVolume挂载的根目录下的media目录，作为fuse的后端使用，使用fuse主要方便存储权限的管理，提供更灵活的权限管理机制。我们会在后面还分析fuse实现的存储目录。下面我们来分析下磁盘的格式化过程。</p>
 
                 
               </div>
