@@ -16,26 +16,26 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Android 12多用户机制中的连接与会话">
+    <meta name="description" content="安卓锁屏与FBE浅浅理解 🔴 注意：本文是基于Android 12(S)进行分析的，可能与Android 10(Q)有些出入。  1.LockscreenCredential对象  从安卓文档可以看出，LockscreenCredential是一个锁屏凭证，可以是空密码，图案，密码，或者PIN码等。也就是说LockscreenCredential是一个锁屏凭证的抽象。我们可以通过Lockscre">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android 12多用户机制中的连接与会话">
-<meta property="og:url" content="http://example.com/2023/06/06/Android-12%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6%E4%B8%AD%E7%9A%84%E8%BF%9E%E6%8E%A5%E4%B8%8E%E4%BC%9A%E8%AF%9D/index.html">
+<meta property="og:title" content="安卓锁屏与FBE浅浅理解">
+<meta property="og:url" content="http://example.com/2023/06/18/%E5%AE%89%E5%8D%93%E9%94%81%E5%B1%8F%E4%B8%8EFBE%E6%B5%85%E6%B5%85%E7%90%86%E8%A7%A3/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="Android 12多用户机制中的连接与会话">
+<meta property="og:description" content="安卓锁屏与FBE浅浅理解 🔴 注意：本文是基于Android 12(S)进行分析的，可能与Android 10(Q)有些出入。  1.LockscreenCredential对象  从安卓文档可以看出，LockscreenCredential是一个锁屏凭证，可以是空密码，图案，密码，或者PIN码等。也就是说LockscreenCredential是一个锁屏凭证的抽象。我们可以通过Lockscre">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/06/06/Android-12%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6%E4%B8%AD%E7%9A%84%E8%BF%9E%E6%8E%A5%E4%B8%8E%E4%BC%9A%E8%AF%9D/image-20230606233821913.png">
-<meta property="article:published_time" content="2023-06-06T15:09:28.000Z">
-<meta property="article:modified_time" content="2023-06-06T15:41:28.289Z">
+<meta property="og:image" content="http://example.com/2023/06/18/%E5%AE%89%E5%8D%93%E9%94%81%E5%B1%8F%E4%B8%8EFBE%E6%B5%85%E6%B5%85%E7%90%86%E8%A7%A3/image-20230618201829816.png">
+<meta property="article:published_time" content="2023-06-18T11:39:36.000Z">
+<meta property="article:modified_time" content="2023-06-18T15:19:25.110Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/06/06/Android-12%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6%E4%B8%AD%E7%9A%84%E8%BF%9E%E6%8E%A5%E4%B8%8E%E4%BC%9A%E8%AF%9D/image-20230606233821913.png">
+<meta name="twitter:image" content="http://example.com/2023/06/18/%E5%AE%89%E5%8D%93%E9%94%81%E5%B1%8F%E4%B8%8EFBE%E6%B5%85%E6%B5%85%E7%90%86%E8%A7%A3/image-20230618201829816.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Android 12多用户机制中的连接与会话 - 一只安慕嘻</title>
+  <title>安卓锁屏与FBE浅浅理解 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -217,7 +217,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Android 12多用户机制中的连接与会话"></span>
+            <span id="subtitle" data-typed-text="安卓锁屏与FBE浅浅理解"></span>
           
         </div>
 
@@ -228,8 +228,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-06-06 23:09" pubdate>
-          2023年6月6日 晚上
+        <time datetime="2023-06-18 19:39" pubdate>
+          2023年6月18日 晚上
         </time>
       </span>
     
@@ -240,7 +240,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          21 字
+          3.7k 字
         
       </span>
     
@@ -251,7 +251,7 @@
         
         
         
-          1 分钟
+          31 分钟
         
       </span>
     
@@ -297,12 +297,35 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Android 12多用户机制中的连接与会话</h1>
+            <h1 style="display: none">安卓锁屏与FBE浅浅理解</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="Android-12多用户机制中的连接与会话"><a href="#Android-12多用户机制中的连接与会话" class="headerlink" title="Android 12多用户机制中的连接与会话"></a>Android 12多用户机制中的连接与会话</h1><img src="/2023/06/06/Android-12%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6%E4%B8%AD%E7%9A%84%E8%BF%9E%E6%8E%A5%E4%B8%8E%E4%BC%9A%E8%AF%9D/image-20230606233821913.png" srcset="/img/loading.gif" lazyload alt="image-20230606233821913" style="zoom:80%;">
+                <h1 id="安卓锁屏与FBE浅浅理解"><a href="#安卓锁屏与FBE浅浅理解" class="headerlink" title="安卓锁屏与FBE浅浅理解"></a>安卓锁屏与FBE浅浅理解</h1><blockquote>
+<p>🔴 <strong>注意</strong>：本文是基于Android 12(S)进行分析的，可能与Android 10(Q)有些出入。</p>
+</blockquote>
+<h2 id="1-LockscreenCredential对象"><a href="#1-LockscreenCredential对象" class="headerlink" title="1.LockscreenCredential对象"></a>1.LockscreenCredential对象</h2><img src="/2023/06/18/%E5%AE%89%E5%8D%93%E9%94%81%E5%B1%8F%E4%B8%8EFBE%E6%B5%85%E6%B5%85%E7%90%86%E8%A7%A3/image-20230618201829816.png" srcset="/img/loading.gif" lazyload alt="image-20230618201829816" style="zoom:75%;">
+
+<p>从安卓文档可以看出，LockscreenCredential是一个锁屏凭证，可以是空密码，图案，密码，或者PIN码等。也就是说LockscreenCredential是一个锁屏凭证的抽象。我们可以通过<strong>LockscreenCredential.createPassword</strong>去构造一个credential对象。</p>
+<p>这里详细的可以先学习：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42135087/article/details/124565234">https://blog.csdn.net/weixin_42135087/article/details/124565234</a></p>
+<h2 id="2-设置锁屏与FBE的关系"><a href="#2-设置锁屏与FBE的关系" class="headerlink" title="2.设置锁屏与FBE的关系"></a>2.设置锁屏与FBE的关系</h2><h3 id="2-1-addUserKeyAuth层层调用"><a href="#2-1-addUserKeyAuth层层调用" class="headerlink" title="2.1 addUserKeyAuth层层调用"></a>2.1 addUserKeyAuth层层调用</h3><p>⭐ 在Android系统重的设置密码、清除密码、修改密码，都是调用到LockSettingsService.java的setLockCredential函数进行的，而setLockCredential又调用了setLockCredentialInternal。【引用：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42135087/article/details/109726612?spm=1001.2014.3001.5506%E3%80%91">https://blog.csdn.net/weixin_42135087/article/details/109726612?spm=1001.2014.3001.5506】</a></p>
+<blockquote>
+<p>从<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42135087">代码改变世界ctw</a>大哥的博客中可以知道，当我们创建了设置用户密码的时候会调用到setLockCredentialInternal ，下面的调用栈如下：</p>
+<p>setLockCredentialInternal -&gt; setUserKeyProtection -&gt;  addUserKeyAuth</p>
+<p>从addUserKeyAuth从和FBE扯上了关系</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// frameworks\base\services\core\java\com\android\server\locksettings\LockSettingsService.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addUserKeyAuth</span><span class="hljs-params">(<span class="hljs-type">int</span> userId, <span class="hljs-type">byte</span>[] token, <span class="hljs-type">byte</span>[] secret)</span> &#123;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">UserInfo</span> <span class="hljs-variable">userInfo</span> <span class="hljs-operator">=</span> mUserManager.getUserInfo(userId);<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">callingId</span> <span class="hljs-operator">=</span> Binder.clearCallingIdentity();<br>    <span class="hljs-comment">// 调用SMS的addUserKeyAuth方法</span><br>    mStorageManager.addUserKeyAuth(userId, userInfo.serialNumber, token, secret);<br>&#125;<br><br><span class="hljs-comment">// ---------------------------------------------------------------</span><br><span class="hljs-comment">// frameworks\base\services\core\java\com\android\server\StorageManagerService.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addUserKeyAuth</span><span class="hljs-params">(<span class="hljs-type">int</span> userId, <span class="hljs-type">int</span> serialNumber, <span class="hljs-type">byte</span>[] token, <span class="hljs-type">byte</span>[] secret)</span> &#123;<br>    mVold.addUserKeyAuth(userId, serialNumber, encodeBytes(token), encodeBytes(secret));<br>&#125;<br><br><span class="hljs-comment">// ---------------------------------------------------------------</span><br><span class="hljs-comment">// system\vold\VoldNativeService.cpp</span><br>binder::Status VoldNativeService::addUserKeyAuth(int32_t userId, int32_t userSerial,<br>                                                 const std::string&amp; token,<br>                                                 const std::string&amp; secret) &#123;<br>    <span class="hljs-keyword">if</span> (!token_empty(token)) &#123;<br>        LOG(ERROR) &lt;&lt; <span class="hljs-string">&quot;Vold doesn&#x27;t use auth tokens, but non-empty token passed to addUserKeyAuth.&quot;</span>;<br>        <span class="hljs-keyword">return</span> binder::Status::fromServiceSpecificError(-EINVAL);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> translateBool(fscrypt_add_user_key_auth(userId, userSerial, secret));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的注释可以看出，Vold服务是不需要AuthToken的，所以不需要向FBE传递。</p>
+<h3 id="2-2-fscrypt-add-user-key-auth开始添加用户权限"><a href="#2-2-fscrypt-add-user-key-auth开始添加用户权限" class="headerlink" title="2.2 fscrypt_add_user_key_auth开始添加用户权限"></a>2.2 fscrypt_add_user_key_auth开始添加用户权限</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">fscrypt_add_user_key_auth</span><span class="hljs-params">(<span class="hljs-type">userid_t</span> user_id, <span class="hljs-type">int</span> serial, <span class="hljs-type">const</span> std::string&amp; secret_hex)</span> </span>&#123;<br>	<span class="hljs-comment">// 判断是否支持文件级加密</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">fscrypt_is_native</span>()) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    <span class="hljs-comment">// 还原锁屏码</span><br>    <span class="hljs-keyword">auto</span> auth = <span class="hljs-built_in">authentication_from_hex</span>(secret_hex);<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">fscrypt_rewrap_user_key</span>(user_id, serial, kEmptyAuthentication, *auth);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用fscrypt_rewrap_user_key</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title">fscrypt_rewrap_user_key</span><span class="hljs-params">(<span class="hljs-type">userid_t</span> user_id, <span class="hljs-type">int</span> serial,</span></span><br><span class="hljs-params"><span class="hljs-function">                                    <span class="hljs-type">const</span> android::vold::KeyAuthentication&amp; retrieve_auth,</span></span><br><span class="hljs-params"><span class="hljs-function">                                    <span class="hljs-type">const</span> android::vold::KeyAuthentication&amp; store_auth)</span> </span>&#123;<br>    <span class="hljs-comment">// 获取当前用户的CE_KEY目录: /data/misc/vold/user_keys/ce/&lt;userid&gt;</span><br>    <span class="hljs-keyword">auto</span> <span class="hljs-type">const</span> directory_path = <span class="hljs-built_in">get_ce_key_directory_path</span>(user_id);<br>    KeyBuffer ce_key;<br>    std::string ce_key_current_path = <span class="hljs-built_in">get_ce_key_current_path</span>(directory_path); <span class="hljs-comment">// /data/misc/vold/user_keys/ce/&lt;userid&gt;/current</span><br>    <span class="hljs-built_in">retrieveKey</span>(ce_key_current_path, kEmptyAuthentication, &amp;ce_key);<br>    <span class="hljs-keyword">auto</span> <span class="hljs-type">const</span> paths = <span class="hljs-built_in">get_ce_key_paths</span>(directory_path);<br>    std::string ce_key_path;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">get_ce_key_new_path</span>(directory_path, paths, &amp;ce_key_path)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-comment">// user_key_temp: /data/misc/vold/user_keys/temp</span><br>    <span class="hljs-comment">// 保存CE Key</span><br>    <span class="hljs-keyword">if</span> (!android::vold::<span class="hljs-built_in">storeKeyAtomically</span>(ce_key_path, user_key_temp, store_auth, ce_key))<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用storeKeyAtomically保存当前用户的CE Key</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">storeKeyAtomically</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; key_path, <span class="hljs-type">const</span> std::string&amp; tmp_path,</span></span><br><span class="hljs-params"><span class="hljs-function">                        <span class="hljs-type">const</span> KeyAuthentication&amp; auth, <span class="hljs-type">const</span> KeyBuffer&amp; key)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">storeKey</span>(tmp_path, auth, key)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">RenameKeyDir</span>(tmp_path, key_path)) &#123;<br>        <span class="hljs-built_in">PLOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;Unable to move new key to location: &quot;</span> &lt;&lt; key_path;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">FsyncParentDirectory</span>(key_path)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-built_in">LOG</span>(DEBUG) &lt;&lt; <span class="hljs-string">&quot;Created key: &quot;</span> &lt;&lt; key_path;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
@@ -348,8 +371,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Android 12多用户机制中的连接与会话</div>
-      <div>http://example.com/2023/06/06/Android-12多用户机制中的连接与会话/</div>
+      <div>安卓锁屏与FBE浅浅理解</div>
+      <div>http://example.com/2023/06/18/安卓锁屏与FBE浅浅理解/</div>
     </div>
     <div class="license-meta">
       
@@ -361,7 +384,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年6月6日</div>
+          <div>2023年6月18日</div>
         </div>
       
       
@@ -393,18 +416,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/06/18/%E5%AE%89%E5%8D%93%E9%94%81%E5%B1%8F%E4%B8%8EFBE%E6%B5%85%E6%B5%85%E7%90%86%E8%A7%A3/" title="安卓锁屏与FBE浅浅理解">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">安卓锁屏与FBE浅浅理解</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/" title="安卓分区存储">
-                        <span class="hidden-mobile">安卓分区存储</span>
+                      <a href="/2023/06/06/Android-12%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6%E4%B8%AD%E7%9A%84%E8%BF%9E%E6%8E%A5%E4%B8%8E%E4%BC%9A%E8%AF%9D/" title="Android 12多用户机制中的连接与会话">
+                        <span class="hidden-mobile">Android 12多用户机制中的连接与会话</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
