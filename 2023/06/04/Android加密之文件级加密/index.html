@@ -24,12 +24,13 @@
 <meta property="og:description" content="Android加密之文件级加密 声明：本文整理自  https:&#x2F;&#x2F;blog.csdn.net&#x2F;myfriend0&#x2F;article&#x2F;details&#x2F;77094890&#x2F;?spm&#x3D;1001.2014.3001.5506 https:&#x2F;&#x2F;blog.csdn.net&#x2F;cs_tech&#x2F;article&#x2F;details&#x2F;127579028  仅作为自己学习备忘使用，如有侵权，联系删除！再次感谢2位前辈精彩的博客">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/image-20230604201431654.png">
+<meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/image-20230619220158827.png">
 <meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/e09ee7d3490e49b1bd615011c7ecfc77.png">
 <meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/450367269c4d4d3781406d3411f3e6e4.png">
 <meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/7227b1872aed453187f68be2bbd5c74e.png">
 <meta property="og:image" content="http://example.com/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/7575d136392e43b2be21ae3b9494fb43.png">
 <meta property="article:published_time" content="2023-06-04T11:23:08.000Z">
-<meta property="article:modified_time" content="2023-06-04T12:37:07.607Z">
+<meta property="article:modified_time" content="2023-06-19T14:05:10.973Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
@@ -244,7 +245,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.1k 字
+          9k 字
         
       </span>
     
@@ -255,7 +256,7 @@
         
         
         
-          60 分钟
+          75 分钟
         
       </span>
     
@@ -446,6 +447,37 @@
 <li>根据 HLOS 请求，创建，更新和失效密钥等（支持远程擦除密钥）</li>
 <li>……</li>
 </ul>
+<h3 id="3-5-密钥存储及其保护措施"><a href="#3-5-密钥存储及其保护措施" class="headerlink" title="3.5 密钥存储及其保护措施"></a>3.5 密钥存储及其保护措施</h3><blockquote>
+<p>2023&#x2F;06&#x2F;19发现好文：<a target="_blank" rel="noopener" href="https://blog.csdn.net/csdn_liqian/article/details/129362100">https://blog.csdn.net/csdn_liqian/article/details/129362100</a></p>
+</blockquote>
+<p>系统不会存储 per-boot key ，除此之外其他所有的 FBE key 将被<code>vold</code> 管理，并且存储在磁盘上。FBE key存储的位置如下表所示：</p>
+<img src="/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/image-20230619220158827.png" srcset="/img/loading.gif" lazyload alt="image-20230619220158827" style="zoom: 80%;">
+
+<p>vold对所有的FBE key都有一层加密。</p>
+<p>除了用于内部存储的 CE 密钥之外，每个密钥都由自己的 Keystore key（该密钥不在 TEE 外部公开）和 AES-256-GCM 算法来加密。这确保FBE key无法被解锁，除非可信操作系统已启动（就像开机校验强制执行，验证下一阶段的完整性和真实性）。</p>
+<p>此外，Keystore key 需要设置抗回滚，以便 Keymaster 在支持抗回滚的设备上也能安全地删除 FBE 密钥。抗回滚：一旦使用 deleteKey 或者 deleteAllKeys 来删除密钥，安全硬件将保证该密钥不再可用，即删除的密钥无法恢复。</p>
+<p>为了在抗回滚不可用时能够尽可能地回退，16384 个随机字节的 SHA-512 哈希值存储在与密钥一起存储的 secdiscardable 文件中，作为 Keystore key中的app ID tag。只有将这些字节全部恢复，才能恢复 FBE key。</p>
+<p>用于内部存储的 CE key 将获得更高级别的保护，以确保在未获取用户的LSKF (LSKF：Lock Screen Knowledge Factor，即PIN 码 personal identification、图案pattern 或 口令password）、安全密码重置令牌（secure passcode reset token）或在重启恢复操作后的客户端密钥及服务器端密钥的情况下，CE key 无法被解锁。只允许为工作资料和完全受管设备（for work profiles and fully managed devices）创建密码重置令牌。<br>为此，vold 用AES-256-GCM算法加密用于内部存储的CE key，其加密密钥源自用户合成的口令。该合成口令是为每个用户随机生成的不可变的高级无序的（high-entropy，高熵）加密的密码。system_server 中的 LockSettingsService 用于管理合成口令及其保护方式。</p>
+<p>用 LSKF 保护合成口令时，LockSettingsService 首先会扩展 LSKF（可以通过 scrypt 传递 LSKF，目标时间约为 25 毫秒且内存用量约为 2 MiB）。</p>
+<p>由于 LSKF 通常较短，因此该步骤通常无法提供太多安全性。主要的安全保障是SE (SE： Secure Element安全元素) 或者由 TEE 强制执行的速率限制。</p>
+<p><strong>（1）如果设备有SE， LockSettingsService 使用 Weaver HAL 将经过扩展的 LSKF 映射到存储在 SE 中的高级无序随机密码（secret）。</strong><br>然后，LockSettingsService 将对合成口令进行双重加密：</p>
+<ul>
+<li>第一次加密：使用扩展的 LSKF 和 Weaver secret派生软件密钥；</li>
+<li>第二次加密：使用未经身份验证绑定(non-auth-bound)的 Keystore key。</li>
+</ul>
+<p>这样即可对 LSKF 猜测行为施加 SE 强制速率限制。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Weaver HAL代码路径: platform/hardware/interfaces/refs/heads/master/./weaver/<span class="hljs-number">1.0</span>/IWeaver.hal<br></code></pre></td></tr></table></figure>
+
+<p><strong>（2）如果设备没有 SE，则 LockSettingsService 使用扩展的 LSKF 作为 Gatekeeper 口令。</strong></p>
+<p>然后，LockSettingsService 将对合成口令进行双重加密：</p>
+<ul>
+<li>第一次加密：使用扩展的 LSKF 和 secdiscardable 文件的哈希值派生软件密钥；</li>
+<li>第二次加密：使用经过身份验证绑定(auth-bound)到Gatekeeper的 Keystore key。</li>
+</ul>
+<p>这样即可对 LSKF 猜测行为施加 SE 强制速率限制。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Gatekeeper：<br><span class="hljs-built_in">TEE</span>(Trusted Execution Environment，可信执行环境)中，使用硬件支持的Keystore key通过HMAC注册并验证设备的图案或者口令（用TEE派生的共享密钥来进行身份验证）。<br>在连续数次验证失败时会限制验证尝试，拒绝为请求提供服务。<br></code></pre></td></tr></table></figure>
+
+<p>当LSKF改变时，<code>LockSettingsService</code> 会删除所有旧的LSKF以及合成口令绑定的相关信息。在支持 Weaver 或者抗回滚的 Keystore key 的设备上，这样做可以保证安全地删除旧绑定。因此，即使用户没有设置 LSKF，系统也会进行上述保护措施。</p>
 <h2 id="4-HLOS软件流程"><a href="#4-HLOS软件流程" class="headerlink" title="4.HLOS软件流程"></a>4.HLOS软件流程</h2><h3 id="4-1-Native软件流程"><a href="#4-1-Native软件流程" class="headerlink" title="4.1 Native软件流程"></a>4.1 Native软件流程</h3><p>Android 在 init rc 中 触发 FBE 软件流程：</p>
 <blockquote>
 <ul>
