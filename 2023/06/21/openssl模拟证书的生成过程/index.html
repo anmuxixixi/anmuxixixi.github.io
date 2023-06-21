@@ -16,17 +16,20 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="【实验】openssl模拟证书的生成过程">
+    <meta name="description" content="【实验】openssl模拟证书的生成过程 实验内容来自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;frisk&#x2F;p&#x2F;12628159.html 🔕基础知识参考博客先进行回顾！！！  openssl x509工具主要用于输出证书信息, 签署证书请求文件、自签署、转换证书格式等。它就像是一个完整的小型的CA工具箱。 （1）运营商私钥  模拟生成运营商的私钥： 1234567891011# 需要经">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【实验】openssl模拟证书的生成过程">
 <meta property="og:url" content="http://example.com/2023/06/21/openssl%E6%A8%A1%E6%8B%9F%E8%AF%81%E4%B9%A6%E7%9A%84%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="【实验】openssl模拟证书的生成过程">
+<meta property="og:description" content="【实验】openssl模拟证书的生成过程 实验内容来自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;frisk&#x2F;p&#x2F;12628159.html 🔕基础知识参考博客先进行回顾！！！  openssl x509工具主要用于输出证书信息, 签署证书请求文件、自签署、转换证书格式等。它就像是一个完整的小型的CA工具箱。 （1）运营商私钥  模拟生成运营商的私钥： 1234567891011# 需要经">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/06/21/openssl%E6%A8%A1%E6%8B%9F%E8%AF%81%E4%B9%A6%E7%9A%84%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B/image-20230621223828285.png">
+<meta property="og:image" content="http://example.com/2023/06/21/openssl%E6%A8%A1%E6%8B%9F%E8%AF%81%E4%B9%A6%E7%9A%84%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B/image-20230621224000406.png">
 <meta property="article:published_time" content="2023-06-21T14:33:10.000Z">
-<meta property="article:modified_time" content="2023-06-21T14:33:36.651Z">
+<meta property="article:modified_time" content="2023-06-21T14:40:08.218Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/06/21/openssl%E6%A8%A1%E6%8B%9F%E8%AF%81%E4%B9%A6%E7%9A%84%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B/image-20230621223828285.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -237,7 +240,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          20 字
+          599 字
         
       </span>
     
@@ -248,7 +251,7 @@
         
         
         
-          1 分钟
+          5 分钟
         
       </span>
     
@@ -299,7 +302,23 @@
             
               <div class="markdown-body">
                 
-                <h1 id="【实验】openssl模拟证书的生成过程"><a href="#【实验】openssl模拟证书的生成过程" class="headerlink" title="【实验】openssl模拟证书的生成过程"></a>【实验】openssl模拟证书的生成过程</h1>
+                <h1 id="【实验】openssl模拟证书的生成过程"><a href="#【实验】openssl模拟证书的生成过程" class="headerlink" title="【实验】openssl模拟证书的生成过程"></a>【实验】openssl模拟证书的生成过程</h1><blockquote>
+<p>实验内容来自：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/frisk/p/12628159.html">https://www.cnblogs.com/frisk/p/12628159.html</a></p>
+<p>🔕基础知识参考博客先进行回顾！！！</p>
+</blockquote>
+<p>openssl x509工具主要用于输出证书信息, 签署证书请求文件、自签署、转换证书格式等。它就像是一个完整的小型的CA工具箱。</p>
+<p><strong>（1）运营商私钥</strong></p>
+<p> 模拟生成运营商的私钥：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">需要经常输入密码</span><br>openssl genrsa -des3 -out server_private.key 2048 会有输入密码的要求<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">去除密码</span><br>openssl rsa -in server_private.key -out server_private.key<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">无密码证书秘钥</span><br>openssl genrsa -out server_private.key 2048<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">生成公钥</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">openssl rsa -<span class="hljs-keyword">in</span> server_private.key -pubout -out server_public.key</span><br></code></pre></td></tr></table></figure>
+
+<img src="/2023/06/21/openssl%E6%A8%A1%E6%8B%9F%E8%AF%81%E4%B9%A6%E7%9A%84%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B/image-20230621223828285.png" srcset="/img/loading.gif" lazyload alt="image-20230621223828285" style="zoom:50%;">
+
+<p><strong>（2）运营商向CA申请证书文件</strong></p>
+<p>模拟生成运营商 证书申请文件&#x2F;证书签名请求文件 <code>.req</code>:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">openssl req -new -key server_private.key -out server.req<br><span class="hljs-meta prompt_"># </span><span class="language-bash">会让输入Country Name 填 CN; Common Name 填 ip 也可以不填。</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">查看server.req</span><br>openssl req -in server.req -text<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/06/21/openssl%E6%A8%A1%E6%8B%9F%E8%AF%81%E4%B9%A6%E7%9A%84%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B/image-20230621224000406.png" srcset="/img/loading.gif" lazyload alt="image-20230621224000406" style="zoom: 50%;">
+
                 
               </div>
             
