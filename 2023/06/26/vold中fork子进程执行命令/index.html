@@ -16,16 +16,16 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="vold中fork子进程执行命令 🍃 前置知识：  linux中pipe和dup2详解 Linux中的STDIN_FILENO和STDOUT_FILENO_   1.fork子进程执行命令1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950&#x2F;&#x2F; system\vold">
+    <meta name="description" content="vold中fork子进程执行命令 🍃 前置知识：  linux中pipe和dup2详解 Linux中的STDIN_FILENO和STDOUT_FILENO_ 记录fork子进程执行execl阻塞卡死的问题   1.fork子进程执行命令123456789101112131415161718192021222324252627282930313233343536373839404142434445">
 <meta property="og:type" content="article">
 <meta property="og:title" content="vold中fork子进程执行命令">
 <meta property="og:url" content="http://example.com/2023/06/26/vold%E4%B8%ADfork%E5%AD%90%E8%BF%9B%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="vold中fork子进程执行命令 🍃 前置知识：  linux中pipe和dup2详解 Linux中的STDIN_FILENO和STDOUT_FILENO_   1.fork子进程执行命令1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950&#x2F;&#x2F; system\vold">
+<meta property="og:description" content="vold中fork子进程执行命令 🍃 前置知识：  linux中pipe和dup2详解 Linux中的STDIN_FILENO和STDOUT_FILENO_ 记录fork子进程执行execl阻塞卡死的问题   1.fork子进程执行命令123456789101112131415161718192021222324252627282930313233343536373839404142434445">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/06/26/vold%E4%B8%ADfork%E5%AD%90%E8%BF%9B%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/image-20230626230653727.png">
 <meta property="article:published_time" content="2023-06-26T14:13:52.000Z">
-<meta property="article:modified_time" content="2023-06-26T15:10:45.256Z">
+<meta property="article:modified_time" content="2023-06-26T15:22:54.005Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
@@ -240,7 +240,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.1k 字
+          2.2k 字
         
       </span>
     
@@ -251,7 +251,7 @@
         
         
         
-          18 分钟
+          19 分钟
         
       </span>
     
@@ -307,6 +307,7 @@
 <ul>
 <li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/06/26/linux%E4%B8%ADpipe%E5%92%8Cdup2%E8%AF%A6%E8%A7%A3/">linux中pipe和dup2详解</a></li>
 <li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/">Linux中的STDIN_FILENO和STDOUT_FILENO_</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/duapple/article/details/126918593">记录fork子进程执行execl阻塞卡死的问题</a></li>
 </ul>
 </blockquote>
 <h2 id="1-fork子进程执行命令"><a href="#1-fork子进程执行命令" class="headerlink" title="1.fork子进程执行命令"></a>1.fork子进程执行命令</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\vold\Utils.cpp</span><br><span class="hljs-function"><span class="hljs-type">status_t</span> <span class="hljs-title">ForkExecvp</span><span class="hljs-params">(<span class="hljs-type">const</span> std::vector&lt;std::string&gt;&amp; args, std::vector&lt;std::string&gt;* output,</span></span><br><span class="hljs-params"><span class="hljs-function">                    <span class="hljs-type">security_context_t</span> context)</span> </span>&#123;<br>    <span class="hljs-keyword">auto</span> argv = <span class="hljs-built_in">ConvertToArgv</span>(args);<br><br>    android::base::unique_fd pipe_read, pipe_write;<br>    <span class="hljs-keyword">if</span> (!android::base::<span class="hljs-built_in">Pipe</span>(&amp;pipe_read, &amp;pipe_write)) &#123;<br>        <span class="hljs-built_in">PLOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;Pipe in ForkExecvp&quot;</span>;<br>        <span class="hljs-keyword">return</span> -errno;<br>    &#125;<br><br>    <span class="hljs-type">pid_t</span> pid = fork();<br>    <span class="hljs-keyword">if</span> (pid == <span class="hljs-number">0</span>) &#123;<br>        pipe_read.<span class="hljs-built_in">reset</span>();<br>        <span class="hljs-comment">// 将STDOUT_FILENO(也就是终端输出)重定向到pipe_write</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">dup2</span>(pipe_write.<span class="hljs-built_in">get</span>(), STDOUT_FILENO) == <span class="hljs-number">-1</span>) &#123;<br>            <span class="hljs-built_in">PLOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;dup2 in ForkExecvp&quot;</span>;<br>            _exit(EXIT_FAILURE);<br>        &#125;<br>        pipe_write.<span class="hljs-built_in">reset</span>();<br>        <span class="hljs-comment">// 执行命令</span><br>        <span class="hljs-built_in">execvp</span>(argv[<span class="hljs-number">0</span>], <span class="hljs-built_in">const_cast</span>&lt;<span class="hljs-type">char</span>**&gt;(argv.<span class="hljs-built_in">data</span>()));<br>        <span class="hljs-built_in">PLOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;exec in ForkExecvp&quot;</span>;<br>        _exit(EXIT_FAILURE);<br>    &#125;<br><br>    pipe_write.<span class="hljs-built_in">reset</span>();<br>    <span class="hljs-keyword">auto</span> st = <span class="hljs-built_in">ReadLinesFromFdAndLog</span>(output, std::<span class="hljs-built_in">move</span>(pipe_read));<br>    <span class="hljs-keyword">if</span> (st != <span class="hljs-number">0</span>) <span class="hljs-keyword">return</span> st;<br><br>    <span class="hljs-type">int</span> status;<br>    <span class="hljs-comment">// 等待子进程执行结束</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">waitpid</span>(pid, &amp;status, <span class="hljs-number">0</span>) == <span class="hljs-number">-1</span>) &#123;<br>        <span class="hljs-built_in">PLOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;waitpid in ForkExecvp&quot;</span>;<br>        <span class="hljs-keyword">return</span> -errno;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> OK;<br>&#125;<br><br>---------------------------------------------------<br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">status_t</span> <span class="hljs-title">ReadLinesFromFdAndLog</span><span class="hljs-params">(std::vector&lt;std::string&gt;* output,</span></span><br><span class="hljs-params"><span class="hljs-function">                                      android::base::unique_fd ufd)</span> </span>&#123;<br>    <span class="hljs-function">std::unique_ptr&lt;FILE, <span class="hljs-title">int</span> <span class="hljs-params">(*)</span><span class="hljs-params">(FILE*)</span>&gt; <span class="hljs-title">fp</span><span class="hljs-params">(android::base::Fdopen(std::move(ufd), <span class="hljs-string">&quot;r&quot;</span>), fclose)</span></span>;<br>    <span class="hljs-type">char</span> line[<span class="hljs-number">1024</span>];<br>    <span class="hljs-keyword">while</span> (<span class="hljs-built_in">fgets</span>(line, <span class="hljs-built_in">sizeof</span>(line), fp.<span class="hljs-built_in">get</span>()) != <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-built_in">LOG</span>(DEBUG) &lt;&lt; line;<br>    &#125;<br>    <span class="hljs-keyword">return</span> OK;<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -319,7 +320,7 @@
 <h2 id="3-差异"><a href="#3-差异" class="headerlink" title="3.差异"></a>3.差异</h2><p>ForkExecvp与ForkExecvpAsync对比后差异在于：</p>
 <ul>
 <li>ForkExecvp会将命令行执行的结果通过日志打印出来，而ForkExecvpAsync则执行执行命令行</li>
-<li>ForkExecvp在多线程某种极端的情况下，可能发生死锁。</li>
+<li>ForkExecvp在多线程某种极端的情况下，可能发生死锁【<a target="_blank" rel="noopener" href="https://blog.csdn.net/duapple/article/details/126918593%E3%80%91%E3%80%82">https://blog.csdn.net/duapple/article/details/126918593】。</a></li>
 <li>使用了匿名管道的ForkExecvp是非异步的，而ForkExecvpAsync是异步的</li>
 </ul>
 
