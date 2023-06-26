@@ -16,23 +16,27 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV15P4y1S7Jw&#x2F;">
+    <meta name="description" content="【转载】Linux中的STDIN_FILENO和STDOUT_FILENO 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;sinat_25457161&#x2F;article&#x2F;details&#x2F;48548231?spm&#x3D;1001.2014.3001.5506  说明：  STDIN_FILENO：接收键盘的输入 STDOUT_FILENO：向屏幕输出  程序：  接收用户在屏幕上输入的数据，并在屏幕上">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】">
-<meta property="og:url" content="http://example.com/2023/06/24/%E3%80%90%E7%A7%91%E6%99%AE%E3%80%91%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E6%8A%80%E6%9C%AF%EF%BC%88%E5%85%AC%E9%92%A5%E4%BD%93%E7%B3%BB%EF%BC%89%E3%80%90%E5%85%AC%E9%92%A5-%E7%A7%81%E9%92%A5-%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D-CA%E8%AF%81%E4%B9%A6%E3%80%91/index.html">
+<meta property="og:title" content="Linux中的STDIN_FILENO和STDOUT_FILENO">
+<meta property="og:url" content="http://example.com/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV15P4y1S7Jw&#x2F;">
+<meta property="og:description" content="【转载】Linux中的STDIN_FILENO和STDOUT_FILENO 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;sinat_25457161&#x2F;article&#x2F;details&#x2F;48548231?spm&#x3D;1001.2014.3001.5506  说明：  STDIN_FILENO：接收键盘的输入 STDOUT_FILENO：向屏幕输出  程序：  接收用户在屏幕上输入的数据，并在屏幕上">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-06-24T15:04:40.000Z">
-<meta property="article:modified_time" content="2023-06-24T15:07:18.403Z">
+<meta property="og:image" content="http://example.com/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/20150918165941312.jpeg">
+<meta property="og:image" content="http://example.com/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/image-20230626215903169.png">
+<meta property="article:published_time" content="2023-06-26T13:54:07.000Z">
+<meta property="article:modified_time" content="2023-06-26T13:59:17.522Z">
 <meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/20150918165941312.jpeg">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】 - 一只安慕嘻</title>
+  <title>Linux中的STDIN_FILENO和STDOUT_FILENO - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +218,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】"></span>
+            <span id="subtitle" data-typed-text="Linux中的STDIN_FILENO和STDOUT_FILENO"></span>
           
         </div>
 
@@ -225,8 +229,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-06-24 23:04" pubdate>
-          2023年6月24日 晚上
+        <time datetime="2023-06-26 21:54" pubdate>
+          2023年6月26日 晚上
         </time>
       </span>
     
@@ -237,7 +241,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          75 字
+          1.2k 字
         
       </span>
     
@@ -248,7 +252,7 @@
         
         
         
-          1 分钟
+          10 分钟
         
       </span>
     
@@ -294,12 +298,31 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】</h1>
+            <h1 style="display: none">Linux中的STDIN_FILENO和STDOUT_FILENO</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="【科普】非对称加密技术（公钥体系）【公钥-私钥-数字签名-CA证书】"><a href="#【科普】非对称加密技术（公钥体系）【公钥-私钥-数字签名-CA证书】" class="headerlink" title="【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】"></a>【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】</h1><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV15P4y1S7Jw/">https://www.bilibili.com/video/BV15P4y1S7Jw/</a></p>
+                <h1 id="【转载】Linux中的STDIN-FILENO和STDOUT-FILENO"><a href="#【转载】Linux中的STDIN-FILENO和STDOUT-FILENO" class="headerlink" title="【转载】Linux中的STDIN_FILENO和STDOUT_FILENO"></a>【转载】Linux中的STDIN_FILENO和STDOUT_FILENO</h1><blockquote>
+<p>转载自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/sinat_25457161/article/details/48548231?spm=1001.2014.3001.5506">https://blog.csdn.net/sinat_25457161/article/details/48548231?spm=1001.2014.3001.5506</a></p>
+</blockquote>
+<p><strong>说明：</strong></p>
+<blockquote>
+<p>STDIN_FILENO：接收键盘的输入</p>
+<p>STDOUT_FILENO：向屏幕输出</p>
+</blockquote>
+<p><strong>程序：</strong></p>
+<blockquote>
+<p>接收用户在屏幕上输入的数据，并在屏幕上输出（要求使用read和wirte实现），用户输入quit就退出程序。</p>
+</blockquote>
+<p><strong>图解说明：</strong></p>
+<img src="/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/20150918165941312.jpeg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br> <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *args[])</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-comment">// 定义读取文件的缓冲区</span><br>	<span class="hljs-type">char</span> buf_read[<span class="hljs-number">1024</span>];<br>	<span class="hljs-comment">// 定义写入文件的缓冲区</span><br>	<span class="hljs-type">char</span> buf_write[<span class="hljs-number">1024</span>];<br>	<br>	<span class="hljs-comment">// 循环读取用户从键盘输入的信息</span><br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)<br>	&#123;<br>		<span class="hljs-comment">// 清空读取文件缓冲区中的内存</span><br>		<span class="hljs-built_in">memset</span>(buf_read, <span class="hljs-number">0</span>, <span class="hljs-built_in">sizeof</span>(buf_read));<br>		<span class="hljs-comment">// 清空写入文件缓冲区中的内存</span><br>		<span class="hljs-built_in">memset</span>(buf_write, <span class="hljs-number">0</span>, <span class="hljs-built_in">sizeof</span>(buf_write));<br>		<br>		<span class="hljs-comment">// 打印提示信息</span><br>		<span class="hljs-type">char</span> input_message[<span class="hljs-number">100</span>] = <span class="hljs-string">&quot;input some words : &quot;</span>;<br>		<span class="hljs-built_in">write</span>(STDOUT_FILENO, input_message, <span class="hljs-built_in">sizeof</span>(input_message));<br>		<span class="hljs-comment">// 读取用户的键盘输入信息</span><br>		<span class="hljs-built_in">read</span>(STDIN_FILENO, buf_read, <span class="hljs-built_in">sizeof</span>(buf_read));<br>		<span class="hljs-comment">// 判断用户输入的内容是否为quit</span><br>		<span class="hljs-keyword">if</span> (<span class="hljs-built_in">strncmp</span>(buf_read, <span class="hljs-string">&quot;quit&quot;</span>, <span class="hljs-number">4</span>) == <span class="hljs-number">0</span>)<br>		&#123;<br>			<span class="hljs-comment">// 如果用户输入的是quit，程序退出循环</span><br>			<span class="hljs-keyword">break</span>;<br>		&#125;<br>		<span class="hljs-comment">// 如果用户输入的不是quit</span><br>		<span class="hljs-comment">// 把内容拷贝到写入文件缓冲区中</span><br>		<span class="hljs-built_in">strcpy</span>(buf_write, buf_read);<br>		<span class="hljs-comment">// 打印提示信息</span><br>		<span class="hljs-type">char</span> output_message[<span class="hljs-number">100</span>] = <span class="hljs-string">&quot;output some words : &quot;</span>;<br>		<span class="hljs-built_in">write</span>(STDOUT_FILENO, output_message, <span class="hljs-built_in">sizeof</span>(output_message));<br>		<span class="hljs-comment">// 将信息显示在屏幕上</span><br>		<span class="hljs-built_in">write</span>(STDOUT_FILENO, buf_write, <span class="hljs-built_in">strlen</span>(buf_write));<br>	&#125;	<br>	<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/image-20230626215903169.png" srcset="/img/loading.gif" lazyload alt="image-20230626215903169" style="zoom:80%;">
+
+<p>程序实现了，没有使用scanf和printf，从键盘接收用户输入和将用户输入的信息打印到屏幕上。</p>
 
                 
               </div>
@@ -308,6 +331,34 @@
             <div>
               <div class="post-metas my-3">
   
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Linux学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+    </div>
   
 </div>
 
@@ -317,8 +368,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】</div>
-      <div>http://example.com/2023/06/24/【科普】非对称加密技术（公钥体系）【公钥-私钥-数字签名-CA证书】/</div>
+      <div>Linux中的STDIN_FILENO和STDOUT_FILENO</div>
+      <div>http://example.com/2023/06/26/Linux中的STDIN-FILENO和STDOUT-FILENO/</div>
     </div>
     <div class="license-meta">
       
@@ -330,7 +381,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年6月24日</div>
+          <div>2023年6月26日</div>
         </div>
       
       
@@ -362,18 +413,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/" title="Linux中的STDIN_FILENO和STDOUT_FILENO">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Linux中的STDIN_FILENO和STDOUT_FILENO</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/06/21/openssl%E6%A8%A1%E6%8B%9F%E8%AF%81%E4%B9%A6%E7%9A%84%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B/" title="【实验】openssl模拟证书的生成过程">
-                        <span class="hidden-mobile">【实验】openssl模拟证书的生成过程</span>
+                      <a href="/2023/06/24/%E3%80%90%E7%A7%91%E6%99%AE%E3%80%91%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E6%8A%80%E6%9C%AF%EF%BC%88%E5%85%AC%E9%92%A5%E4%BD%93%E7%B3%BB%EF%BC%89%E3%80%90%E5%85%AC%E9%92%A5-%E7%A7%81%E9%92%A5-%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D-CA%E8%AF%81%E4%B9%A6%E3%80%91/" title="【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】">
+                        <span class="hidden-mobile">【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
