@@ -16,27 +16,27 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="【转载】Linux中的STDIN_FILENO和STDOUT_FILENO 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;sinat_25457161&#x2F;article&#x2F;details&#x2F;48548231?spm&#x3D;1001.2014.3001.5506  说明：  STDIN_FILENO：接收键盘的输入 STDOUT_FILENO：向屏幕输出  程序：  接收用户在屏幕上输入的数据，并在屏幕上">
+    <meta name="description" content="【转载】linux中pipe和dup2详解 转载自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;Hxinguan&#x2F;p&#x2F;5007393.html  1.什么是管道管道是半双工的，数据只能向一个方向流动；需要双方通信时，需要建立起两个管道； 只能用于父子进程或者兄弟进程之间（具有亲缘关系的进程）； 单独构成一种独立的文件系统：管道对于管道两端的进程而言，就是一个文件，但它不是普通的文件，它不属于某">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux中的STDIN_FILENO和STDOUT_FILENO">
-<meta property="og:url" content="http://example.com/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/index.html">
+<meta property="og:title" content="【转载】linux中pipe和dup2详解">
+<meta property="og:url" content="http://example.com/2023/06/26/linux%E4%B8%ADpipe%E5%92%8Cdup2%E8%AF%A6%E8%A7%A3/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="【转载】Linux中的STDIN_FILENO和STDOUT_FILENO 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;sinat_25457161&#x2F;article&#x2F;details&#x2F;48548231?spm&#x3D;1001.2014.3001.5506  说明：  STDIN_FILENO：接收键盘的输入 STDOUT_FILENO：向屏幕输出  程序：  接收用户在屏幕上输入的数据，并在屏幕上">
+<meta property="og:description" content="【转载】linux中pipe和dup2详解 转载自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;Hxinguan&#x2F;p&#x2F;5007393.html  1.什么是管道管道是半双工的，数据只能向一个方向流动；需要双方通信时，需要建立起两个管道； 只能用于父子进程或者兄弟进程之间（具有亲缘关系的进程）； 单独构成一种独立的文件系统：管道对于管道两端的进程而言，就是一个文件，但它不是普通的文件，它不属于某">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/20150918165941312.jpeg">
-<meta property="og:image" content="http://example.com/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/image-20230626215903169.png">
-<meta property="article:published_time" content="2023-06-26T13:54:07.000Z">
-<meta property="article:modified_time" content="2023-06-26T13:59:17.522Z">
+<meta property="og:image" content="http://example.com/2023/06/26/linux%E4%B8%ADpipe%E5%92%8Cdup2%E8%AF%A6%E8%A7%A3/image-20230626220856696.png">
+<meta property="og:image" content="http://example.com/2023/06/26/linux%E4%B8%ADpipe%E5%92%8Cdup2%E8%AF%A6%E8%A7%A3/image-20230626221136998.png">
+<meta property="article:published_time" content="2023-06-26T14:03:53.000Z">
+<meta property="article:modified_time" content="2023-06-26T14:11:56.126Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/20150918165941312.jpeg">
+<meta name="twitter:image" content="http://example.com/2023/06/26/linux%E4%B8%ADpipe%E5%92%8Cdup2%E8%AF%A6%E8%A7%A3/image-20230626220856696.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Linux中的STDIN_FILENO和STDOUT_FILENO - 一只安慕嘻</title>
+  <title>【转载】linux中pipe和dup2详解 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -218,7 +218,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Linux中的STDIN_FILENO和STDOUT_FILENO"></span>
+            <span id="subtitle" data-typed-text="【转载】linux中pipe和dup2详解"></span>
           
         </div>
 
@@ -229,7 +229,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-06-26 21:54" pubdate>
+        <time datetime="2023-06-26 22:03" pubdate>
           2023年6月26日 晚上
         </time>
       </span>
@@ -241,7 +241,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.2k 字
+          2.6k 字
         
       </span>
     
@@ -252,7 +252,7 @@
         
         
         
-          10 分钟
+          22 分钟
         
       </span>
     
@@ -298,31 +298,44 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Linux中的STDIN_FILENO和STDOUT_FILENO</h1>
+            <h1 style="display: none">【转载】linux中pipe和dup2详解</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="【转载】Linux中的STDIN-FILENO和STDOUT-FILENO"><a href="#【转载】Linux中的STDIN-FILENO和STDOUT-FILENO" class="headerlink" title="【转载】Linux中的STDIN_FILENO和STDOUT_FILENO"></a>【转载】Linux中的STDIN_FILENO和STDOUT_FILENO</h1><blockquote>
-<p>转载自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/sinat_25457161/article/details/48548231?spm=1001.2014.3001.5506">https://blog.csdn.net/sinat_25457161/article/details/48548231?spm=1001.2014.3001.5506</a></p>
+                <h1 id="【转载】linux中pipe和dup2详解"><a href="#【转载】linux中pipe和dup2详解" class="headerlink" title="【转载】linux中pipe和dup2详解"></a>【转载】linux中pipe和dup2详解</h1><blockquote>
+<p>转载自：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Hxinguan/p/5007393.html">https://www.cnblogs.com/Hxinguan/p/5007393.html</a></p>
 </blockquote>
-<p><strong>说明：</strong></p>
-<blockquote>
-<p>STDIN_FILENO：接收键盘的输入</p>
-<p>STDOUT_FILENO：向屏幕输出</p>
-</blockquote>
-<p><strong>程序：</strong></p>
-<blockquote>
-<p>接收用户在屏幕上输入的数据，并在屏幕上输出（要求使用read和wirte实现），用户输入quit就退出程序。</p>
-</blockquote>
-<p><strong>图解说明：</strong></p>
-<img src="/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/20150918165941312.jpeg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+<h2 id="1-什么是管道"><a href="#1-什么是管道" class="headerlink" title="1.什么是管道"></a>1.什么是管道</h2><p>管道是半双工的，数据只能向一个方向流动；需要双方通信时，需要建立起两个管道； 只能用于父子进程或者兄弟进程之间（具有亲缘关系的进程）； 单独构成一种独立的文件系统：管道对于管道两端的进程而言，就是一个文件，但它不是普通的文件，它不属于某种文件系统，而是自立门户，单独构成一种文件系统，并且只存在于内存中。数据的读出和写入：一个进程向管道中写的内容被管道另一端的进程读出。写入的内容每次都添加在管道缓冲区的末尾，并且每次都是从缓冲区的头部读出数据。</p>
+<h2 id="2-管道的创建"><a href="#2-管道的创建" class="headerlink" title="2.管道的创建"></a>2.管道的创建</h2><p>int pipe(int fd[2])</p>
+<p>该函数创建的管道的两端处于一个中间进程，在实际应用中并没有太大意义，一般在pipe()创建管道后，再fork()一个子进程，然后通过管道实现父子进程之间的通信。</p>
+<h2 id="3-管道的读写规则"><a href="#3-管道的读写规则" class="headerlink" title="3.管道的读写规则"></a>3.管道的读写规则</h2><p>管道两端可分别用描述字fd[0]以及fd[1]来描述，需要注意的是，管道的两端是固定了任务的。即一端只能用于读，由描述字fd[0]表示，称其为管道读端；另一端则只能用于写，由描述字fd[1]来表示，称其为管道写端。</p>
+<h2 id="4-pipe函数"><a href="#4-pipe函数" class="headerlink" title="4.pipe函数"></a>4.pipe函数</h2><p>头文件：#include&lt;unistd.h&gt;</p>
+<p>函数原型： int pipe(int fd[2])</p>
+<p>函数参数：fd[2],管道的两个文件描述符，之后就是可以直接操作这两个文件描述符。其中fd[0]为读取端，fd[1]为写入端</p>
+<p>返回值：成功返回0，否则返回-1</p>
+<ul>
+<li><p>读fd[0]: close(fd[1]); read(fd[0], buf, BUF_SIZE);</p>
+</li>
+<li><p>写fd[1]: close(fd[0]); read(fd[1], buf, strlen(buf));</p>
+</li>
+</ul>
+<h2 id="5-例子"><a href="#5-例子" class="headerlink" title="5.例子"></a>5.例子</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/wait.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> fd[<span class="hljs-number">2</span>];<br>    <span class="hljs-type">char</span> buf[<span class="hljs-number">1024</span>];<br>    <span class="hljs-type">pid_t</span> pid;<br><br>    <span class="hljs-keyword">if</span>(<span class="hljs-built_in">pipe</span>(fd) != <span class="hljs-number">0</span>)<br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;pipe error\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    pid = fork();<br><br>    <span class="hljs-keyword">if</span>(pid == <span class="hljs-number">-1</span>)<br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fork error\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(pid &gt; <span class="hljs-number">0</span>)<br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;This is the father process, here write a string to the pipe\n&quot;</span>);<br>        <span class="hljs-type">char</span> s[] = <span class="hljs-string">&quot;Hello! write a string in the father process\n&quot;</span>;<br>        <span class="hljs-built_in">close</span>(fd[<span class="hljs-number">0</span>]);<br>        <span class="hljs-built_in">write</span>(fd[<span class="hljs-number">1</span>], s, <span class="hljs-built_in">sizeof</span>(s));              <span class="hljs-comment">// 向管道中写入数据</span><br><br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;This is the child process, here read a string from the pipe\n&quot;</span>);<br>        <span class="hljs-built_in">close</span>(fd[<span class="hljs-number">1</span>]);<br>        <span class="hljs-built_in">read</span>(fd[<span class="hljs-number">0</span>], buf, <span class="hljs-built_in">sizeof</span>(buf));          <span class="hljs-comment">//从管道中读取数据</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s&quot;</span>, buf);<br>    &#125;<br>    <span class="hljs-built_in">waitpid</span>(pid, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br> <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *args[])</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-comment">// 定义读取文件的缓冲区</span><br>	<span class="hljs-type">char</span> buf_read[<span class="hljs-number">1024</span>];<br>	<span class="hljs-comment">// 定义写入文件的缓冲区</span><br>	<span class="hljs-type">char</span> buf_write[<span class="hljs-number">1024</span>];<br>	<br>	<span class="hljs-comment">// 循环读取用户从键盘输入的信息</span><br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)<br>	&#123;<br>		<span class="hljs-comment">// 清空读取文件缓冲区中的内存</span><br>		<span class="hljs-built_in">memset</span>(buf_read, <span class="hljs-number">0</span>, <span class="hljs-built_in">sizeof</span>(buf_read));<br>		<span class="hljs-comment">// 清空写入文件缓冲区中的内存</span><br>		<span class="hljs-built_in">memset</span>(buf_write, <span class="hljs-number">0</span>, <span class="hljs-built_in">sizeof</span>(buf_write));<br>		<br>		<span class="hljs-comment">// 打印提示信息</span><br>		<span class="hljs-type">char</span> input_message[<span class="hljs-number">100</span>] = <span class="hljs-string">&quot;input some words : &quot;</span>;<br>		<span class="hljs-built_in">write</span>(STDOUT_FILENO, input_message, <span class="hljs-built_in">sizeof</span>(input_message));<br>		<span class="hljs-comment">// 读取用户的键盘输入信息</span><br>		<span class="hljs-built_in">read</span>(STDIN_FILENO, buf_read, <span class="hljs-built_in">sizeof</span>(buf_read));<br>		<span class="hljs-comment">// 判断用户输入的内容是否为quit</span><br>		<span class="hljs-keyword">if</span> (<span class="hljs-built_in">strncmp</span>(buf_read, <span class="hljs-string">&quot;quit&quot;</span>, <span class="hljs-number">4</span>) == <span class="hljs-number">0</span>)<br>		&#123;<br>			<span class="hljs-comment">// 如果用户输入的是quit，程序退出循环</span><br>			<span class="hljs-keyword">break</span>;<br>		&#125;<br>		<span class="hljs-comment">// 如果用户输入的不是quit</span><br>		<span class="hljs-comment">// 把内容拷贝到写入文件缓冲区中</span><br>		<span class="hljs-built_in">strcpy</span>(buf_write, buf_read);<br>		<span class="hljs-comment">// 打印提示信息</span><br>		<span class="hljs-type">char</span> output_message[<span class="hljs-number">100</span>] = <span class="hljs-string">&quot;output some words : &quot;</span>;<br>		<span class="hljs-built_in">write</span>(STDOUT_FILENO, output_message, <span class="hljs-built_in">sizeof</span>(output_message));<br>		<span class="hljs-comment">// 将信息显示在屏幕上</span><br>		<span class="hljs-built_in">write</span>(STDOUT_FILENO, buf_write, <span class="hljs-built_in">strlen</span>(buf_write));<br>	&#125;	<br>	<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>输出结果为：</p>
+<img src="/2023/06/26/linux%E4%B8%ADpipe%E5%92%8Cdup2%E8%AF%A6%E8%A7%A3/image-20230626220856696.png" srcset="/img/loading.gif" lazyload alt="image-20230626220856696" style="zoom:80%;">
 
-<img src="/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/image-20230626215903169.png" srcset="/img/loading.gif" lazyload alt="image-20230626215903169" style="zoom:80%;">
+<p>当管道中数据被读取后，管道为空。之后再read操作将默认的被阻塞，等待某些数据被写入。如需要设置为非阻塞，则可做如下设置：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">fcntl</span>(filedes[<span class="hljs-number">0</span>], F_SETFL, O_NONBLOCK);<br><span class="hljs-built_in">fcntl</span>(filedes[<span class="hljs-number">1</span>], F_SETFL, O_NONBLOCK);<br></code></pre></td></tr></table></figure>
 
-<p>程序实现了，没有使用scanf和printf，从键盘接收用户输入和将用户输入的信息打印到屏幕上。</p>
+<h2 id="6-dup2读取"><a href="#6-dup2读取" class="headerlink" title="6.dup2读取"></a>6.dup2读取</h2><p>用来复制一个现存的文件描述符，使两个文件描述符指向同一个<code>file</code>结构体。</p>
+<p>其中头文件：#include &lt;unistd.h&gt;</p>
+<p>函数原型：int dup2(int oldhandle, int newhandle);</p>
+<p>例子还是使用上面那个例子，如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/wait.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> fd[<span class="hljs-number">2</span>];<br>    <span class="hljs-type">char</span> buf[<span class="hljs-number">1024</span>];<br>    <span class="hljs-type">pid_t</span> pid;<br>    <span class="hljs-type">int</span> newfd;<br>    <span class="hljs-keyword">if</span>(<span class="hljs-built_in">pipe</span>(fd) != <span class="hljs-number">0</span>)<br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;pipe error\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    pid = fork();<br><br>    <span class="hljs-keyword">if</span>(pid == <span class="hljs-number">-1</span>)<br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fork error\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(pid &gt; <span class="hljs-number">0</span>)<br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;This is the father process, here write a string to the pipe\n&quot;</span>);<br>        <span class="hljs-type">char</span> s[] = <span class="hljs-string">&quot;Hello! write a string in the father process\n&quot;</span>;<br>        <span class="hljs-built_in">close</span>(fd[<span class="hljs-number">0</span>]);<br>        <span class="hljs-built_in">write</span>(fd[<span class="hljs-number">1</span>], s, <span class="hljs-built_in">sizeof</span>(s));              <span class="hljs-comment">// 向管道中写入数据</span><br><br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;This is the child process, here read a string from the pipe\n&quot;</span>);<br>        <span class="hljs-built_in">close</span>(fd[<span class="hljs-number">1</span>]);<br>        <span class="hljs-built_in">dup2</span>(fd[<span class="hljs-number">0</span>], newfd);<br>        <span class="hljs-built_in">read</span>(newfd, buf, <span class="hljs-built_in">sizeof</span>(buf));          <span class="hljs-comment">//从管道中读取数据</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s&quot;</span>, buf);<br>    &#125;<br>    <span class="hljs-built_in">waitpid</span>(pid, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行的结果还是一样。只是在36行代码中调用了dup2,把fd[0]复制给newfd。</p>
+<img src="/2023/06/26/linux%E4%B8%ADpipe%E5%92%8Cdup2%E8%AF%A6%E8%A7%A3/image-20230626221136998.png" srcset="/img/loading.gif" lazyload alt="image-20230626221136998" style="zoom:80%;">
 
                 
               </div>
@@ -368,8 +381,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Linux中的STDIN_FILENO和STDOUT_FILENO</div>
-      <div>http://example.com/2023/06/26/Linux中的STDIN-FILENO和STDOUT-FILENO/</div>
+      <div>【转载】linux中pipe和dup2详解</div>
+      <div>http://example.com/2023/06/26/linux中pipe和dup2详解/</div>
     </div>
     <div class="license-meta">
       
@@ -413,18 +426,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/06/26/linux%E4%B8%ADpipe%E5%92%8Cdup2%E8%AF%A6%E8%A7%A3/" title="【转载】linux中pipe和dup2详解">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">【转载】linux中pipe和dup2详解</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/06/24/%E3%80%90%E7%A7%91%E6%99%AE%E3%80%91%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E6%8A%80%E6%9C%AF%EF%BC%88%E5%85%AC%E9%92%A5%E4%BD%93%E7%B3%BB%EF%BC%89%E3%80%90%E5%85%AC%E9%92%A5-%E7%A7%81%E9%92%A5-%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D-CA%E8%AF%81%E4%B9%A6%E3%80%91/" title="【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】">
-                        <span class="hidden-mobile">【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】</span>
+                      <a href="/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/" title="Linux中的STDIN_FILENO和STDOUT_FILENO">
+                        <span class="hidden-mobile">Linux中的STDIN_FILENO和STDOUT_FILENO</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
