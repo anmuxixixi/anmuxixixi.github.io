@@ -16,26 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="vold中fork子进程执行命令 🍃 前置知识：  linux中pipe和dup2详解 Linux中的STDIN_FILENO和STDOUT_FILENO_ 记录fork子进程执行execl阻塞卡死的问题   1.fork子进程执行命令123456789101112131415161718192021222324252627282930313233343536373839404142434445">
+    <meta name="description" content="vfat文件系统 https:&#x2F;&#x2F;www.cnblogs.com&#x2F;Chary&#x2F;p&#x2F;12981056.html  1.分析Vfat文件系统的DBRvfat文件系统的DBR有5部分组成，分别为跳转指令，OEM代号，BPB，引导程序和结束标志。 12345678910111213141516171819202122232425262728293031323334353637383940414243444">
 <meta property="og:type" content="article">
-<meta property="og:title" content="vold中fork子进程执行命令">
-<meta property="og:url" content="http://example.com/2023/06/26/vold%E4%B8%ADfork%E5%AD%90%E8%BF%9B%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:title" content="vfat文件系统">
+<meta property="og:url" content="http://example.com/2023/06/29/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="vold中fork子进程执行命令 🍃 前置知识：  linux中pipe和dup2详解 Linux中的STDIN_FILENO和STDOUT_FILENO_ 记录fork子进程执行execl阻塞卡死的问题   1.fork子进程执行命令123456789101112131415161718192021222324252627282930313233343536373839404142434445">
+<meta property="og:description" content="vfat文件系统 https:&#x2F;&#x2F;www.cnblogs.com&#x2F;Chary&#x2F;p&#x2F;12981056.html  1.分析Vfat文件系统的DBRvfat文件系统的DBR有5部分组成，分别为跳转指令，OEM代号，BPB，引导程序和结束标志。 12345678910111213141516171819202122232425262728293031323334353637383940414243444">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/06/26/vold%E4%B8%ADfork%E5%AD%90%E8%BF%9B%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/image-20230626230653727.png">
-<meta property="article:published_time" content="2023-06-26T14:13:52.000Z">
-<meta property="article:modified_time" content="2023-06-26T15:22:54.005Z">
+<meta property="article:published_time" content="2023-06-29T14:49:35.000Z">
+<meta property="article:modified_time" content="2023-06-29T15:34:23.609Z">
 <meta property="article:author" content="OneAmx">
-<meta property="article:tag" content="Android">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/06/26/vold%E4%B8%ADfork%E5%AD%90%E8%BF%9B%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/image-20230626230653727.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>vold中fork子进程执行命令 - 一只安慕嘻</title>
+  <title>vfat文件系统 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -217,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="vold中fork子进程执行命令"></span>
+            <span id="subtitle" data-typed-text="vfat文件系统"></span>
           
         </div>
 
@@ -228,8 +225,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-06-26 22:13" pubdate>
-          2023年6月26日 晚上
+        <time datetime="2023-06-29 22:49" pubdate>
+          2023年6月29日 晚上
         </time>
       </span>
     
@@ -240,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.2k 字
+          3k 字
         
       </span>
     
@@ -251,7 +248,7 @@
         
         
         
-          19 分钟
+          26 分钟
         
       </span>
     
@@ -297,32 +294,100 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">vold中fork子进程执行命令</h1>
+            <h1 style="display: none">vfat文件系统</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="vold中fork子进程执行命令"><a href="#vold中fork子进程执行命令" class="headerlink" title="vold中fork子进程执行命令"></a>vold中fork子进程执行命令</h1><blockquote>
-<p>🍃 前置知识：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/06/26/linux%E4%B8%ADpipe%E5%92%8Cdup2%E8%AF%A6%E8%A7%A3/">linux中pipe和dup2详解</a></li>
-<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/06/26/Linux%E4%B8%AD%E7%9A%84STDIN-FILENO%E5%92%8CSTDOUT-FILENO/">Linux中的STDIN_FILENO和STDOUT_FILENO_</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/duapple/article/details/126918593">记录fork子进程执行execl阻塞卡死的问题</a></li>
-</ul>
+                <h1 id="vfat文件系统"><a href="#vfat文件系统" class="headerlink" title="vfat文件系统"></a>vfat文件系统</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Chary/p/12981056.html">https://www.cnblogs.com/Chary/p/12981056.html</a></p>
 </blockquote>
-<h2 id="1-fork子进程执行命令"><a href="#1-fork子进程执行命令" class="headerlink" title="1.fork子进程执行命令"></a>1.fork子进程执行命令</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\vold\Utils.cpp</span><br><span class="hljs-function"><span class="hljs-type">status_t</span> <span class="hljs-title">ForkExecvp</span><span class="hljs-params">(<span class="hljs-type">const</span> std::vector&lt;std::string&gt;&amp; args, std::vector&lt;std::string&gt;* output,</span></span><br><span class="hljs-params"><span class="hljs-function">                    <span class="hljs-type">security_context_t</span> context)</span> </span>&#123;<br>    <span class="hljs-keyword">auto</span> argv = <span class="hljs-built_in">ConvertToArgv</span>(args);<br><br>    android::base::unique_fd pipe_read, pipe_write;<br>    <span class="hljs-keyword">if</span> (!android::base::<span class="hljs-built_in">Pipe</span>(&amp;pipe_read, &amp;pipe_write)) &#123;<br>        <span class="hljs-built_in">PLOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;Pipe in ForkExecvp&quot;</span>;<br>        <span class="hljs-keyword">return</span> -errno;<br>    &#125;<br><br>    <span class="hljs-type">pid_t</span> pid = fork();<br>    <span class="hljs-keyword">if</span> (pid == <span class="hljs-number">0</span>) &#123;<br>        pipe_read.<span class="hljs-built_in">reset</span>();<br>        <span class="hljs-comment">// 将STDOUT_FILENO(也就是终端输出)重定向到pipe_write</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">dup2</span>(pipe_write.<span class="hljs-built_in">get</span>(), STDOUT_FILENO) == <span class="hljs-number">-1</span>) &#123;<br>            <span class="hljs-built_in">PLOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;dup2 in ForkExecvp&quot;</span>;<br>            _exit(EXIT_FAILURE);<br>        &#125;<br>        pipe_write.<span class="hljs-built_in">reset</span>();<br>        <span class="hljs-comment">// 执行命令</span><br>        <span class="hljs-built_in">execvp</span>(argv[<span class="hljs-number">0</span>], <span class="hljs-built_in">const_cast</span>&lt;<span class="hljs-type">char</span>**&gt;(argv.<span class="hljs-built_in">data</span>()));<br>        <span class="hljs-built_in">PLOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;exec in ForkExecvp&quot;</span>;<br>        _exit(EXIT_FAILURE);<br>    &#125;<br><br>    pipe_write.<span class="hljs-built_in">reset</span>();<br>    <span class="hljs-keyword">auto</span> st = <span class="hljs-built_in">ReadLinesFromFdAndLog</span>(output, std::<span class="hljs-built_in">move</span>(pipe_read));<br>    <span class="hljs-keyword">if</span> (st != <span class="hljs-number">0</span>) <span class="hljs-keyword">return</span> st;<br><br>    <span class="hljs-type">int</span> status;<br>    <span class="hljs-comment">// 等待子进程执行结束</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">waitpid</span>(pid, &amp;status, <span class="hljs-number">0</span>) == <span class="hljs-number">-1</span>) &#123;<br>        <span class="hljs-built_in">PLOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;waitpid in ForkExecvp&quot;</span>;<br>        <span class="hljs-keyword">return</span> -errno;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> OK;<br>&#125;<br><br>---------------------------------------------------<br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">status_t</span> <span class="hljs-title">ReadLinesFromFdAndLog</span><span class="hljs-params">(std::vector&lt;std::string&gt;* output,</span></span><br><span class="hljs-params"><span class="hljs-function">                                      android::base::unique_fd ufd)</span> </span>&#123;<br>    <span class="hljs-function">std::unique_ptr&lt;FILE, <span class="hljs-title">int</span> <span class="hljs-params">(*)</span><span class="hljs-params">(FILE*)</span>&gt; <span class="hljs-title">fp</span><span class="hljs-params">(android::base::Fdopen(std::move(ufd), <span class="hljs-string">&quot;r&quot;</span>), fclose)</span></span>;<br>    <span class="hljs-type">char</span> line[<span class="hljs-number">1024</span>];<br>    <span class="hljs-keyword">while</span> (<span class="hljs-built_in">fgets</span>(line, <span class="hljs-built_in">sizeof</span>(line), fp.<span class="hljs-built_in">get</span>()) != <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-built_in">LOG</span>(DEBUG) &lt;&lt; line;<br>    &#125;<br>    <span class="hljs-keyword">return</span> OK;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="1-分析Vfat文件系统的DBR"><a href="#1-分析Vfat文件系统的DBR" class="headerlink" title="1.分析Vfat文件系统的DBR"></a>1.分析Vfat文件系统的DBR</h2><p>vfat文件系统的DBR有5部分组成，分别为跳转指令，OEM代号，BPB，引导程序和结束标志。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs shell">00000000  eb 58 90 6d 6b 66 73 2e  66 61 74 00 02 08 20 00  |.X.mkfs.fat... .|<br>00000010  02 00 00 00 00 f8 00 00  3f 00 ff 00 00 08 00 00  |........?.......|<br>00000020  00 00 39 00 40 0e 00 00  00 00 00 00 02 00 00 00  |..9.@...........|<br>00000030  01 00 06 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>00000040  80 00 29 d7 6c d4 7e 4e  4f 20 4e 41 4d 45 20 20  |..).l.~NO NAME  |<br>00000050  20 20 46 41 54 33 32 20  20 20 0e 1f be 77 7c ac  |  FAT32   ...w|.|<br>00000060  22 c0 74 0b 56 b4 0e bb  07 00 cd 10 5e eb f0 32  |&quot;.t.V.......^..2|<br>00000070  e4 cd 16 cd 19 eb fe 54  68 69 73 20 69 73 20 6e  |.......This is n|<br>00000080  6f 74 20 61 20 62 6f 6f  74 61 62 6c 65 20 64 69  |ot a bootable di|<br>00000090  73 6b 2e 20 20 50 6c 65  61 73 65 20 69 6e 73 65  |sk.  Please inse|<br>000000a0  72 74 20 61 20 62 6f 6f  74 61 62 6c 65 20 66 6c  |rt a bootable fl|<br>000000b0  6f 70 70 79 20 61 6e 64  0d 0a 70 72 65 73 73 20  |oppy and..press |<br>000000c0  61 6e 79 20 6b 65 79 20  74 6f 20 74 72 79 20 61  |any key to try a|<br>000000d0  67 61 69 6e 20 2e 2e 2e  20 0d 0a 00 00 00 00 00  |gain ... .......|<br>000000e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|<br>00000200  52 52 61 41 00 00 00 00  00 00 00 00 00 00 00 00  |RRaA............|<br>00000210  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>000003e0  00 00 00 00 72 72 41 61  6b 1c 07 00 02 00 00 00  |....rrAak.......|<br>000003f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|<br>00000400  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>00000c00  eb 58 90 6d 6b 66 73 2e  66 61 74 00 02 08 20 00  |.X.mkfs.fat... .|<br>00000c10  02 00 00 00 00 f8 00 00  3f 00 ff 00 00 08 00 00  |........?.......|<br>00000c20  00 00 39 00 40 0e 00 00  00 00 00 00 02 00 00 00  |..9.@...........|<br>00000c30  01 00 06 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>00000c40  80 00 29 d7 6c d4 7e 4e  4f 20 4e 41 4d 45 20 20  |..).l.~NO NAME  |<br>00000c50  20 20 46 41 54 33 32 20  20 20 0e 1f be 77 7c ac  |  FAT32   ...w|.|<br>00000c60  22 c0 74 0b 56 b4 0e bb  07 00 cd 10 5e eb f0 32  |&quot;.t.V.......^..2|<br>00000c70  e4 cd 16 cd 19 eb fe 54  68 69 73 20 69 73 20 6e  |.......This is n|<br>00000c80  6f 74 20 61 20 62 6f 6f  74 61 62 6c 65 20 64 69  |ot a bootable di|<br>00000c90  73 6b 2e 20 20 50 6c 65  61 73 65 20 69 6e 73 65  |sk.  Please inse|<br>00000ca0  72 74 20 61 20 62 6f 6f  74 61 62 6c 65 20 66 6c  |rt a bootable fl|<br>00000cb0  6f 70 70 79 20 61 6e 64  0d 0a 70 72 65 73 73 20  |oppy and..press |<br>00000cc0  61 6e 79 20 6b 65 79 20  74 6f 20 74 72 79 20 61  |any key to try a|<br>00000cd0  67 61 69 6e 20 2e 2e 2e  20 0d 0a 00 00 00 00 00  |gain ... .......|<br>00000ce0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>00000df0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|<br>00000e00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>00004000  f8 ff ff 0f ff ff ff 0f  f8 ff ff 0f 00 00 00 00  |................|<br>00004010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>001cc000  f8 ff ff 0f ff ff ff 0f  f8 ff ff 0f 00 00 00 00  |................|<br>001cc010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>72000000<br></code></pre></td></tr></table></figure>
 
-<p>这里其实就是fork子进程后理解调用exec族函数execvp去执行命令。</p>
-<img src="/2023/06/26/vold%E4%B8%ADfork%E5%AD%90%E8%BF%9B%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/image-20230626230653727.png" srcset="/img/loading.gif" lazyload alt="image-20230626230653727" style="zoom: 80%;">
-
-<h2 id="2-异步执行fork子进程执行命令"><a href="#2-异步执行fork子进程执行命令" class="headerlink" title="2.异步执行fork子进程执行命令"></a>2.异步执行fork子进程执行命令</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">pid_t</span> <span class="hljs-title">ForkExecvpAsync</span><span class="hljs-params">(<span class="hljs-type">const</span> std::vector&lt;std::string&gt;&amp; args)</span> </span>&#123;<br>    <span class="hljs-keyword">auto</span> argv = <span class="hljs-built_in">ConvertToArgv</span>(args);<br><br>    <span class="hljs-type">pid_t</span> pid = fork();<br>    <span class="hljs-keyword">if</span> (pid == <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-comment">// 关闭了所有的流</span><br>        <span class="hljs-built_in">close</span>(STDIN_FILENO);<br>        <span class="hljs-built_in">close</span>(STDOUT_FILENO);<br>        <span class="hljs-built_in">close</span>(STDERR_FILENO);<br>		<span class="hljs-comment">// 执行命令行</span><br>        <span class="hljs-built_in">execvp</span>(argv[<span class="hljs-number">0</span>], <span class="hljs-built_in">const_cast</span>&lt;<span class="hljs-type">char</span>**&gt;(argv.<span class="hljs-built_in">data</span>()));<br>        <span class="hljs-built_in">PLOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;exec in ForkExecvpAsync&quot;</span>;<br>        _exit(EXIT_FAILURE);<br>    &#125;<br>    <span class="hljs-keyword">return</span> pid;<br>&#125;<br><br></code></pre></td></tr></table></figure>
-
-<h2 id="3-差异"><a href="#3-差异" class="headerlink" title="3.差异"></a>3.差异</h2><p>ForkExecvp与ForkExecvpAsync对比后差异在于：</p>
-<ul>
-<li>ForkExecvp会将命令行执行的结果通过日志打印出来，而ForkExecvpAsync则执行执行命令行</li>
-<li>ForkExecvp在多线程某种极端的情况下，可能发生死锁【<a target="_blank" rel="noopener" href="https://blog.csdn.net/duapple/article/details/126918593%E3%80%91%E3%80%82">https://blog.csdn.net/duapple/article/details/126918593】。</a></li>
-<li>使用了匿名管道的ForkExecvp是非异步的，而ForkExecvpAsync是异步的</li>
-</ul>
+<p><strong>（1）跳转指令</strong></p>
+<p><strong>E8 58 90 ：(跳转指令) 本身占2字节它将程序执行流程跳转到引导程序处。</strong></p>
+<p><strong>（2）OEM代号</strong></p>
+<p><strong>4D 53 57 49 4E 34 2E 31 :(OEM代号) 这部分占8字节，其内容由创建该文件系统的OEM厂商具体安排。</strong></p>
+<p><strong>（3）BPB</strong></p>
+<p>vfat的BPB从DBR的第12个字节开始，占用79字节，记录了有关该文件系统的重要信息，各参数解释如下表：</p>
+<p><strong>前面53个字节是BPB，后面26个字节是扩展BPB。</strong></p>
+<table>
+<thead>
+<tr>
+<th>对应值</th>
+<th>字段长度（Byte）</th>
+<th>名称和定义</th>
+<th>取值含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0x0200</td>
+<td>2</td>
+<td>扇区字节数（Byte Per Sector）</td>
+<td>每个扇区512字节</td>
+</tr>
+<tr>
+<td>0x08</td>
+<td>1</td>
+<td>每簇扇区数（Sector Per Cluster）</td>
+<td>每簇8个扇区</td>
+</tr>
+<tr>
+<td>0x0020</td>
+<td>2</td>
+<td>保留扇区数</td>
+<td>保留32个扇区</td>
+</tr>
+<tr>
+<td>0x02</td>
+<td>1</td>
+<td>FAT数</td>
+<td>2个FAT</td>
+</tr>
+<tr>
+<td>0x0000</td>
+<td>2</td>
+<td>根目录项数（只有FAT12&#x2F;FAT16使用此字段）</td>
+<td>根目录项数为0</td>
+</tr>
+<tr>
+<td>0x0000</td>
+<td>2</td>
+<td>小扇区数（只有FAT12&#x2F;FAT16使用此字段）</td>
+<td>小扇区数为0</td>
+</tr>
+<tr>
+<td>0xf8</td>
+<td>1</td>
+<td>媒体描述符（0xf8表示硬盘）</td>
+<td>硬盘</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
 
                 
               </div>
@@ -331,34 +396,6 @@
             <div>
               <div class="post-metas my-3">
   
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Android学习笔记</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
-  
-    <div class="post-meta">
-      <i class="iconfont icon-tags"></i>
-      
-        <a href="/tags/Android/">#Android</a>
-      
-    </div>
   
 </div>
 
@@ -368,8 +405,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>vold中fork子进程执行命令</div>
-      <div>http://example.com/2023/06/26/vold中fork子进程执行命令/</div>
+      <div>vfat文件系统</div>
+      <div>http://example.com/2023/06/29/vfat文件系统/</div>
     </div>
     <div class="license-meta">
       
@@ -381,7 +418,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年6月26日</div>
+          <div>2023年6月29日</div>
         </div>
       
       
@@ -413,18 +450,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/06/29/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" title="vfat文件系统">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">vfat文件系统</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/06/26/linux%E4%B8%ADpipe%E5%92%8Cdup2%E8%AF%A6%E8%A7%A3/" title="【转载】linux中pipe和dup2详解">
-                        <span class="hidden-mobile">【转载】linux中pipe和dup2详解</span>
+                      <a href="/2023/06/26/vold%E4%B8%ADfork%E5%AD%90%E8%BF%9B%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/" title="vold中fork子进程执行命令">
+                        <span class="hidden-mobile">vold中fork子进程执行命令</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
