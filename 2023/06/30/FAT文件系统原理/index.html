@@ -16,23 +16,31 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="vfat文件系统 https:&#x2F;&#x2F;www.cnblogs.com&#x2F;Chary&#x2F;p&#x2F;12981056.html  1.分析Vfat文件系统的DBRvfat文件系统的DBR有5部分组成，分别为跳转指令，OEM代号，BPB，引导程序和结束标志。 12345678910111213141516171819202122232425262728293031323334353637383940414243444">
+    <meta name="description" content="【转载】FAT文件系统原理 转载自：http:&#x2F;&#x2F;info.mrtlab.com&#x2F;filesystem&#x2F;FAT-principle-three.html 仅作为个人学习记录，侵权联系删除！  FAT表(File Allocation Table 文件分配表)，是Microsoft在FAT文件系统中用于磁盘数据(文件)索引和定位引进的一种链式结构。假如把磁盘比作一本书，FAT表可以认为相当于书中的目">
 <meta property="og:type" content="article">
-<meta property="og:title" content="vfat文件系统">
-<meta property="og:url" content="http://example.com/2023/06/29/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:title" content="【转载】FAT文件系统原理">
+<meta property="og:url" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="vfat文件系统 https:&#x2F;&#x2F;www.cnblogs.com&#x2F;Chary&#x2F;p&#x2F;12981056.html  1.分析Vfat文件系统的DBRvfat文件系统的DBR有5部分组成，分别为跳转指令，OEM代号，BPB，引导程序和结束标志。 12345678910111213141516171819202122232425262728293031323334353637383940414243444">
+<meta property="og:description" content="【转载】FAT文件系统原理 转载自：http:&#x2F;&#x2F;info.mrtlab.com&#x2F;filesystem&#x2F;FAT-principle-three.html 仅作为个人学习记录，侵权联系删除！  FAT表(File Allocation Table 文件分配表)，是Microsoft在FAT文件系统中用于磁盘数据(文件)索引和定位引进的一种链式结构。假如把磁盘比作一本书，FAT表可以认为相当于书中的目">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-06-29T14:49:35.000Z">
-<meta property="article:modified_time" content="2023-06-29T15:34:23.609Z">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/9E224840581.gif">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/D7224840866.gif">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/AF224840326.gif">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/FF224840997.gif">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/DC224840568.gif">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/image-20230630230351647.png">
+<meta property="article:published_time" content="2023-06-30T14:56:47.000Z">
+<meta property="article:modified_time" content="2023-06-30T15:04:35.989Z">
 <meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Linux学习笔记">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/9E224840581.gif">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>vfat文件系统 - 一只安慕嘻</title>
+  <title>【转载】FAT文件系统原理 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +222,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="vfat文件系统"></span>
+            <span id="subtitle" data-typed-text="【转载】FAT文件系统原理"></span>
           
         </div>
 
@@ -225,8 +233,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-06-29 22:49" pubdate>
-          2023年6月29日 晚上
+        <time datetime="2023-06-30 22:56" pubdate>
+          2023年6月30日 晚上
         </time>
       </span>
     
@@ -237,7 +245,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3k 字
+          2.2k 字
         
       </span>
     
@@ -248,7 +256,7 @@
         
         
         
-          26 分钟
+          19 分钟
         
       </span>
     
@@ -294,100 +302,47 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">vfat文件系统</h1>
+            <h1 style="display: none">【转载】FAT文件系统原理</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="vfat文件系统"><a href="#vfat文件系统" class="headerlink" title="vfat文件系统"></a>vfat文件系统</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Chary/p/12981056.html">https://www.cnblogs.com/Chary/p/12981056.html</a></p>
+                <h1 id="【转载】FAT文件系统原理"><a href="#【转载】FAT文件系统原理" class="headerlink" title="【转载】FAT文件系统原理"></a>【转载】FAT文件系统原理</h1><blockquote>
+<p>转载自：<a target="_blank" rel="noopener" href="http://info.mrtlab.com/filesystem/FAT-principle-three.html">http://info.mrtlab.com/filesystem/FAT-principle-three.html</a></p>
+<p>仅作为个人学习记录，侵权联系删除！</p>
 </blockquote>
-<h2 id="1-分析Vfat文件系统的DBR"><a href="#1-分析Vfat文件系统的DBR" class="headerlink" title="1.分析Vfat文件系统的DBR"></a>1.分析Vfat文件系统的DBR</h2><p>vfat文件系统的DBR有5部分组成，分别为跳转指令，OEM代号，BPB，引导程序和结束标志。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs shell">00000000  eb 58 90 6d 6b 66 73 2e  66 61 74 00 02 08 20 00  |.X.mkfs.fat... .|<br>00000010  02 00 00 00 00 f8 00 00  3f 00 ff 00 00 08 00 00  |........?.......|<br>00000020  00 00 39 00 40 0e 00 00  00 00 00 00 02 00 00 00  |..9.@...........|<br>00000030  01 00 06 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>00000040  80 00 29 d7 6c d4 7e 4e  4f 20 4e 41 4d 45 20 20  |..).l.~NO NAME  |<br>00000050  20 20 46 41 54 33 32 20  20 20 0e 1f be 77 7c ac  |  FAT32   ...w|.|<br>00000060  22 c0 74 0b 56 b4 0e bb  07 00 cd 10 5e eb f0 32  |&quot;.t.V.......^..2|<br>00000070  e4 cd 16 cd 19 eb fe 54  68 69 73 20 69 73 20 6e  |.......This is n|<br>00000080  6f 74 20 61 20 62 6f 6f  74 61 62 6c 65 20 64 69  |ot a bootable di|<br>00000090  73 6b 2e 20 20 50 6c 65  61 73 65 20 69 6e 73 65  |sk.  Please inse|<br>000000a0  72 74 20 61 20 62 6f 6f  74 61 62 6c 65 20 66 6c  |rt a bootable fl|<br>000000b0  6f 70 70 79 20 61 6e 64  0d 0a 70 72 65 73 73 20  |oppy and..press |<br>000000c0  61 6e 79 20 6b 65 79 20  74 6f 20 74 72 79 20 61  |any key to try a|<br>000000d0  67 61 69 6e 20 2e 2e 2e  20 0d 0a 00 00 00 00 00  |gain ... .......|<br>000000e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|<br>00000200  52 52 61 41 00 00 00 00  00 00 00 00 00 00 00 00  |RRaA............|<br>00000210  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>000003e0  00 00 00 00 72 72 41 61  6b 1c 07 00 02 00 00 00  |....rrAak.......|<br>000003f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|<br>00000400  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>00000c00  eb 58 90 6d 6b 66 73 2e  66 61 74 00 02 08 20 00  |.X.mkfs.fat... .|<br>00000c10  02 00 00 00 00 f8 00 00  3f 00 ff 00 00 08 00 00  |........?.......|<br>00000c20  00 00 39 00 40 0e 00 00  00 00 00 00 02 00 00 00  |..9.@...........|<br>00000c30  01 00 06 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>00000c40  80 00 29 d7 6c d4 7e 4e  4f 20 4e 41 4d 45 20 20  |..).l.~NO NAME  |<br>00000c50  20 20 46 41 54 33 32 20  20 20 0e 1f be 77 7c ac  |  FAT32   ...w|.|<br>00000c60  22 c0 74 0b 56 b4 0e bb  07 00 cd 10 5e eb f0 32  |&quot;.t.V.......^..2|<br>00000c70  e4 cd 16 cd 19 eb fe 54  68 69 73 20 69 73 20 6e  |.......This is n|<br>00000c80  6f 74 20 61 20 62 6f 6f  74 61 62 6c 65 20 64 69  |ot a bootable di|<br>00000c90  73 6b 2e 20 20 50 6c 65  61 73 65 20 69 6e 73 65  |sk.  Please inse|<br>00000ca0  72 74 20 61 20 62 6f 6f  74 61 62 6c 65 20 66 6c  |rt a bootable fl|<br>00000cb0  6f 70 70 79 20 61 6e 64  0d 0a 70 72 65 73 73 20  |oppy and..press |<br>00000cc0  61 6e 79 20 6b 65 79 20  74 6f 20 74 72 79 20 61  |any key to try a|<br>00000cd0  67 61 69 6e 20 2e 2e 2e  20 0d 0a 00 00 00 00 00  |gain ... .......|<br>00000ce0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>00000df0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|<br>00000e00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>00004000  f8 ff ff 0f ff ff ff 0f  f8 ff ff 0f 00 00 00 00  |................|<br>00004010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>001cc000  f8 ff ff 0f ff ff ff 0f  f8 ff ff 0f 00 00 00 00  |................|<br>001cc010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>72000000<br></code></pre></td></tr></table></figure>
+<p>FAT表(File Allocation Table 文件分配表)，是Microsoft在FAT文件系统中用于磁盘数据(文件)索引和定位引进的一种链式结构。假如把磁盘比作一本书，FAT表可以认为相当于书中的目录，而文件就是各个章节的内容。但FAT表的表示方法却与目录有很大的不同。</p>
+<p>在FAT文件系统中，文件的存储依照FAT表制定的簇链式数据结构来进行。同时，FAT文件系统将组织数据时使用的目录也抽象为文件，以简化对数据的管理。</p>
+<hr>
+<p> ★存储过程假想：</p>
+<p>我们模拟对一个分区存储数据的过程来说明FAT文件系统中数据的存储原则。</p>
+<p>假定现在有一个空的完全没有存放数据的磁盘，大小为100KB，我们将其想象为线形的空间地址。为了存储管理上的便利，我们人为的将这100KB的空间均分成100份，每份1KB。我们来依次存储这样几个文件：A.TXT(大小10KB),B.TXT(大小53.6KB)，C.TXT(大小20.5KB)。</p>
+<p>最起码能够想到，我们可以顺序的在这100KB空间中存放这3个文件。同时不要忘了，我们还要记下他们的大小和开始的位置，这样下次要用时才能找的到，这就像是目录。为了便于查找，我们假定用第1K的空间来存储他们的特征(属性)。还有，我们设计的存储单位是1KB，所以，A.TXT我们需要10个存储单位(为了说明方便，我们把存储单位叫做“簇”吧。也能少打点字，呵呵。)，B.TXT需要54个簇，C.TXT需要21个簇。可能有人会说B.TXT和C.TXT不是各自浪费了不到1簇的空间吗？干嘛不让他们紧挨着，不是省地方吗？我的回答是，如果按照这样的方式存储，目录中原本只需要记下簇号，现在还需要记下簇内的偏移，这样会增加目录的存储量，而且存取没有了规则，读取也不太方便，是得不偿失的。</p>
+<p>根据上面所说的思想，我们设计了这样的图4.3.1所示的存储方式。</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/9E224840581.gif" srcset="/img/loading.gif" lazyload alt="img" style="zoom:100%;">
 
-<p><strong>（1）跳转指令</strong></p>
-<p><strong>E8 58 90 ：(跳转指令) 本身占2字节它将程序执行流程跳转到引导程序处。</strong></p>
-<p><strong>（2）OEM代号</strong></p>
-<p><strong>4D 53 57 49 4E 34 2E 31 :(OEM代号) 这部分占8字节，其内容由创建该文件系统的OEM厂商具体安排。</strong></p>
-<p><strong>（3）BPB</strong></p>
-<p>vfat的BPB从DBR的第12个字节开始，占用79字节，记录了有关该文件系统的重要信息，各参数解释如下表：</p>
-<p><strong>前面53个字节是BPB，后面26个字节是扩展BPB。</strong></p>
-<table>
-<thead>
-<tr>
-<th>对应值</th>
-<th>字段长度（Byte）</th>
-<th>名称和定义</th>
-<th>取值含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0x0200</td>
-<td>2</td>
-<td>扇区字节数（Byte Per Sector）</td>
-<td>每个扇区512字节</td>
-</tr>
-<tr>
-<td>0x08</td>
-<td>1</td>
-<td>每簇扇区数（Sector Per Cluster）</td>
-<td>每簇8个扇区</td>
-</tr>
-<tr>
-<td>0x0020</td>
-<td>2</td>
-<td>保留扇区数</td>
-<td>保留32个扇区</td>
-</tr>
-<tr>
-<td>0x02</td>
-<td>1</td>
-<td>FAT数</td>
-<td>2个FAT</td>
-</tr>
-<tr>
-<td>0x0000</td>
-<td>2</td>
-<td>根目录项数（只有FAT12&#x2F;FAT16使用此字段）</td>
-<td>根目录项数为0</td>
-</tr>
-<tr>
-<td>0x0000</td>
-<td>2</td>
-<td>小扇区数（只有FAT12&#x2F;FAT16使用此字段）</td>
-<td>小扇区数为0</td>
-</tr>
-<tr>
-<td>0xf8</td>
-<td>1</td>
-<td>媒体描述符（0xf8表示硬盘）</td>
-<td>硬盘</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody></table>
+<p>我们再考虑如何来写这三个文件的目录。对于每个文件而言，一定要记录的有：文件名，开始簇，大小，创建日期、时间，修改日期、时间，文件的读写属性等。这里大小能不能用结束簇来计算呢？一定不能，因为文件的大小不一定就是整数个簇的大小，否则的话像B.TXT的内容就是54KB的内容了，少了固然不行，可多了也是不行的。那么我们怎么记录呢？可以想象一下。为了管理上的方便，我们用数据库的管理方式来管理我们的目录。于是我把1KB再分成10份，假定开始簇号为0，定义每份100B的各个位置的代表含义如图4.3.2：</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/D7224840866.gif" srcset="/img/loading.gif" lazyload alt="img">
+
+<p>这样设计的结构绝对可以对文件进行正确的读写了。接着让我们设计的文件系统工作吧。先改动个文件，比如A.TXT，增加点内容吧！咦？增加后往哪里放呀，虽然存储块的后面有很多空间，但紧随其后B.TXT的数据还顶着呢？要是把A.TXT移到后边太浪费处理资源，而且也不一定解决问题。这个问题看来暂时解决不了。</p>
+<p>那我们换个操作，把B.txt删了，b.txt的空间随之释放。这时候空间如图4.3.3，目录如图4.3.4：</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/AF224840326.gif" srcset="/img/loading.gif" lazyload alt="img">
+
+<p>这个操作看来还可以，我们接着做，在存入一个文件D.txt(大小为60.3KB),总共100簇的空间只用了31簇，还有68簇剩余，按说能放下。可是？往那里放呢？没有61个连续的空间了，目录行没办法写了，看来无连续块存储暂时也不行。</p>
+<p>你一定能够想到我们可以在连续空间不够或增加文件长度的时候转移影响我们操作的其他文件，从而腾出空间来，但我要问你，那不是成天啥也不要干了，就是倒腾东西了吗？</p>
+<p>看来我们设计的文件系统有致命的漏洞，怎么解决呢？。。。。</p>
+<hr>
+<p>其实可以这样解决：</p>
+<p>首先我们允许文件的不连续存储。目录中依然只记录开始簇和文件的大小。那么我们怎么记录文件占用那些簇呢，以文件映射簇不太方便，因为文件名是不固定的。我们换个思想，可以用簇来映射文件，在整个存储空间的前部留下几簇来记录数据区中数据与簇号的关系。对于上例因为总空间也不大，所以用前部的1Kb的空间来记录这种对应，假设3个文件都存储，空间分配如图4.3.5，同时修改一下目录，如图4.3.6：</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/FF224840997.gif" srcset="/img/loading.gif" lazyload alt="img">
+
+<p>第一簇用来记录数据区中每一簇的被占用情况，暂时称其为文件分配表。结合文件分配表和文件目录就可以达到完全的文件读取了。我们想到，把文件分配表做成一个数据表，以图4.3.7的形式记录簇与数据的对应。</p>
+<p>用图4.3.7的组织方式是完全可以实现对文件占有簇的记录的。但还不够效率。比如文件名在文件分配表中记录太多，浪费空间，而实际上在目录中已经记录了文件的开始簇了。所以可以改良一下，用链的方式来存放占有簇的关系，变成图4.3.8的组织方式。</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/DC224840568.gif" srcset="/img/loading.gif" lazyload alt="img">
+
+<p>参照图4.3.8来理解一下文件分配表的意义。如文件a.txt我们根据目录项中指定的a.txt的首簇为2，然后找到文件分配表的第2簇记录，上面登记的是3，我们就能确定下一簇是3。找到文件分配表的第3簇记录，上面登记的是4，我们就能确定下一簇是4……直到指到第11簇，发现下一个指向是FF，就是结束。文件便丝毫无误读取完毕。</p>
+<p>我们再看上面提到的第三种情况，就是将b.txt删除以后，存入一个大小为60.3KB的d.txt。利用簇链可以很容易的实现。实现后的磁盘如图4.3.9 4.3.10 4.3.11：</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/image-20230630230351647.png" srcset="/img/loading.gif" lazyload alt="image-20230630230351647" style="zoom: 45%;">
 
                 
               </div>
@@ -396,6 +351,34 @@
             <div>
               <div class="post-metas my-3">
   
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">#Linux学习笔记</a>
+      
+    </div>
   
 </div>
 
@@ -405,8 +388,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>vfat文件系统</div>
-      <div>http://example.com/2023/06/29/vfat文件系统/</div>
+      <div>【转载】FAT文件系统原理</div>
+      <div>http://example.com/2023/06/30/FAT文件系统原理/</div>
     </div>
     <div class="license-meta">
       
@@ -418,7 +401,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年6月29日</div>
+          <div>2023年6月30日</div>
         </div>
       
       
@@ -450,18 +433,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/" title="【转载】FAT文件系统原理">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">【转载】FAT文件系统原理</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/06/26/vold%E4%B8%ADfork%E5%AD%90%E8%BF%9B%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/" title="vold中fork子进程执行命令">
-                        <span class="hidden-mobile">vold中fork子进程执行命令</span>
+                      <a href="/2023/06/29/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" title="vfat文件系统">
+                        <span class="hidden-mobile">vfat文件系统</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
