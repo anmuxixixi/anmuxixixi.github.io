@@ -1,0 +1,818 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="fsck_msdos学习笔记1.了解什么是FAT交叉链首先看一下这个定义：    cross-linked files是那些指向了同一个簇的fat entry。  下面我们再看这里给出的详细定义：http:&#x2F;&#x2F;www.edusoftmax.com&#x2F;cross_linked_file.html  MS-DOS organizes the disk’s data area into sections">
+<meta property="og:type" content="article">
+<meta property="og:title" content="fsck_msdos学习笔记">
+<meta property="og:url" content="http://example.com/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="fsck_msdos学习笔记1.了解什么是FAT交叉链首先看一下这个定义：    cross-linked files是那些指向了同一个簇的fat entry。  下面我们再看这里给出的详细定义：http:&#x2F;&#x2F;www.edusoftmax.com&#x2F;cross_linked_file.html  MS-DOS organizes the disk’s data area into sections">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703214405538.png">
+<meta property="og:image" content="http://example.com/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703215118346.png">
+<meta property="og:image" content="http://example.com/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703231451831.png">
+<meta property="og:image" content="http://example.com/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703231548196.png">
+<meta property="og:image" content="http://example.com/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703231704977.png">
+<meta property="og:image" content="http://example.com/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703232110410.png">
+<meta property="og:image" content="http://example.com/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703232906748.png">
+<meta property="article:published_time" content="2023-07-03T13:41:50.000Z">
+<meta property="article:modified_time" content="2023-07-03T15:30:19.050Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703214405538.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>fsck_msdos学习笔记 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="fsck_msdos学习笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-03 21:41" pubdate>
+          2023年7月3日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          87 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">fsck_msdos学习笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="fsck-msdos学习笔记"><a href="#fsck-msdos学习笔记" class="headerlink" title="fsck_msdos学习笔记"></a>fsck_msdos学习笔记</h1><h2 id="1-了解什么是FAT交叉链"><a href="#1-了解什么是FAT交叉链" class="headerlink" title="1.了解什么是FAT交叉链"></a>1.了解什么是FAT交叉链</h2><p>首先看一下这个定义：</p>
+<img src="/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703214405538.png" srcset="/img/loading.gif" lazyload alt="image-20230703214405538" style="zoom: 50%;">
+
+<blockquote>
+<p>cross-linked files是那些指向了同一个簇的fat entry。</p>
+</blockquote>
+<p>下面我们再看这里给出的详细定义：<a target="_blank" rel="noopener" href="http://www.edusoftmax.com/cross_linked_file.html">http://www.edusoftmax.com/cross_linked_file.html</a></p>
+<blockquote>
+<p>MS-DOS organizes the disk’s data area into sections called clusters or allocation units. Each file has its own directory entry, which includes the file name, size, attribute information, date, time, and the cluster where the start of the file is stored.</p>
+<p>The file allocation table (FAT) includes an entry for each cluster. Each cluster’s entry includes either a code specifying that it is the last cluster in the file, or the number of the next cluster used by the file. Clusters can also be marked unusable, which CHKDSK reports as bad sectors.</p>
+<p>When the computer tries to save data to the hard drive in a place where a file already exists, the two files become cross-linked. When this occurs, data from both files share the same sector on the hard drive causing both to become corrupt. In some cases, one of the cross-linked files can be saved, but often both must be deleted.</p>
+<p>For example, suppose you have two files, each 512 bytes in size. Each file requires one cluster. If both files are marked as being located in cluster 5, then cluster 5 probably contains the file with the later date. You can confirm this by looking at it (if it’s a data file) or running it (if it’s a program).</p>
+<p>Cross-linked files are generally created when the computer is improperly shut down or an application abnormally aborts.</p>
+</blockquote>
+<p>这里解释的也是相当的清楚，<strong>当计算机试图将数据保存到已经存在文件的硬盘时，这两个文件会交叉连接。</strong></p>
+<hr>
+<p>下面只是定义，看起来仍然比较的抽象，下面我画一个图进行说明：</p>
+<img src="/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703215118346.png" srcset="/img/loading.gif" lazyload alt="image-20230703215118346" style="zoom:67%;">
+
+<ul>
+<li>假设文件hello1.txt的簇链为3-&gt;5-&gt;7-&gt;8</li>
+<li>假设文件hello2.txt的簇链为4-&gt;6-&gt;7-&gt;8</li>
+<li>可以发现两条链是相交的，且相交点在7这个位置！</li>
+</ul>
+<h2 id="2-Android-P之前fsck-msdos"><a href="#2-Android-P之前fsck-msdos" class="headerlink" title="2.Android P之前fsck_msdos"></a>2.Android P之前fsck_msdos</h2><p>前面读取bootblock啥的都比较简单就不贴了！</p>
+<h3 id="2-1-读取fat表readfat"><a href="#2-1-读取fat表readfat" class="headerlink" title="2.1 读取fat表readfat"></a>2.1 读取fat表readfat</h3><p>这里先只看FAT32，其余的FAT12和FAT16都是大差不差的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">readfat</span><span class="hljs-params">(<span class="hljs-type">int</span> fs, <span class="hljs-keyword">struct</span> bootblock *boot, <span class="hljs-type">int</span> no, <span class="hljs-keyword">struct</span> fatEntry **fp)</span> &#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fatEntry</span> *<span class="hljs-title">fat</span>;</span><br>	u_char *buffer, *p;<br>	<span class="hljs-type">cl_t</span> cl;<br>	<span class="hljs-type">int</span> ret = FSOK;<br><br>	boot-&gt;NumFree = boot-&gt;NumBad = <span class="hljs-number">0</span>;<br>	<br>	<span class="hljs-keyword">if</span> (!_readfat(fs, boot, no, &amp;buffer))<br>		<span class="hljs-keyword">return</span> FSFATAL;<br>		<br>	fat = <span class="hljs-built_in">calloc</span>(boot-&gt;NumClusters, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> fatEntry));<br><br>	<span class="hljs-keyword">switch</span> (boot-&gt;ClustMask) &#123;<br>	<span class="hljs-keyword">case</span> CLUST32_MASK:<br>		p = buffer + <span class="hljs-number">8</span>;<br>		<span class="hljs-keyword">break</span>;<br>	&#125;<br>	<span class="hljs-keyword">for</span> (cl = CLUST_FIRST; cl &lt; boot-&gt;NumClusters;) &#123;<br>		<span class="hljs-keyword">switch</span> (boot-&gt;ClustMask) &#123;<br>		<span class="hljs-keyword">case</span> CLUST32_MASK:<br>			fat[cl].next = p[<span class="hljs-number">0</span>] + (p[<span class="hljs-number">1</span>] &lt;&lt; <span class="hljs-number">8</span>)<br>				       + (p[<span class="hljs-number">2</span>] &lt;&lt; <span class="hljs-number">16</span>) + (p[<span class="hljs-number">3</span>] &lt;&lt; <span class="hljs-number">24</span>);<br>			fat[cl].next &amp;= boot-&gt;ClustMask;<br>			ret |= checkclnum(boot, no, cl, &amp;fat[cl].next);<br>			cl++;<br>			p += <span class="hljs-number">4</span>;<br>			<span class="hljs-keyword">break</span>;<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-built_in">free</span>(buffer);<br>	*fp = fat;<br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-2-检查fat表项checkfat"><a href="#2-2-检查fat表项checkfat" class="headerlink" title="2.2 检查fat表项checkfat"></a>2.2 检查fat表项checkfat</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// external/fsck_msdos/fat.c</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">checkfat</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bootblock *boot, <span class="hljs-keyword">struct</span> fatEntry *fat)</span><br>&#123;<br>	<span class="hljs-type">cl_t</span> head, p, h, n;<br>	u_int len;<br>	<span class="hljs-type">int</span> ret = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">int</span> conf;<br><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * pass 1: 确定所有的簇链</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-keyword">for</span> (head = CLUST_FIRST; head &lt; boot-&gt;NumClusters; head++) &#123;<br>		<span class="hljs-comment">/* find next untravelled chain */</span><br>		<span class="hljs-keyword">if</span> (fat[head].head != <span class="hljs-number">0</span>		<span class="hljs-comment">/* 如果当前的head不是0，说明当前节点已经隶属于另外一条簇链了 */</span><br>		    || fat[head].next == CLUST_FREE<br>		    || fat[head].next == CLUST_BAD)<br>			<span class="hljs-keyword">continue</span>;		<span class="hljs-comment">/* skip it. */</span><br><br>		<span class="hljs-comment">/* 遍历簇链：将链上的每一个节点设置为当前的簇链头head */</span><br>		<span class="hljs-keyword">for</span> (len = <span class="hljs-number">0</span>, p = head;<br>		     p &gt;= CLUST_FIRST &amp;&amp; p &lt; boot-&gt;NumClusters &amp;&amp;<br>		     fat[p].head != head;<br>		     p = fat[p].next) &#123;<br>			fat[p].head = head;<br>			len++;<br>		&#125;<br><br>		<span class="hljs-comment">/* 给簇链头设置簇链长度 */</span><br>		fat[head].length = fat[head].next == CLUST_FREE ? <span class="hljs-number">0</span> : len;<br>	&#125;<br><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * pass 2: 检查是否有交叉链</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-keyword">for</span> (head = CLUST_FIRST; head &lt; boot-&gt;NumClusters; head++) &#123;<br>		<span class="hljs-comment">/* 找到簇链头 */</span><br>		<span class="hljs-keyword">if</span> (fat[head].head != head)<br>			<span class="hljs-keyword">continue</span>;<br>        <span class="hljs-comment">// 退出循环的条件有2个</span><br>        <span class="hljs-comment">// 1.出现交叉链，也就是fat[n].fat.head!=head</span><br>        <span class="hljs-comment">// 2.簇链已经损坏</span><br>		<span class="hljs-keyword">for</span> (p = head,wdk=boot-&gt;NumClusters;<br>		     (n = fat[p].next) &gt;= CLUST_FIRST &amp;&amp; n &lt; boot-&gt;NumClusters &amp;&amp; wdk;p = n,wdk--) &#123;<br>			<span class="hljs-keyword">if</span> (fat[n].head != head)<br>				<span class="hljs-keyword">break</span>;<br>		&#125;<br>	<br>        <span class="hljs-comment">// 情况一：如果是正常的结尾：包括FAT结尾或者文件簇链结尾</span><br>		<span class="hljs-keyword">if</span> (n &gt;= CLUST_EOFS)<br>			<span class="hljs-keyword">continue</span>;<br>		<br>        <span class="hljs-comment">// 情况二：当前簇是空闲的或者在保留簇区域内</span><br>		<span class="hljs-keyword">if</span> (n == CLUST_FREE || n &gt;= CLUST_RSRVD) &#123;<br>			pwarn(<span class="hljs-string">&quot;Cluster chain starting at %u ends with cluster marked %s\n&quot;</span>, head, rsrvdcltype(n));<br>			ret |= tryclear(boot, fat, head, &amp;fat[p].next);<br>			<span class="hljs-keyword">continue</span>;<br>		&#125;<br>        <span class="hljs-comment">// 情况三：当前簇在前2个簇以内或超出簇数量</span><br>		<span class="hljs-keyword">if</span> (n &lt; CLUST_FIRST || n &gt;= boot-&gt;NumClusters) &#123;<br>			pwarn(<span class="hljs-string">&quot;Cluster chain starting at %u ends with cluster out of range (%u)\n&quot;</span>, head, n);<br>			ret |= tryclear(boot, fat, head, &amp;fat[p].next);<br>			<span class="hljs-keyword">continue</span>;<br>		&#125;<br>        <span class="hljs-comment">// 情况四：出现了交叉链</span><br>		pwarn(<span class="hljs-string">&quot;Cluster chains starting at %u and %u are linked at cluster %u\n&quot;</span>, head, fat[n].head, n);<br>		conf = tryclear(boot, fat, head, &amp;fat[p].next);<br>		ret |= conf;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们以第1节中的交叉链为例进行说明，此时2个链的情况分别如下：</p>
+<ul>
+<li>簇链1：3-&gt;5-&gt;7-&gt;8</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th>3</th>
+<th>5</th>
+<th>7</th>
+<th>8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>簇值</td>
+<td>5</td>
+<td>7</td>
+<td>8</td>
+<td>EOF</td>
+</tr>
+<tr>
+<td>头</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+</tbody></table>
+<ul>
+<li>簇链2：4-&gt;6-&gt;7-&gt;8</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th>4</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>簇值</td>
+<td>6</td>
+<td>7</td>
+<td>8</td>
+<td>EOF</td>
+</tr>
+<tr>
+<td>头</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<p>说明一下代码的执行流程：</p>
+<ol>
+<li>当遍历第一个簇链时，发现fat[7].next &#x3D; 8，此时fat[7].head &#x3D; 3，同理fat[8].head &#x3D; 3</li>
+<li>但是当遍历第二哥簇链时，fat[7].head &#x3D; 4，同理fat[8].head &#x3D; 4</li>
+</ol>
+<p>因此交叉链出现，在p<strong>ass 2: 检查是否有交叉链</strong>时，就会检测出这是交叉链，因此此时<strong>fat[7].head !&#x3D; 3</strong></p>
+<p>⭐此时就会触发一个流程，就是tryclear清除交叉链，总共有2种玩法：</p>
+<ul>
+<li>调用clearchain清理交叉点的簇，全部设置为FREE【这样破坏的就是第一个簇链】</li>
+<li>直接将交叉点处设置为CLUST_EOF【这样第一个和第二个簇链都被破坏了】</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">tryclear</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bootblock *boot, <span class="hljs-keyword">struct</span> fatEntry *fat, <span class="hljs-type">cl_t</span> head, <span class="hljs-type">cl_t</span> *trunc)</span><br>&#123;<br>	<span class="hljs-keyword">if</span> (ask(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Clear chain starting at %u&quot;</span>, head)) &#123;<br>		clearchain(boot, fat, head);<br>		<span class="hljs-keyword">return</span> FSFATMOD;<br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ask(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Truncate&quot;</span>)) &#123;<br>		*trunc = CLUST_EOF;<br>		<span class="hljs-keyword">return</span> FSFATMOD;<br>	&#125; <span class="hljs-keyword">else</span><br>		<span class="hljs-keyword">return</span> FSERROR;<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">clearchain</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bootblock *boot, <span class="hljs-keyword">struct</span> fatEntry *fat, <span class="hljs-type">cl_t</span> head)</span><br>&#123;<br>	<span class="hljs-type">cl_t</span> p, q;<br>	<br>   	<span class="hljs-comment">// 遍历第一条簇链，将簇链的交叉点之前截断，全部设置为FREE</span><br>	<span class="hljs-keyword">for</span> (p = head; p &gt;= CLUST_FIRST &amp;&amp; p &lt; boot-&gt;NumClusters; p = q) &#123;<br>		<span class="hljs-keyword">if</span> (fat[p].head != head)<br>			<span class="hljs-keyword">break</span>;<br>		q = fat[p].next;<br>		fat[p].next = fat[p].head = CLUST_FREE;<br>		fat[p].length = <span class="hljs-number">0</span>;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-Android-S开始fsck-msdos的处理"><a href="#3-Android-S开始fsck-msdos的处理" class="headerlink" title="3.Android S开始fsck_msdos的处理"></a>3.Android S开始fsck_msdos的处理</h2><p>此处是<strong>Li Xin</strong>大佬提交的代码，故而拜读其文章后不得赞叹，现贴出其思想学习：<a target="_blank" rel="noopener" href="https://blog.delphij.net/posts/2021/06/fsck_msdosfs/">https://blog.delphij.net/posts/2021/06/fsck_msdosfs/</a></p>
+<blockquote>
+<p>我们在上面的代码中是在检查是否出现了交叉链，那么新的算法如下：</p>
+<p>先假定所有的簇都是链头，然后一次遍历整个线性表，将被 <code>next</code> 指针引用的簇标记为不是链头。此方法只需遍历整个线性表，即 <code>O(N)</code>。 由此，我们将获得一个表示对应簇是否是簇链头的位映射图 （<code>headbitmap</code>）。</p>
+<p>需要注意的是，这个方法标记的是每个节点是否是链头，而并不知道该节点对应的链头是谁， 自然也就无从立即知晓簇链的长度。该任务可以延后到检查目录项完整性的部分来进行， 因为目录项中保存了链簇头节点的位置，故而只需判断该簇是否是链头，如果是， 则沿着该簇链逐个遍历直到找到链尾并计算长度。</p>
+</blockquote>
+<h3 id="3-1-读取fat表-readfat"><a href="#3-1-读取fat表-readfat" class="headerlink" title="3.1 读取fat表_readfat"></a>3.1 读取fat表_readfat</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span><br>_readfat(<span class="hljs-keyword">struct</span> fat_descriptor *fat)<br>&#123;<br>	<span class="hljs-type">int</span> fd;<br>	<span class="hljs-type">size_t</span> i;<br>	<span class="hljs-type">off_t</span> off;<br>	<span class="hljs-type">size_t</span> readsize;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bootblock</span> *<span class="hljs-title">boot</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fat32_cache_entry</span> *<span class="hljs-title">entry</span>;</span><br><br>	boot = boot_of_(fat);<br>	fd = fd_of_(fat);<br>	fat-&gt;fatsize = boot-&gt;FATsecs * boot-&gt;bpbBytesPerSec;<br><br>	off = boot-&gt;bpbResSectors;<br>	off *= boot-&gt;bpbBytesPerSec;<br><br>	fat-&gt;is_mmapped = <span class="hljs-literal">false</span>;<br>	fat-&gt;use_cache = <span class="hljs-literal">false</span>;<br><br>	<span class="hljs-comment">/* Attempt to mmap() first */</span><br>	<span class="hljs-keyword">if</span> (allow_mmap) &#123;<br>		fat-&gt;fatbuf = mmap(<span class="hljs-literal">NULL</span>, fat-&gt;fatsize,<br>				PROT_READ | (rdonly ? <span class="hljs-number">0</span> : PROT_WRITE),<br>				MAP_SHARED, fd_of_(fat), off);<br>		<span class="hljs-keyword">if</span> (fat-&gt;fatbuf != MAP_FAILED) &#123;<br>			fat-&gt;is_mmapped = <span class="hljs-literal">true</span>;<br>			<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * Unfortunately, we were unable to mmap().</span><br><span class="hljs-comment">	 *</span><br><span class="hljs-comment">	 * Only use the cache manager when it&#x27;s necessary, that is,</span><br><span class="hljs-comment">	 * when the FAT is sufficiently large; in that case, only</span><br><span class="hljs-comment">	 * read in the first 4 MiB of FAT into memory, and split the</span><br><span class="hljs-comment">	 * buffer into chunks and insert to the LRU queue to populate</span><br><span class="hljs-comment">	 * the cache with data.</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-keyword">if</span> (boot-&gt;ClustMask == CLUST32_MASK &amp;&amp;<br>	    fat-&gt;fatsize &gt;= fat32_cache_size) &#123;<br>		readsize = fat32_cache_size;<br>		fat-&gt;use_cache = <span class="hljs-literal">true</span>;<br><br>		fat-&gt;fat32_offset = boot-&gt;bpbResSectors * boot-&gt;bpbBytesPerSec;<br>		fat-&gt;fat32_lastaddr = fat-&gt;fatsize &amp; ~(fat32_cache_chunk_size);<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		readsize = fat-&gt;fatsize;<br>	&#125;<br>	fat-&gt;fatbuf = <span class="hljs-built_in">malloc</span>(readsize);<br>	<span class="hljs-keyword">if</span> (fat-&gt;fatbuf == <span class="hljs-literal">NULL</span>) &#123;<br>		perr(<span class="hljs-string">&quot;No space for FAT (%zu)&quot;</span>, readsize);<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (lseek(fd, off, SEEK_SET) != off) &#123;<br>		perr(<span class="hljs-string">&quot;Unable to read FAT&quot;</span>);<br>		<span class="hljs-keyword">goto</span> err;<br>	&#125;<br>	<span class="hljs-keyword">if</span> ((<span class="hljs-type">size_t</span>)read(fd, fat-&gt;fatbuf, readsize) != readsize) &#123;<br>		perr(<span class="hljs-string">&quot;Unable to read FAT&quot;</span>);<br>		<span class="hljs-keyword">goto</span> err;<br>	&#125;<br><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * When cache is used, split the buffer into chunks, and</span><br><span class="hljs-comment">	 * connect the buffer into the cache.</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-keyword">if</span> (fat-&gt;use_cache) &#123;<br>		TAILQ_INIT(&amp;fat-&gt;fat32_cache_head);<br>		entry = <span class="hljs-built_in">calloc</span>(fat32_cache_entries, <span class="hljs-keyword">sizeof</span>(*entry));<br>		<span class="hljs-keyword">if</span> (entry == <span class="hljs-literal">NULL</span>) &#123;<br>			perr(<span class="hljs-string">&quot;No space for FAT cache (%zu of %zu)&quot;</span>,<br>			    fat32_cache_entries, <span class="hljs-keyword">sizeof</span>(entry));<br>			<span class="hljs-keyword">goto</span> err;<br>		&#125;<br>		<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; fat32_cache_entries; i++) &#123;<br>			entry[i].addr = fat32_cache_chunk_size * i;<br>			entry[i].chunk = &amp;fat-&gt;fatbuf[entry[i].addr];<br>			TAILQ_INSERT_TAIL(&amp;fat-&gt;fat32_cache_head,<br>			    &amp;entry[i], entries);<br>		&#125;<br>		fat-&gt;fat32_cache_allentries = entry;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br><br>err:<br>	<span class="hljs-built_in">free</span>(fat-&gt;fatbuf);<br>	fat-&gt;fatbuf = <span class="hljs-literal">NULL</span>;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>前面提到，FAT32最多可以有 2^28 个簇，这需要占用 1GiB 的空间。第一遍扫描时我们是把 FAT 作为一个线性表来做线性扫描的，完全没有任何必要将其整个载入内存。之后检查目录项时， 在极端情况（文件系统非常碎块化）时，我们可能会需要反复访问FAT的不同区域。</p>
+<p>综合以上考虑，一个显然的解决方案就是增加一个缓存层，并将原先实现中直接读写 FAT 内部表现形式的部分改写为直接使用一个抽象的访问函数来进行操作，并将缓存的问题交给缓存层来进行。 操作系统已经为我们提供了一个很好的缓存实现，因此如果能用的话直接 <code>mmap(2)</code> 是最佳策略； 如果不能，则退而求其次，自己实现一个 LRU 队列。</p>
+<p>前面提到 FAT12 和 FAT16 的最大尺寸都足够小，因此可以直接将其放进内存。FAT32 则分两种情况， 对于能使用操作系统的缓存系统的情况，我们只需把整个 FAT 映射到内存中并当作一个大数组访问即可； 对于自行实现 LRU 队列的情况，则创建一个 LRU 缓存池（尺寸是拍脑门定的 4MiB， 每个缓存块是 128kiB）。</p>
+<p>LRU 的实现过于简单且并无特别，再次不再赘述，淘汰时如果缓存块发生过写操作，则将其写回磁盘原位置。</p>
+<h3 id="3-2-通过位图检查表项"><a href="#3-2-通过位图检查表项" class="headerlink" title="3.2 通过位图检查表项"></a>3.2 通过位图检查表项</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * 遍历 FAT 表并创建簇链头位图。</span><br><span class="hljs-comment">	 * 首先假定每一个簇都是一个簇链的头，然后遍历整个 FAT 表，</span><br><span class="hljs-comment">	 * 并将其中不是簇链头，即那些有其他簇将其指为后继节点的那些簇从该位图中删去，</span><br><span class="hljs-comment">         * 在此过程中修复一些明显的问题。</span><br><span class="hljs-comment">	 *</span><br><span class="hljs-comment">	 * 每个 &quot;next&quot; 簇的可能取值如下：</span><br><span class="hljs-comment">	 * a) CLUST_FREE 或 CLUST_BAD。当前簇不可能是簇链起点。</span><br><span class="hljs-comment">	 * b) 超出范围的值。此时必须将簇链在此处切断。</span><br><span class="hljs-comment">	 * c) 有效簇。这说明此簇 (nextcl) 不可能是簇链起点。</span><br><span class="hljs-comment">	 *    在遍历过程中，每个簇最多只能被一个其他簇指为下一簇，</span><br><span class="hljs-comment">	 *    因此若该簇已经被标记为不是簇起点，则表示出现了链交叉的情况，</span><br><span class="hljs-comment">	 *    此时只能在当前簇切断。</span><br><span class="hljs-comment">	 *</span><br><span class="hljs-comment">	 * 完成此扫描之后，簇链头位图中仍然为1的就是所有潜在的簇链头了。</span><br><span class="hljs-comment">	 * 不过我们暂时还不知道它们是否以正确的EOF终结，也不知道它们的长度。</span><br><span class="hljs-comment">         * 这将在检查目录结构时由 checkchain() 进行，</span><br><span class="hljs-comment">         * 由于簇链只能属于一个文件，因此检查过的簇链头也将从位图中清除。</span><br><span class="hljs-comment">	 *</span><br><span class="hljs-comment">	 * 最终，位图中余下的簇链头即为丢失簇链头。</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">for</span> (cl = CLUST_FIRST; cl &lt; boot-&gt;NumClusters; cl++) &#123;<br>    nextcl = fat_get_cl_next(fat, cl);<br><br>    <span class="hljs-comment">/* 检查 nextcl 是否在有效范围 */</span><br>    <span class="hljs-keyword">if</span> (nextcl == CLUST_FREE) &#123;<br>        <span class="hljs-comment">/* 如果尚不知道最后一个未分配簇在哪，保存该簇号 */</span><br>        <span class="hljs-keyword">if</span> (boot-&gt;FSNext == <span class="hljs-number">0</span>) &#123;<br>            boot-&gt;FSNext = cl;<br>        &#125;<br>        <span class="hljs-comment">/* 该簇不可能是簇链头，标记 */</span><br>        <span class="hljs-keyword">if</span> (fat_is_cl_head(fat, cl)) &#123;<br>            fat_clear_cl_head(fat, cl);<br>        &#125;<br>        <span class="hljs-comment">/* 记账 */</span><br>        boot-&gt;NumFree++;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (nextcl == CLUST_BAD) &#123;<br>        <span class="hljs-comment">/* 该簇不可能是簇链头，标记 */</span><br>        <span class="hljs-keyword">if</span> (fat_is_cl_head(fat, cl)) &#123;<br>            fat_clear_cl_head(fat, cl);<br>        &#125;<br>        <span class="hljs-comment">/* 记账 */</span><br>        boot-&gt;NumBad++;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!valid_cl(fat, nextcl) &amp;&amp; nextcl &lt; CLUST_RSRVD) &#123;<br>        <span class="hljs-comment">/* 无效簇号，切断 */</span><br>        pwarn(<span class="hljs-string">&quot;Cluster %u continues with out of range &quot;</span><br>              <span class="hljs-string">&quot;cluster number %u\n&quot;</span>,<br>              cl,<br>              nextcl &amp; boot-&gt;ClustMask);<br>        <span class="hljs-keyword">if</span> (ask(<span class="hljs-number">0</span>, <span class="hljs-string">&quot;Truncate&quot;</span>)) &#123;<br>            ret |= fat_set_cl_next(fat, cl, CLUST_EOF);<br>            ret |= FSFATMOD;<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (valid_cl(fat, nextcl)) &#123;<br>        <span class="hljs-comment">/* 有效簇号，如果没有其他簇链引用过，则该簇一定不是簇链头 */</span><br>        <span class="hljs-keyword">if</span> (fat_is_cl_head(fat, nextcl)) &#123;<br>            fat_clear_cl_head(fat, nextcl);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-comment">/* 出现了交叉 */</span><br>            pwarn(<span class="hljs-string">&quot;Cluster %u crossed another chain at %u\n&quot;</span>,<br>                  cl, nextcl);<br>            <span class="hljs-keyword">if</span> (ask(<span class="hljs-number">0</span>, <span class="hljs-string">&quot;Truncate&quot;</span>)) &#123;<br>                ret |= fat_set_cl_next(fat, cl, CLUST_EOF);<br>                ret |= FSFATMOD;<br>            &#125;<br>        &#125;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>初始状态，所有的节点都是簇头：</li>
+</ul>
+<img src="/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703231451831.png" srcset="/img/loading.gif" lazyload alt="image-20230703231451831" style="zoom:67%;">
+
+<ul>
+<li>遍历到3的时候，这时候nextcl&#x3D;5，则此时是5有效的簇头，需要在位图中清理，置为F</li>
+</ul>
+<img src="/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703231548196.png" srcset="/img/loading.gif" lazyload alt="image-20230703231548196" style="zoom:67%;">
+
+<ul>
+<li>遍历到4的时候，这时候nextcl&#x3D;6，则此时是6是有效的簇头，需要为位图中清理，置为F</li>
+</ul>
+<img src="/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703231704977.png" srcset="/img/loading.gif" lazyload alt="image-20230703231704977" style="zoom:67%;">
+
+<ul>
+<li>遍历到5的时候，这时候nextcl&#x3D;6，此时发现<strong>6已经不是簇头</strong>了，说明之前已经有一个链占用了它，那么此时已经发生了交叉</li>
+</ul>
+<h2 id="4-两者的差异"><a href="#4-两者的差异" class="headerlink" title="4.两者的差异"></a>4.两者的差异</h2><p>在Android P里面，是将所有的Fat entry都读取到fatEntry这个数组中，最后一个个遍历fatEntry设置每一个节点的head来检验是否交叉：</p>
+<img src="/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703232110410.png" srcset="/img/loading.gif" lazyload alt="image-20230703232110410" style="zoom:50%;">
+
+<p>其开辟的内存calloc为 <code>NumberClusters * sizeof(fatEntry)</code></p>
+<ul>
+<li>已知Fat32最大支持的簇为2^28【虽然一个簇是32位，但是前4位是保留的，只用了28位】</li>
+<li>fatEntry的大小为16字节【此处已经进行了内存对齐，都是32位】</li>
+<li>最终开辟的内存为 2^32(Byte)&#x3D;4(GB)</li>
+</ul>
+<hr>
+<p>而Android S里面是通过位图来检验是否发生了交叉</p>
+<img src="/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230703232906748.png" srcset="/img/loading.gif" lazyload alt="image-20230703232906748" style="zoom: 50%;">
+
+<p>相较于之前的算法，我们可以认为fat_descriptor开辟的内存是微乎其微的。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>fsck_msdos学习笔记</div>
+      <div>http://example.com/2023/07/03/fsck-msdos学习笔记/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/30/fat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E4%B8%80%E6%9C%AC%E9%80%9A/" title="fat文件系统学习一本通">
+                        <span class="hidden-mobile">fat文件系统学习一本通</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
