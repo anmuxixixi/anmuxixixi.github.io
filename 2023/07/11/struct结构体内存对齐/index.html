@@ -1,0 +1,791 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  转载自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;hyacinthLJP&#x2F;p&#x2F;16041690.html 作者： MElephant  小试牛刀我们自定义两个结构体 A 和 B： 1234567891011121314struct A&amp;#123;    char c1;    char c2;    int i;    double d;&amp;#125;;struct B&amp;#123">
+<meta property="og:type" content="article">
+<meta property="og:title" content="struct结构体内存对齐">
+<meta property="og:url" content="http://example.com/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="[toc]  转载自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;hyacinthLJP&#x2F;p&#x2F;16041690.html 作者： MElephant  小试牛刀我们自定义两个结构体 A 和 B： 1234567891011121314struct A&amp;#123;    char c1;    char c2;    int i;    double d;&amp;#125;;struct B&amp;#123">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322175926325-808092561.png">
+<meta property="og:image" content="http://example.com/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322180540589-204374352.png">
+<meta property="og:image" content="http://example.com/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322180810600-1218351587.png">
+<meta property="og:image" content="http://example.com/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322210431773-1594212085.png">
+<meta property="og:image" content="http://example.com/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322212203167-1077116233.png">
+<meta property="og:image" content="http://example.com/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322213003845-1448339865.png">
+<meta property="og:image" content="http://example.com/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322213218244-1085267920.png">
+<meta property="og:image" content="http://example.com/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322214300062-750016192.png">
+<meta property="article:published_time" content="2023-07-11T15:31:01.000Z">
+<meta property="article:modified_time" content="2023-07-11T15:39:16.284Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322175926325-808092561.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>struct结构体内存对齐 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="struct结构体内存对齐"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-11 23:31" pubdate>
+          2023年7月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">struct结构体内存对齐</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<blockquote>
+<p>转载自：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/hyacinthLJP/p/16041690.html">https://www.cnblogs.com/hyacinthLJP/p/16041690.html</a></p>
+<p>作者： <a target="_blank" rel="noopener" href="https://www.cnblogs.com/hyacinthLJP">MElephant</a></p>
+</blockquote>
+<h2 id="小试牛刀"><a href="#小试牛刀" class="headerlink" title="小试牛刀"></a>小试牛刀</h2><p>我们自定义两个结构体 A 和 B：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">A</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">char</span> c1;<br>    <span class="hljs-type">char</span> c2;<br>    <span class="hljs-type">int</span> i;<br>    <span class="hljs-type">double</span> d;<br>&#125;;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">B</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">char</span> c1;<br>    <span class="hljs-type">int</span> i;<br>    <span class="hljs-type">char</span> c2;<br>    <span class="hljs-type">double</span> d;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>通过定义我们可以看出，结构体 A 和 B 拥有相同的成员，只不过在排列顺序上有所不同；</p>
+<p>众所周知，char 类型占 1 个字节，int 类型占 4 个字节，double 类型占 8 个字节</p>
+<p>那么，这两个结构体所占内存空间大小为多少呢？占用的空间是否相同？</p>
+<p>空口无凭，让我们通过编译器告诉我们答案（我使用的是 VS2022，X86）。</p>
+<p>在 main() 函数中输出如下语句：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;结构体A所占内存大小为：%d\n&quot;</span>, <span class="hljs-keyword">sizeof</span>(A));<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;结构体B所占内存大小为：%d\n&quot;</span>, <span class="hljs-keyword">sizeof</span>(B));<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行之前，先盲猜一个结果：</p>
+<p> <code>sizeof(A) = sizeof(B) = sizeof(c1)+sizeof(c2)+sizeof(i)+sizeof(d) = 1+1+4+8 = 14</code></p>
+<p>到底对不对呢？让我们来看看运行结果：</p>
+<img src="/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322175926325-808092561.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 80%;">
+
+<p>amazing~~</p>
+<p>竟然一个都没猜对，这究竟是怎么回事呢？</p>
+<p>下面开始进入今天的主题——struct 内存对齐。</p>
+<h2 id="内存对齐"><a href="#内存对齐" class="headerlink" title="内存对齐"></a>内存对齐</h2><p>一种提高内存访问速度的策略，CPU 在访问未对齐的内存可能需要经过两次的内存访问，而经过内存对齐一次就可以了。</p>
+<p>假定现在有一个 32 位处理器，那这个处理器一次性读取或写入都是四字节。</p>
+<p>假设现在有一个 32 位处理器要读取一个 int 类型的变量，在内存对齐的情况下，处理器是这样进行读取的：</p>
+<p><img src="/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322180540589-204374352.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">那如果数据存储没有按照内存对齐的方式进行的话，处理器就会这样进行读取：</p>
+<img src="/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322180810600-1218351587.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>对比内存对齐和内存没有对齐两种情况我们可以明显地看到，在内存对齐的情况下，取得这个 int型 变量只需要经过一次寻址（0~3）；</p>
+<p>但在内存没有对齐的情况下，取得这个 int型 变量需要经过两次的寻址（0<del>3 和 4</del>7），然后再合并数据。</p>
+<p>通过上述的分析，我们可以知道内存对齐能够提升性能，这也是我们要进行内存对齐的原因之一。</p>
+<h2 id="内存对齐的原则"><a href="#内存对齐的原则" class="headerlink" title="内存对齐的原则"></a>内存对齐的原则</h2><ol>
+<li>对于结构体的各个成员，除了第一个成员的偏移量为 0 外，其余成员的偏移量是 其实际长度 的整数倍，如果不是，则在前一个成员后面补充字节。</li>
+<li>结构体内所有数据成员各自内存对齐后，结构体本身还要进行一次内存对齐，保证整个结构体占用内存大小是结构体内最大数据成员的最小整数倍。</li>
+<li>如程序中有 #pragma pack(n) 预编译指令，则所有成员对齐以 n字节 为准（即偏移量是n的整数倍），不再考虑当前类型以及最大结构体内类型。</li>
+</ol>
+<p>下面通过样例来分享一下我的见解，为方便理解，声明如下：</p>
+<ul>
+<li>定义的结构体包含 char , short , int , double类型各一个，并通过不同的组合构造出不同的结构体 Test01 , Test02 , Test03 , Test04</li>
+<li>内存地址的编号设置为 0~24</li>
+<li>char 类型占1 个 字节，并用橙色填充</li>
+<li>short 类型占 2个 字节，并用黄色填充</li>
+<li>int 类型占 4个 字节，并用绿色填充</li>
+<li>double 类型占 8个 字节，并用蓝色填充</li>
+<li>补充字节用黑色填充</li>
+</ul>
+<h3 id="实验1"><a href="#实验1" class="headerlink" title="实验1"></a>实验1</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Test01</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">char</span> c;<br>    <span class="hljs-type">short</span> s;<br>    <span class="hljs-type">int</span> i;<br>    <span class="hljs-type">double</span> d;<br>&#125;t1;<br></code></pre></td></tr></table></figure>
+
+<p>内存分布情况：</p>
+<img src="/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322210431773-1594212085.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<ul>
+<li>第一个成员 c 的偏移量为 0，所以成员 c 的内存空间的首地址为 0</li>
+<li>第二个成员 s 的内存空间的首地址为 2 号地址，偏移量为 2 - 0 &#x3D; 2</li>
+<li>第三个成员 i 的内存空间的首地址为 4 号地址，偏移量为 4 - 0 &#x3D; 4</li>
+<li>第三个成员 d 的内存空间的首地址为 8 号地址，偏移量为 8 - 0 &#x3D; 8</li>
+<li>Test01 所占内存大小为 16 个字节</li>
+</ul>
+<p>让我们通过输出来验证一下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">showTest01</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Test01所占内存大小：%d\n&quot;</span>,<span class="hljs-keyword">sizeof</span>(Test01));<br>    <span class="hljs-comment">//并按照声明顺序输出 Test01 中的成员变量地址对应的十六进制</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%p\n&quot;</span>, &amp;t1.c);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%p\n&quot;</span>, &amp;t1.s);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%p\n&quot;</span>, &amp;t1.i);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%p\n&quot;</span>, &amp;t1.d);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<img src="/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322212203167-1077116233.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>我们将输出的十六进制地址转化为十进制：</p>
+<blockquote>
+<p> 00209400 -&gt; 2135040</p>
+<p> 00209402 -&gt; 2135042</p>
+<p> 00209404 -&gt; 2135044</p>
+<p> 00209408 -&gt; 2135048</p>
+</blockquote>
+<ul>
+<li>以第一个成员 c 的起始地址为起点</li>
+<li>第二个成员 s 的偏移量为 2</li>
+<li>第三个成员 i 的偏移量为 4</li>
+<li>第四个成员 d 的偏移量为 8</li>
+<li>所占内存大小为 16</li>
+</ul>
+<p>验证成功！</p>
+<h3 id="实验2"><a href="#实验2" class="headerlink" title="实验2"></a>实验2</h3><p>调换一下成员顺序，再次测试：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Test02</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">char</span> c;<br>    <span class="hljs-type">double</span> d;<br>    <span class="hljs-type">int</span> i;<br>    <span class="hljs-type">short</span> s;<br>&#125;t2;<br></code></pre></td></tr></table></figure>
+
+<p>内存分布情况：</p>
+<img src="/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322213003845-1448339865.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<ul>
+<li>第一个成员 c 的偏移量为 0，所以成员 c 的内存空间的首地址为 0</li>
+<li>第二个成员 d 的内存空间的首地址为 8 号地址，偏移量为 8 - 0 &#x3D; 8（double 类型的整倍数）</li>
+<li>第三个成员 i 的内存空间的首地址为 16 号地址，偏移量为 16 - 0 &#x3D; 16（int 类型的整倍数）</li>
+<li>第三个成员 s 的内存空间的首地址为 20 号地址，偏移量为 20 - 0 &#x3D; 20（short 类型的整倍数）</li>
+<li>Test02 所占内存大小为 24 个字节（结构体占用内存大小是结构体内最大数据成员 double 的最小整数倍：24 &#x2F; 8 &#x3D; 4）</li>
+</ul>
+<p>接着通过输出来验证一下：</p>
+<img src="/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322213218244-1085267920.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>我们将输出的十六进制地址转化为十进制：</p>
+<blockquote>
+<p> 007C9410 -&gt; 8164368</p>
+<p> 007C9418 -&gt; 8164376</p>
+<p> 007C9420 -&gt; 8164384</p>
+<p> 007C9424 -&gt; 8164388</p>
+</blockquote>
+<ul>
+<li>以第一个成员 c 的起始地址为起点</li>
+<li>第二个成员 d 的偏移量为 8164376 - 8164368 &#x3D; 8 </li>
+<li>第三个成员 i 的偏移量为 8164384 - 8164368 &#x3D; 16 </li>
+<li>第四个成员 d 的偏移量为 8164388 - 8164368 &#x3D; 20 </li>
+<li>所占内存大小为 24</li>
+</ul>
+<p>验证成功！</p>
+<h3 id="实验3-amp-实验4"><a href="#实验3-amp-实验4" class="headerlink" title="实验3 &amp; 实验4"></a>实验3 &amp; 实验4</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Test03</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">short</span> s;<br>    <span class="hljs-type">double</span> d;<br>    <span class="hljs-type">char</span> c;<br>    <span class="hljs-type">int</span> i;<br>&#125;t3;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Test04</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">double</span> d;<br>    <span class="hljs-type">char</span> c;<br>    <span class="hljs-type">int</span> i;<br>    <span class="hljs-type">short</span> s;<br>&#125;t4;<br></code></pre></td></tr></table></figure>
+
+<p>内存分布情况：</p>
+<img src="/2023/07/11/struct%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1494888-20220322214300062-750016192.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>可自行输出验证！！！</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过自行模拟，再回过头看看内存对齐的原则，是不是有种恍然大明白的感觉~</p>
+<p>通过模拟上述不同情况，你会发现同种类型的成员变量通过不同的组合，所占用的总内存是不相同的；</p>
+<p>那么，关于结构体内成员定义的顺序应该遵循这样一个原则：按照长度递增的顺序依次定义各个成员。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>struct结构体内存对齐</div>
+      <div>http://example.com/2023/07/11/struct结构体内存对齐/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" title="System DE Master Key流程分析">
+                        <span class="hidden-mobile">System DE Master Key流程分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
