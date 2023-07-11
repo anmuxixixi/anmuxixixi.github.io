@@ -1,0 +1,772 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="System DE Master Key流程分析 参考：https:&#x2F;&#x2F;blog.csdn.net&#x2F;cs_tech&#x2F;article&#x2F;details&#x2F;127593457?spm&#x3D;1001.2014.3001.5506 仅作自己学习备忘，侵权联系删除  1. 创建 System DE Master Key 流程下图展示了在设备第一次启动时，创建 System DE Master Key 的完整流程，在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="System DE Master Key流程分析">
+<meta property="og:url" content="http://example.com/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="System DE Master Key流程分析 参考：https:&#x2F;&#x2F;blog.csdn.net&#x2F;cs_tech&#x2F;article&#x2F;details&#x2F;127593457?spm&#x3D;1001.2014.3001.5506 仅作自己学习备忘，侵权联系删除  1. 创建 System DE Master Key 流程下图展示了在设备第一次启动时，创建 System DE Master Key 的完整流程，在">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/b325b451b58545b2aa95646471b01109.png">
+<meta property="og:image" content="http://example.com/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/a564146a9d814d8987692446b88e4d1f.png">
+<meta property="og:image" content="http://example.com/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/image-20230711231226553.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/da064c351cf545baac70a0203018796f.png">
+<meta property="og:image" content="http://example.com/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/image-20230711231926237.png">
+<meta property="article:published_time" content="2023-07-11T14:46:31.000Z">
+<meta property="article:modified_time" content="2023-07-11T15:27:57.457Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/b325b451b58545b2aa95646471b01109.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>System DE Master Key流程分析 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="System DE Master Key流程分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-11 22:46" pubdate>
+          2023年7月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          67 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">System DE Master Key流程分析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="System-DE-Master-Key流程分析"><a href="#System-DE-Master-Key流程分析" class="headerlink" title="System DE Master Key流程分析"></a>System DE Master Key流程分析</h1><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/cs_tech/article/details/127593457?spm=1001.2014.3001.5506">https://blog.csdn.net/cs_tech/article/details/127593457?spm=1001.2014.3001.5506</a></p>
+<p>仅作自己学习备忘，侵权联系删除</p>
+</blockquote>
+<h2 id="1-创建-System-DE-Master-Key-流程"><a href="#1-创建-System-DE-Master-Key-流程" class="headerlink" title="1. 创建 System DE Master Key 流程"></a>1. 创建 System DE Master Key 流程</h2><p>下图展示了在设备第一次启动时，创建 System DE Master Key 的完整流程，在这个章节会对其拆分，分别介绍。</p>
+<img src="/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/b325b451b58545b2aa95646471b01109.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<h3 id="1-1-创建-System-DE-Master-Key"><a href="#1-1-创建-System-DE-Master-Key" class="headerlink" title="1.1 创建 System DE Master Key"></a>1.1 创建 System DE Master Key</h3><p>在 vold 函数 fscrypt_initialize_systemwide_keys 中，Vold 通过 keymaster HAL 向 keymaster TA 请求创建 Master Key。在请求参数中， km::TAG_STORAGE_KEY 表明了创建一个用于存储器加密的 Master Key，HLOS 将这个 key 用作 System DE Master Key。</p>
+<img src="/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/a564146a9d814d8987692446b88e4d1f.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 50%;">
+
+<p>这里要注意 keymaster TA 不会直接将 Master Key 的明文直接返回到 HLOS，而是 Master Key Blob。那么 Master Key Blob 是怎么生成的？</p>
+<ol>
+<li>KM TA 首选创建一个 AES 算法加密 key，作为 Master Key；</li>
+<li>使用由 SHK 派生出来的 KEK 将 Master Key 加密，并把密文存放到特殊数据结构，即 key blob；</li>
+<li>再使用由 SHK 派生出来的 HMAC Key 通过 HMAC 算法对 key blob 签名；</li>
+<li>这样就生成了 Master Key Blob，返回到 HLOS 的 Vold；</li>
+</ol>
+<p><strong>疑问：SHK 是什么？KEK 是什么？HMAC Key 是什么？</strong></p>
+<p>① SHK 是设备使能 secure boot 后，生成的一个每个设备唯一、软件或者固件无法导出的 key，TZ 可以从 SHK 派生出各种用途的 key。</p>
+<p>② KEK 派生自 SHK ，用于加密 KM TA 生成的 key，因为 key 不允许暴露在 HLOS：</p>
+<ul>
+<li>当 HLOS 请求 KM TA 生成 key 时，可以使用 KEK 将 key 加密成 key blob 后返回给 HLOS；</li>
+<li>key 只能在 secure world 下使用（包括：加密、解密、签名、校验等操作）。因此时 HLOS 有需求时，请求 KM TA 执行相关操作，需要将数据和 key blob 一起传给 KM TA，KM TA 使用 KEK 解密 key blob 得到 key，再对数据执行相关的操作；</li>
+</ul>
+<p>③ HMAC Key 派生自 SHK ，用于对 key blob 签名，保证了  key blob 不被恶意篡改或者检查是否损坏；</p>
+<p><strong>疑问：为什么 TZ 要将 key 加密后返回 HLOS 呢？</strong></p>
+<p>在实际用户场景中，各种各样的进程可能会创建几十个甚至几百个用于各种各样的任务的 key，加密后返回 HLOS，由使用者自行管理，那么 TZ 就无需维护较大的存储区域以及这些 key 与客户端的联系。</p>
+<hr>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">static</span> KeyGeneration <span class="hljs-title">makeGen</span><span class="hljs-params">(<span class="hljs-type">const</span> EncryptionOptions&amp; options)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> KeyGeneration&#123;FSCRYPT_MAX_KEY_SIZE, <span class="hljs-literal">true</span>, options.use_hw_wrapped_key&#125;;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">retrieveOrGenerateKey</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; key_path, <span class="hljs-type">const</span> std::string&amp; tmp_path,</span></span><br><span class="hljs-params"><span class="hljs-function">                           <span class="hljs-type">const</span> KeyAuthentication&amp; key_authentication, <span class="hljs-type">const</span> KeyGeneration&amp; gen,</span></span><br><span class="hljs-params"><span class="hljs-function">                           KeyBuffer* key)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">pathExists</span>(key_path)) &#123;<br>        <span class="hljs-built_in">LOG</span>(DEBUG) &lt;&lt; <span class="hljs-string">&quot;Key exists, using: &quot;</span> &lt;&lt; key_path;<br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">retrieveKey</span>(key_path, key_authentication, key)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">if</span> (!gen.allow_gen) &#123;<br>            <span class="hljs-built_in">LOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;No key found in &quot;</span> &lt;&lt; key_path;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <span class="hljs-built_in">LOG</span>(INFO) &lt;&lt; <span class="hljs-string">&quot;Creating new key in &quot;</span> &lt;&lt; key_path;<br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">generateStorageKey</span>(gen, key)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;  <span class="hljs-comment">// 生成Master Key</span><br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">storeKeyAtomically</span>(key_path, tmp_path, key_authentication, *key)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;  <span class="hljs-comment">// 生成最终的加密秘钥encrypted key</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里先调用generateStorageKey生成Master Key：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">generateStorageKey</span><span class="hljs-params">(<span class="hljs-type">const</span> KeyGeneration&amp; gen, KeyBuffer* key)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (gen.use_hw_wrapped_key) &#123;  <span class="hljs-comment">/* 使用硬件生成密钥 */</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">generateWrappedStorageKey</span>(key);<br>    &#125; <span class="hljs-keyword">else</span> &#123;  <span class="hljs-comment">/* 纯软生成随机秘钥 */</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">randomKey</span>(gen.keysize, key);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用generateWrappedStorageKey生成秘钥</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">generateWrappedStorageKey</span><span class="hljs-params">(KeyBuffer* key)</span> </span>&#123;<br>    Keymaster keymaster;  <span class="hljs-comment">// 创建对象</span><br>    <span class="hljs-keyword">if</span> (!keymaster) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    std::string key_temp;<br>    <span class="hljs-keyword">auto</span> paramBuilder = km::<span class="hljs-built_in">AuthorizationSetBuilder</span>().<span class="hljs-built_in">AesEncryptionKey</span>(AES_KEY_BYTES * <span class="hljs-number">8</span>);<br>    paramBuilder.<span class="hljs-built_in">Authorization</span>(km::TAG_STORAGE_KEY);<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">generateKeymasterKey</span>(keymaster, paramBuilder, &amp;key_temp)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;  <span class="hljs-comment">//</span><br>    *key = <span class="hljs-built_in">KeyBuffer</span>(key_temp.<span class="hljs-built_in">size</span>());<br>    <span class="hljs-built_in">memcpy</span>(<span class="hljs-built_in">reinterpret_cast</span>&lt;<span class="hljs-type">void</span>*&gt;(key-&gt;<span class="hljs-built_in">data</span>()), key_temp.<span class="hljs-built_in">c_str</span>(), key-&gt;<span class="hljs-built_in">size</span>());  <span class="hljs-comment">// 将临时生成的秘钥拷贝到key中</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title">generateKeymasterKey</span><span class="hljs-params">(Keymaster&amp; keymaster,</span></span><br><span class="hljs-params"><span class="hljs-function">                                 <span class="hljs-type">const</span> km::AuthorizationSetBuilder&amp; paramBuilder,</span></span><br><span class="hljs-params"><span class="hljs-function">                                 std::string* key)</span> </span>&#123;<br>    <span class="hljs-keyword">auto</span> paramsWithRollback = paramBuilder;<br>    paramsWithRollback.<span class="hljs-built_in">Authorization</span>(km::TAG_ROLLBACK_RESISTANCE);<br>    <span class="hljs-keyword">if</span> (!keymaster.<span class="hljs-built_in">generateKey</span>(paramsWithRollback, key)) &#123; <span class="hljs-comment">// 调用keymaster对象的generateKey方法</span><br>        <span class="hljs-keyword">if</span> (!keymaster.<span class="hljs-built_in">generateKey</span>(paramBuilder, key)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Keymaster::generateKey</span><span class="hljs-params">(<span class="hljs-type">const</span> km::AuthorizationSet&amp; inParams, std::string* key)</span> </span>&#123;<br>    ks2::KeyDescriptor in_key = &#123;<br>            .domain = ks2::Domain::BLOB,<br>            .alias = std::<span class="hljs-literal">nullopt</span>,<br>            .nspace = VOLD_NAMESPACE,<br>            .blob = std::<span class="hljs-literal">nullopt</span>,<br>    &#125;;<br>    ks2::KeyMetadata keyMetadata;<br>    <span class="hljs-comment">// securityLevel是共享智能指针std::shared_ptr&lt;ks2::IKeystoreSecurityLevel&gt; securityLevel;</span><br>    <span class="hljs-keyword">auto</span> rc = securityLevel-&gt;<span class="hljs-built_in">generateKey</span>(in_key, std::<span class="hljs-literal">nullopt</span>, inParams.<span class="hljs-built_in">vector_data</span>(), <span class="hljs-number">0</span>, &#123;&#125;, &amp;keyMetadata);<br><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">logKeystore2ExceptionIfPresent</span>(rc, <span class="hljs-string">&quot;generateKey&quot;</span>)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br><br>    <span class="hljs-keyword">if</span> (keyMetadata.key.blob == std::<span class="hljs-literal">nullopt</span>) &#123;<br>        <span class="hljs-built_in">LOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;keystore2 generated key blob was null&quot;</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (key) *key = std::<span class="hljs-built_in">string</span>(keyMetadata.key.blob-&gt;<span class="hljs-built_in">begin</span>(), keyMetadata.key.blob-&gt;<span class="hljs-built_in">end</span>());<br><br>    <span class="hljs-built_in">zeroize_vector</span>(keyMetadata.key.blob.<span class="hljs-built_in">value</span>());<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里面有个地方需要说明一下，IKeystoreSecurityLevel这个里面提供的aidl接口，参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42135087/article/details/125172636">https://blog.csdn.net/weixin_42135087/article/details/125172636</a></p>
+</blockquote>
+<img src="/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/image-20230711231226553.png" srcset="/img/loading.gif" lazyload alt="image-20230711231226553" style="zoom:67%;">
+
+<h3 id="1-2-HLOS-把-System-DE-Master-Key-Blob-加密后保存到文件系统"><a href="#1-2-HLOS-把-System-DE-Master-Key-Blob-加密后保存到文件系统" class="headerlink" title="1.2 HLOS 把 System DE Master Key Blob 加密后保存到文件系统"></a>1.2 HLOS 把 System DE Master Key Blob 加密后保存到文件系统</h3><p>在上一个步骤中，KM TA 创建了 Master Key （ km::TAG_STORAGE_KEY FBE），并以 key blob 的形式返回到 HLOS。在 vold 收到 Master Key Blob 后，又将这个 key blob 加密后保存到文件系统中。</p>
+<img src="https://img-blog.csdnimg.cn/da064c351cf545baac70a0203018796f.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
+
+<p><strong>疑问：Master Key Blob 已经是密文了，为什么 vold 还要将 key blob 二次加密？</strong></p>
+<p>这个操作似乎有点多余，如果对 key 加密一次不安全，那么加密两次也不见得更安全，或者为什么不加密更多次呢？</p>
+<p>这里我们要从 FBE 的设计来看，<strong>Google 把 userdata 分区划分了不同安全等级的存储位置，但仅使用不同的密钥并不能体现出安全等级这个概念，而是要从对密钥的约束来体现，比如经过什么样的认证后，哪些位置的数据才允许访问，言下之意就是对应的加密密钥才允许被使用。</strong>那怎么认证呢？</p>
+<p>System DE Master Key 的安全认证正是通过二次加密来体现的，但是加密 Master Key 的 key （KEK） 怎么做到这一点呢？System DE 的设计初衷就是相应的存储位置是设备绑定，即这些存储位置的数据只能在特定的设备（CPU、存储器绑定）上才能解密和访问。Master Key 只负责用户加解密文件的数据，但是特定的设备怎么保证呢？</p>
+<p>这就是加密 Master Key 的 key 要达成的目标，我们把这个 key 称作 KSK（Key Strorage Key，这不是专有名词，而是按照 Google 代码变量名来命名 ）。</p>
+<p>从流程图中可以看出，在创建 KSK 时需要指定 app id（即表明谁创建的？）。同样后续使用这个 key 时，也必须指定相同的 appid。appid 的组成中包括设备绑定的信息（每台设备，KSK 的 appid 不一样，因为从它的创建流程可以看出，包括两个随机数 Secdiscardable 和 storage_binding_info.seed）。不仅如此，在 KM TA 内部还会将 secure boot 状态、设备锁状态、安全补丁日期等等信息和 KSK 绑定，在使用 KSK 之前，会校验相关的信息是否严格匹配，只有完全满足后，KSK 才允许用于解密 Master Blob。这些约束的实现都是在 KM TA 完成的。</p>
+<p>这里举几个实际的例子说明：</p>
+<blockquote>
+<p><strong>例1：把一台设备的存储器所有数据，dump 到另外一台完全一致的设备上，用户数据为什么无法解密？</strong></p>
+<p>因为 KSK 已经和 secure boot 状态绑定，在另外一台设备上，无法知道 EKE，进而无法解密 KSK blob，KSK 即无法被使用。当然被 KSK 加密的 master key blob 也无法解密，自然获取不到 master key 。实际实现不只如此简单，这里不做详细介绍。</p>
+<p><strong>例2：同一台设备，如果 OTA 更新到安全补丁日期升级的软件后，再回滚到旧软件版本，用户数据为什么无法解密？</strong></p>
+<p>因为 KSK 已经和安全补丁日期绑定，安全补丁日期不能减小。安全补丁日期回滚后，KSK 将不可用。</p>
+<p><strong>例3：设备第一次开机是在设备锁（也叫 fastboot锁）锁定的情况下开机，那么 unlock 设备锁后，用户数据为什么无法解密？</strong></p>
+<p>因为 KSK 和设备锁的状态绑定，如果设备锁的状态出现反转，KSK 将不可用。</p>
+</blockquote>
+<p><strong>疑问：加密 Master Key Blob 的 key KSK 从何而来 ？</strong></p>
+<p>和 Master Key 类似，都是由 KM TA 创建的，并以 key blob 的形式返回 HLOS，由 vold 自行管理。这里注意创建 key 时，参数 km::AuthorizationSet 不一样，这就导致在 KM TA 内部，它们的管理和用途都是不一样。</p>
+<p>vold 请求 KM TA 创建 KSK 所使用的 appid的参数、KSK Blob、加密后的 Master Key Blob 被存储到 &#x2F;data&#x2F;unencrypted&#x2F;key&#x2F;：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># ls /data/unencrypted/key/ -l</span><br>total 16<br>-rw------- 1 root root   268 1970-01-03 04:47 encrypted_key<br>-rw------- 1 root root   194 1970-01-03 04:47 keymaster_key_blob<br>-rw------- 1 root root 16384 1970-01-03 04:47 secdiscardable<br>-rw------- 1 root root    10 1970-01-03 04:47 stretching<br>-rw------- 1 root root     1 1970-01-03 04:47 version<br></code></pre></td></tr></table></figure>
+
+<p><strong>疑问：第一次开机时，为什么要把 KSK blob  和 加密后的 Master Key Blob 保存到文件系统？</strong></p>
+<p>后续每次开机，可以直接通过 KSK blob （&#x2F;data&#x2F;unencrypted&#x2F;key&#x2F;keymaster_key_blob）解密Master Key Blob 的密文（&#x2F;data&#x2F;unencrypted&#x2F;keyencrypted_key）得到 Master Key Blob，这个动作是在 TZ 内部完成的，有了 Master Key Blob，那么可以将 Master Key 安装到 kernel keyring，详见下文。</p>
+<hr>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">storeKey</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; dir, <span class="hljs-type">const</span> KeyAuthentication&amp; auth, <span class="hljs-type">const</span> KeyBuffer&amp; key)</span> </span>&#123;<br>	<span class="hljs-comment">// 将kCurrentVersion(1)写入到/data/unencrypted/key/version</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">writeStringToFile</span>(kCurrentVersion, dir + <span class="hljs-string">&quot;/&quot;</span> + kFn_version)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    std::string secdiscardable_hash;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">createSecdiscardable</span>(dir + <span class="hljs-string">&quot;/&quot;</span> + kFn_secdiscardable, &amp;secdiscardable_hash)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    std::string stretching = <span class="hljs-built_in">getStretching</span>(auth);<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">writeStringToFile</span>(stretching, dir + <span class="hljs-string">&quot;/&quot;</span> + kFn_stretching)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    std::string appId;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">generateAppId</span>(auth, stretching, secdiscardable_hash, &amp;appId)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    std::string encryptedKey;<br>    <span class="hljs-keyword">if</span> (auth.<span class="hljs-built_in">usesKeymaster</span>()) &#123;<br>        Keymaster keymaster;<br>        <span class="hljs-keyword">if</span> (!keymaster) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        std::string kmKey;<br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">generateKeyStorageKey</span>(keymaster, appId, &amp;kmKey)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">writeStringToFile</span>(kmKey, dir + <span class="hljs-string">&quot;/&quot;</span> + kFn_keymaster_key_blob)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        km::AuthorizationSet keyParams = <span class="hljs-built_in">beginParams</span>(appId);<br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">encryptWithKeymasterKey</span>(keymaster, dir, keyParams, key, &amp;encryptedKey)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">encryptWithoutKeymaster</span>(appId, key, &amp;encryptedKey)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">writeStringToFile</span>(encryptedKey, dir + <span class="hljs-string">&quot;/&quot;</span> + kFn_encrypted_key)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">FsyncDirectory</span>(dir)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-2-1-写入version"><a href="#1-2-1-写入version" class="headerlink" title="1.2.1 写入version"></a>1.2.1 写入version</h4><img src="/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/image-20230711231926237.png" srcset="/img/loading.gif" lazyload alt="image-20230711231926237" style="zoom: 67%;">
+
+<h4 id="1-2-2-写入secdiscardable"><a href="#1-2-2-写入secdiscardable" class="headerlink" title="1.2.2 写入secdiscardable"></a>1.2.2 写入secdiscardable</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// filename: /data/unencrypted/key/secdiscardable</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">createSecdiscardable</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; filename, std::string* hash)</span> </span>&#123;<br>    std::string secdiscardable;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">readRandomBytesOrLog</span>(SECDISCARDABLE_BYTES, &amp;secdiscardable)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; <span class="hljs-comment">// 通过/dev/urandom生成随机数</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">writeStringToFile</span>(secdiscardable, filename)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; <span class="hljs-comment">// 将生成的随机数保存到/data/unencrypted/key/secdiscardable</span><br>    <span class="hljs-built_in">hashWithPrefix</span>(kHashPrefix_secdiscardable, secdiscardable, hash); <span class="hljs-comment">// 将生成的随机数取hash</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Android学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>System DE Master Key流程分析</div>
+      <div>http://example.com/2023/07/11/System-DE-Master-Key流程分析/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="贺利坚汇编原理学习笔记">
+                        <span class="hidden-mobile">贺利坚汇编原理学习笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
