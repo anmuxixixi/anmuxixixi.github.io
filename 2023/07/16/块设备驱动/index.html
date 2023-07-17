@@ -1,0 +1,791 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="块设备驱动 转载自：https:&#x2F;&#x2F;mshrimp.github.io&#x2F;2020&#x2F;04&#x2F;19&#x2F;Linux%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8&#x2F;  1.块设备结构段（Segments）：由若干个块组成；是Linux内存管理机制中一个内存页或内存页的一部分； 块（Blocks）：由Linux制定对内核或文件系统等数据处理的基本单位；通常通常为409">
+<meta property="og:type" content="article">
+<meta property="og:title" content="块设备驱动">
+<meta property="og:url" content="http://example.com/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="块设备驱动 转载自：https:&#x2F;&#x2F;mshrimp.github.io&#x2F;2020&#x2F;04&#x2F;19&#x2F;Linux%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8&#x2F;  1.块设备结构段（Segments）：由若干个块组成；是Linux内存管理机制中一个内存页或内存页的一部分； 块（Blocks）：由Linux制定对内核或文件系统等数据处理的基本单位；通常通常为409">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg">
+<meta property="og:image" content="http://example.com/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/100045938-83907-1.png">
+<meta property="og:image" content="http://example.com/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/image-20230716175745706.png">
+<meta property="og:image" content="http://example.com/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/%E5%9D%97%E8%AE%BE%E5%A4%87%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB.png">
+<meta property="og:image" content="http://example.com/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/100045938-83908-2.png">
+<meta property="article:published_time" content="2023-07-16T09:41:49.000Z">
+<meta property="article:modified_time" content="2023-07-16T13:11:16.004Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>块设备驱动 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="块设备驱动"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-16 17:41" pubdate>
+          2023年7月16日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          61 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">块设备驱动</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="块设备驱动"><a href="#块设备驱动" class="headerlink" title="块设备驱动"></a>块设备驱动</h1><blockquote>
+<p>转载自：<a target="_blank" rel="noopener" href="https://mshrimp.github.io/2020/04/19/Linux%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/">https://mshrimp.github.io/2020/04/19/Linux%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/</a></p>
+</blockquote>
+<h2 id="1-块设备结构"><a href="#1-块设备结构" class="headerlink" title="1.块设备结构"></a>1.块设备结构</h2><p><strong>段（Segments）</strong>：由若干个块组成；是Linux内存管理机制中一个内存页或内存页的一部分；</p>
+<p><strong>块（Blocks）</strong>：由Linux制定对内核或文件系统等数据处理的基本单位；通常通常为4096个字节，由1个或多个扇区组成；</p>
+<p><strong>扇区（Sectors）</strong>：块设备的基本单位，是一个固定的硬件单位，制定了设备最少能够传输的数据量；通常在512字节到32768字节之间，默认：512字节；</p>
+<p>块是连续扇区的序列，块长度总是扇区长度的整数倍；块的最大长度，受特定体系结构的内存页长度限制；</p>
+<p>块设备使用请求队列，缓存并重排读写数据块的请求，用高效的方式读取数据；块设备的每个设备都关联了请求队列；对块设备的读写请求不会立即执行，这些请求会汇总起来，经过协同之后传输到设备；</p>
+<h2 id="2-块设备驱动框架"><a href="#2-块设备驱动框架" class="headerlink" title="2.块设备驱动框架"></a>2.块设备驱动框架</h2><img src="/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/块设备驱动架构图.jpg" srcset="/img/loading.gif" lazyload alt="块设备驱动架构图" style="zoom:80%;">
+
+<hr>
+<img src="/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/100045938-83907-1.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<ul>
+<li>块设备的应用在Linux中是一个完整的子系统。</li>
+<li>在Linux中，驱动对块设备的输入或输出(I&#x2F;O)操作，都会向块设备发出一个请求，在驱动中用<strong>request</strong>结构体描述。但对于一些磁盘设备而言请求的速度很慢，这时候内核就提供一种队列的机制把这些I&#x2F;O请求添加到队列中（即：请求队列），在驱动中用<strong>request_queue</strong>结构体描述。在向块设备提交这些请求前内核会先执行请求的合并和排序预操作，以提高访问的效率，然后再由内核中的I&#x2F;O调度程序子系统来负责提交  I&#x2F;O 请求，  调度程序将磁盘资源分配给系统中所有挂起的块 I&#x2F;O  请求，其工作是管理块设备的请求队列，决定队列中的请求的排列顺序以及什么时候派发请求到设备。</li>
+<li>由通用块层(Generic Block Layer)负责维持一个I&#x2F;O请求在上层文件系统与底层物理磁盘之间的关系。在通用块层中，通常用一个bio结构体来对应一个I&#x2F;O请求。</li>
+<li>Linux提供了一个gendisk数据结构体，用来表示一个独立的磁盘设备或分区，用于对底层物理磁盘进行访问。在gendisk中有一个类似字符设备中file_operations的硬件操作结构指针，是block_device_operations结构体。</li>
+<li>当多个请求提交给块设备时，执行效率依赖于请求的顺序。如果所有的请求是同一个方向（如：写数据），执行效率是最大的。内核在调用块设备驱动程序例程处理请求之前，先收集I&#x2F;O请求并将请求排序，然后，将连续扇区操作的多个请求进行合并以提高执行效率（内核算法会自己做，不用你管），对I&#x2F;O请求排序的算法称为电梯算法（elevator algorithm）。电梯算法在I&#x2F;O调度层完成。</li>
+</ul>
+<h2 id="3-重要结构及操作"><a href="#3-重要结构及操作" class="headerlink" title="3.重要结构及操作"></a>3.重要结构及操作</h2><h3 id="3-1-注册块设备驱动程序"><a href="#3-1-注册块设备驱动程序" class="headerlink" title="3.1 注册块设备驱动程序"></a>3.1 注册块设备驱动程序</h3><ul>
+<li>向内核注册块设备驱动程序</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/fs.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">register_blkdev</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> major, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name)</span>;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>name：设备名字，是在&#x2F;proc&#x2F;devices中显示的名字</p>
+<p>major：设备的主设备号，如果major&#x3D;0，则分配一个主设备号</p>
+</blockquote>
+<p>该函数的调用是可选的，完成的工作：</p>
+<blockquote>
+<ol>
+<li>如果需要的话分配一个动态的主设备号</li>
+<li>在&#x2F;proc&#x2F;devices中创建一个入口项</li>
+</ol>
+</blockquote>
+<ul>
+<li>注销块设备驱动程序</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">unregister_blkdev</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> major, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name)</span>;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p>如下用例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> sbull_major = <span class="hljs-number">0</span>;<br>sbull_major = register_blkdev(sbull_major, <span class="hljs-string">&quot;sbull&quot;</span>);<br><span class="hljs-keyword">if</span> (sbull_major &lt; <span class="hljs-number">0</span>) &#123;<br>	printk(KERN_WARNNING <span class="hljs-string">&quot;sbull: unable to get major number\n&quot;</span>);<br>	<span class="hljs-keyword">return</span> -EBUSY;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include/linux/fs.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">block_device</span> &#123;</span><br>    <span class="hljs-type">dev_t</span>           bd_dev;  <span class="hljs-comment">/* not a kdev_t - it&#x27;s a search key */</span><br>    <span class="hljs-type">int</span>         bd_openers;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">inode</span> *      <span class="hljs-title">bd_inode</span>;</span>   <span class="hljs-comment">/* will die */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">super_block</span> *    <span class="hljs-title">bd_super</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mutex</span>        <span class="hljs-title">bd_mutex</span>;</span>   <span class="hljs-comment">/* open/close mutex */</span><br>    <span class="hljs-type">void</span> *          bd_claiming;<br>    <span class="hljs-type">void</span> *          bd_holder;<br>    <span class="hljs-type">int</span>         bd_holders;<br>    <span class="hljs-type">bool</span>            bd_write_holder;<br><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span>    <span class="hljs-title">bd_holder_disks</span>;</span><br><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">block_device</span> *   <span class="hljs-title">bd_contains</span>;</span><br>    <span class="hljs-type">unsigned</span>        bd_block_size;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">hd_struct</span> *  <span class="hljs-title">bd_part</span>;</span><br>    <span class="hljs-comment">/* number of times partitions within this device have been opened. */</span><br>    <span class="hljs-type">unsigned</span>        bd_part_count;<br>    <span class="hljs-type">int</span>         bd_invalidated;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">gendisk</span> *    <span class="hljs-title">bd_disk</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request_queue</span> *  <span class="hljs-title">bd_queue</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span>    <span class="hljs-title">bd_list</span>;</span><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * Private data.  You must have bd_claim&#x27;ed the block_device</span><br><span class="hljs-comment">     * to use this.  <span class="hljs-doctag">NOTE:</span>  bd_claim allows an owner to claim</span><br><span class="hljs-comment">     * the same device multiple times, the owner must take special</span><br><span class="hljs-comment">     * care to not mess up bd_private for that case.</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>       bd_private;<br><br>    <span class="hljs-comment">/* The counter of freeze processes */</span><br>    <span class="hljs-type">int</span>         bd_fsfreeze_count;<br>    <span class="hljs-comment">/* Mutex for freeze */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mutex</span>        <span class="hljs-title">bd_fsfreeze_mutex</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-块设备操作"><a href="#3-2-块设备操作" class="headerlink" title="3.2 块设备操作"></a>3.2 块设备操作</h3><p>字符设备使用file_operations结构，来告诉系统字符设备驱动的操作接口；</p>
+<p>块设备使用block_device_operations结构，来告诉系统块设备驱动的操作接口；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include/linux/blkdev.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">block_device_operations</span> &#123;</span><br>    <span class="hljs-type">int</span> (*open) (<span class="hljs-keyword">struct</span> block_device *, <span class="hljs-type">fmode_t</span>);<br>    <span class="hljs-type">void</span> (*release) (<span class="hljs-keyword">struct</span> gendisk *, <span class="hljs-type">fmode_t</span>);<br>    <span class="hljs-type">int</span> (*rw_page)(<span class="hljs-keyword">struct</span> block_device *, <span class="hljs-type">sector_t</span>, <span class="hljs-keyword">struct</span> page *, <span class="hljs-type">bool</span>);<br>    <span class="hljs-type">int</span> (*ioctl) (<span class="hljs-keyword">struct</span> block_device *, <span class="hljs-type">fmode_t</span>, <span class="hljs-type">unsigned</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>);<br>    <span class="hljs-type">int</span> (*compat_ioctl) (<span class="hljs-keyword">struct</span> block_device *, <span class="hljs-type">fmode_t</span>, <span class="hljs-type">unsigned</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>);<br>	......<br>    <span class="hljs-comment">/* -&gt;media_changed() is DEPRECATED, use -&gt;check_events() instead */</span><br>    <span class="hljs-type">int</span> (*media_changed) (<span class="hljs-keyword">struct</span> gendisk *);<br>    <span class="hljs-type">int</span> (*getgeo)(<span class="hljs-keyword">struct</span> block_device *, <span class="hljs-keyword">struct</span> hd_geometry *);<br>	......<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>和字符设备驱动不同，块设备驱动的block_device_operations操作集中没有负责读和写数据的函数；在块设备驱动中，这些操作是由request函数处理的；</p>
+<h3 id="3-3-注册磁盘"><a href="#3-3-注册磁盘" class="headerlink" title="3.3 注册磁盘"></a>3.3 注册磁盘</h3><p>为了管理独立的磁盘，需要使用struct gendisk结构体，内核使用gendisk结构表示一个独立的磁盘设备，还可以表示分区；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include/linux/genhd.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">gendisk</span> &#123;</span><br>    <span class="hljs-type">int</span> major;          <span class="hljs-comment">/* major number of driver */</span><br>    <span class="hljs-type">int</span> first_minor;<br>    <span class="hljs-type">int</span> minors;                     <span class="hljs-comment">/* maximum number of minors, =1 for</span><br><span class="hljs-comment">                                         * disks that can&#x27;t be partitioned. */</span><br>    <span class="hljs-type">char</span> disk_name[DISK_NAME_LEN];  <span class="hljs-comment">/* name of major driver */</span><br>    <span class="hljs-type">char</span> *(*devnode)(<span class="hljs-keyword">struct</span> gendisk *gd, <span class="hljs-type">umode_t</span> *mode);<br><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">hd_struct</span> <span class="hljs-title">part0</span>;</span><br><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">block_device_operations</span> *<span class="hljs-title">fops</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request_queue</span> *<span class="hljs-title">queue</span>;</span><br>	......<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>major：指定驱动程序的主设备号</p>
+<p>first_minor和minors：从设备号的可能范围</p>
+<p>disk_name：磁盘名称，在&#x2F;proc&#x2F;partitions 和 sysfs 中表示该磁盘</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">char</span> disk_name[DISK_NAME_LEN];<br></code></pre></td></tr></table></figure>
+
+<p>显示在&#x2F;proc&#x2F;partitions 和 sysfs 中</p>
+<p>对于每一个分区来说，都有一个hd_struct结构体，用于描述该分区</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include/linux/genhd.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">hd_struct</span> &#123;</span><br>    <span class="hljs-type">sector_t</span> start_sect;<br>    <span class="hljs-type">sector_t</span> nr_sects;<br>    <span class="hljs-type">seqcount_t</span> nr_sects_seq;<br>	......<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">partition_meta_info</span> *<span class="hljs-title">info</span>;</span><br>	......<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>start_sect和nr_sects：定义了该分区在块设备上的起始扇区和长度，唯一地描述了该分区</p>
+<p>拥有了设备内存和请求队列，就可以分配、初始化及安装gendisk结构；在struct gendisk是动态分配的结构，需要内核进行初始化，驱动必须通过alloc_disk分配：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">struct</span> gendisk *<span class="hljs-title function_">alloc_disk</span><span class="hljs-params">(<span class="hljs-type">int</span> minors)</span>;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>minors：是该磁盘使用的从设备号的数目；</p>
+</blockquote>
+<p>卸载磁盘</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">del_gendisk</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> gendisk *disk)</span><br></code></pre></td></tr></table></figure>
+
+<p>gendisk是一个引用计数结构，get_disk和put_disk函数负责处理引用计数；调用del_gendisk后，该结构可能继续存在；</p>
+<p>为了使gendisk结构的磁盘设备生效，需要初始化结构，并将磁盘或分区信息添加到内核链表；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">add_disk</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> gendisk *gd)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>调用add_disk后，磁盘设备将被激活，并随时会调用它提供的操作方法，因此在驱动程序完全被初始化并且能够响应对磁盘的请求前，不要调用add_disk；</p>
+<h3 id="3-4-请求队列"><a href="#3-4-请求队列" class="headerlink" title="3.4 请求队列"></a>3.4 请求队列</h3><p>块设备驱动程序的核心是请求函数，包含请求处理过程；</p>
+<ul>
+<li>有I&#x2F;O调度类设备，使用blk_init_queue()函数：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">struct</span> request_queue *<span class="hljs-title function_">blk_init_queue</span><span class="hljs-params">(request_fn_proc *rfn, <span class="hljs-type">spinlock_t</span> *lock)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>无I&#x2F;O调度类设备，使用blk_alloc_queue()函数：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// block/blk-core.c</span><br><span class="hljs-keyword">struct</span> request_queue *<span class="hljs-title function_">blk_alloc_queue</span><span class="hljs-params">(<span class="hljs-type">gfp_t</span> gfp_mask)</span><br><span class="hljs-comment">// block/blk-settings.c</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">blk_queue_make_request</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> request_queue *q, make_request_fn *mfn)</span><br></code></pre></td></tr></table></figure>
+
+<p>从请求队列中提取请求：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// block/blk-core.c</span><br><span class="hljs-keyword">struct</span> request *<span class="hljs-title function_">blk_fetch_request</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> request_queue *q)</span><br></code></pre></td></tr></table></figure>
+
+<p>在卸载函数中使用的清除请求队列：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// block/blk-core.c</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">blk_cleanup_queue</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> request_queue *q)</span><br></code></pre></td></tr></table></figure>
+
+<p>块设备的读写请求放置在请求队列中，在struct gendisk中，通过struct request_queue *queue指针指向请求队列；请求队列用数据结构struct request_queue表示；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include/linux/blkdev.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request_queue</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span>    <span class="hljs-title">queue_head</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request</span>      *<span class="hljs-title">last_merge</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">elevator_queue</span>   *<span class="hljs-title">elevator</span>;</span><br>	......<br>    request_fn_proc     *request_fn;<br>    make_request_fn     *make_request_fn;<br>	......<br>    <span class="hljs-type">void</span>            *queuedata;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span>    <span class="hljs-title">icq_list</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">queue_limits</span> <span class="hljs-title">limits</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blk_flush_queue</span>  *<span class="hljs-title">fq</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span>    <span class="hljs-title">requeue_list</span>;</span><br>    <span class="hljs-type">spinlock_t</span>      requeue_lock;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">delayed_work</span> <span class="hljs-title">requeue_work</span>;</span><br>	......<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>queue_head：表头，用于构建一个IO请求的双链表；链表每个元素代表向块设备读取数据的一个请求；内核会重排该链表，以得到更好的IO性能；</p>
+<p>与每个块设备驱动程序相关的I&#x2F;O请求队列用request_queue结构体描述，而每个request_queue队列中的请求用request结构体描述；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include/linux/blkdev.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">queuelist</span>;</span><br><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request_queue</span> *<span class="hljs-title">q</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blk_mq_ctx</span> *<span class="hljs-title">mq_ctx</span>;</span><br><br>    <span class="hljs-comment">/* the following two fields are internal, NEVER access directly */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> __data_len;    <span class="hljs-comment">/* total data len */</span><br>    <span class="hljs-type">sector_t</span> __sector;      <span class="hljs-comment">/* sector cursor */</span><br><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bio</span> *<span class="hljs-title">bio</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bio</span> *<span class="hljs-title">biotail</span>;</span><br><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request</span> *<span class="hljs-title">next_rq</span>;</span><br>    ......<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>request结构体关联了struct bio，struct bio结构体是块I&#x2F;O操作在页级粒度的底层描述；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include/linux/blk_types.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bio</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bio</span>      *<span class="hljs-title">bi_next</span>;</span>   <span class="hljs-comment">/* request queue link */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">block_device</span> *<span class="hljs-title">bi_bdev</span>;</span><br>    <span class="hljs-type">int</span>         bi_error;<br><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">short</span>      bi_flags;   <span class="hljs-comment">/* status, command, etc */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">short</span>      bi_ioprio;<br><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bvec_iter</span>    <span class="hljs-title">bi_iter</span>;</span><br><br>    <span class="hljs-type">atomic_t</span>        __bi_remaining;<br>    <span class="hljs-type">bio_end_io_t</span>        *bi_end_io;<br>    <br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">short</span>      bi_vcnt;    <span class="hljs-comment">/* how many bio_vec&#x27;s */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">short</span>      bi_max_vecs;    <span class="hljs-comment">/* max bvl_vecs we can hold */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bio_vec</span>      *<span class="hljs-title">bi_io_vec</span>;</span> <span class="hljs-comment">/* the actual vec list */</span><br>	......<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>块数据通过bio_vec结构体数组在内部被表示成I&#x2F;O向量；每个bio_vec数组元素由三元组组成（即，页、页偏移、长度），表示该块I&#x2F;O的一个段；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include/linux/bvec.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bio_vec</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">bv_page</span>;</span>	<span class="hljs-comment">// 页指针</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>    bv_len;	<span class="hljs-comment">// 传输的字节数</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>    bv_offset;	<span class="hljs-comment">// 偏移位置</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>struct bvec_iter结构体用来记录当前bvec被处理的情况，用于遍历bio；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include/linux/bvec.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bvec_iter</span> &#123;</span><br>    <span class="hljs-type">sector_t</span>        bi_sector;  <span class="hljs-comment">/* device address in 512 byte sectors */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>	bi_size;    <span class="hljs-comment">/* residual I/O count */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>	bi_idx;     <span class="hljs-comment">/* current index into bvl_vec */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>	bi_bvec_done;   <span class="hljs-comment">/* number of bytes completed in current bvec */</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-5-数据结构之间的关系"><a href="#3-5-数据结构之间的关系" class="headerlink" title="3.5 数据结构之间的关系"></a>3.5 数据结构之间的关系</h3><img src="/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/image-20230716175745706.png" srcset="/img/loading.gif" lazyload alt="image-20230716175745706" style="zoom:80%;">
+
+<p><strong>块设备数据结构间的关系如下所示：</strong></p>
+<img src="/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/块设备数据结构间的关系.png" srcset="/img/loading.gif" lazyload alt="块设备数据结构间的关系" style="zoom:80%;">
+
+<p>bio、bio_vector和Page之间的关系如下所示：</p>
+<img src="/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/100045938-83908-2.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<h2 id="4-块设备驱动的初始化"><a href="#4-块设备驱动的初始化" class="headerlink" title="4.块设备驱动的初始化"></a>4.块设备驱动的初始化</h2><h2 id="千峰视频"><a href="#千峰视频" class="headerlink" title="千峰视频"></a>千峰视频</h2><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1dG4y1E7x1?p=1&vd_source=0a2a531b678f5afe0a34f933b2fbdcb4">https://www.bilibili.com/video/BV1dG4y1E7x1?p=1&amp;vd_source=0a2a531b678f5afe0a34f933b2fbdcb4</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>块设备驱动</div>
+      <div>http://example.com/2023/07/16/块设备驱动/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/16/%E4%BB%80%E4%B9%88%E6%98%AF%E9%A1%B5%E7%BC%93%E5%AD%98Page-Cache/" title="什么是页缓存Page Cache">
+                        <span class="hidden-mobile">什么是页缓存Page Cache</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
