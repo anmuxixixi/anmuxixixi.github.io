@@ -16,17 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一只安慕嘻学习笔记">
+    <meta name="description" content="f2fs文件系统布局💌 感谢HZero.chen，让我对f2fs文件系统的布局有了更深刻的认识~文章许多图片都来来自于他的文章，仅作本人学习备忘 1.准备实验环境我们首先创建一个镜像，将其格式化为f2fs文件系统，并与loop设备进行绑定，随后进行挂载 12345sudo apt-get install -y f2fs-tools             &#x2F;&#x2F; 安装f2fs工具dd if&#x3D;&#x2F;de">
 <meta property="og:type" content="article">
 <meta property="og:title" content="f2fs文件系统布局">
 <meta property="og:url" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="一只安慕嘻学习笔记">
+<meta property="og:description" content="f2fs文件系统布局💌 感谢HZero.chen，让我对f2fs文件系统的布局有了更深刻的认识~文章许多图片都来来自于他的文章，仅作本人学习备忘 1.准备实验环境我们首先创建一个镜像，将其格式化为f2fs文件系统，并与loop设备进行绑定，随后进行挂载 12345sudo apt-get install -y f2fs-tools             &#x2F;&#x2F; 安装f2fs工具dd if&#x3D;&#x2F;de">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/34b0368cc28b4cffbe8218866209fbbc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719213848821.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center-1689774607161-5.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center.png">
 <meta property="article:published_time" content="2023-07-19T13:18:29.000Z">
-<meta property="article:modified_time" content="2023-07-19T13:18:29.028Z">
+<meta property="article:modified_time" content="2023-07-19T13:58:52.132Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -237,7 +243,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 字
+          5.8k 字
         
       </span>
     
@@ -248,7 +254,7 @@
         
         
         
-          1 分钟
+          49 分钟
         
       </span>
     
@@ -299,7 +305,127 @@
             
               <div class="markdown-body">
                 
-                
+                <h1 id="f2fs文件系统布局"><a href="#f2fs文件系统布局" class="headerlink" title="f2fs文件系统布局"></a>f2fs文件系统布局</h1><p>💌 感谢<a target="_blank" rel="noopener" href="https://blog.csdn.net/jasonactions/article/details/122409327">HZero.chen</a>，让我对f2fs文件系统的布局有了更深刻的认识~文章许多图片都来来自于他的文章，仅作本人学习备忘</p>
+<h2 id="1-准备实验环境"><a href="#1-准备实验环境" class="headerlink" title="1.准备实验环境"></a>1.准备实验环境</h2><p>我们首先创建一个镜像，将其格式化为f2fs文件系统，并与loop设备进行绑定，随后进行挂载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo apt-get install -y f2fs-tools             // 安装f2fs工具<br><span class="hljs-built_in">dd</span> <span class="hljs-keyword">if</span>=/dev/zero of=f2fs.img bs=4K count=51200  // 创建200M的f2fs.img<br>mkfs.f2fs -l f2fs f2fs.img                     // 格式化为f2fs<br>sudo losetup /dev/loop0 f2fs.img               // 将loop0与f2fs.img绑定【可以通过losetup -f查看当前空闲loop设备】<br>sudo mount /dev/loop0 ./mntf2fs/               // 将loop0进行挂载<br></code></pre></td></tr></table></figure>
+
+<p>为了模拟真实的f2fs文件系统的flash设备，我们往里面放一些材料</p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png" srcset="/img/loading.gif" lazyload alt="image-20230719212612079" style="zoom: 80%;">
+
+<ul>
+<li>foo.txt是一个文本文件，里面只有一句话就是hello amx</li>
+<li>meinv.jpg是一个jpg格式的图片，大小约为5.40Mb</li>
+</ul>
+<h2 id="2-整体布局"><a href="#2-整体布局" class="headerlink" title="2.整体布局"></a>2.整体布局</h2><blockquote>
+<p>这张图来自于论文：《<strong>F2FS: A New File System for Flash Storage</strong>》</p>
+</blockquote>
+<img src="https://img-blog.csdnimg.cn/34b0368cc28b4cffbe8218866209fbbc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 80%;">
+
+<p>可以看到整体布局是常规的文件系统布局方式：<strong>超级块 + 元数据区 + 用户数据区</strong>；</p>
+<ul>
+<li>元数据区分为了CP、SIT、NAT、SSA四个区域，这四个区域都是以Segment为单位进行对齐的。</li>
+<li>因f2fs为日志结构文件系统LFS，所以其用户数据区也称为日志区Main Area。f2fs不同于传统的LFS将所有的数据都存储在一个日志里面，f2fs将其划分为了Node Segment和Data Segment，又根据其是否经常改动划分为了Hot、Warm和Cold，因此总共是6种形式。</li>
+</ul>
+<hr>
+<p><strong>f2fs基本数据单位</strong></p>
+<ul>
+<li><strong>block</strong>: F2FS的数据存储的基本单位是block，大小为4KB，整个flash设备被格式化为多个block组成的结构。很多数据结构也被设计为4KB的大小，这是因为很多flash设备单次IO的读写都是基于4KB的倍数进行。</li>
+<li><strong>segment</strong>: segment是管理block的结构，一个segment的大小是512个block，也就是2MB。</li>
+<li><strong>section</strong>: 默认情况下一个segment等于一个section，section是GC的基本操作单位，每次GC都会从section中选出特定的segment进行回收。F2FS将section分为了6类，分别是hot-node，warm-node，cold-node，hot-data，warm-data，cold-data，hot-&gt;cold表示了数据的从高到低的修改频率，通过不同类型section：进行gc的时候可针对使用hot的section进行gc，以降低gc的时间开销。</li>
+<li><strong>zone</strong>: 默认情况一个zone等于一个section，与物理设备有关，大部分情况下用不上</li>
+</ul>
+<h3 id="2-1-超级块SuperBlock"><a href="#2-1-超级块SuperBlock" class="headerlink" title="2.1 超级块SuperBlock"></a>2.1 超级块SuperBlock</h3><p>值得注意的是，f2fs的superblock不是从0x0开始，而是预留了1KB，即其偏移量为0x400</p>
+<blockquote>
+<p>读者可以通过<strong>hexdump</strong>命令查看supeblock或者通过<strong>ultra edit</strong>手动查看</p>
+</blockquote>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719213848821.png" srcset="/img/loading.gif" lazyload alt="image-20230719213848821" style="zoom:80%;">
+
+<p>🔴 <strong>注意</strong>：我们这里只关注Disk本身的布局方式，而不关注其在内存中的表现形式！</p>
+<p>其对应了<code>f2fs_super_block</code>结构体</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_super_block</span> &#123;</span><br>	__le32 magic;			<span class="hljs-comment">/* Magic Number */</span><br>	__le16 major_ver;		<span class="hljs-comment">/* Major Version */</span><br>	__le16 minor_ver;		<span class="hljs-comment">/* Minor Version */</span><br>	__le32 log_sectorsize;		<span class="hljs-comment">/* log2 sector size in bytes */</span><br>	__le32 log_sectors_per_block;	<span class="hljs-comment">/* log2 # of sectors per block */</span><br>	__le32 log_blocksize;		<span class="hljs-comment">/* log2 block size in bytes */</span><br>	__le32 log_blocks_per_seg;	<span class="hljs-comment">/* log2 # of blocks per segment */</span><br>	__le32 segs_per_sec;		<span class="hljs-comment">/* # of segments per section */</span><br>	__le32 secs_per_zone;		<span class="hljs-comment">/* # of sections per zone */</span><br>	__le32 checksum_offset;		<span class="hljs-comment">/* checksum offset inside super block */</span><br>	__le64 block_count;		<span class="hljs-comment">/* total # of user blocks */</span><br>	__le32 section_count;		<span class="hljs-comment">/* total # of sections */</span><br>	__le32 segment_count;		<span class="hljs-comment">/* total # of segments */</span><br>	__le32 segment_count_ckpt;	<span class="hljs-comment">/* # of segments for checkpoint */</span><br>	__le32 segment_count_sit;	<span class="hljs-comment">/* # of segments for SIT */</span><br>	__le32 segment_count_nat;	<span class="hljs-comment">/* # of segments for NAT */</span><br>	__le32 segment_count_ssa;	<span class="hljs-comment">/* # of segments for SSA */</span><br>	__le32 segment_count_main;	<span class="hljs-comment">/* # of segments for main area */</span><br>	__le32 segment0_blkaddr;	<span class="hljs-comment">/* start block address of segment 0 */</span><br>	__le32 cp_blkaddr;		<span class="hljs-comment">/* start block address of checkpoint */</span><br>	__le32 sit_blkaddr;		<span class="hljs-comment">/* start block address of SIT */</span><br>	__le32 nat_blkaddr;		<span class="hljs-comment">/* start block address of NAT */</span><br>	__le32 ssa_blkaddr;		<span class="hljs-comment">/* start block address of SSA */</span><br>	__le32 main_blkaddr;		<span class="hljs-comment">/* start block address of main area */</span><br>	__le32 root_ino;		<span class="hljs-comment">/* root inode number */</span><br>	__le32 node_ino;		<span class="hljs-comment">/* node inode number */</span><br>	__le32 meta_ino;		<span class="hljs-comment">/* meta inode number */</span><br>	__u8 uuid[<span class="hljs-number">16</span>];			<span class="hljs-comment">/* 128-bit uuid for volume */</span><br>	__le16 volume_name[MAX_VOLUME_NAME];	<span class="hljs-comment">/* volume name */</span><br>	__le32 extension_count;		<span class="hljs-comment">/* # of extensions below */</span><br>	__u8 extension_list[F2FS_MAX_EXTENSION][F2FS_EXTENSION_LEN];<span class="hljs-comment">/* extension array */</span><br>	__le32 cp_payload;<br>	__u8 version[VERSION_LEN];	<span class="hljs-comment">/* the kernel version */</span><br>	__u8 init_version[VERSION_LEN];	<span class="hljs-comment">/* the initial kernel version */</span><br>	__le32 feature;			<span class="hljs-comment">/* defined features */</span><br>	__u8 encryption_level;		<span class="hljs-comment">/* versioning level for encryption */</span><br>	__u8 encrypt_pw_salt[<span class="hljs-number">16</span>];	<span class="hljs-comment">/* Salt used for string2key algorithm */</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_device</span> <span class="hljs-title">devs</span>[<span class="hljs-title">MAX_DEVICES</span>];</span>	<span class="hljs-comment">/* device list */</span><br>	__le32 qf_ino[F2FS_MAX_QUOTAS];	<span class="hljs-comment">/* quota inode numbers */</span><br>	__u8 hot_ext_count;		<span class="hljs-comment">/* # of hot file extension */</span><br>	__le16  s_encoding;		<span class="hljs-comment">/* Filename charset encoding */</span><br>	__le16  s_encoding_flags;	<span class="hljs-comment">/* Filename charset encoding flags */</span><br>	__u8 reserved[<span class="hljs-number">306</span>];		<span class="hljs-comment">/* valid reserved region */</span><br>	__le32 crc;			<span class="hljs-comment">/* checksum of superblock */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><strong>第一个SuperBlock(sb#1)如下所示【偏移0x400】：</strong></li>
+</ul>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center-1689774607161-5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<ul>
+<li><strong>第二个SuperBlock(sb#2)如下所示【偏移0x1400】：</strong></li>
+</ul>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
+
+<blockquote>
+<p>以下内容来自：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/634651371%EF%BC%8C%E4%BD%9C%E8%80%85%EF%BC%9A**LZT">https://zhuanlan.zhihu.com/p/634651371，作者：**LZT</a>**</p>
+</blockquote>
+<ul>
+<li><p><strong>magic</strong>：f2fs的魔数字，用来检查SuperBlock是否破损，其内容固定为0xF2F52010。</p>
+</li>
+<li><p><strong>major_ver、minor_ver</strong>：这两个是Linux用于标识一个块设备的主次号，主次号可以确定系统中的每一个块设备。</p>
+</li>
+<li><p><strong>log_sectorsize</strong>：块设备中一个扇区大小，普通设备是512，此处是对2取对数后的结果，所以是9。</p>
+</li>
+<li><p><strong>log_sectors_per_block</strong>：一个block对应扇区数，并对2取对数后的结果，一个block是4KB，而sector是512，所以结果是3。</p>
+</li>
+<li><p><strong>log_blocksize</strong>：一个block大小对2取对数的结果，也即log2(4096)，结果是12。</p>
+</li>
+<li><p><strong>log_blocks_per_seg</strong>：一个segment对应的block数目，并对2取对数的结果，结果是9。</p>
+</li>
+<li><p><strong>segs_per_sec、secs_per_zone</strong>：分别是一个section对应的segmeng数量和一个zone对应的section数量，默认两者均为1。</p>
+</li>
+<li><p><strong>crc_offset、crc</strong>：SuperBlock中的crc字段偏移量，crc则是该SuperBlock结构体的crc计算结果，用于检查SuperBlock的正确性。其中这两个字段由F2FS_FEATURE_SB_CHKSUM标记位控制，如果设置了该标记，mkfs才会真正写入这两个字段的内容。</p>
+</li>
+<li><p><strong>block_count</strong>：整个块设备的block个数，需要做4KB对齐，如果对应多个设备，计算的是所有设备的block个数。</p>
+</li>
+<li><p><strong>section_count</strong>：Main Area对应的section个数，如果是多设备，需要全部计算。</p>
+</li>
+<li><p><strong>segment_count_ckpt</strong>：CP区域所占的segment数，CP区域固定占2个segment。</p>
+</li>
+<li><p><strong>segment_count_sit</strong>：SIT区域所占用的segment数，这个是根据segment_count的值确定的，一个f2fs_sit_entry结构体占74字节，所以一个block可容纳56个f2fs_sit_entry，也即一个segment可容纳28672个f2fs_sit_entry，对应的是56G。但由于SIT有一个备份区域，所以每56G的大小就需要2个segment。注意：SIT区域管理系统中所有的segment，包括CP区域和SIT区域自身。</p>
+</li>
+<li><p><strong>segment_count_nat</strong>：NAT区域所占用的segment数，对应的是从NAT区域开始的所有block（包括NAT、SSA、Node、Data区域）。一个f2fs_nat_entry大小是9字节，所以一个block对应455个f2fs_nat_entry。同样，NAT区域也有一个备份区。</p>
+</li>
+<li><p><strong>segment_count_ssa</strong>：SSA区域所占用的segmeng数，一个SSA Block对应的是一个segment信息。同时需要注意的是，SSA区域主要是用于GC流程的，如果f2fs在mkfs的时候指定了只读属性，那么该区域也就没必要的。对应的是从SSA区域开始的所有segment的管理。SSA区域不做备份。</p>
+</li>
+<li><p><strong>segment_count_main</strong>：Main Area区域对应的segment数，包括Node和Data的区域。</p>
+</li>
+<li><p><strong>segment0_blkaddr</strong>：第一个segment的开始对应的block号，注意：本来第一个segment应该对应的是SuperBlock，但是f2fs是从CP区域开始对segment进行编码的，所以对应的是CP区域的开始block。</p>
+</li>
+<li><p>⭐<strong>cp_blkaddr</strong>：CP区域的起始block号，和segment0_blkaddr一样。</p>
+</li>
+<li><p>⭐<strong>sit_blkaddr</strong>：SIT区域的起始block号。</p>
+</li>
+<li><p>⭐<strong>nat_blkaddr</strong>：NAT区域的起始block号。</p>
+</li>
+<li><p>⭐<strong>ssa_blkaddr</strong>：SSA区域的起始block号。</p>
+</li>
+<li><p>⭐<strong>main_blkaddr</strong>：Main Area开始的block号。</p>
+</li>
+<li><p><strong>root_ino、meta_ino、node_ino</strong>：分别是root inode号，固定是3；元数据inode号，固定是2；Node对应的inode号，固定是1。其中root_ino是根目录的inode号，在文件系统挂载的是时候初始化，而meta_ino则对应元数据区域，缓存元数据的page cache；node_ino则对应的是所有node的page cache</p>
+</li>
+<li><p><strong>uuid</strong>：随机值盐值，用于计算inode的crc。</p>
+</li>
+<li><p><strong>volume_name</strong>：分区名。</p>
+</li>
+<li><p><strong>extension_list</strong>：可以通过ioctl设定将哪些文件标记为cold，一般是读多写少的文件，例如：mp3、gif等等</p>
+</li>
+<li><p><strong>version</strong>：mkfs时的linux的版本号。</p>
+</li>
+<li><p><strong>feature</strong>：mkfs指定的特性列表，例如：加密、SuperBlock的crc检查等等。&#x2F;sys&#x2F;fs&#x2F;f2fs&#x2F;features&#x2F;表示文件系统支持的特性。</p>
+</li>
+<li><p><strong>encrypt_pw_salt</strong>：密钥的加密盐值，可通过ioctl获取。</p>
+</li>
+<li><p><strong>devs</strong>：文件系统对应的设备列表，每个设备都有各自的地址访问，在写数据的时候需要遍历所有设备。</p>
+</li>
+<li><p><strong>s_encoding、s_encoding_flags</strong>：文件名编码格式？</p>
+</li>
+<li><p><strong>s_stop_reason</strong>：CP停止的原因（CP失败的原因？）</p>
+</li>
+<li><p><strong>s_errors</strong>：文件系统损坏的原因。</p>
+</li>
+</ul>
+
                 
               </div>
             
