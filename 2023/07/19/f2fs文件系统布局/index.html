@@ -24,12 +24,17 @@
 <meta property="og:description" content="f2fs文件系统布局💌 感谢HZero.chen，让我对f2fs文件系统的布局有了更深刻的认识~文章许多图片都来来自于他的文章，仅作本人学习备忘 1.准备实验环境我们首先创建一个镜像，将其格式化为f2fs文件系统，并与loop设备进行绑定，随后进行挂载 12345sudo apt-get install -y f2fs-tools             &#x2F;&#x2F; 安装f2fs工具dd if&#x3D;&#x2F;de">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/34b0368cc28b4cffbe8218866209fbbc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/1.png">
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719213848821.png">
-<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center-1689774607161-5.png">
-<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/2.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/3.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/4.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/5.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/6.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719233445458.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/7.png">
 <meta property="article:published_time" content="2023-07-19T13:18:29.000Z">
-<meta property="article:modified_time" content="2023-07-19T13:58:52.132Z">
+<meta property="article:modified_time" content="2023-07-19T15:44:08.518Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png">
@@ -243,7 +248,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          5.8k 字
+          9k 字
         
       </span>
     
@@ -254,7 +259,7 @@
         
         
         
-          49 分钟
+          75 分钟
         
       </span>
     
@@ -319,7 +324,7 @@
 <h2 id="2-整体布局"><a href="#2-整体布局" class="headerlink" title="2.整体布局"></a>2.整体布局</h2><blockquote>
 <p>这张图来自于论文：《<strong>F2FS: A New File System for Flash Storage</strong>》</p>
 </blockquote>
-<img src="https://img-blog.csdnimg.cn/34b0368cc28b4cffbe8218866209fbbc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 80%;">
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 80%;">
 
 <p>可以看到整体布局是常规的文件系统布局方式：<strong>超级块 + 元数据区 + 用户数据区</strong>；</p>
 <ul>
@@ -349,15 +354,15 @@
 <ul>
 <li><strong>第一个SuperBlock(sb#1)如下所示【偏移0x400】：</strong></li>
 </ul>
-<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center-1689774607161-5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/2.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
 
 <ul>
 <li><strong>第二个SuperBlock(sb#2)如下所示【偏移0x1400】：</strong></li>
 </ul>
-<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAX19IWmVybw==,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
 
 <blockquote>
-<p>以下内容来自：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/634651371%EF%BC%8C%E4%BD%9C%E8%80%85%EF%BC%9A**LZT">https://zhuanlan.zhihu.com/p/634651371，作者：**LZT</a>**</p>
+<p>以下内容来自：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/634651371">https://zhuanlan.zhihu.com/p/634651371</a></p>
 </blockquote>
 <ul>
 <li><p><strong>magic</strong>：f2fs的魔数字，用来检查SuperBlock是否破损，其内容固定为0xF2F52010。</p>
@@ -425,6 +430,67 @@
 <li><p><strong>s_errors</strong>：文件系统损坏的原因。</p>
 </li>
 </ul>
+<h3 id="2-2-CheckPoint"><a href="#2-2-CheckPoint" class="headerlink" title="2.2 CheckPoint"></a>2.2 CheckPoint</h3><img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<blockquote>
+<p>如上为cp block的总体布局，分为两种：<strong>nomal mode</strong>和<strong>compact mode</strong>.通过镜像可知，本文创建的镜像的CP为compact mode<br>ckpt_flags的值是5，通过ckpt_flags &amp; CP_COMPACT_SUM_FLAG的值也可以知道，它就是compact mode.<br>cp区域主要包含两个cp pack，每个cp pack占据一个segment。</p>
+</blockquote>
+<h4 id="2-2-1-cp-page-1"><a href="#2-2-1-cp-page-1" class="headerlink" title="2.2.1 cp page 1"></a>2.2.1 cp page 1</h4><p>其对应的数据结构为<code>f2fs_checkpoint</code>结构体</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_checkpoint</span> &#123;</span><br>	__le64 checkpoint_ver;		<span class="hljs-comment">/* checkpoint block version number */</span><br>	__le64 user_block_count;	<span class="hljs-comment">/* # of user blocks */</span><br>	__le64 valid_block_count;	<span class="hljs-comment">/* # of valid blocks in main area */</span><br>	__le32 rsvd_segment_count;	<span class="hljs-comment">/* # of reserved segments for gc */</span><br>	__le32 overprov_segment_count;	<span class="hljs-comment">/* # of overprovision segments */</span><br>	__le32 free_segment_count;	<span class="hljs-comment">/* # of free segments in main area */</span><br><br>	<span class="hljs-comment">/* information of current node segments */</span><br>	__le32 cur_node_segno[MAX_ACTIVE_NODE_LOGS];<br>	__le16 cur_node_blkoff[MAX_ACTIVE_NODE_LOGS];<br>	<span class="hljs-comment">/* information of current data segments */</span><br>	__le32 cur_data_segno[MAX_ACTIVE_DATA_LOGS];<br>	__le16 cur_data_blkoff[MAX_ACTIVE_DATA_LOGS];<br>	__le32 ckpt_flags;		<span class="hljs-comment">/* Flags : umount and journal_present */</span><br>	__le32 cp_pack_total_block_count;	<span class="hljs-comment">/* total # of one cp pack */</span><br>	__le32 cp_pack_start_sum;	<span class="hljs-comment">/* start block number of data summary */</span><br>	__le32 valid_node_count;	<span class="hljs-comment">/* Total number of valid nodes */</span><br>	__le32 valid_inode_count;	<span class="hljs-comment">/* Total number of valid inodes */</span><br>	__le32 next_free_nid;		<span class="hljs-comment">/* Next free node number */</span><br>	__le32 sit_ver_bitmap_bytesize;	<span class="hljs-comment">/* Default value 64 */</span><br>	__le32 nat_ver_bitmap_bytesize; <span class="hljs-comment">/* Default value 256 */</span><br>	__le32 checksum_offset;		<span class="hljs-comment">/* checksum offset inside cp block */</span><br>	__le64 elapsed_time;		<span class="hljs-comment">/* mounted time */</span><br>	<span class="hljs-comment">/* allocation type of current segment */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> alloc_type[MAX_ACTIVE_LOGS];<br><br>	<span class="hljs-comment">/* SIT and NAT version bitmap */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> sit_nat_version_bitmap[<span class="hljs-number">1</span>];<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<blockquote>
+<p>上面为HZero.chen博客中的数据，下面是我自己实验的数据</p>
+</blockquote>
+<hr>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719233445458.png" srcset="/img/loading.gif" lazyload alt="image-20230719233445458" style="zoom:67%;">
+
+<ul>
+<li><p><strong>checkpoint_ver</strong>：0x69d7b561</p>
+</li>
+<li><p><strong>user_block_count</strong>：0x7a00(31232)，4096&#x2F;512&#x3D;8个segment,而main area有56个segment，其它48个segment为overprovision segment</p>
+</li>
+<li><p><strong>valid_block_count</strong>：0x56d(1389)</p>
+</li>
+<li><p><strong>rsvd_segment_count</strong>：0x15(31)，保留了21个segment</p>
+</li>
+<li><p><strong>overprov_segment_count</strong>：0x1f(31)</p>
+</li>
+<li><p><strong>free_segment_count</strong>：0x54(84)</p>
+</li>
+<li><p><strong>cur_node_segno</strong></p>
+<ul>
+<li>0x01、0x02</li>
+</ul>
+</li>
+</ul>
+<p>—-cur_node_blkoff—-<br>0x00000006<br>0x0000000C<br>0x00000000</p>
+<p>—-cur_data_segno—-<br>0x00000034<br>0x00000001<br>0x00000000|</p>
+<p>—-cur_data_blkoff—-<br>0x00000005<br>0x00000003<br>0x00000001</p>
+<p>ckpt_flags:0x5</p>
+<p>cp_pack_total_block_count:0x6</p>
+<p>cp_pack_start_sum:0x1</p>
+<p>valid_node_count:0x5</p>
+<p>valid_inode_count:0x5</p>
+<p>next_free_nid:0x8</p>
+<p>sit_ver_bitmap_bytesize:0x40</p>
+<p>nat_ver_bitmap_bytesize:0x40</p>
+<p>checksum_offset:0xffc</p>
+<p>elapsed_time:40</p>
+<p>allocation type of current segment<br>0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|<br>0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|<br>0x00000000|0x00000000|</p>
+<p>sit_nat_version_bitmap:0x0</p>
+<p>&#x2F;&#x2F; TODO</p>
+<h4 id="2-2-2-NAT-Journal"><a href="#2-2-2-NAT-Journal" class="headerlink" title="2.2.2 NAT Journal"></a>2.2.2 NAT Journal</h4><p>在f2fs中存在journal机制，通过联合体<code>f2fs_journal</code>表示，所以它既可以表示NAT，又可以表示SIT</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		__le16 n_nats;<br>		__le16 n_sits;<br>	&#125;;<br>	<span class="hljs-comment">/* spare area is used by NAT or SIT journals or extra info */</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal</span> <span class="hljs-title">nat_j</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal</span> <span class="hljs-title">sit_j</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_extra_info</span> <span class="hljs-title">info</span>;</span><br>	&#125;;<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>这里先以NAT为例，前面16位小端为nats，后面的是nat_journal结构体</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal_entry</span> <span class="hljs-title">entries</span>[<span class="hljs-title">NAT_JOURNAL_ENTRIES</span>];</span><br>	__u8 reserved[NAT_JOURNAL_RESERVED];<br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal_entry</span> &#123;</span><br>	__le32 nid;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> <span class="hljs-title">ne</span>;</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> &#123;</span><br>	__u8 version;		<span class="hljs-comment">/* latest version of cached nat entry */</span><br>	__le32 ino;		<span class="hljs-comment">/* inode number */</span><br>	__le32 block_addr;	<span class="hljs-comment">/* block address */</span><br>&#125; __packed;<br><br></code></pre></td></tr></table></figure>
+
+<p>说白了里面存储的也是f2fs_nat_entry</p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/7.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
 
                 
               </div>
