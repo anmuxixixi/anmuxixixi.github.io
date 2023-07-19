@@ -32,9 +32,11 @@
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/5.png">
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/6.png">
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719233445458.png">
-<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/7.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719234855034.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235441702.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235854137.png">
 <meta property="article:published_time" content="2023-07-19T13:18:29.000Z">
-<meta property="article:modified_time" content="2023-07-19T15:44:08.518Z">
+<meta property="article:modified_time" content="2023-07-19T15:59:55.334Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png">
@@ -248,7 +250,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9k 字
+          9.7k 字
         
       </span>
     
@@ -259,7 +261,7 @@
         
         
         
-          75 分钟
+          81 分钟
         
       </span>
     
@@ -430,9 +432,9 @@
 <li><p><strong>s_errors</strong>：文件系统损坏的原因。</p>
 </li>
 </ul>
-<h3 id="2-2-CheckPoint"><a href="#2-2-CheckPoint" class="headerlink" title="2.2 CheckPoint"></a>2.2 CheckPoint</h3><img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+<h3 id="2-2-CheckPoint"><a href="#2-2-CheckPoint" class="headerlink" title="2.2 CheckPoint"></a>2.2 CheckPoint</h3><img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
 
-<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
 
 <blockquote>
 <p>如上为cp block的总体布局，分为两种：<strong>nomal mode</strong>和<strong>compact mode</strong>.通过镜像可知，本文创建的镜像的CP为compact mode<br>ckpt_flags的值是5，通过ckpt_flags &amp; CP_COMPACT_SUM_FLAG的值也可以知道，它就是compact mode.<br>cp区域主要包含两个cp pack，每个cp pack占据一个segment。</p>
@@ -440,7 +442,7 @@
 <h4 id="2-2-1-cp-page-1"><a href="#2-2-1-cp-page-1" class="headerlink" title="2.2.1 cp page 1"></a>2.2.1 cp page 1</h4><p>其对应的数据结构为<code>f2fs_checkpoint</code>结构体</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_checkpoint</span> &#123;</span><br>	__le64 checkpoint_ver;		<span class="hljs-comment">/* checkpoint block version number */</span><br>	__le64 user_block_count;	<span class="hljs-comment">/* # of user blocks */</span><br>	__le64 valid_block_count;	<span class="hljs-comment">/* # of valid blocks in main area */</span><br>	__le32 rsvd_segment_count;	<span class="hljs-comment">/* # of reserved segments for gc */</span><br>	__le32 overprov_segment_count;	<span class="hljs-comment">/* # of overprovision segments */</span><br>	__le32 free_segment_count;	<span class="hljs-comment">/* # of free segments in main area */</span><br><br>	<span class="hljs-comment">/* information of current node segments */</span><br>	__le32 cur_node_segno[MAX_ACTIVE_NODE_LOGS];<br>	__le16 cur_node_blkoff[MAX_ACTIVE_NODE_LOGS];<br>	<span class="hljs-comment">/* information of current data segments */</span><br>	__le32 cur_data_segno[MAX_ACTIVE_DATA_LOGS];<br>	__le16 cur_data_blkoff[MAX_ACTIVE_DATA_LOGS];<br>	__le32 ckpt_flags;		<span class="hljs-comment">/* Flags : umount and journal_present */</span><br>	__le32 cp_pack_total_block_count;	<span class="hljs-comment">/* total # of one cp pack */</span><br>	__le32 cp_pack_start_sum;	<span class="hljs-comment">/* start block number of data summary */</span><br>	__le32 valid_node_count;	<span class="hljs-comment">/* Total number of valid nodes */</span><br>	__le32 valid_inode_count;	<span class="hljs-comment">/* Total number of valid inodes */</span><br>	__le32 next_free_nid;		<span class="hljs-comment">/* Next free node number */</span><br>	__le32 sit_ver_bitmap_bytesize;	<span class="hljs-comment">/* Default value 64 */</span><br>	__le32 nat_ver_bitmap_bytesize; <span class="hljs-comment">/* Default value 256 */</span><br>	__le32 checksum_offset;		<span class="hljs-comment">/* checksum offset inside cp block */</span><br>	__le64 elapsed_time;		<span class="hljs-comment">/* mounted time */</span><br>	<span class="hljs-comment">/* allocation type of current segment */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> alloc_type[MAX_ACTIVE_LOGS];<br><br>	<span class="hljs-comment">/* SIT and NAT version bitmap */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> sit_nat_version_bitmap[<span class="hljs-number">1</span>];<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
 
-<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
 
 <blockquote>
 <p>上面为HZero.chen博客中的数据，下面是我自己实验的数据</p>
@@ -487,10 +489,23 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		__le16 n_nats;<br>		__le16 n_sits;<br>	&#125;;<br>	<span class="hljs-comment">/* spare area is used by NAT or SIT journals or extra info */</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal</span> <span class="hljs-title">nat_j</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal</span> <span class="hljs-title">sit_j</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_extra_info</span> <span class="hljs-title">info</span>;</span><br>	&#125;;<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
 
 <p>这里先以NAT为例，前面16位小端为nats，后面的是nat_journal结构体</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal_entry</span> <span class="hljs-title">entries</span>[<span class="hljs-title">NAT_JOURNAL_ENTRIES</span>];</span><br>	__u8 reserved[NAT_JOURNAL_RESERVED];<br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal_entry</span> &#123;</span><br>	__le32 nid;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> <span class="hljs-title">ne</span>;</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> &#123;</span><br>	__u8 version;		<span class="hljs-comment">/* latest version of cached nat entry */</span><br>	__le32 ino;		<span class="hljs-comment">/* inode number */</span><br>	__le32 block_addr;	<span class="hljs-comment">/* block address */</span><br>&#125; __packed;<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal_entry</span> <span class="hljs-title">entries</span>[<span class="hljs-title">NAT_JOURNAL_ENTRIES</span>];</span><br>	__u8 reserved[NAT_JOURNAL_RESERVED];<br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal_entry</span> &#123;</span><br>	__le32 nid;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> <span class="hljs-title">ne</span>;</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> &#123;</span><br>	__u8 version;		<span class="hljs-comment">/* latest version of cached nat entry */</span><br>	__le32 ino;		<span class="hljs-comment">/* inode number */</span><br>	__le32 block_addr;	<span class="hljs-comment">/* block address */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
 
-<p>说白了里面存储的也是f2fs_nat_entry</p>
-<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/7.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+<p>说白了里面存储的也是<strong>f2fs_nat_entry</strong></p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719234855034.png" srcset="/img/loading.gif" lazyload alt="image-20230719234855034" style="zoom:67%;">
+
+<p>前面2个字节0x05表示nats，随后的4个字节0x00000003表示的是nid，后面即使f2fs_nat_entry结构体了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">00            version      0x00<br>00 00 00 03   ino          0x03(3)<br>00 00 10 04   block_addr   0x1004(4100)<br></code></pre></td></tr></table></figure>
+
+<p>我们一般会<strong>dump.f2fs -n 0~-1 f2fs.img</strong>查看nat的信息，结果会保存在<code>dump_nat</code>中</p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235441702.png" srcset="/img/loading.gif" lazyload alt="image-20230719235441702" style="zoom:67%;">
+
+<p>以第一个<strong>nid:3</strong>为例，与上面的nat journal完美的对上了，同理这里面的信息都与nat journal一一对应。</p>
+<h4 id="2-2-3-SIT-Journal"><a href="#2-2-3-SIT-Journal" class="headerlink" title="2.2.3 SIT Journal"></a>2.2.3 SIT Journal</h4><p>如2.2.2所说，f2fs_journal结构体既能表示nat，也能表示sit【因为内部成员是联合体】，那么这边应该表示的是sit</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal_entry</span> <span class="hljs-title">entries</span>[<span class="hljs-title">SIT_JOURNAL_ENTRIES</span>];</span><br>	__u8 reserved[SIT_JOURNAL_RESERVED];<br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal_entry</span> &#123;</span><br>	__le32 segno;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_entry</span> <span class="hljs-title">se</span>;</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_entry</span> &#123;</span><br>	__le16 vblocks;				<span class="hljs-comment">/* reference above */</span><br>	__u8 valid_map[SIT_VBLOCK_MAP_SIZE];	<span class="hljs-comment">/* bitmap for valid blocks */</span><br>	__le64 mtime;				<span class="hljs-comment">/* segment age for cleaning */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>说白了里面存储的也是<strong>f2fs_sit_entry</strong></p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235854137.png" srcset="/img/loading.gif" lazyload alt="image-20230719235854137" style="zoom:67%;">
 
                 
               </div>
