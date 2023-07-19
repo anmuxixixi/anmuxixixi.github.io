@@ -24,9 +24,9 @@
 <meta property="og:description" content="什么是页缓存Page Cache 转载自：https:&#x2F;&#x2F;cloud.tencent.com&#x2F;developer&#x2F;article&#x2F;1848933  我们知道文件一般存放在硬盘（机械硬盘或固态硬盘）中，CPU 并不能直接访问硬盘中的数据，而是需要先将硬盘中的数据读入到内存中，然后才能被 CPU 访问。 由于读写硬盘的速度比读写内存要慢很多（DDR4 内存读写速度是机械硬盘500倍，是固态硬盘的200">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/07/16/%E4%BB%80%E4%B9%88%E6%98%AF%E9%A1%B5%E7%BC%93%E5%AD%98Page-Cache/1200.png">
-<meta property="og:image" content="http://example.com/%E4%BB%80%E4%B9%88%E6%98%AF%E9%A1%B5%E7%BC%93%E5%AD%98Page-Cache/1200-1689498860578-3.png">
+<meta property="og:image" content="http://example.com/2023/07/16/%E4%BB%80%E4%B9%88%E6%98%AF%E9%A1%B5%E7%BC%93%E5%AD%98Page-Cache/1200-1689498860578-3.png">
 <meta property="article:published_time" content="2023-07-16T09:09:04.000Z">
-<meta property="article:modified_time" content="2023-07-16T09:15:16.669Z">
+<meta property="article:modified_time" content="2023-07-19T13:19:01.850Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/07/16/%E4%BB%80%E4%B9%88%E6%98%AF%E9%A1%B5%E7%BC%93%E5%AD%98Page-Cache/1200.png">
@@ -339,7 +339,8 @@
 <p><code>radix树</code>：又名基数树，它使用键值（key-value）对的形式来保存数据，并且可以通过键快速查找到其对应的值。内核以文件读写操作中的数据 <code>偏移量</code> 作为键，以数据偏移量所在的 <code>页缓存</code> 作为值，存储在 <code>address_space</code> 结构的 <code>page_tree</code> 字段中。</p>
 </blockquote>
 <p>下图展示了上述各个结构之间的关系：</p>
-<p><img src="/%E4%BB%80%E4%B9%88%E6%98%AF%E9%A1%B5%E7%BC%93%E5%AD%98Page-Cache/1200-1689498860578-3.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<img src="/2023/07/16/%E4%BB%80%E4%B9%88%E6%98%AF%E9%A1%B5%E7%BC%93%E5%AD%98Page-Cache/1200-1689498860578-3.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 80%;">
+
 <ol start="2">
 <li><strong>读文件操作</strong></li>
 </ol>
