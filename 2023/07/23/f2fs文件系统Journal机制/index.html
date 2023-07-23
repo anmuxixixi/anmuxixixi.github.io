@@ -1,0 +1,711 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="f2fs文件系统Journal机制 参考：https:&#x2F;&#x2F;blog.csdn.net&#x2F;u011649400&#x2F;article&#x2F;details&#x2F;106957151  Journal机制的介绍当F2FS进行文件读写的时候，根据 f2fs_node 的设计以及闪存设备异地更新的特性，每修改一个数据块，都需要改动 f2fs_node 的地址映射，以及NAT，SIT等信息。但是如果仅仅因为一个小改动，例如修改">
+<meta property="og:type" content="article">
+<meta property="og:title" content="f2fs文件系统Journal机制">
+<meta property="og:url" content="http://example.com/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="f2fs文件系统Journal机制 参考：https:&#x2F;&#x2F;blog.csdn.net&#x2F;u011649400&#x2F;article&#x2F;details&#x2F;106957151  Journal机制的介绍当F2FS进行文件读写的时候，根据 f2fs_node 的设计以及闪存设备异地更新的特性，每修改一个数据块，都需要改动 f2fs_node 的地址映射，以及NAT，SIT等信息。但是如果仅仅因为一个小改动，例如修改">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/e70cb7105d434b019d36cf0992dd232f.jpeg">
+<meta property="og:image" content="http://example.com/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/image-20230723223652646.png">
+<meta property="article:published_time" content="2023-07-23T14:19:53.000Z">
+<meta property="article:modified_time" content="2023-07-23T14:40:22.372Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/e70cb7105d434b019d36cf0992dd232f.jpeg">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>f2fs文件系统Journal机制 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="f2fs文件系统Journal机制"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-23 22:19" pubdate>
+          2023年7月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">f2fs文件系统Journal机制</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="f2fs文件系统Journal机制"><a href="#f2fs文件系统Journal机制" class="headerlink" title="f2fs文件系统Journal机制"></a>f2fs文件系统Journal机制</h1><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/u011649400/article/details/106957151">https://blog.csdn.net/u011649400/article/details/106957151</a></p>
+</blockquote>
+<h2 id="Journal机制的介绍"><a href="#Journal机制的介绍" class="headerlink" title="Journal机制的介绍"></a>Journal机制的介绍</h2><p>当F2FS进行文件读写的时候，根据 f2fs_node 的设计以及闪存设备异地更新的特性，每修改一个数据块，都需要改动 f2fs_node 的地址映射，以及NAT，SIT等信息。但是如果仅仅因为一个小改动，例如修改一个块，就需要改动这么多数据，然后再写入磁盘，这样既会导致性能下降，也会导致闪存寿命的下降。</p>
+<p>因此F2FS设计了journal机制，用于将这些对SIT和NAT区域的数据的修改暂存在Checkpoint区域的 <code>f2fs_journal</code> 中，这种设计可以<strong>减少NAT和SIT的更新产生的大量的I&#x2F;O</strong>。</p>
+<p>产生大量I&#x2F;O的原因是，sit和nat的值会<strong>随机</strong>更新，由于flash的机制，即使更新SIT&#x2F;NAT其中的一个entry，都要将这个entry所在的整个NAT&#x2F;SIT的block进行重写。如用户更新了多个node(segment)，每一个node&#x2F;segment的更改都要更新了其中一个entry，即<code>f2fs_nat_entry</code>(<code>f2fs_sit_entry</code>)。假设这些需要更新的entry都不在通过一个<code>f2fs_nat_block</code>(<code>f2fs_sit_block</code>)，那么系统就要将所有的block更新，从而产生大量的4KB的I&#x2F;O，即使只改动其中一个entry。</p>
+<p>F2FS则是通过journal机制，将这些随机更新的f2fs_nat_entry(f2fs_sit_entry)都会尝试集中写到checkpoint区域的f2fs_journal当中，即把随机更新的NAT&#x2F;SIT的block需要更新的entry都集中写到同一个block，从而减少I&#x2F;O的写入。<strong>如果f2fs_journal的空间还没用尽，系统就会将更新的NAT&#x2F;SIT entry写入journal中，如果这些journal用尽了，才回写到NAT&#x2F;SIT区域当中。</strong></p>
+<h2 id="Journal涉及到的数据结构"><a href="#Journal涉及到的数据结构" class="headerlink" title="Journal涉及到的数据结构"></a>Journal涉及到的数据结构</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		__le16 n_nats; <span class="hljs-comment">/* 这个journal里面包含多少个nat_journal对象 */</span><br>		__le16 n_sits; <span class="hljs-comment">/* 这个journal里面包含多少个sit_journal对象 */</span><br>	&#125;;<br>	<span class="hljs-comment">/* spare area is used by NAT or SIT journals or extra info */</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal</span> <span class="hljs-title">nat_j</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal</span> <span class="hljs-title">sit_j</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_extra_info</span> <span class="hljs-title">info</span>;</span><br>	&#125;;<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p><code>f2fs_journal</code> 可以保存NAT的journal也可以保存SIT的journal，以下分别分析:</p>
+<h3 id="NAT-Journal"><a href="#NAT-Journal" class="headerlink" title="NAT Journal"></a>NAT Journal</h3><p>每一个<code>nat_journal</code>都对应了一个node，记录了这个node是属于哪一个inode，以及这个node的在flash设备的物理地址</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal_entry</span> <span class="hljs-title">entries</span>[<span class="hljs-title">NAT_JOURNAL_ENTRIES</span>];</span><br>	__u8 reserved[NAT_JOURNAL_RESERVED];<br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal_entry</span> &#123;</span><br>	__le32 nid; <span class="hljs-comment">/* 当前node的nid信息 */</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> <span class="hljs-title">ne</span>;</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> &#123;</span><br>	__u8 version;		<span class="hljs-comment">/* latest version of cached nat entry */</span><br>	__le32 ino;		<span class="hljs-comment">/* 属于哪一个inode */</span><br>	__le32 block_addr;	<span class="hljs-comment">/* flash设备的物理地址 */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<h3 id="SIT-Journal"><a href="#SIT-Journal" class="headerlink" title="SIT Journal"></a>SIT Journal</h3><p>每一个<code>sit_journal</code>都对应了一个segment，记录了该segment的有效block的数目 <code>vblocks</code> 以及 它的分配状态bitmap <code>valid_map</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal_entry</span> <span class="hljs-title">entries</span>[<span class="hljs-title">SIT_JOURNAL_ENTRIES</span>];</span><br>	__u8 reserved[SIT_JOURNAL_RESERVED];<br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal_entry</span> &#123;</span><br>	__le32 segno; <span class="hljs-comment">/* 当前的segment number */</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_entry</span> <span class="hljs-title">se</span>;</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_entry</span> &#123;</span><br>	__le16 vblocks;				<span class="hljs-comment">/* 有效block的数目 */</span><br>	__u8 valid_map[SIT_VBLOCK_MAP_SIZE]; <span class="hljs-comment">/* SIT_VBLOCK_MAP_SIZE=64，64*8=512可以表示每一个块的valid状态 */</span><br>	__le64 mtime;				<span class="hljs-comment">/* 用于GC的victim segment selection */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<h2 id="Journal机制的实现"><a href="#Journal机制的实现" class="headerlink" title="Journal机制的实现"></a>Journal机制的实现</h2><p>前面提及Journal机制主要用于将频繁的NAT和SIT的更新集中写到checkpoint区域的<code>f2fs_journal</code>中，从而提高性能，延长闪存颗粒的寿命。去分析Journal机制如何实现时，首先我们需要分析，系统什么时候会读写NAT、SIT区域的数据:</p>
+<ul>
+<li><strong>NAT:</strong> 更新一个node的物理地址，获取一个node的物理地址</li>
+<li><strong>SIT:</strong> 分配segment中的block，回收segment中的block</li>
+</ul>
+<p>🔴 因此这里关注如何获取一个node的物理地址，以及一个segment的block分配状态。</p>
+<h3 id="通过Journal获取一个node的物理地址"><a href="#通过Journal获取一个node的物理地址" class="headerlink" title="通过Journal获取一个node的物理地址"></a>通过Journal获取一个node的物理地址</h3><p>F2FS一般是通过<code>f2fs_get_node_info</code>函数，根据传入的nid值，找到对应的物理地址。首先从内存中找一下nid有没有cache，如果没有则使用journal寻址，如果还是没有采取NAT找，最后找到之后将这个entry的信息，加入到cache中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">f2fs_get_node_info</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">nid_t</span> nid,</span><br><span class="hljs-params">						<span class="hljs-keyword">struct</span> node_info *ni)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nm_info</span> *<span class="hljs-title">nm_i</span> =</span> NM_I(sbi);<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">curseg_info</span> *<span class="hljs-title">curseg</span> =</span> CURSEG_I(sbi, CURSEG_HOT_DATA);<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_journal</span> *<span class="hljs-title">journal</span> =</span> curseg-&gt;journal;<br>	<span class="hljs-type">nid_t</span> start_nid = START_NID(nid); <span class="hljs-comment">// 计算这个nid所在的f2fs_nat_block的第一个nid</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_block</span> *<span class="hljs-title">nat_blk</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">page</span> =</span> <span class="hljs-literal">NULL</span>;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> <span class="hljs-title">ne</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_entry</span> *<span class="hljs-title">e</span>;</span><br>	<span class="hljs-type">pgoff_t</span> index;<br>	<span class="hljs-type">int</span> i;<br><br>	ni-&gt;nid = nid;<br><br>	<span class="hljs-comment">/* 根据nid从cache寻找物理地址信息 */</span><br>	e = __lookup_nat_cache(nm_i, nid);<br>	<span class="hljs-keyword">if</span> (e) &#123; <span class="hljs-comment">// 如果有就返回</span><br>		ni-&gt;ino = nat_get_ino(e);<br>		ni-&gt;blk_addr = nat_get_blkaddr(e);<br>		ni-&gt;version = nat_get_version(e);<br>		<span class="hljs-keyword">return</span>;<br>	&#125;<br><br>	<span class="hljs-built_in">memset</span>(&amp;ne, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> f2fs_nat_entry));<br><br>	<span class="hljs-comment">/* 再去journal找 */</span><br>	<span class="hljs-comment">/* </span><br><span class="hljs-comment">	 * 根据nid从journal找nat_entry的信息，如果 i&gt;=0 ，</span><br><span class="hljs-comment">	 * 则表示journal有这个信息，否则表示journal不存在这个nid的信息 </span><br><span class="hljs-comment">	 * */</span><br>	i = f2fs_lookup_journal_in_cursum(journal, NAT_JOURNAL, nid, <span class="hljs-number">0</span>);<br>	<span class="hljs-keyword">if</span> (i &gt;= <span class="hljs-number">0</span>) &#123;<br>		ne = nat_in_journal(journal, i); <span class="hljs-comment">// 将journal中的nat_entry返回出来</span><br>		node_info_from_raw_nat(ni, &amp;ne); <span class="hljs-comment">// 读到node_info中</span><br>	&#125;<br>	<span class="hljs-keyword">if</span> (i &gt;= <span class="hljs-number">0</span>) &#123;<br>		<span class="hljs-keyword">goto</span> cache; <span class="hljs-comment">// 在journal找到了，直接就返回</span><br>	&#125;<br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * 如果journal都没有，就要从NAT读取</span><br><span class="hljs-comment">	 * 先根据这个nid计算一下所属的f2fs_nat_block的偏移，即物理地址</span><br><span class="hljs-comment">	 * */</span><br>	index = current_nat_addr(sbi, nid);<br><br>	<span class="hljs-comment">/* 根据f2fs_nat_block偏移，将从磁盘读取出来 */</span><br>	page = f2fs_get_meta_page(sbi, index); <br>	<span class="hljs-comment">/* 将数据转换为f2fs_nat_block的形式 */</span><br>	nat_blk = (<span class="hljs-keyword">struct</span> f2fs_nat_block *)page_address(page);<br>	<span class="hljs-comment">/* start_nid是这个nat_block的第一个nid，</span><br><span class="hljs-comment">	 * 减去它就可以找出当前nid在nat_block内的偏移，然后都取出来 </span><br><span class="hljs-comment">	 * */</span><br>	ne = nat_blk-&gt;entries[nid - start_nid];<br>	<span class="hljs-comment">/* 根据读取出来的entry转为为ne的值，返回给调用函数 */</span><br>	node_info_from_raw_nat(ni, &amp;ne);<br>	f2fs_put_page(page, <span class="hljs-number">1</span>);<br>cache:<br>	<span class="hljs-comment">/* 如果cache不存在自然要缓存一下到内存中 */</span><br>	cache_nat_entry(sbi, nid, &amp;ne); <span class="hljs-comment">// 缓存这个node_entry</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里有个有趣的函数<strong>current_nat_addr</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pgoff_t</span> <span class="hljs-title function_">current_nat_addr</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">nid_t</span> start)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nm_info</span> *<span class="hljs-title">nm_i</span> =</span> NM_I(sbi);<br>	<span class="hljs-type">pgoff_t</span> block_off;<br>	<span class="hljs-type">pgoff_t</span> block_addr;<br>	<br>    <span class="hljs-comment">// 计算偏移量</span><br>	block_off = NAT_BLOCK_OFFSET(start);<br>	<br>    <span class="hljs-comment">// 计算在主区中的偏移量</span><br>	block_addr = (<span class="hljs-type">pgoff_t</span>)(nm_i-&gt;nat_blkaddr +<br>		(block_off &lt;&lt; <span class="hljs-number">1</span>) -<br>		(block_off &amp; (sbi-&gt;blocks_per_seg - <span class="hljs-number">1</span>)));<br>	<br>    <span class="hljs-comment">// nat_bitmap指明是在主区还是备区</span><br>    <span class="hljs-comment">// 如果在备区，还要加上blocks_per_seg</span><br>	<span class="hljs-keyword">if</span> (f2fs_test_bit(block_off, nm_i-&gt;nat_bitmap))<br>		block_addr += sbi-&gt;blocks_per_seg;<br><br>	<span class="hljs-keyword">return</span> block_addr;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>整个NAT区域的布局为：</p>
+<blockquote>
+<p>来源：<a target="_blank" rel="noopener" href="https://blog.csdn.net/geshifei/article/details/126390920">https://blog.csdn.net/geshifei/article/details/126390920</a></p>
+</blockquote>
+<img src="/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/e70cb7105d434b019d36cf0992dd232f.jpeg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>我们假设当前的需要知道<strong>nid&#x3D;233870</strong>对应的物理Block位置，</p>
+<p>（1）根据<code>#define NAT_BLOCK_OFFSET(start_nid) ((start_nid) / NAT_ENTRY_PER_BLOCK)</code>算出block_off为514</p>
+<p>（2）那么它应该在第2个Segment的第2个位置，也就是<strong>偏移1026位置</strong></p>
+<img src="/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/image-20230723223652646.png" srcset="/img/loading.gif" lazyload alt="image-20230723223652646" style="zoom:67%;">
+
+<p>（3）我们需要将偏移量block_off &lt;&lt; 1（乘2），因为多算了它在备份区域里面的数量，所以减去<strong>block_off &amp; (sbi-&gt;blocks_per_seg - 1)</strong></p>
+<p>（4）即nat_blkaddr + 514 × 2 - (514 &amp; 511) &#x3D; nat_blkaddr  + 1028 - 2 &#x3D; <strong>nat_blkaddr + 1026</strong></p>
+<h3 id="通过Journal获取一个segment的block分配状态"><a href="#通过Journal获取一个segment的block分配状态" class="headerlink" title="通过Journal获取一个segment的block分配状态"></a>通过Journal获取一个segment的block分配状态</h3><p>F2FS一般是通过get_seg_entry函数根据segment number(segno)获取对应的entry。由于segment的entry的数目比node entry少很多，所以F2FS将所有的segment的entry都读入了内存，参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/u011649400/article/details/102490983">Segment结构</a>这一节。因此系统中读取segmeng entry的状态是简单的数组访问:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* seg_entry是f2fs_sit_entry的内存结构，同样记录了vblock valid_bitmap等信息 */</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-keyword">struct</span> seg_entry *<span class="hljs-title function_">get_seg_entry</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi,</span><br><span class="hljs-params">						<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> segno)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_info</span> *<span class="hljs-title">sit_i</span> =</span> SIT_I(sbi); <span class="hljs-comment">// 获取segment的内存管理结构</span><br>	<span class="hljs-keyword">return</span> &amp;sit_i-&gt;sentries[segno]; <span class="hljs-comment">// 根据segno返回entry</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>f2fs文件系统Journal机制</div>
+      <div>http://example.com/2023/07/23/f2fs文件系统Journal机制/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/" title="f2fs文件系统布局">
+                        <span class="hidden-mobile">f2fs文件系统布局</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
