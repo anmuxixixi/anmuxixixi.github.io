@@ -35,8 +35,9 @@
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719234855034.png">
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235441702.png">
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235854137.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230723231428571.png">
 <meta property="article:published_time" content="2023-07-19T13:18:29.000Z">
-<meta property="article:modified_time" content="2023-07-19T15:59:55.334Z">
+<meta property="article:modified_time" content="2023-07-23T15:30:36.308Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png">
@@ -250,7 +251,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.7k 字
+          11k 字
         
       </span>
     
@@ -261,7 +262,7 @@
         
         
         
-          81 分钟
+          88 分钟
         
       </span>
     
@@ -506,6 +507,22 @@
 
 <p>说白了里面存储的也是<strong>f2fs_sit_entry</strong></p>
 <img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235854137.png" srcset="/img/loading.gif" lazyload alt="image-20230719235854137" style="zoom:67%;">
+
+<h3 id="2-3-SIT"><a href="#2-3-SIT" class="headerlink" title="2.3 SIT"></a>2.3 SIT</h3><h3 id="2-4-NAT"><a href="#2-4-NAT" class="headerlink" title="2.4 NAT"></a>2.4 NAT</h3><img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230723231428571.png" srcset="/img/loading.gif" lazyload alt="image-20230723231428571" style="zoom:80%;">
+
+<p>这里一开始我很奇怪，为啥这里只有3个inode，即node_ino:1、meta_ino:2、root_ino:3，那其余文件的inode去哪里了，不是说NAT维护了一张inode no和block addr的表吗。</p>
+<p>这里其实是由于Journal机制，为了不频繁读写NAT，所以将nat的改动先存放在了nat journal中，所以这也是为什么nat journal和NAT区域都是按照<strong>f2fs_nat_entry</strong> 排布的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> &#123;</span><br>	__u8 version;		<span class="hljs-comment">/* latest version of cached nat entry */</span><br>	__le32 ino;		<span class="hljs-comment">/* inode number */</span><br>	__le32 block_addr;	<span class="hljs-comment">/* block address */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>只有当nat journal区域撑满了放不下了，才会刷写到磁盘对应的NAT区域中。</p>
+<hr>
+<p>我们做个实验，写一个shell脚本<code>f2fs.sh</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br><br>for i in &#123;1..2000&#125;<br>do<br>fileName=&quot;hello&quot;$&#123;i&#125;<br>touch /home/amx/Desktop/f2fs/mntf2fs/$&#123;fileName&#125;.txt<br>echo &quot;hello amx&quot;$&#123;i&#125; &gt;&gt; /home/amx/Desktop/f2fs/mntf2fs/$&#123;fileName&#125;.txt<br>done<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>功能就是创建2000个文件，文件名为hello[i]，向里面写入hello amx[i]</p>
+</blockquote>
+<p>执行这个脚本，再次<code>hexdump -C -s 0xA00000 -n 2097152 f2fs.img</code>就可以看到NAT区域已经更新了【如果没更新，就把for循环次数放大】。后续直接 <strong>rm -rf hello</strong>*删掉这些文件即可</p>
 
                 
               </div>
