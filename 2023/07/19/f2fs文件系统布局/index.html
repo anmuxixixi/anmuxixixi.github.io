@@ -35,9 +35,13 @@
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719234855034.png">
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235441702.png">
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235854137.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724233134094.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724232829641.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724232531598.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724233756028.png">
 <meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230723231428571.png">
 <meta property="article:published_time" content="2023-07-19T13:18:29.000Z">
-<meta property="article:modified_time" content="2023-07-23T15:30:36.308Z">
+<meta property="article:modified_time" content="2023-07-24T15:49:23.461Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png">
@@ -251,7 +255,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          11k 字
+          12k 字
         
       </span>
     
@@ -262,7 +266,7 @@
         
         
         
-          88 分钟
+          99 分钟
         
       </span>
     
@@ -508,7 +512,45 @@
 <p>说白了里面存储的也是<strong>f2fs_sit_entry</strong></p>
 <img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235854137.png" srcset="/img/loading.gif" lazyload alt="image-20230719235854137" style="zoom:67%;">
 
-<h3 id="2-3-SIT"><a href="#2-3-SIT" class="headerlink" title="2.3 SIT"></a>2.3 SIT</h3><h3 id="2-4-NAT"><a href="#2-4-NAT" class="headerlink" title="2.4 NAT"></a>2.4 NAT</h3><img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230723231428571.png" srcset="/img/loading.gif" lazyload alt="image-20230723231428571" style="zoom:80%;">
+<h3 id="2-3-SIT"><a href="#2-3-SIT" class="headerlink" title="2.3 SIT"></a>2.3 SIT</h3><p>SIT区域由N个struct f2fs_sit_block组成，每一个struct f2fs_sit_block包含了55个struct f2fs_sit_entry，每一个entry对应了一个segment的管理状态。每一个entry包含了三个变量: vblocks(记录这个segment有多少个block已经被使用了)，valid_map(记录这个segment里面的哪一些block是无效的)，mtime(表示修改时间)。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_block</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_entry</span> <span class="hljs-title">entries</span>[<span class="hljs-title">SIT_ENTRY_PER_BLOCK</span>];</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_entry</span> &#123;</span><br>	__le16 vblocks;				<span class="hljs-comment">/* reference above */</span><br>	__u8 valid_map[SIT_VBLOCK_MAP_SIZE];	<span class="hljs-comment">/* bitmap for valid blocks */</span><br>	__le64 mtime;				<span class="hljs-comment">/* segment age for cleaning */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724233134094.png" srcset="/img/loading.gif" lazyload alt="image-20230724233134094" style="zoom:67%;">
+
+<p><strong>注意到内核代码里面有一个很有意思的注释：</strong></p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724232829641.png" srcset="/img/loading.gif" lazyload alt="image-20230724232829641" style="zoom: 67%;">
+
+<p>在f2fs_sit_entry的第一个字段vblocks其代表的含义为：</p>
+<ul>
+<li><p>**[15:10]**表示当前Segment类型是属于哪一种，HOT&#x2F;WARM&#x2F;COLD * NODE&#x2F;DATA</p>
+</li>
+<li><p>**[9:0]**表示有效块的数量</p>
+</li>
+<li><p>这2个值也对应了<strong>dump_sit</strong>中的值</p>
+</li>
+</ul>
+<hr>
+<p>首先我们验证一下上面的注释是否是正确的：</p>
+<p>观察到第一个Segment 0的前2个字节为0xc01 &#x3D; 0000 1100 0000 0001，其<strong>高[15:10]位为0000 11 &#x3D;  3，低[9:0]位为00 0000 0001 &#x3D; 1</strong>，可以看到下面的dump_sit中<strong>segno: 0</strong>对应的<strong>seg_type: 3</strong>，<strong>vblocks: 1</strong></p>
+<p>通过<strong>dump.f2fs -s 0~-1 f2fs.img</strong> 看一下SIT的整体情况</p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724232531598.png" srcset="/img/loading.gif" lazyload alt="image-20230724232531598" style="zoom:67%;">
+
+<p>我们再来看一个有趣的现象，观察<strong>segno: 9</strong>，发现它是一个Warm Node，</p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724233756028.png" srcset="/img/loading.gif" lazyload alt="image-20230724233756028" style="zoom:80%;">
+
+<p>这个segment偏移量为9，前面已经有9个Segment了，一个Segment为2MB，而Main Area的起始位置为<strong>0x100000</strong>，所以</p>
+<ul>
+<li><strong>SegNo 9</strong>的物理起始地址为：<strong>0x20000(2M) * 0x9 + 0x100000 &#x3D; 0x1300000</strong></li>
+</ul>
+<p>又注意到e0这个位置前面总共59个字节，也就是472Bit，我们知道这是一个位图，其代表了前472个Block都是无效的，其大小总共为：</p>
+<ul>
+<li><strong>472 * 4096 &#x3D; 1,933,312Byte  &#x3D; 0x1D8000</strong></li>
+</ul>
+<p>下面开始看0xe0(11100000)其表示了从第472个Block开始的8个块，其中第472，473，474个Block是有效的，总共3个，这也验证了dump_sit的vblocks为3。</p>
+<ul>
+<li>计算出第472个Block的位置为<strong>0x1300000 + 0x1D8000 &#x3D; 0x14D8000</strong></li>
+</ul>
+<h3 id="2-4-NAT"><a href="#2-4-NAT" class="headerlink" title="2.4 NAT"></a>2.4 NAT</h3><img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230723231428571.png" srcset="/img/loading.gif" lazyload alt="image-20230723231428571" style="zoom:80%;">
 
 <p>这里一开始我很奇怪，为啥这里只有3个inode，即node_ino:1、meta_ino:2、root_ino:3，那其余文件的inode去哪里了，不是说NAT维护了一张inode no和block addr的表吗。</p>
 <p>这里其实是由于Journal机制，为了不频繁读写NAT，所以将nat的改动先存放在了nat journal中，所以这也是为什么nat journal和NAT区域都是按照<strong>f2fs_nat_entry</strong> 排布的</p>
