@@ -1,0 +1,733 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="日志型文件系统 参考：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;107558961  核心思想日志式文件系统 （Journaling filesystem）  预备：当系统要写入一个文件时，会先在日志记录区块中纪录某个文件准备要写入的信息；  实际写入：开始写入文件的权限与数据；开始更新 metadata 的数据；  结束：完成数据与 metadata 的更新后，在日志记录区块当中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="日志型文件系统">
+<meta property="og:url" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="日志型文件系统 参考：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;107558961  核心思想日志式文件系统 （Journaling filesystem）  预备：当系统要写入一个文件时，会先在日志记录区块中纪录某个文件准备要写入的信息；  实际写入：开始写入文件的权限与数据；开始更新 metadata 的数据；  结束：完成数据与 metadata 的更新后，在日志记录区块当中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-0d1621b2e45ee4a48f2e02cb7f9b3ba8_720w.jpeg">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-f26dfcb482ef977fc5ff81480b38266f_720w.webp">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-2815b51c09d65b8aa50b604409709e7e_720w.png">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-0341a084fee9daf8237093a781776845_720w.png">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-610cee7e2e5d28b1484ffd19c283724b_720w.png">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-e5655c491410121e939d313582cef477_720w.png">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-a752af2b794d9a74641d06f9d9c53d42_720w.png">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-bd63060e028328e458000e3f02821a7d_720w.png">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-02e661cc552def6708c125fa3c13a344_720w.webp">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-fccba8c55b41fa08d0f581e4b716b325_720w.png">
+<meta property="og:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-76c1b29f6675ea1e888018c85c10fd78_720w.webp">
+<meta property="article:published_time" content="2023-07-26T14:08:14.000Z">
+<meta property="article:modified_time" content="2023-07-26T14:15:29.433Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-0d1621b2e45ee4a48f2e02cb7f9b3ba8_720w.jpeg">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>日志型文件系统 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="日志型文件系统"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-26 22:08" pubdate>
+          2023年7月26日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">日志型文件系统</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="日志型文件系统"><a href="#日志型文件系统" class="headerlink" title="日志型文件系统"></a>日志型文件系统</h1><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/107558961">https://zhuanlan.zhihu.com/p/107558961</a></p>
+</blockquote>
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p><strong>日志式文件系统 （Journaling filesystem）</strong></p>
+<ol>
+<li><p>预备：当系统要写入一个文件时，会先在日志记录区块中纪录某个文件准备要写入的信息；</p>
+</li>
+<li><p>实际写入：开始写入文件的权限与数据；开始更新 metadata 的数据；</p>
+</li>
+<li><p>结束：完成数据与 metadata 的更新后，在日志记录区块当中完成该文件的纪录。</p>
+</li>
+</ol>
+<p><strong>日志式文件的功能：</strong>数据的记录过程中发生了问题，那么系统只要去检查日志记录区块，就可以知道哪个文件发生了问题，针对该问题做一致性的检查，不必对整块filesystem去检查，这样就可以达到快速修复filesystem的能力。</p>
+<h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><p>位于磁盘上的文件系统需要面临的一个问题是：当系统crash或者意外掉电的时候，如何维持数据的一致性。比如现在为了完成某项功能，需要同时更新文件系统中的两个数据结构A和B，因为磁盘每次只能响应一次读写请求，势必造成A和B其中一者的更新先被磁盘接收处理。如果正好在其中一个更新完成后发生了掉电或者crash，那么就会造成不一致的状态。</p>
+<p>假设一个文件系统在磁盘上的分布是这样的：其中包括一个文件的inode（即I[v1]），data block（即Da）和记录分配状态的inode bitmap, data bitmap。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-0d1621b2e45ee4a48f2e02cb7f9b3ba8_720w.jpeg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>现在要在文件末尾追加一部分内容，那么需要分配一个新的data block（即Db），这会导致inode和data bitmap都发生相应的变化。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-f26dfcb482ef977fc5ff81480b38266f_720w.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>因此需要对磁盘的三个不同位置（3个blocks）分别进行写操作，如果在这三次写操作的间隙发生了crash，那么可能出现若干种情况：只更新了其中一个部分，或者只更新了其中的两个部分。</p>
+<p>传统的Unix系统对此的解决办法是使用fsck工具，但是fsck通常需要在发生crash重启后，扫描整个磁盘，繁琐且速度较慢，因此目前更流行的做法是使用日志（<strong>Journaling</strong>）。</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>日志型文件系统的基本思想是这样的：在真正更新磁盘上的数据之前，先往磁盘上写入一些信息，这些信息主要是描述接下来要更新什么，相当于 <strong>wrtie ahead</strong>，因此这种方式又被称为write-ahead logging。</p>
+<p>这样，即便发生crash，也可通过记录的日志信息，回溯并恢复crash前正在进行的操作（称为<strong>replay</strong>）。在更新的时候增加一点额外的操作，换来了recovery时所需的工作量的减少。</p>
+<p>在Linux中，ext2文件系统将磁盘划分成若干个block groups，每个block group包含一个inode bitmap, data bitmap, inodes和若干个data blocks，它没有使用日志。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-2815b51c09d65b8aa50b604409709e7e_720w.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>而在ext3文件系统中，加入了对日志的支持，日志部分单独占据一块磁盘空间。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-0341a084fee9daf8237093a781776845_720w.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>还是前面那个例子，现在我们要更新磁盘上的inode（I[v2]）, bitmap（B[v2]）和data block （Db）。在更新这个数据之前，我们把这个更新操作的步骤（称为一个 <strong>transcation</strong>），加上分别表示这个transcation开始和结束的TxB和TxE，写入磁盘。</p>
+<p>Transaction的概念起源于数据库领域，它有助于在操作未能完成的情况下保证数据的一致性。同一transcation的TxB和TxE具有相同的sequence number。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-610cee7e2e5d28b1484ffd19c283724b_720w.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>在一个记录步骤信息的transcation完成之后，才真正地更新磁盘上的文件数据（这一步称为<strong>checkpoint</strong>）。</p>
+<p>Journal是为了保证数据一致性的，而journal本身也是由多个部分组成，那在写入journal的过程中发生了crash怎么办？由于I&#x2F;O scheduling等原因，各个部分不一定是按照提交的顺序写入的（out of order），那么可能出现下图所示的这种情况：缺少了Db，但TxB和TxE都存在，系统恢复的时候会误以为这是一个完整的transcation。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-e5655c491410121e939d313582cef477_720w.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>解决的办法是使用<strong>write barrier</strong>。写入除TxE以外的部分后（这一步叫做 <strong>journal write</strong>），执行一次barrier操作（对于支持journal checksum的ext4文件系统，此步骤可省略）。如果在此期间crash了，由于没有TxE，这个transcation会被认为是不完整的，重启后就不会试图恢复这个transcation所代表的步骤。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-a752af2b794d9a74641d06f9d9c53d42_720w.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>待journal write顺利完成以后，再写入TxE（这一步叫做 <strong>journal commit</strong>），然后再执行一次barrier操作，以保证数据的写入是发生在journal完成之后（write barrier在保证数据一一致性的同时，会不可避免地对性能造成影响，如果能够接受不使用barrier带来的潜在风险，可以在mount文件系统的时候使用”nobarrier”选项）。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-bd63060e028328e458000e3f02821a7d_720w.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>因此，在日志型文件系统中，一个完整的数据写操作由”journal write”，”journal commit”和”checkpoint”三部分组成。写操作完成后，就可以释放journal本身所占据的磁盘空间了。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-02e661cc552def6708c125fa3c13a344_720w.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>至此，涉及多个block的写操作的数据一致性问题算是有了保证，但这基于的是一个block的数据要么完全写了，要么完全没写的前提，那会不会出现一个block的数据只写了一部分的情况呢（half-written）？这其实是一个<strong>原子性</strong>的问题，由磁盘本身提供保障，即对一个block的操作必须是原子的（不可分割的）。</p>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>journal好是好，不过要多做的工作也是显而易见的，别的不说，磁盘的I&#x2F;O负载首先就会蹭蹭地上升。那有什么办法可以优化吗？（此处的「优化」是真的优化哈，不是公司裁人的那种所谓“优化”）。</p>
+<p>一种比较容易想到的方法是将多个journal的操作进行聚合处理，这种batching的思想在软件设计中也是随处可见的。结合到日志型文件系统自身的过程，还可以将journal中对”Db”的记录移除，即journal中只包含对inode和bitmap更新的记录。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-fccba8c55b41fa08d0f581e4b716b325_720w.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>此时，write barrier只能保证对meta data（包括inode和bitmap）的真实写操作发生在journal的写操作之后，由于磁盘写操作的out of order特性，user data的真实写操作则可能发生在此过程中的任何节点，这种模式被称为”<strong>Writeback</strong>“。</p>
+<p>允许out of order对性能的提升当然是有裨益的，但如果crash是发生在journal写操作之后，meta data的真实写操作之前（假设也在user data的写操作之前），那么进行文件系统的recover时，meta data的写操作会被replay，但是user data的写操作不会，这将有可能造成同一文件的meta data和user data的不一致（图1左侧部分）。</p>
+<img src="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/v2-76c1b29f6675ea1e888018c85c10fd78_720w.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 80%;">
+
+<p>不过呢，Writeback模式相对完全不用journal的模式，造成不一致的概率降低了，不一致带来的危害也降低了，作为性能和稳健的平衡，还是有相当的可取之处的。如果想把稳健性再提高一点呢，就再多做出一点限制：即保证对user data的真实写操作发生在journal的写操作之前，这就是”<strong>Ordered</strong>“模式。</p>
+<p>对于Ordered的模式，如果crash发生在user data的写操作之后，journal的写操作之前，那么将造成这一部分user data的丢失，不过不会造成不一致的问题。如果crash发生在journal的写操作之后，meta data的真实写操作之前，那么完全可以通过replay来还原。</p>
+<p>可见，从”Writeback”模式，到”Ordered”模式（同为<strong>Metadata Journal</strong>），再到本文最开始介绍的基本模式（<strong>Data Journal</strong>），数据丢失和不一致的风险是依次降低的，而对性能的损耗则是依次升高的。现代的文件系统通常会提供多种模式的选择，供不同场景下的用户使用。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>日志型文件系统</div>
+      <div>http://example.com/2023/07/26/日志型文件系统/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/" title="f2fs文件系统Journal机制">
+                        <span class="hidden-mobile">f2fs文件系统Journal机制</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
