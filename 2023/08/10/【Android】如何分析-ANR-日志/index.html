@@ -1,0 +1,846 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="【Android】如何分析 ANR 日志 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;yang553566463&#x2F;article&#x2F;details&#x2F;125335624  导致ANR的原因应用层导致的ANR（耗时操作）、  主线程耗时长 主线程方法执行了死循环 主线程等待子线程释放锁时间过长 应用内存紧张，当一个应用长期处于内存紧张状态，会导致频繁内存交换，进而导致应用的一些操作超时  系统层">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Android】如何分析 ANR 日志">
+<meta property="og:url" content="http://example.com/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="【Android】如何分析 ANR 日志 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;yang553566463&#x2F;article&#x2F;details&#x2F;125335624  导致ANR的原因应用层导致的ANR（耗时操作）、  主线程耗时长 主线程方法执行了死循环 主线程等待子线程释放锁时间过长 应用内存紧张，当一个应用长期处于内存紧张状态，会导致频繁内存交换，进而导致应用的一些操作超时  系统层">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/8eedb9c9d48a49a4ac5adf3c6c2b495e.png">
+<meta property="og:image" content="http://example.com/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/5a6ef7aa45dd499d85e6e3ba29389908.png">
+<meta property="og:image" content="http://example.com/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/14f45c0d8a754cc782f1cb203121b7d3.png">
+<meta property="og:image" content="http://example.com/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/21420c32c57e447bad14cb690bbf254c.png">
+<meta property="og:image" content="http://example.com/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/image-20230810214928410.png">
+<meta property="og:image" content="http://example.com/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/1f89d376cdb446b7a1241b74794f7f22.png">
+<meta property="og:image" content="http://example.com/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/2b81b3c4963e4167b5d6305e3bdfa5d2.png">
+<meta property="og:image" content="http://example.com/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/7e8b011e4d1b43fe89b4acf97070fcad.png">
+<meta property="article:published_time" content="2023-08-10T13:20:54.000Z">
+<meta property="article:modified_time" content="2023-08-10T13:49:46.974Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/8eedb9c9d48a49a4ac5adf3c6c2b495e.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【Android】如何分析 ANR 日志 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【Android】如何分析 ANR 日志"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-10 21:20" pubdate>
+          2023年8月10日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          18k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          153 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【Android】如何分析 ANR 日志</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="【Android】如何分析-ANR-日志"><a href="#【Android】如何分析-ANR-日志" class="headerlink" title="【Android】如何分析 ANR 日志"></a>【Android】如何分析 ANR 日志</h1><blockquote>
+<p>转载自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/yang553566463/article/details/125335624">https://blog.csdn.net/yang553566463/article/details/125335624</a></p>
+</blockquote>
+<h2 id="导致ANR的原因"><a href="#导致ANR的原因" class="headerlink" title="导致ANR的原因"></a>导致ANR的原因</h2><p><strong>应用层导致的ANR（耗时操作）</strong>、</p>
+<ul>
+<li>主线程耗时长</li>
+<li>主线程方法执行了死循环</li>
+<li>主线程等待子线程释放锁时间过长</li>
+<li>应用内存紧张，当一个应用长期处于内存紧张状态，会导致频繁内存交换，进而导致应用的一些操作超时</li>
+</ul>
+<p><strong>系统层导致的ANR</strong></p>
+<ul>
+<li>CPU被抢占：一般来说，前台在玩游戏，可能会导致你的后台广播被抢占CPU</li>
+<li>系统服务无法及时响应：比如获取系统联系人等，系统的服务都是Binder机制，服务能力也是有限的，有可能系统服务长时间不响应导致ANR</li>
+<li>其他应用占用的大量内存</li>
+</ul>
+<h2 id="导出并查看ANR日志"><a href="#导出并查看ANR日志" class="headerlink" title="导出并查看ANR日志"></a>导出并查看ANR日志</h2><p><strong>方法一</strong></p>
+<p>当系统出现 ANR 时，设备会自动将 ANR 日志输出到 <code>/data/anr/</code> 目录下，如下所示：</p>
+<img src="/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/8eedb9c9d48a49a4ac5adf3c6c2b495e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>对于这些文件，我们直接双击在 <a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=Android&spm=1001.2101.3001.7020">Android</a> Studio 上打开即可。</p>
+<p><strong>方法二</strong></p>
+<p>执行命令：</p>
+<blockquote>
+<p>adb bugreport D:\mybug\bugrep.zip</p>
+</blockquote>
+<p>可以导出设备所有 bug 日志，执行命令后，在指定文件夹内得到一个 zip 文件，将文件解压后打开，文件目录如下所示：</p>
+<img src="/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/5a6ef7aa45dd499d85e6e3ba29389908.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>其中，设备的 anr 日志会保存在该路径下：<code>D:\mybug\bugrep\FS\data\anr</code>，如图：</p>
+<img src="/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/14f45c0d8a754cc782f1cb203121b7d3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>另外，该文件 <code>D:\mybug\bugrep\bugreport-device.200216.002-2022-06-16-15-30-10.txt</code> 内也有有 anr 日志的打印，我们可以通过以下关键词搜索该文件的一些异常信息，如：</p>
+<blockquote>
+<p>“main” prio&#x3D;：搜索 anr 相关信息【应用层导致的ANR一般是主线程耗时长】</p>
+<p>beginning of crash：搜索 crash 相关信息</p>
+<p>CPU usage from：搜索 cpu 使用信息</p>
+</blockquote>
+<h2 id="如何分析ANR日志"><a href="#如何分析ANR日志" class="headerlink" title="如何分析ANR日志"></a>如何分析ANR日志</h2><p>一个 ANR 日志，会包含当前设备中所有进程的使用情况，每个进程开头都会</p>
+<p>以 <code>----- pid 16808 at date -----</code> 来开头，</p>
+<p>以 <code>----- end 16808 -----</code> 来结尾，</p>
+<p>如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">----- pid 16808 at 2022-06-16 16:56:04 -----<br>Cmd line: com.example.demoproject<br>...<br>...<br>...<br>----- end 16808 -----<br></code></pre></td></tr></table></figure>
+
+<p>另外，每个进程日志中都会有一些进程<strong>内存相关</strong>的信息，如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash">----- pid 16808 at 2022-06-16 16:56:04 -----<br>Cmd line: com.example.demoproject<br>...<br>...<br>Total number of allocations 59378 // 进程创建到现在一共创建了多少对象<br>Total bytes allocated 8815KB // 进程创建到现在一共申请了多少内存<br>Total bytes freed 6847KB // 进程创建到现在一共释放了多少内存<br>Free memory 23MB // 空闲内存（可用内存）<br>Free memory until GC 23MB // GC前的空闲内存<br>Free memory until OOME 190MB // OOM之前的可用内存，当这个值很小的时候，已经处于内存紧张状态，应用可能占用了过多的内存<br>Total memory 25MB // 当前总内存（已用+可用）<br>Max memory 192MB // 进程最多能申请的内存 <br>...<br>----- end 16808 -----<br></code></pre></td></tr></table></figure>
+
+<p>另外，每个进程日志中都会有进程堆栈信息，堆栈信息非常重要，它展示了发生 ANR 的进程当前的<strong>所有线程</strong>状态。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs bash">----- pid 16808 at 2022-06-16 16:56:04 -----<br>... <br><span class="hljs-built_in">suspend</span> all histogram:  Sum: 114us 99% C.I. 2us-27us Avg: 12.666us Max: 27us<br>DALVIK THREADS (14):<br><span class="hljs-string">&quot;Signal Catcher&quot;</span> daemon prio=5 tid=7 Runnable<br>  | group=<span class="hljs-string">&quot;system&quot;</span> sCount=0 dsCount=0 flags=0 obj=0x182c0298 self=0x7914b9c000<br>  | sysTid=16819 <span class="hljs-built_in">nice</span>=0 cgrp=default <span class="hljs-built_in">sched</span>=0/0 handle=0x791a98fd50<br>  | state=R schedstat=( 28572293 3522448 11 ) utm=1 stm=1 core=0 HZ=100<br>  | stack=0x791a899000-0x791a89b000 stackSize=991KB<br>  | held mutexes= <span class="hljs-string">&quot;mutator lock&quot;</span>(shared held)<br>  native: <span class="hljs-comment">#00 pc 00000000004108e8  /apex/com.android.runtime/lib64/libart.so (art::DumpNativeStack(std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt;&gt;&amp;, int, BacktraceMap*, char const*, art::ArtMethod*, void*, bool)+140)</span><br>  native: <span class="hljs-comment">#01 pc 00000000004f8040  /apex/com.android.runtime/lib64/libart.so (art::Thread::DumpStack(std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt;&gt;&amp;, bool, BacktraceMap*, bool) const+512)</span><br>  native: <span class="hljs-comment">#02 pc 000000000051297c  /apex/com.android.runtime/lib64/libart.so (art::DumpCheckpoint::Run(art::Thread*)+828)</span><br>  native: <span class="hljs-comment">#03 pc 000000000050b7a0  /apex/com.android.runtime/lib64/libart.so (art::ThreadList::RunCheckpoint(art::Closure*, art::Closure*)+456)</span><br>  native: <span class="hljs-comment">#04 pc 000000000050ac84  /apex/com.android.runtime/lib64/libart.so (art::ThreadList::Dump(std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt;&gt;&amp;, bool)+1964)</span><br>  native: <span class="hljs-comment">#05 pc 000000000050a364  /apex/com.android.runtime/lib64/libart.so (art::ThreadList::DumpForSigQuit(std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt;&gt;&amp;)+844)</span><br>  native: <span class="hljs-comment">#06 pc 00000000004c5778  /apex/com.android.runtime/lib64/libart.so (art::Runtime::DumpForSigQuit(std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt;&gt;&amp;)+200)</span><br>  native: <span class="hljs-comment">#07 pc 00000000004d9bb0  /apex/com.android.runtime/lib64/libart.so (art::SignalCatcher::HandleSigQuit()+1352)</span><br>  native: <span class="hljs-comment">#08 pc 00000000004d8c5c  /apex/com.android.runtime/lib64/libart.so (art::SignalCatcher::Run(void*)+252)</span><br>  native: <span class="hljs-comment">#09 pc 00000000000e68a0  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+36)</span><br>  native: <span class="hljs-comment">#10 pc 0000000000084b6c  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64)</span><br>  (no managed stack frames)<br><br><span class="hljs-string">&quot;main&quot;</span> prio=5 tid=1 Blocked<br>  | group=<span class="hljs-string">&quot;main&quot;</span> sCount=1 dsCount=0 flags=1 obj=0x72e0ee78 self=0x79aafbcc00<br>  | sysTid=16808 <span class="hljs-built_in">nice</span>=-10 cgrp=default <span class="hljs-built_in">sched</span>=0/0 handle=0x79ac524ed0<br>  | state=S schedstat=( 1140726262 41301458 368 ) utm=94 stm=20 core=0 HZ=100<br>  | stack=0x7fe35ed000-0x7fe35ef000 stackSize=8192KB<br>  | held mutexes=<br>  at com.example.demoproject.view.MainActivity.doSomething(MainActivity.kt:51)<br>  - waiting to lock &lt;0x02250ad8&gt; (a com.example.demoproject.view.MainActivity) held by thread 18<br>  at com.example.demoproject.view.MainActivity.click2(MainActivity.kt:36)<br>  at java.lang.reflect.Method.invoke(Native method)<br>  at androidx.appcompat.app.AppCompatViewInflater<span class="hljs-variable">$DeclaredOnClickListener</span>.onClick(AppCompatViewInflater.java:441)<br>  at android.view.View.performClick(View.java:7259)<br>  at com.google.android.material.button.MaterialButton.performClick(MaterialButton.java:1194)<br>  at android.view.View.performClickInternal(View.java:7236)<br>  at android.view.View.access<span class="hljs-variable">$3600</span>(View.java:801)<br>  at android.view.View<span class="hljs-variable">$PerformClick</span>.run(View.java:27896)<br>  at android.os.Handler.handleCallback(Handler.java:883)<br>  at android.os.Handler.dispatchMessage(Handler.java:100)<br>  at android.os.Looper.loop(Looper.java:214)<br>  at android.app.ActivityThread.main(ActivityThread.java:7397)<br>  at java.lang.reflect.Method.invoke(Native method)<br>  at com.android.internal.os.RuntimeInit<span class="hljs-variable">$MethodAndArgsCaller</span>.run(RuntimeInit.java:492)<br>  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:935)   <br>      <br><span class="hljs-string">&quot;Jit thread pool worker thread 0&quot;</span> daemon prio=5 tid=2 Native<br>  | group=<span class="hljs-string">&quot;main&quot;</span> sCount=1 dsCount=0 flags=1 obj=0x182c0220 self=0x7919600000<br>  | sysTid=16814 <span class="hljs-built_in">nice</span>=0 cgrp=default <span class="hljs-built_in">sched</span>=0/0 handle=0x791aa94d40<br>  | state=S schedstat=( 44810570 11604064 76 ) utm=4 stm=0 core=0 HZ=100<br>  | stack=0x791a996000-0x791a998000 stackSize=1023KB<br>  | held mutexes=<br>  kernel: (couldn<span class="hljs-string">&#x27;t read /proc/self/task/16814/stack)</span><br><span class="hljs-string">  native: #00 pc 000000000008033c  /apex/com.android.runtime/lib64/bionic/libc.so (syscall+28)</span><br><span class="hljs-string">  native: #01 pc 000000000014b1f4  /apex/com.android.runtime/lib64/libart.so (art::ConditionVariable::WaitHoldingLocks(art::Thread*)+148)</span><br><span class="hljs-string">  native: #02 pc 00000000005143dc  /apex/com.android.runtime/lib64/libart.so (art::ThreadPool::GetTask(art::Thread*)+256)</span><br><span class="hljs-string">  native: #03 pc 0000000000513768  /apex/com.android.runtime/lib64/libart.so (art::ThreadPoolWorker::Run()+144)</span><br><span class="hljs-string">  native: #04 pc 0000000000513228  /apex/com.android.runtime/lib64/libart.so (art::ThreadPoolWorker::Callback(void*)+148)</span><br><span class="hljs-string">  native: #05 pc 00000000000e68a0  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+36)</span><br><span class="hljs-string">  native: #06 pc 0000000000084b6c  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64)</span><br><span class="hljs-string">  (no managed stack frames)</span><br><span class="hljs-string">...</span><br><span class="hljs-string">----- end 16808 -----</span><br></code></pre></td></tr></table></figure>
+
+<p>如上截图中，有三个线程，一个是 Signal Catcher 线程，一个是 main 线程，一个是 Jit thread pool worker thread 0，他们的线程状态分别是 Runnable 、 blocked 和 native 状态。</p>
+<p>而在 Java 中，线程状态有6种，如下所示：</p>
+<ul>
+<li>NEW - 创建状态</li>
+<li>RUNNABLE - 就绪或运行状态</li>
+<li>BLOCKED - 阻塞状态</li>
+<li>WATING - 等待状态</li>
+<li>TIMED_WAITING - 定时等待状态</li>
+<li>TERMINATED - 终止状态</li>
+</ul>
+<p>那么，上述日志中的 <code>native</code> 状态是什么呢？</p>
+<p>其实该状态是 <code>cpp</code> 代码中定义的线程状态，他跟 <code>java</code> 定义的线程状态关系如下：</p>
+<img src="/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/21420c32c57e447bad14cb690bbf254c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<img src="/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/image-20230810214928410.png" srcset="/img/loading.gif" lazyload alt="image-20230810214928410" style="zoom: 67%;">
+
+<p>由上可知，native 状态对应的 java 线程状态是 runnable 状态。</p>
+<p>堆栈信息是我们分析ANR的第一个重要的信息，一般来说：</p>
+<ul>
+<li>主线程处于 BLOCK &#x2F; WAITING &#x2F; TIMEWAITING 状态，基本上是函数阻塞导致的 anr</li>
+<li>若主线程无异常，则应该排查 CPU 负载和内存环境等其他因素</li>
+</ul>
+<p>另外，在 anr 日志中，还有一些常见参数，他们的含义如下：</p>
+<ul>
+<li>group：线程所处的线程组</li>
+<li>sCount：线程被正常挂起的次数</li>
+<li>dsCount：线程因调试而挂起次数</li>
+<li>nice：线程的调度优先级</li>
+<li>utm：线程在用户态中调度时间值</li>
+<li>stm：线程在内核态中的调度时间值</li>
+<li>core：最后执行这个线程的CPU核序号</li>
+</ul>
+<h2 id="ANR案例分析"><a href="#ANR案例分析" class="headerlink" title="ANR案例分析"></a>ANR案例分析</h2><h3 id="案例一-、Slepping-anr"><a href="#案例一-、Slepping-anr" class="headerlink" title="案例一 、Slepping anr"></a>案例一 、Slepping anr</h3><p>MainActivity 代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> : AppCompatActivity() &#123;<br>    <br>    override fun <span class="hljs-title function_">onCreate</span><span class="hljs-params">(savedInstanceState: Bundle?)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState)<br>        setContentView(R.layout.activity_main)<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 点击睡眠 10s</span><br><span class="hljs-comment">     */</span><br>    fun <span class="hljs-title function_">clickToSleep</span><span class="hljs-params">(view: View)</span> &#123;<br>        Thread.sleep(<span class="hljs-number">10_000</span>)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>当点击按钮睡眠 10s 后，我们左滑或者点击返回键退出 MainActivity（由于主线程正在睡眠，所以此时是无法退出成功的），等待一段时间，系统将会弹出 ANR 弹窗。</p>
+<p>我们导出 ANR 日志并打开：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-string">&quot;main&quot;</span> prio=5 tid=1 Sleeping<br>  | group=<span class="hljs-string">&quot;main&quot;</span> sCount=1 dsCount=0 flags=1 obj=0x72e0ee78 self=0x79aafbcc00<br>  | sysTid=16356 <span class="hljs-built_in">nice</span>=-10 cgrp=default <span class="hljs-built_in">sched</span>=0/0 handle=0x79ac524ed0<br>  | state=S schedstat=( 1075827038 33414740 291 ) utm=93 stm=14 core=2 HZ=100<br>  | stack=0x7fe35ed000-0x7fe35ef000 stackSize=8192KB<br>  | held mutexes=<br>  at java.lang.Thread.<span class="hljs-built_in">sleep</span>(Native method)<br>  - sleeping on &lt;0x04fbafa5&gt; (a java.lang.Object)<br>  at java.lang.Thread.<span class="hljs-built_in">sleep</span>(Thread.java:440)<br>  - locked &lt;0x04fbafa5&gt; (a java.lang.Object)<br>  at java.lang.Thread.<span class="hljs-built_in">sleep</span>(Thread.java:356)<br>  at com.example.demoproject.view.MainActivity.clickToSleep(MainActivity.kt:57)<br>  at java.lang.reflect.Method.invoke(Native method)<br>  at androidx.appcompat.app.AppCompatViewInflater<span class="hljs-variable">$DeclaredOnClickListener</span>.onClick(AppCompatViewInflater.java:441)<br>  at android.view.View.performClick(View.java:7259)<br>  at com.google.android.material.button.MaterialButton.performClick(MaterialButton.java:1194)<br>  at android.view.View.performClickInternal(View.java:7236)<br>  at android.view.View.access<span class="hljs-variable">$3600</span>(View.java:801)<br>  at android.view.View<span class="hljs-variable">$PerformClick</span>.run(View.java:27896)<br>  at android.os.Handler.handleCallback(Handler.java:883)<br>  at android.os.Handler.dispatchMessage(Handler.java:100)<br>  at android.os.Looper.loop(Looper.java:214)<br>  at android.app.ActivityThread.main(ActivityThread.java:7397)<br>  at java.lang.reflect.Method.invoke(Native method)<br>  at com.android.internal.os.RuntimeInit<span class="hljs-variable">$MethodAndArgsCaller</span>.run(RuntimeInit.java:492)<br>  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:935)<br></code></pre></td></tr></table></figure>
+
+<p>从堆栈信息中也很容易发现，在执行到 <code>MainActivity.clickToSleep</code> 方法时，线程进行了睡眠，最终导致 anr。</p>
+<h3 id="案例二、Blocked-anr"><a href="#案例二、Blocked-anr" class="headerlink" title="案例二、Blocked anr"></a>案例二、Blocked anr</h3><p>MainActivity 代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> : AppCompatActivity() &#123;<br><br>    override fun <span class="hljs-title function_">onCreate</span><span class="hljs-params">(savedInstanceState: Bundle?)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState)<br>        setContentView(R.layout.activity_main)<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 点击按钮1 - 创建一个子线程并持有当前 Activity 对象锁然后开始睡眠 10s</span><br><span class="hljs-comment">     */</span><br>    fun <span class="hljs-title function_">click1</span><span class="hljs-params">(view: View)</span> &#123;<br>        testBlockThread()<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 点击按钮2 - 在主线程中尝试获取 Activity 对象锁并打印 log</span><br><span class="hljs-comment">     */</span><br>    fun <span class="hljs-title function_">click2</span><span class="hljs-params">(view: View)</span> &#123;<br>        doSomething()<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> fun <span class="hljs-title function_">testBlockThread</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">val</span> <span class="hljs-variable">thread</span> <span class="hljs-operator">=</span> Thread &#123;<br>            <span class="hljs-keyword">synchronized</span>(<span class="hljs-built_in">this</span>) &#123;<br>                Log.i(<span class="hljs-string">&quot;testLog&quot;</span>, <span class="hljs-string">&quot;开始睡眠 10s.. 当前线程名称=$&#123;Thread.currentThread().name&#125; 线程id=$&#123;Thread.currentThread().id&#125;&quot;</span>)<br>                Thread.sleep(<span class="hljs-number">10_000</span>)<br>            &#125;<br>        &#125;<br>        thread.name = <span class="hljs-string">&quot;MyTestBlockThread&quot;</span><br>        thread.start()<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> fun <span class="hljs-title function_">doSomething</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">synchronized</span>(<span class="hljs-built_in">this</span>) &#123;<br>            Log.i(<span class="hljs-string">&quot;testLog&quot;</span>, <span class="hljs-string">&quot;doSomething.. 当前线程名称=$&#123;Thread.currentThread().name&#125; 线程id=$&#123;Thread.currentThread().id&#125;&quot;</span>)<br>        &#125;<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>当首先点击按钮1时，会创建一个子线程 MyTestBlockThread 并持有当前 Activity 对象锁然后开始睡眠 10s，然后继续点击按钮2，此时主线程将会尝试获取 Activity 对象锁并执行，由于锁正在被子线程 MyTestBlockThread 持有，因此，主线程将会一直被 block 直到子线程释放锁。</p>
+<p>在主线程被 block 期间，我们左滑或者点击返回键退出 MainActivity（由于主线程正在被 block，所以此时是无法退出成功的），等待一段时间，系统将会弹出 ANR 弹窗。</p>
+<p>下面我们导出 ANR 日志并打开：</p>
+<img src="/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/1f89d376cdb446b7a1241b74794f7f22.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>可以发现，这里有一行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">- waiting to lock &lt;0x02250ad8&gt; (a com.example.demoproject.view.MainActivity) held by thread 18<br></code></pre></td></tr></table></figure>
+
+<p>其含义就是，主线程正在被 block， 其正在等待 线程18 释放锁，最终因此导致出现了 ANR。</p>
+<p>那么，这个 线程18 是谁呢？我们继续看 anr 日志：</p>
+<img src="/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/2b81b3c4963e4167b5d6305e3bdfa5d2.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>在这里，发现这一行日志：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-string">&quot;MyTestBlockThread&quot;</span> prio=5 tid=18 Sleeping<br></code></pre></td></tr></table></figure>
+
+<p>其含义就是：线程 <code>MyTestBlockThread</code> 正在 <code>Sleeping</code>，它的 <code>prio=5 tid=18</code>。</p>
+<h3 id="案例三、耗时或死循环方法"><a href="#案例三、耗时或死循环方法" class="headerlink" title="案例三、耗时或死循环方法"></a>案例三、耗时或死循环方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> : AppCompatActivity() &#123;<br><br>    override fun <span class="hljs-title function_">onCreate</span><span class="hljs-params">(savedInstanceState: Bundle?)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState)<br>        setContentView(R.layout.activity_main)<br>    &#125;<br>    <br>    fun <span class="hljs-title function_">click</span><span class="hljs-params">(view: View)</span> &#123;<br>        doSomething()<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> fun <span class="hljs-title function_">doSomething</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>            Log.i(<span class="hljs-string">&quot;testLog&quot;</span>, <span class="hljs-string">&quot;doSomething.. 当前线程名称=$&#123;Thread.currentThread().name&#125; 线程id=$&#123;Thread.currentThread().id&#125;&quot;</span>)<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>当我们点击按钮时，会在主线程通过一个死循环不断打印 log，因此 doSomething() 方法我们可以认为是一个耗时方法，点击按钮后，我们左滑或者点击返回键退出 MainActivity（由于主线程正在忙碌中，所以此时是无法退出成功的），等待一段时间，系统将会弹出 ANR 弹窗。</p>
+<p>下面我们导出 ANR 日志并打开：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs bash">----- pid 13231 at 2022-06-17 14:23:41 -----<br>Cmd line: com.example.demoproject<br>...<br><span class="hljs-string">&quot;main&quot;</span> prio=5 tid=1 Runnable<br>  | group=<span class="hljs-string">&quot;main&quot;</span> sCount=0 dsCount=0 flags=0 obj=0x72b20e78 self=0x77fe5a6c00<br>  | sysTid=13231 <span class="hljs-built_in">nice</span>=-10 cgrp=default <span class="hljs-built_in">sched</span>=0/0 handle=0x77ffb0eed0<br>  | state=R schedstat=( 31694533124 58819622 723 ) utm=1310 stm=1859 core=5 HZ=100<br>  | stack=0x7fdc2b7000-0x7fdc2b9000 stackSize=8192KB<br>  | held mutexes= <span class="hljs-string">&quot;mutator lock&quot;</span>(shared held)<br>  native: <span class="hljs-comment">#00 pc 00000000004108e8  /apex/com.android.runtime/lib64/libart.so (art::DumpNativeStack(std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt;&gt;&amp;, int, BacktraceMap*, char const*, art::ArtMethod*, void*, bool)+140)</span><br>  native: <span class="hljs-comment">#01 pc 00000000004f8040  /apex/com.android.runtime/lib64/libart.so (art::Thread::DumpStack(std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt;&gt;&amp;, bool, BacktraceMap*, bool) const+512)</span><br>  native: <span class="hljs-comment">#02 pc 000000000051297c  /apex/com.android.runtime/lib64/libart.so (art::DumpCheckpoint::Run(art::Thread*)+828)</span><br>  native: <span class="hljs-comment">#03 pc 00000000004f8d4c  /apex/com.android.runtime/lib64/libart.so (art::Thread::RunCheckpointFunction()+176)</span><br>  native: <span class="hljs-comment">#04 pc 00000000003713fc  /apex/com.android.runtime/lib64/libart.so (art::(anonymous namespace)::CheckJNI::ReleaseStringCharsInternal(char const*, _JNIEnv*, _jstring*, void const*, bool, bool)+1356)</span><br>  native: <span class="hljs-comment">#05 pc 00000000001507cc  /system/lib64/libandroid_runtime.so (android::android_util_Log_println_native(_JNIEnv*, _jobject*, int, int, _jstring*, _jstring*)+232)</span><br>  at android.util.Log.println_native(Native method)<br>  at android.util.Log.i(Log.java:176)<br>  at com.example.demoproject.view.MainActivity.doSomething(MainActivity.kt:52)<br>  at com.example.demoproject.view.MainActivity.click2(MainActivity.kt:36)<br>  at java.lang.reflect.Method.invoke(Native method)<br>  at androidx.appcompat.app.AppCompatViewInflater<span class="hljs-variable">$DeclaredOnClickListener</span>.onClick(AppCompatViewInflater.java:441)<br>  at android.view.View.performClick(View.java:7259)<br>  at com.google.android.material.button.MaterialButton.performClick(MaterialButton.java:1194)<br>  at android.view.View.performClickInternal(View.java:7236)<br>  at android.view.View.access<span class="hljs-variable">$3600</span>(View.java:801)<br>  at android.view.View<span class="hljs-variable">$PerformClick</span>.run(View.java:27896)<br>  at android.os.Handler.handleCallback(Handler.java:883)<br>  at android.os.Handler.dispatchMessage(Handler.java:100)<br>  at android.os.Looper.loop(Looper.java:214)<br>  at android.app.ActivityThread.main(ActivityThread.java:7397)<br>  at java.lang.reflect.Method.invoke(Native method)<br>  at com.android.internal.os.RuntimeInit<span class="hljs-variable">$MethodAndArgsCaller</span>.run(RuntimeInit.java:492)<br>  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:935)<br>...<br>----- end 16808 -----<br></code></pre></td></tr></table></figure>
+
+<p>发现主线程正处于 <code>Runnable</code> 状态，并不是处于空闲状态，堆栈信息中有一行关键日志：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">at com.example.demoproject.view.MainActivity.doSomething(MainActivity.kt:52)<br></code></pre></td></tr></table></figure>
+
+<h3 id="案例四、正常情况"><a href="#案例四、正常情况" class="headerlink" title="案例四、正常情况"></a>案例四、正常情况</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-string">&quot;main&quot;</span> prio=<span class="hljs-number">5</span> tid=<span class="hljs-number">1</span> Native<br>  | group=<span class="hljs-string">&quot;main&quot;</span> sCount=<span class="hljs-number">1</span> dsCount=<span class="hljs-number">0</span> flags=<span class="hljs-number">1</span> obj=<span class="hljs-number">0x72e0ee78</span> self=<span class="hljs-number">0x79aafbcc00</span><br>  | sysTid=<span class="hljs-number">1496</span> nice=-<span class="hljs-number">2</span> cgrp=<span class="hljs-keyword">default</span> sched=<span class="hljs-number">0</span>/<span class="hljs-number">0</span> handle=<span class="hljs-number">0x79ac524ed0</span><br>  | state=S schedstat=( <span class="hljs-number">50585681414</span> <span class="hljs-number">30364690662</span> <span class="hljs-number">64096</span> ) utm=<span class="hljs-number">3092</span> stm=<span class="hljs-number">1966</span> core=<span class="hljs-number">2</span> HZ=<span class="hljs-number">100</span><br>  | stack=<span class="hljs-number">0x7fe35ed000</span>-<span class="hljs-number">0x7fe35ef000</span> stackSize=8192KB<br>  | held mutexes=<br>  kernel: (couldn<span class="hljs-string">&#x27;t read /proc/self/task/1496/stack)</span><br><span class="hljs-string">  native: #00 pc 00000000000d0f58  /apex/com.android.runtime/lib64/bionic/libc.so (__epoll_pwait+8)</span><br><span class="hljs-string">  native: #01 pc 00000000000180bc  /system/lib64/libutils.so (android::Looper::pollInner(int)+144)</span><br><span class="hljs-string">  native: #02 pc 0000000000017f8c  /system/lib64/libutils.so (android::Looper::pollOnce(int, int*, int*, void**)+56)</span><br><span class="hljs-string">  native: #03 pc 000000000013b8f4  /system/lib64/libandroid_runtime.so (android::android_os_MessageQueue_nativePollOnce(_JNIEnv*, _jobject*, long, int)+44)</span><br><span class="hljs-string">  at android.os.MessageQueue.nativePollOnce(Native method)</span><br><span class="hljs-string">  at android.os.MessageQueue.next(MessageQueue.java:336)</span><br><span class="hljs-string">  at android.os.Looper.loop(Looper.java:174)</span><br><span class="hljs-string">  at com.android.server.SystemServer.run(SystemServer.java:546)</span><br><span class="hljs-string">  at com.android.server.SystemServer.main(SystemServer.java:354)</span><br><span class="hljs-string">  at java.lang.reflect.Method.invoke(Native method)</span><br><span class="hljs-string">  at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:492)</span><br><span class="hljs-string">  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:913)</span><br></code></pre></td></tr></table></figure>
+
+<p>上述主线程堆栈就是一个很正常的空闲堆栈，表明主线程正在等待新的消息。如果ANR日志里主线程是这样一个状态，那可能有两个原因导致 anr：</p>
+<ul>
+<li>该 anr 是 cpu 资源抢占或内存紧张等其他因素引起</li>
+<li>这份 anr 日志抓取的时候，主线程已经恢复正常</li>
+</ul>
+<h3 id="案例五、CPU被其他应用抢占"><a href="#案例五、CPU被其他应用抢占" class="headerlink" title="案例五、CPU被其他应用抢占"></a>案例五、CPU被其他应用抢占</h3><p>当 anr 日志中找不到有效的信息，这种情况我们就得看 cpu 信息了，</p>
+<p>这个日志一般在 <code>bugreport.txt</code> 文件中可以查看，具体怎么导出 <code>bugreport.txt</code> 文件可见本文的《导出并查看 ANR 日志》那里的步骤</p>
+<p>取出 cpu 信息日志如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java">-------------------------------------------------------------------------------<br>DUMP OF SERVICE CRITICAL cpuinfo:<br>Load: <span class="hljs-number">5.28</span> / <span class="hljs-number">5.71</span> / <span class="hljs-number">5.58</span><br>CPU usage from 275243ms to 190078ms <span class="hljs-title function_">ago</span> <span class="hljs-params">(<span class="hljs-number">2022</span>-<span class="hljs-number">06</span>-<span class="hljs-number">16</span> <span class="hljs-number">15</span>:<span class="hljs-number">25</span>:<span class="hljs-number">36.158</span> to <span class="hljs-number">2022</span>-<span class="hljs-number">06</span>-<span class="hljs-number">16</span> <span class="hljs-number">15</span>:<span class="hljs-number">27</span>:<span class="hljs-number">01.323</span>)</span>:<br>  <span class="hljs-number">51</span>% <span class="hljs-number">695</span>/audioserver: <span class="hljs-number">35</span>% user + <span class="hljs-number">15</span>% kernel / faults: <span class="hljs-number">3071</span> minor<br>  <span class="hljs-number">17</span>% <span class="hljs-number">1496</span>/system_server: <span class="hljs-number">9</span>% user + <span class="hljs-number">8</span>% kernel / faults: <span class="hljs-number">43598</span> minor<br>  <span class="hljs-number">14</span>% <span class="hljs-number">2077</span>/VosRXThread: <span class="hljs-number">0</span>% user + <span class="hljs-number">14</span>% kernel<br>  <span class="hljs-number">3.1</span>% <span class="hljs-number">666</span>/android.hardware.sensors@<span class="hljs-number">1.0</span>-service: <span class="hljs-number">0.8</span>% user + <span class="hljs-number">2.3</span>% kernel / faults: <span class="hljs-number">170</span> minor<br>  <span class="hljs-number">3.1</span>% <span class="hljs-number">642</span>/android.hardware.audio@<span class="hljs-number">2.0</span>-service: <span class="hljs-number">0.2</span>% user + <span class="hljs-number">2.8</span>% kernel / faults: <span class="hljs-number">2</span> minor<br>  ...................................省略 N 行...........................................<br><span class="hljs-number">21</span>% TOTAL: <span class="hljs-number">6.4</span>% user + <span class="hljs-number">10</span>% kernel + <span class="hljs-number">0.1</span>% iowait + <span class="hljs-number">2.4</span>% irq + <span class="hljs-number">1.4</span>% softirq<br>--------- <span class="hljs-number">0.</span>007s was the duration of dumpsys cpuinfo, ending at: <span class="hljs-number">2022</span>-<span class="hljs-number">06</span>-<span class="hljs-number">16</span> <span class="hljs-number">15</span>:<span class="hljs-number">30</span>:<span class="hljs-number">11</span><br>-------------------------------------------------------------------------------	<br></code></pre></td></tr></table></figure>
+
+<p>这个日志怎么分析呢？它的这个部分的含义如下：</p>
+<blockquote>
+<p>1、Load: 5.28 &#x2F; 5.71 &#x2F; 5.58 &#x2F;&#x2F; 代表了设备在 1、5、15 分钟内 正在使用和等待使用CPU 的活动进程的平均数<br>2、CPU usage from 275243ms to 190078ms ago (2022-06-16 15:25:36.158 to 2022-06-16 15:27:01.323) &#x2F;&#x2F; 表明负载信息抓取是在 275243ms ~ 190078ms之间的，且时间点是从 2022-06-16 15:25:36.158 开始<br>3、中间打印百分比的部分 &#x2F;&#x2F; 各个进程占用的CPU的详细情况<br>4、最后一行 &#x2F;&#x2F; 各个进程合计占用的CPU信息。</p>
+</blockquote>
+<p>还有一些名词和含义如下：</p>
+<blockquote>
+<p>1、user: 用户态<br>2、kernel: 内核态<br>3、faults: 内存缺页，minor —— 轻微的，major —— 重度，需要从磁盘拿数据<br>4、iowait: IO 等待占比，如果占比很高，意味着有很大可能是io耗时导致ANR<br>5、irq: 硬中断，<br>6、softirq: 软中断</p>
+</blockquote>
+<p>注意以下两点：</p>
+<ul>
+<li>如果 iowait 占比很高，意味着有很大可能是 io 耗时导致的 ANR，具体进一步查看有没有进程 faults major 比较多</li>
+<li>单进程 CPU 的负载并不是以100%为上限，而是有几个核就有百分之几百，如 4 核，那么上限为400%</li>
+</ul>
+<p>了解了如何看 cpu 日志后，我们再回到具体的日志中查看，</p>
+<p>发现如上排在第一位的进程 audioserver 即为系统中占用 cpu 最高的进程，达到 51%，这属于正常的 cpu 占用范围，因此，此日志中并没有发现导致 anr 的有效日志。</p>
+<p>如果发现排在第一位的进程占用了极高的 cpu 资源，那么就极有可能是这个进程导致的 anr 。</p>
+<h3 id="案例六、系统服务超时"><a href="#案例六、系统服务超时" class="headerlink" title="案例六、系统服务超时"></a>案例六、系统服务超时</h3><p>如果系统服务超时，日志中一般会包含 <code>BinderProxy.transactNative</code> 关键字，如下：</p>
+<img src="/2023/08/10/%E3%80%90Android%E3%80%91%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90-ANR-%E6%97%A5%E5%BF%97/7e8b011e4d1b43fe89b4acf97070fcad.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>从堆栈可以看出 getActiveNetworkInfo 方法发生了 ANR。我们知道，系统的服务都是 Binder 机制，Binder 一共有16个线程，服务能力也是有限的，所以有可能系统服务长时间不响应导致ANR。</p>
+<p>如果其他应用占用了 Binder 线程，那么当前应用只能等待，可进一步搜索 blockUntilThreadAvailable 关键字</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">at android.os.Binder.blockUntilThreadAvailable(Native method)<br></code></pre></td></tr></table></figure>
+
+<p>如果有发现某个线程的堆栈包含此字样，可进一步看其堆栈确定其调用了什么系统服务。</p>
+<p>此类 ANR 属于系统环境的问题，如果某类型机器上频繁发生此问题，应用层可以考虑规避策略。</p>
+<h3 id="案例七、内存紧张"><a href="#案例七、内存紧张" class="headerlink" title="案例七、内存紧张"></a>案例七、内存紧张</h3><p>如果日志中 CPU 和堆栈都正常，仍旧发生了 ANR，那么可以进一步考虑是否是内存紧张导致的 anr。</p>
+<p>在 <code>bugreport.txt</code> 文件中，我们还可以通过如下关键字 <code>am_meminfo</code> 搜索日志：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">06-16 02:14:42.014  1000  1496  1575 I am_meminfo: [1163550720,172752896,7536640,272494592,512559104]<br></code></pre></td></tr></table></figure>
+
+<p>数组中的五个值分别指的是</p>
+<ul>
+<li>Cached</li>
+<li>Free</li>
+<li>Zram</li>
+<li>Kernel</li>
+<li>Native</li>
+</ul>
+<p>其中 Cached + Free 代表当前整个手机的 可用内存，如果值很小，那就意味着处于内存紧张状态。</p>
+<p>一般低内存的判定阈值为：4G 内存手机以下阀值：350MB，以上阀值则为：450MB</p>
+<p>另外，如果通过关键字 am_meminfo 搜索不出任何日志，那么我们可以通过 onTrimMemory 搜索，如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">10-31 22:37:33.458 20733 20733 E Runtime : onTrimMemory level:80,pid:com.xxx.xxx:Launcher0<br></code></pre></td></tr></table></figure>
+
+<p>它也可以作为内存紧张的一个参考判断，可见，这里的 <code>level 为 80</code> ，我们看看 Android 中是怎么定义这个 level 的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 进程接近后台 LRU 列表的末尾，如果没有很快找到更多内存，进程将被杀死</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">TRIM_MEMORY_COMPLETE</span> <span class="hljs-operator">=</span> <span class="hljs-number">80</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 进程在后台 LRU 列表的中间；释放内存可以帮助系统保持列表中稍后运行的其他进程，以获得更好的整体性能</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">TRIM_MEMORY_MODERATE</span> <span class="hljs-operator">=</span> <span class="hljs-number">60</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 进程已进入 LRU 列表。这是一个清理资源的好机会，如果用户返回应用程序，这些资源可以高效快速地重新构建</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">TRIM_MEMORY_BACKGROUND</span> <span class="hljs-operator">=</span> <span class="hljs-number">40</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 进程已显示用户界面，现在不再显示。此时应释放 UI 的大量分配，以便更好地管理内存</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">TRIM_MEMORY_UI_HIDDEN</span> <span class="hljs-operator">=</span> <span class="hljs-number">20</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 该进程不是可消耗的后台进程，但设备运行的内存极低，即将无法保持任何后台进程运行。您正在运行的进程应尽可能多地释放非关键资源，以允许该内存在其他地方使用。在此之后将发生的下一件事是调用 onLowMemory() 以报告在后台根本无法保留任何内容，这种情况可能会开始显着影响用户</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">TRIM_MEMORY_RUNNING_CRITICAL</span> <span class="hljs-operator">=</span> <span class="hljs-number">15</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 进程不是可消耗的后台进程，但设备内存不足。您正在运行的进程应该释放不需要的资源，以允许在其他地方使用该内存</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">TRIM_MEMORY_RUNNING_LOW</span> <span class="hljs-operator">=</span> <span class="hljs-number">10</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 进程不是可消耗的后台进程，但设备运行的内存适中。您正在运行的进程可能希望释放一些不需要的资源以供其他地方使用</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">TRIM_MEMORY_RUNNING_MODERATE</span> <span class="hljs-operator">=</span> <span class="hljs-number">5</span>;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【Android】如何分析 ANR 日志</div>
+      <div>http://example.com/2023/08/10/【Android】如何分析-ANR-日志/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年8月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/08/10/%E5%AE%89%E5%8D%93Watchdog%E6%9C%BA%E5%88%B6%E4%BB%A5%E5%8F%8A%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90/" title="安卓Watchdog机制以及问题分析">
+                        <span class="hidden-mobile">安卓Watchdog机制以及问题分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
