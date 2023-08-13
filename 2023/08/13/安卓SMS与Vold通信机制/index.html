@@ -1,0 +1,725 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="安卓SMS与Vold通信机制 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;geshifei&#x2F;article&#x2F;details&#x2F;130005917?spm&#x3D;1001.2014.3001.5506  1.问题在安卓源码里面，StorageManagerService有很多地方调用了vold的方法。也就是Frameworks(SMS)调用了许多Native(vold)的方法。  以下便是SMS调用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安卓SMS与Vold通信机制">
+<meta property="og:url" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="安卓SMS与Vold通信机制 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;geshifei&#x2F;article&#x2F;details&#x2F;130005917?spm&#x3D;1001.2014.3001.5506  1.问题在安卓源码里面，StorageManagerService有很多地方调用了vold的方法。也就是Frameworks(SMS)调用了许多Native(vold)的方法。  以下便是SMS调用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813211308190.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813211650941.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813211806529.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/1ddbc525e73c4e868f14f74b7ef1af4d.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813212449709.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813212813803.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813213258027.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813214444039.png">
+<meta property="article:published_time" content="2023-08-13T13:10:30.000Z">
+<meta property="article:modified_time" content="2023-08-13T13:46:16.502Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813211308190.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>安卓SMS与Vold通信机制 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="安卓SMS与Vold通信机制"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-13 21:10" pubdate>
+          2023年8月13日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          38 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">安卓SMS与Vold通信机制</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="安卓SMS与Vold通信机制"><a href="#安卓SMS与Vold通信机制" class="headerlink" title="安卓SMS与Vold通信机制"></a>安卓SMS与Vold通信机制</h1><blockquote>
+<p>转载自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/geshifei/article/details/130005917?spm=1001.2014.3001.5506">https://blog.csdn.net/geshifei/article/details/130005917?spm=1001.2014.3001.5506</a></p>
+</blockquote>
+<h2 id="1-问题"><a href="#1-问题" class="headerlink" title="1.问题"></a>1.问题</h2><p><strong>在安卓源码里面，StorageManagerService有很多地方调用了vold的方法。也就是Frameworks(SMS)调用了许多Native(vold)的方法。</strong></p>
+<blockquote>
+<p>以下便是SMS调用Vold的mount方法</p>
+</blockquote>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813211308190.png" srcset="/img/loading.gif" lazyload alt="image-20230813211308190" style="zoom:50%;">
+
+<h2 id="2-SMS与Vold通信"><a href="#2-SMS与Vold通信" class="headerlink" title="2.SMS与Vold通信"></a>2.SMS与Vold通信</h2><p>在架构层面，我们选择从上往下看~</p>
+<h3 id="2-1-SMS的mVold变量"><a href="#2-1-SMS的mVold变量" class="headerlink" title="2.1 SMS的mVold变量"></a>2.1 SMS的mVold变量</h3><p>既然在SMS中都是通过mVold变量连接了Vold和SMS，看一下他的初始化过程</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813211650941.png" srcset="/img/loading.gif" lazyload alt="image-20230813211650941" style="zoom: 50%;">
+
+<p>1968行获取vold service的IBinder对象。一个Service在启动时会创建一个IBinder对象，其他进程可以通过这个IBinder对象与Service通信。因此，getService()方法返回的是服务的IBinder对象，以便客户端可以通过它与服务进行通信。具体来说，客户端可以使用服务的IBinder对象来调用服务提供的接口方法。</p>
+<p>1985行根据IBinder找到aidl定义的mVold（是一个interface），找到mVold后，就可以调用他实现的方法了，比如mVold.mount。总结就是，找到了vold service就能找到具体的函数实现了，所以现在的问题是vold service在哪、是什么？</p>
+<hr>
+<p>可以发现，在SMS启动的时候就调用了connectVold方法</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813211806529.png" srcset="/img/loading.gif" lazyload alt="image-20230813211806529" style="zoom:50%;">
+
+<h3 id="2-2-vold的aidl接口定义"><a href="#2-2-vold的aidl接口定义" class="headerlink" title="2.2 vold的aidl接口定义"></a>2.2 vold的aidl接口定义</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// system\vold\binder\android\os\IVold.aidl</span><br><span class="hljs-keyword">interface</span> <span class="hljs-title class_">IVold</span> &#123;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">setListener</span><span class="hljs-params">(IVoldListener listener)</span>;<br><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">abortFuse</span><span class="hljs-params">()</span>;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">monitor</span><span class="hljs-params">()</span>;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">reset</span><span class="hljs-params">()</span>;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">shutdown</span><span class="hljs-params">()</span>;<br><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">onUserAdded</span><span class="hljs-params">(<span class="hljs-type">int</span> userId, <span class="hljs-type">int</span> userSerial)</span>;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">onUserRemoved</span><span class="hljs-params">(<span class="hljs-type">int</span> userId)</span>;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">onUserStarted</span><span class="hljs-params">(<span class="hljs-type">int</span> userId)</span>;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">onUserStopped</span><span class="hljs-params">(<span class="hljs-type">int</span> userId)</span>;<br><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">addAppIds</span><span class="hljs-params">(in <span class="hljs-meta">@utf8InCpp</span> String[] packageNames, in <span class="hljs-type">int</span>[] appIds)</span>;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">addSandboxIds</span><span class="hljs-params">(in <span class="hljs-type">int</span>[] appIds, in <span class="hljs-meta">@utf8InCpp</span> String[] sandboxIds)</span>;<br><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">onSecureKeyguardStateChanged</span><span class="hljs-params">(<span class="hljs-type">boolean</span> isShowing)</span>;<br><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">partition</span><span class="hljs-params">(<span class="hljs-meta">@utf8InCpp</span> String diskId, <span class="hljs-type">int</span> partitionType, <span class="hljs-type">int</span> ratio)</span>;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">forgetPartition</span><span class="hljs-params">(<span class="hljs-meta">@utf8InCpp</span> String partGuid, <span class="hljs-meta">@utf8InCpp</span> String fsUuid)</span>;<br> 	<span class="hljs-comment">// ...   </span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 这是个aidl文件，Android Interface Definition Language,即Android接口定义语言，aidl文件中会定义很多函数，用于多进程间远程调用。</p>
+<p>aidl文件编译后，生成.java文件，并且会生成一个Stub内部类。我们可以在android编译的out目录搜索IVold$Stub.java，如果没有这个文件，可以搜索IVold$Stub.class，反编译class后得到IVold$Stub.java，IVold$Stub.java文件部分内容如下：【我觉得这里应该是IVold.Stub，可能反编译的时候错了，反编译成了IVold$Stub】</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">IVold$Stub</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Binder</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IVold</span> &#123;<br>    ……<br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">TRANSACTION_mount</span> <span class="hljs-operator">=</span> <span class="hljs-number">15</span>;<br> <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">mount</span><span class="hljs-params">(String var1, <span class="hljs-type">int</span> var2, <span class="hljs-type">int</span> var3, IVoldMountCallback var4)</span> <span class="hljs-keyword">throws</span> RemoteException;<br> <br>    ……<br> <br>   <span class="hljs-keyword">public</span> IVold$Stub() &#123;<br>      <span class="hljs-built_in">this</span>.attachInterface(<span class="hljs-built_in">this</span>, <span class="hljs-string">&quot;android.os.IVold&quot;</span>);<br>   &#125;<br> <br>   <span class="hljs-comment">//这里是关键</span><br>   <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> IVold <span class="hljs-title function_">asInterface</span><span class="hljs-params">(IBinder obj)</span> &#123;<br>      <span class="hljs-keyword">if</span>(obj == <span class="hljs-literal">null</span>) &#123;<br>         <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>      &#125; <span class="hljs-keyword">else</span> &#123;<br>         <span class="hljs-type">IInterface</span> <span class="hljs-variable">iin</span> <span class="hljs-operator">=</span> obj.queryLocalInterface(<span class="hljs-string">&quot;android.os.IVold&quot;</span>);<br>         <span class="hljs-keyword">return</span> (IVold)(iin != <span class="hljs-literal">null</span> &amp;&amp; iin <span class="hljs-keyword">instanceof</span> IVold?(IVold)iin:<span class="hljs-keyword">new</span> <span class="hljs-title class_">Proxy</span>(obj));<br>      &#125;<br>   &#125;<br> <br>   <span class="hljs-keyword">public</span> IBinder <span class="hljs-title function_">asBinder</span><span class="hljs-params">()</span> &#123;<br>      <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>;<br>   &#125;<br>    ……<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>public abstract class IVold$Stub extends Binder implements IVold</code>定义了一个抽象类IVold$Stub，该抽象类继承自Binder类，同时实现了IVold接口。它的定义中包含了抽象方法，这些方法的具体实现需要在该类的子类中完成</li>
+<li>从IVold$Stub可知，Stub是一个内部类。Stub类会根据AIDL文件中定义的接口自动生成，并实现该接口的方法，同时提供一个静态的asInterface()方法和一个默认的构造方法。**在客户端通过bindService()方法绑定服务时，会通过getService()方法获取到一个Binder对象，通过asInterface()方法将其转换为服务端实现的IMyService<u>接口</u>**。在服务端，Binder对象会通过Stub类的onTransact()方法来处理客户端发送的请求。</li>
+</ul>
+<p>举例来说，A绑定了服务端B的service，那么A可以通过下面方法执行B中的方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> IVold mVold;<br><span class="hljs-comment">//根据binder找到对应的aidl interface</span><br>mVold = IVold.Stub.asInterface(Binder-x)<br><span class="hljs-comment">//执行服务端方法</span><br>mVold.mount()<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-vold-service是什么"><a href="#2-3-vold-service是什么" class="headerlink" title="2.3 vold service是什么"></a>2.3 vold service是什么</h3><img src="/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/1ddbc525e73c4e868f14f74b7ef1af4d.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
+
+<p>可以看到VoldNativeService.h文件中定义了VoldNativeService类。这个类有很多函数定义，我们重点看getServiceName方法。VoldNativeService.getServiceName返回的就是“vold”，所以VoldNativeService类中的函数就是aidl接口中各个函数的具体实现。比如mVold.mount的具体实现就是VoldNativeService::mount（见VoldNativeService.cpp）。</p>
+<h2 id="3-vold进程的启动和vold-service的注册"><a href="#3-vold进程的启动和vold-service的注册" class="headerlink" title="3.vold进程的启动和vold service的注册"></a>3.vold进程的启动和vold service的注册</h2><p>vold的源头在 &#x2F;etc&#x2F;init&#x2F;hw&#x2F;init.rc，系统开机后会执行这个文件，启动vold进程。</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813212449709.png" srcset="/img/loading.gif" lazyload alt="image-20230813212449709" style="zoom: 67%;">
+
+<p>当启动vold服务的时候，会走到&#x2F;system&#x2F;vold&#x2F;main.cpp中的main函数中</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span> </span>&#123;<br>    <span class="hljs-comment">//...</span><br>    <span class="hljs-built_in">ATRACE_BEGIN</span>(<span class="hljs-string">&quot;VoldNativeService::start&quot;</span>);<br>    <span class="hljs-keyword">if</span> (android::vold::VoldNativeService::<span class="hljs-built_in">start</span>() != android::OK) &#123;<br>        <span class="hljs-built_in">LOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;Unable to start VoldNativeService&quot;</span>;<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-built_in">ATRACE_END</span>();<br>	<span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>VoldNativeService::start()启动VoldNativeService，并将其注册到ServiceManager中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">status_t</span> <span class="hljs-title">VoldNativeService::start</span><span class="hljs-params">()</span> </span>&#123;<br>    IPCThreadState::<span class="hljs-built_in">self</span>()-&gt;<span class="hljs-built_in">disableBackgroundScheduling</span>(<span class="hljs-literal">true</span>);<br>    <span class="hljs-type">status_t</span> ret = BinderService&lt;VoldNativeService&gt;::<span class="hljs-built_in">publish</span>();<br>    <span class="hljs-keyword">if</span> (ret != android::OK) &#123;<br>        <span class="hljs-keyword">return</span> ret;<br>    &#125;<br>    <span class="hljs-function">sp&lt;ProcessState&gt; <span class="hljs-title">ps</span><span class="hljs-params">(ProcessState::self())</span></span>;<br>    ps-&gt;<span class="hljs-built_in">startThreadPool</span>();<br>    ps-&gt;<span class="hljs-built_in">giveThreadPoolName</span>();<br>    <span class="hljs-keyword">return</span> android::OK;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>BinderService&lt;VoldNativeService&gt;::publish()</code>执行具体的注册操作。</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813212813803.png" srcset="/img/loading.gif" lazyload alt="image-20230813212813803" style="zoom: 50%;">
+
+<p>根据33行typename SERVICE及 VoldNativeService::start()中122行<code>BinderService&lt;VoldNativeService&gt;::publish()</code>，可以知道SERVICE就是VoldNativeService，所以SERVICE::getServiceName()就是VoldNativeService::getServiceName()。通过第二节第3段【vold service是什么】可知getServiceName()将返回字符串“vold”。总结就是，VoldNativeService以“vold”名称注册到ServiceManager中，VoldNativeService类中实现了很多函数，这些函数就是跨进程调用的具体函数，比如mVold.mount。</p>
+<h2 id="4-mVold-mount是什么"><a href="#4-mVold-mount是什么" class="headerlink" title="4.mVold.mount是什么"></a>4.mVold.mount是什么</h2><p>在SMS中通过ServiceManager.getService(“vold”)获取vold service关联的binder，也就是VoldNativeService了。并且通过mVold &#x3D; IVold.Stub.asInterface(binder)获取binder对象关联的aidl接口，所以mVold.mount就是VoldNativeService中mount函数。</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813213258027.png" srcset="/img/loading.gif" lazyload alt="image-20230813213258027" style="zoom: 50%;">
+
+
+
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5.总结"></a>5.总结</h2><img src="/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/image-20230813214444039.png" srcset="/img/loading.gif" lazyload alt="image-20230813214444039" style="zoom:80%;">
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>安卓SMS与Vold通信机制</div>
+      <div>http://example.com/2023/08/13/安卓SMS与Vold通信机制/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年8月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/" title="安卓aidl通信">
+                        <span class="hidden-mobile">安卓aidl通信</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
