@@ -1,0 +1,754 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="安卓aidl通信1.AIDL简述AIDL:Android Interface Definition Language,即Android接口定义语言，用于生成Android不同进程间进行进程通信(IPC)的代码，一般情况下一个进程是无法访问另一个进程的内存的。如果某些情况下仍然需要跨进程访问内存数据，这时候Android系统就要将其对象分解成能够识别的原数据，编写这一组操作的代码是一项繁琐的工作，但">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安卓aidl通信">
+<meta property="og:url" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="安卓aidl通信1.AIDL简述AIDL:Android Interface Definition Language,即Android接口定义语言，用于生成Android不同进程间进行进程通信(IPC)的代码，一般情况下一个进程是无法访问另一个进程的内存的。如果某些情况下仍然需要跨进程访问内存数据，这时候Android系统就要将其对象分解成能够识别的原数据，编写这一组操作的代码是一项繁琐的工作，但">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/1.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/2.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/3.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/4.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/5.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/6.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/7.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/8.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/9.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/10.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/11.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/12.png">
+<meta property="og:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/13.png">
+<meta property="article:published_time" content="2023-08-13T12:52:10.000Z">
+<meta property="article:modified_time" content="2023-08-13T13:00:37.198Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/1.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>安卓aidl通信 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="安卓aidl通信"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-13 20:52" pubdate>
+          2023年8月13日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          41 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">安卓aidl通信</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="安卓aidl通信"><a href="#安卓aidl通信" class="headerlink" title="安卓aidl通信"></a>安卓aidl通信</h1><h2 id="1-AIDL简述"><a href="#1-AIDL简述" class="headerlink" title="1.AIDL简述"></a>1.AIDL简述</h2><p>AIDL:Android Interface Definition Language,即Android接口定义语言，用于生成Android不同进程间进行进程通信(IPC)的代码，一般情况下一个进程是无法访问另一个进程的内存的。如果某些情况下仍然需要跨进程访问内存数据，这时候Android系统就要将其对象分解成能够识别的原数据，编写这一组操作的代码是一项繁琐的工作，但是AIDL对底层进行了抽象的封装，简化了跨进程操作。</p>
+<p>AIDL IPC机制是面向接口的，像COM或Corba一样，但是更加轻量级。它是使用代理类在客户端和实现端传递数据。</p>
+<p>在Android中跨进程操作的方式不止一种，四大组件中ContentProvider天生就是为跨进程操作而存在的，但是ContentProvider所谓的跨进程操作数据，这些数据不一定是存放在内存中的，如通讯录数据时存放在Sqlite数据库中的。AIDL支持的跨进程操作的数据是要存放在内存中的，AIDL底层实际上也是使用的Binder进行的跨进程操作。</p>
+<h2 id="2-AIDL使用"><a href="#2-AIDL使用" class="headerlink" title="2.AIDL使用"></a>2.AIDL使用</h2><h3 id="2-1-服务端代码"><a href="#2-1-服务端代码" class="headerlink" title="2.1 服务端代码"></a>2.1 服务端代码</h3><ol>
+<li>创建User实体类【注意：如果AIDL文件中使用到了实体类对象，需要进行序列化Parcelable】</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Parcelable</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> id;<br>    <span class="hljs-keyword">public</span> String name;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">User</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">User</span><span class="hljs-params">(<span class="hljs-type">int</span> id, String name)</span> &#123;<br>        <span class="hljs-built_in">this</span>.id = id;<br>        <span class="hljs-built_in">this</span>.name = name;<br>    &#125;<br><br>    <span class="hljs-keyword">protected</span> <span class="hljs-title function_">User</span><span class="hljs-params">(Parcel in)</span> &#123;<br>        id = in.readInt();<br>        name = in.readString();<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Creator&lt;User&gt; CREATOR = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Creator</span>&lt;User&gt;() &#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> User <span class="hljs-title function_">createFromParcel</span><span class="hljs-params">(Parcel in)</span> &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>(in);<br>        &#125;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> User[] newArray(<span class="hljs-type">int</span> size) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>[size];<br>        &#125;<br>    &#125;;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">describeContents</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">writeToParcel</span><span class="hljs-params">(Parcel parcel, <span class="hljs-type">int</span> i)</span> &#123;<br>        parcel.writeInt(id);<br>        parcel.writeString(name);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>先创建AIDL文件，右击直接生成</li>
+</ol>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/1.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
+
+<p>定义<code>User.aidl</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// User.aidl</span><br><span class="hljs-keyword">package</span> com.amx.aidlservice;<br><br><span class="hljs-comment">// Declare any non-default types here with import statements</span><br><br>parcelable User;<br></code></pre></td></tr></table></figure>
+
+<p>定义<code>UserManager.aidl</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// UserManager.aidl</span><br><span class="hljs-keyword">package</span> com.amx.aidlservice;<br><br><span class="hljs-keyword">import</span> com.amx.aidlservice.User;<br><br><span class="hljs-keyword">interface</span> <span class="hljs-title class_">UserManager</span> &#123;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">addUser</span><span class="hljs-params">(in User user)</span>;<br>    List&lt;User&gt; <span class="hljs-title function_">getUserList</span><span class="hljs-params">()</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：需要导包，引入User对象</p>
+</blockquote>
+<ol start="3">
+<li>创建服务UserService</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Service</span> &#123;<br><br>    <span class="hljs-keyword">private</span> UserManagerImpl mUserManager;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">UserService</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> IBinder <span class="hljs-title function_">onBind</span><span class="hljs-params">(Intent intent)</span> &#123;<br>        mUserManager = <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserManagerImpl</span>();<br>        <span class="hljs-keyword">return</span> mUserManager;<br>    &#125;<br><br>    <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserManagerImpl</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">UserManager</span>.Stub&#123;<br><br>        List&lt;User&gt; users = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addUser</span><span class="hljs-params">(User user)</span> <span class="hljs-keyword">throws</span> RemoteException &#123;<br>            users.add(user);<br>        &#125;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> List&lt;User&gt; <span class="hljs-title function_">getUserList</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> RemoteException &#123;<br>            <span class="hljs-keyword">return</span> users;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在服务中，实现UserManagerImpl，并且将其作为IBinder对象返回给onBind方法</p>
+</blockquote>
+<ol start="4">
+<li>在清单文件中进行注册</li>
+</ol>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/2.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
+
+<h3 id="2-2-客户端代码"><a href="#2-2-客户端代码" class="headerlink" title="2.2 客户端代码"></a>2.2 客户端代码</h3><ol>
+<li>将aidl文件和实体类对象原封不动的拷贝过来【包括包】</li>
+</ol>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/3.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
+
+<ol start="2">
+<li>调用服务端服务进行进程间通信</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-keyword">private</span> Button mAddUserBtn;<br>    <span class="hljs-keyword">private</span> Button mQueryUserBtn;<br>    <span class="hljs-keyword">private</span> TextView mUserCount;<br>    <span class="hljs-keyword">private</span> UserManager mUserManager;<br>    <span class="hljs-keyword">private</span> UserConnection mUserConnection;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> mIsBind;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> i;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>        i = <span class="hljs-number">1</span>;<br>        doBindService();<br>        initView();<br>        setListener();<br>    &#125;<br><br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doBindService</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>();<br>        intent.setAction(<span class="hljs-string">&quot;com.amx.aidlservice.THIRD_PART&quot;</span>);<br>        intent.addCategory(Intent.CATEGORY_DEFAULT);<br>        intent.setPackage(<span class="hljs-string">&quot;com.amx.aidlservice&quot;</span>);<br><br>        mUserConnection = <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserConnection</span>();<br>        mIsBind = bindService(intent, mUserConnection, BIND_AUTO_CREATE);<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserConnection</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ServiceConnection</span>&#123;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onServiceConnected</span><span class="hljs-params">(ComponentName componentName, IBinder iBinder)</span> &#123;<br>            mUserManager = UserManager.Stub.asInterface(iBinder);<br>        &#125;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onServiceDisconnected</span><span class="hljs-params">(ComponentName componentName)</span> &#123;<br>            mUserManager = <span class="hljs-literal">null</span>;<br>        &#125;<br>    &#125;;<br><br>    <span class="hljs-meta">@SuppressLint(&quot;SetTextI18n&quot;)</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setListener</span><span class="hljs-params">()</span> &#123;<br>        mAddUserBtn.setOnClickListener(view -&gt; &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                mUserManager.addUser(<span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>(i,<span class="hljs-string">&quot;安慕嘻&quot;</span> + i++ ));<br>                Toast.makeText(<span class="hljs-built_in">this</span>,<span class="hljs-string">&quot;添加用户&quot;</span> + <span class="hljs-string">&quot;安慕嘻&quot;</span> + (i) ,Toast.LENGTH_SHORT).show();<br>            &#125; <span class="hljs-keyword">catch</span> (RemoteException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>        &#125;);<br>        mQueryUserBtn.setOnClickListener(view -&gt; &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                mUserCount.setText(<span class="hljs-string">&quot;当前用户数量: &quot;</span>+ mUserManager.getUserList().size());;<br>            &#125; <span class="hljs-keyword">catch</span> (RemoteException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>        &#125;);<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">initView</span><span class="hljs-params">()</span> &#123;<br>        mAddUserBtn = findViewById(R.id.addUserBtn);<br>        mQueryUserBtn = findViewById(R.id.queryUserBtn);<br>        mUserCount = findViewById(R.id.countTv);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onDestroy</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">super</span>.onDestroy();<br>        <span class="hljs-keyword">if</span>(mIsBind &amp;&amp; mUserConnection != <span class="hljs-literal">null</span>)&#123;<br>            unbindService(mUserConnection);<br>            mIsBind = <span class="hljs-literal">false</span>;<br>            mUserConnection = <span class="hljs-literal">null</span>;<br>        &#125;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在客户端我们通过bindService拿到系统服务端的IBinder对象（mUserManager），然后就像同进程调用自身方法一样调用它在服务端重写的方法</p>
+</blockquote>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/4.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
+
+<p>我们添加用户后，查询用户数量后会变多</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/5.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
+
+<h2 id="3-AIDL原理"><a href="#3-AIDL原理" class="headerlink" title="3.AIDL原理"></a>3.AIDL原理</h2><p>首先我们从客户端拿到IBinder对象开始</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/6.png" srcset="/img/loading.gif" lazyload style="zoom: 67%;">
+
+<p>我们发现到了AIDL生成的UserManger中</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/7.png" srcset="/img/loading.gif" lazyload style="zoom: 67%;">
+
+<p>会生成一个Proxy对象，这个也相当于我们的接口对象mUserManager</p>
+<p>现在我们拿到了mUserManger对象，我们想要在客户端调用它的方法</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/8.png" srcset="/img/loading.gif" lazyload style="zoom: 67%;">
+
+<p>那么实际上就是调用了Proxy的addUser方法</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/9.png" srcset="/img/loading.gif" lazyload style="zoom: 67%;">
+
+<p>我们发现它通过<code>transact</code>方法去访问了服务端，这个时候我们走到了Binder机制里面，由Binder机制通过<code>onTransac</code>t找到我们的服务端</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/10.png" srcset="/img/loading.gif" lazyload style="zoom: 67%;">
+
+<p>而这个this就是我们服务端在Service创建的子类UserManegerImpl，因为UserManegerImpl继承了AIDL生成的UserManeger接口中的Stub【在源码中是一个静态抽象类】</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/11.png" srcset="/img/loading.gif" lazyload style="zoom: 67%;">
+
+<p>而Stub中的没有实现this.addUser方法</p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/12.png" srcset="/img/loading.gif" lazyload style="zoom: 67%;">
+
+<p>而真正实现的是我们自己的子类UserMangerImpl重写后的addUser方法</p>
+<p><strong>到这里我们全部清楚了，在客户端调用的addUser方法，其实就是调用了服务端重写的addUser方法</strong></p>
+<img src="/2023/08/13/%E5%AE%89%E5%8D%93aidl%E9%80%9A%E4%BF%A1/13.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>安卓aidl通信</div>
+      <div>http://example.com/2023/08/13/安卓aidl通信/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年8月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/08/10/%E5%AE%89%E5%8D%93tombstone%E6%9C%BA%E5%88%B6/" title="安卓tombstone机制">
+                        <span class="hidden-mobile">安卓tombstone机制</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
