@@ -23,17 +23,20 @@
 <meta property="og:site_name" content="一只安慕嘻">
 <meta property="og:description" content="f2fs文件系统checkpoint特性相较于很多文章一上来解读代码，我更愿意从问题出现的背景开始讲起，一个技术如果没有时代背景，他的出现显得像个怪胎。 崩溃一致性问题对于一般的文件系统而言，如果我要对文件做追加动作，我们需要做哪些事情呢，罗列一下：  文件关联的inode表明了文件的基本属性，所以当我们往一个文件里面追加内容的时候，inode的大小，修改时间等都需要修改；这个在f2fs文件系统里">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817222646785.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817224041664.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817223902687.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232432068.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232815934.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234038768.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234351910.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234432799.png">
 <meta property="article:published_time" content="2023-07-26T15:47:03.000Z">
-<meta property="article:modified_time" content="2023-08-07T15:14:05.180Z">
+<meta property="article:modified_time" content="2023-08-18T15:04:53.178Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png">
+<meta name="twitter:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -244,7 +247,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.3k 字
+          4.8k 字
         
       </span>
     
@@ -255,7 +258,7 @@
         
         
         
-          28 分钟
+          40 分钟
         
       </span>
     
@@ -322,15 +325,112 @@
 <li>本文不探讨Fsck，解决崩溃一致性问题比较有效的还是Journal机制，也就是写日志，也是借鉴了数据库的思想。</li>
 </ul>
 <blockquote>
-<p>这里借助南大蒋老师的思路往下说：</p>
+<p>这里借助南大蒋炎岩老师的思路往下说：</p>
 </blockquote>
 <p>对于一个二叉树，有2个视角，一个是数据结构视角，一个是文件操作视角。</p>
-<p><img src="/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png" srcset="/img/loading.gif" lazyload alt="image-20230807231209215"></p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png" srcset="/img/loading.gif" lazyload alt="image-20230807231209215" style="zoom:80%;">
+
+<p>中序遍历的结果为：<strong>12345</strong></p>
+<p>从文件操作的角度看：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">insert</span> <span class="hljs-number">4</span><br><span class="hljs-keyword">insert</span> <span class="hljs-number">2</span><br><span class="hljs-keyword">insert</span> <span class="hljs-number">5</span><br><span class="hljs-keyword">insert</span> <span class="hljs-number">1</span><br><span class="hljs-keyword">insert</span> <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<p>这样我们就可以通过记录所有的文件操作，反向还原出这棵树的原样。</p>
+<hr>
+<p><strong>两个“视角”</strong></p>
+<ol>
+<li>存储实际数据结构<ul>
+<li>文件系统的”直观”表示</li>
+<li>crash unsafe</li>
+</ul>
+</li>
+<li>Append-only记录所有历史操作<ul>
+<li>“重做”所有操作得到数据结构的当前状态</li>
+<li>容易实现崩溃一致性</li>
+</ul>
+</li>
+</ol>
+<p><strong>两者的融合</strong></p>
+<ul>
+<li>数据结构发生时，用（2）append-only记录日志</li>
+<li>日志落盘后，用（1）更新数据结构</li>
+<li>崩溃后，重放日志并清除（称为redo log；相应也可以undo log）</li>
+</ul>
+<h2 id="抽象Journal过程"><a href="#抽象Journal过程" class="headerlink" title="抽象Journal过程"></a>抽象Journal过程</h2><img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817222646785.png" srcset="/img/loading.gif" lazyload alt="image-20230817222646785" style="zoom:67%;">
+
+
+
+<ol>
+<li><p>通过bread扫描磁盘找到可以写入新的journal的起始位置</p>
+</li>
+<li><p>开始bwrite写入TxBegin，表示事务开始了</p>
+</li>
+<li><p>开始bwrite写入许多的文件操作</p>
+</li>
+<li><p>文件操作写完之后，一定要先调用bflush确保前面所有的操作日志落盘</p>
+</li>
+<li><p>bwrite写入TxEnd，表示整个事务结束了</p>
+</li>
+<li><p>最后一样要调用bflush，确保整个是事务数据都落盘了</p>
+<ul>
+<li><p>当存在系统崩溃Crash</p>
+</li>
+<li><p>恢复的时候只要看有没有TxEnd标志，如果没有就将整个事务Transaction全部丢弃</p>
+</li>
+<li><p>只要有TxEnd，就能100%确保前面的所有操作日志已经落盘了</p>
+</li>
+</ul>
+</li>
+<li><p>后面就真正的去更新数据区域Main Data Area里面的数据块就行了</p>
+</li>
+</ol>
+<hr>
+<p><strong>Journaling的优化：</strong></p>
+<p>现在磁盘都需要写入双份的日志journal</p>
+<ul>
+<li>批处理(xv6;jbd)<ul>
+<li>多次系统调用的Tx合并成一个，减少log大小</li>
+<li>jdb：定期writeback</li>
+</ul>
+</li>
+<li>CheckSum(Ext4)<ul>
+<li>不再标记TxBegin&#x2F;TxEnd</li>
+<li>直接标记Tx的长度和checksum</li>
+<li>当Tx的长度和checksum相等，表明是一次完整的journal</li>
+</ul>
+</li>
+<li>Metadata journaling(ext4 default)<ul>
+<li>数据占磁盘写入的绝大部分<ul>
+<li>只对inode和bitmap做journaling可以提高性能</li>
+</ul>
+</li>
+<li>保证文件系统的目录结构是一样的，但数据可能丢失</li>
+</ul>
+</li>
+</ul>
+<h2 id="书面化的Journal"><a href="#书面化的Journal" class="headerlink" title="书面化的Journal"></a>书面化的Journal</h2><p>✉️ <strong>摘抄自：《操作系统导论》</strong></p>
+<blockquote>
+<p>对于一致更新问题，最流行的解决方案可能是从数据库管理系统的世界中借鉴的一个想法。这种名为预写日志（write-ahead logging）的想法，是为了解决这类问题而发明的。在文件系统中，出于历史原因，我们通常将预写日志称为日志（journaling）。第一个实现它的文件系统是 Cedar ，但许多现代文件系统都使用这个想法，包括 Linux ext3 和 ext4、reiserfs、IBM 的 JFS、SGI 的 XFS 和 Windows NTFS。</p>
+</blockquote>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817224041664.png" srcset="/img/loading.gif" lazyload alt="image-20230817224041664" style="zoom:80%;">
+
+<blockquote>
+<p>这里的加检查点可能还是比较抽象，简单的说：</p>
+<p>数据日志（data journaling）的工作原理是，在将 inode、位图和数据块写入磁盘位置之前，先将它们写入日志。对于这个请求添加事务标记构成一个事务，一旦这个事务安全地存在于磁盘上，我们就可以在系统中打一个时间戳，表明整个操作日志已经顺利落盘了。打完时间戳，就开始将inode、位图和数据块写入到磁盘。这个整个过程成为加检查点，所以checkpoint是一个行为，是一个动作，在f2fs文件系统里面表现为do_checkpoint函数。当我们恢复的时候只要找到最近的一个时间戳，把它记录的事务日志重做一遍就行。</p>
+</blockquote>
+<blockquote>
+<p><strong>数据恢复的过程：</strong></p>
+<p>如果崩溃发生在事务被安全地写入日志之前，那只需要简单地跳过待执行的更新。如果在事务已提交到日志之后，但在加检查点完成之前发生崩溃，可以在系统引导时，文件系统恢复过程将扫描日志，并查找已提交到磁盘的事务。然后将这些事务重放（replayed），文件系统再次尝试将事务中的块写入它们最终的磁盘位置，称为<strong>重做日志（redo logging）</strong>。</p>
+</blockquote>
+<hr>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817223902687.png" srcset="/img/loading.gif" lazyload alt="image-20230817223902687" style="zoom: 80%;">
+
+
+
 <h2 id="后滚恢复原理Roll-Back-Recovery"><a href="#后滚恢复原理Roll-Back-Recovery" class="headerlink" title="后滚恢复原理Roll-Back Recovery"></a>后滚恢复原理Roll-Back Recovery</h2><p>首先我们看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
-<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232432068.png" srcset="/img/loading.gif" lazyload alt="image-20230727232432068" style="zoom:67%;">
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232432068.png" srcset="/img/loading.gif" lazyload alt="image-20230727232432068" style="zoom: 50%;">
 
 <p>突然出现断电异常以后，F2FS会回滚到最近的一次检查点。为了确保最少有一个稳定的检查点，F2fS会维护两份checkpoint pack，如果一个checkpoint pack的头部和尾部是一致的，我们认为他是有效的，否则就丢弃它里面的内容。</p>
-<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232815934.png" srcset="/img/loading.gif" lazyload alt="image-20230727232815934" style="zoom:67%;">
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232815934.png" srcset="/img/loading.gif" lazyload alt="image-20230727232815934" style="zoom: 50%;">
 
 <p>后滚恢复发生的F2FS文件系统挂载的时候，它会去检查checkpoint pack的头部和尾部。如果2个checkpoint pack都是有效的，F2FS会比较cp1和cp2的版本，最终会选择版本最新的那一个。同时会去检查选择的cp是否存在孤儿节点，如果存在会将它引用的数据块全部截断。</p>
 <hr>
