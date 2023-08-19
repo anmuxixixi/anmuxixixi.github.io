@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234351910.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234432799.png">
 <meta property="article:published_time" content="2023-07-26T15:47:03.000Z">
-<meta property="article:modified_time" content="2023-08-18T15:09:33.252Z">
+<meta property="article:modified_time" content="2023-08-19T12:38:55.368Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png">
@@ -247,7 +247,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.8k 字
+          5.8k 字
         
       </span>
     
@@ -258,7 +258,7 @@
         
         
         
-          40 分钟
+          49 分钟
         
       </span>
     
@@ -424,8 +424,21 @@
 <hr>
 <img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817223902687.png" srcset="/img/loading.gif" lazyload alt="image-20230817223902687" style="zoom: 80%;">
 
-
-
+<h2 id="数据库的前滚恢复和后滚恢复"><a href="#数据库的前滚恢复和后滚恢复" class="headerlink" title="数据库的前滚恢复和后滚恢复"></a>数据库的前滚恢复和后滚恢复</h2><p>前滚：</p>
+<blockquote>
+<p>未完全提交的事务，即该事务已经被执行commit命令了，只是现在该事务修改所对应的脏数据块中只有一部分被写到磁盘上的数据文件中，还有一部分已经被置为提交标记的脏块还在内存上，如果此时数据库实例崩溃了，则当数据库实例恢复时，就需要用前滚（这个机制）来完成事务的完全提交，即将先前那部分已经被置为提交标记且还在内存上的脏块写入到磁盘上的数据文件中。</p>
+</blockquote>
+<p>回滚（后滚）：</p>
+<blockquote>
+<p>未提交的事务，即该事务未被执行commit命令。但是此时，该事务修改的脏块中也有可能一部分脏块写入到数据文件中了。如果此时数据库实例崩溃了，则当数据库实例恢复时，就需要用回滚（这个机制）来将先前那部分已经写入到数据文件的脏块从数据文件上撤销掉。</p>
+</blockquote>
+<p><strong>数据库Crash Recovery过程：</strong></p>
+<ol>
+<li>首先进行前滚：在重做日志redolog中找到最近检查点位置，然后从该检查点位置开始往下，应用所有的重做条目，从而在buffer cache里又恢复了实例崩溃那个时间点的状态。这个过程叫做前滚，前滚完毕以后，buffer cache里既有崩溃时已经提交还没有写入数据文件的脏数据块，也还有事务被突然终止，而导致的既没有提交又没有回滚的事务所弄脏的数据块。</li>
+<li>前滚一旦完毕，立即打开数据库。但是，这时的数据库中还含有那些中间状态的、既没有提交又没有回滚的脏块，这种脏块是不能存在于数据库中的，因为它们并没有被提交，必须被回滚。打开数据库以后，进程会在后台进行回滚。</li>
+</ol>
+<p><strong>数据库Crash Recovery示例：</strong></p>
+<p>程序员在9:00:00打卡开始上班，触发了5个事务，分别是T1，T2，T3，T4，T5。在9:07:46的时候，T3和T5完成（commit），在9:08:00的时候发生了检查点事件，此时系统将对数据区的更改都写入到磁盘数据文件中，在9:08:27时，系统异常断电，因此9:08:00到9:08:27之间的数据操作都仅仅记录在redo log中，并没有将这些修改写入到磁盘数据文件中。当重新启动数据库时，会进行Crash Recovery，整个过程分为前滚和后滚。前滚是指9:08:00至9:08:27的操作重新保存到Buffer Cache中，由于这些操作都记录在了redo log中，因此只需要从redo log中读取这些操作并执行即可。前滚执行完毕以后，会立即打开数据库，此时数据库吃鱼异常关闭前的状态。打开数据库后进入回滚，回滚阶段是指将未提交的事务回滚，即示例中的T1、T2和T4回滚，此时数据库恢复正常。</p>
 <h2 id="后滚恢复原理Roll-Back-Recovery"><a href="#后滚恢复原理Roll-Back-Recovery" class="headerlink" title="后滚恢复原理Roll-Back Recovery"></a>后滚恢复原理Roll-Back Recovery</h2><p>首先我们看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
 <img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232432068.png" srcset="/img/loading.gif" lazyload alt="image-20230727232432068" style="zoom: 50%;">
 
