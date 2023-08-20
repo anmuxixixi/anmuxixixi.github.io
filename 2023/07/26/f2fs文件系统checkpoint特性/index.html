@@ -27,13 +27,20 @@
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817222646785.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817224041664.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817223902687.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820215948710.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820220002296.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE2NDk0MDA=,size_16,color_FFFFFF,t_70#pic_center.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/5.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820215120800.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232432068.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232815934.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234038768.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234351910.png">
 <meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234432799.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820214217698.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820214243206.png">
 <meta property="article:published_time" content="2023-07-26T15:47:03.000Z">
-<meta property="article:modified_time" content="2023-08-19T12:45:16.575Z">
+<meta property="article:modified_time" content="2023-08-20T14:34:51.622Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png">
@@ -247,7 +254,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          5.9k 字
+          9k 字
         
       </span>
     
@@ -258,7 +265,7 @@
         
         
         
-          50 分钟
+          76 分钟
         
       </span>
     
@@ -443,7 +450,41 @@
 <blockquote>
 <p>需要注意一下：不是只有commit才会触发写入redo log，事务开始后会有各种场景触发redo log写入。</p>
 </blockquote>
-<h2 id="后滚恢复原理Roll-Back-Recovery"><a href="#后滚恢复原理Roll-Back-Recovery" class="headerlink" title="后滚恢复原理Roll-Back Recovery"></a>后滚恢复原理Roll-Back Recovery</h2><p>首先我们看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
+<h2 id="F2FS文件系统Checkpoint机制"><a href="#F2FS文件系统Checkpoint机制" class="headerlink" title="F2FS文件系统Checkpoint机制"></a>F2FS文件系统Checkpoint机制</h2><h3 id="f2fs-checkpoint数据结构"><a href="#f2fs-checkpoint数据结构" class="headerlink" title="f2fs_checkpoint数据结构"></a>f2fs_checkpoint数据结构</h3><p>首先我们看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820215948710.png" srcset="/img/loading.gif" lazyload alt="image-20230820215948710" style="zoom:50%;">
+
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820220002296.png" srcset="/img/loading.gif" lazyload alt="image-20230820220002296" style="zoom:50%;">
+
+<p>checkpoint区域主要有以下几个部分：</p>
+<ul>
+<li>Header和footer：在每一个checkpoint pack中都有header和footer。checkpoint会在header和footer中都存储一个cp版本号，随着每一次checkpoint动作发生，会依次递增。当进行挂载的时候，当cp_pack中的header和footer相等认为该cp是有效的，否则备份区域有效。如果主备份区域都是有效的，选择时间点最近的一个cp区域。</li>
+<li>nat_bitmap和sit_bitmap：nat_bitmap表示当前的block是在nat主区还是nat备区；sit_bitmap表示当前segment的分配情况【存疑，是否也是用于区分主备区】。</li>
+<li>nat_journal和sit_journal：是nat区域和sit区域的journal日志，详见：<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/">f2fs文件系统Journal机制_</a></li>
+<li>summary blocks of active segments：</li>
+<li>Orphan block：存放孤儿节点打信息。</li>
+</ul>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE2NDk0MDA=,size_16,color_FFFFFF,t_70#pic_center.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+
+
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>对应的数据结构为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_checkpoint</span> &#123;</span><br>    __le64 checkpoint_ver;      <span class="hljs-comment">/* checkpoint block version number */</span><br>    __le64 user_block_count;    <span class="hljs-comment">/* # of user blocks */</span><br>    __le64 valid_block_count;   <span class="hljs-comment">/* # of valid blocks in main area */</span><br>    __le32 rsvd_segment_count;  <span class="hljs-comment">/* # of reserved segments for gc */</span><br>    __le32 free_segment_count;  <span class="hljs-comment">/* # of free segments in main area */</span><br><br>    <span class="hljs-comment">/* information of current node segments */</span><br>    __le32 cur_node_segno[MAX_ACTIVE_NODE_LOGS];<br>    __le16 cur_node_blkoff[MAX_ACTIVE_NODE_LOGS];<br>    <span class="hljs-comment">/* information of current data segments */</span><br>    __le32 cur_data_segno[MAX_ACTIVE_DATA_LOGS];<br>    __le16 cur_data_blkoff[MAX_ACTIVE_DATA_LOGS];<br>    __le32 ckpt_flags;      <span class="hljs-comment">/* Flags : umount and journal_present */</span><br>    __le32 cp_pack_total_block_count;   <span class="hljs-comment">/* total # of one cp pack */</span><br>    __le32 cp_pack_start_sum;   <span class="hljs-comment">/* start block number of data summary */</span><br>    __le32 valid_node_count;    <span class="hljs-comment">/* Total number of valid nodes */</span><br>    __le32 valid_inode_count;   <span class="hljs-comment">/* Total number of valid inodes */</span><br>    __le32 next_free_nid;       <span class="hljs-comment">/* Next free node number */</span><br>    __le32 checksum_offset;     <span class="hljs-comment">/* checksum offset inside cp block */</span><br>    __le64 elapsed_time;        <span class="hljs-comment">/* mounted time */</span><br>    <span class="hljs-comment">/* allocation type of current segment */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> alloc_type[MAX_ACTIVE_LOGS];<br><br>    <span class="hljs-comment">/* SIT and NAT version bitmap */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> sit_nat_version_bitmap[];<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="checkpoint作用"><a href="#checkpoint作用" class="headerlink" title="checkpoint作用"></a>checkpoint作用</h3><p>看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820215120800.png" srcset="/img/loading.gif" lazyload alt="image-20230820215120800" style="zoom:50%;">
+
+<p>从F2FS的磁盘布局可以了解到，F2FS有一个元数据区域，用于集中管理磁盘所有的block的信息，因此F2FS使用了检查点(checkpointing)机制去维护文件系统的恢复点(recovery point)，这个恢复点用于在系统突然崩溃的时候，元数据区域依然能够正确地将数据重新读取出来。因此保证元数据区域的有效性以及恢复性。当F2FS需要通过 <code>fsync</code> 或 <code>umount</code> 等命令对系统进行同步的时候，F2FS会触发一次Checkpoint机制，它会完成以下的工作:</p>
+<ol>
+<li>页缓存的脏node和dentry block会刷写回到磁盘;</li>
+<li>挂起系统其他的写行为，如create，unlink，mkdir；</li>
+<li>将系统的meta data，如NAT、SIT、SSA的数据写回磁盘;</li>
+<li>更新checkpoint的状态，包括checkpoint的版本，NAT和SIT的bitmaps以及journals，SSA，Orphan inode</li>
+</ol>
+<h3 id="后滚恢复原理Roll-Back-Recovery"><a href="#后滚恢复原理Roll-Back-Recovery" class="headerlink" title="后滚恢复原理Roll-Back Recovery"></a>后滚恢复原理Roll-Back Recovery</h3><p>看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
 <img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232432068.png" srcset="/img/loading.gif" lazyload alt="image-20230727232432068" style="zoom: 50%;">
 
 <p>突然出现断电异常以后，F2FS会回滚到最近的一次检查点。为了确保最少有一个稳定的检查点，F2fS会维护两份checkpoint pack，如果一个checkpoint pack的头部和尾部是一致的，我们认为他是有效的，否则就丢弃它里面的内容。</p>
@@ -477,6 +518,24 @@
 <li>计算CRC值以后记录到对应的位置</li>
 </ol>
 <img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234432799.png" srcset="/img/loading.gif" lazyload alt="image-20230727234432799" style="zoom:75%;">
+
+
+
+<h3 id="前滚恢复原理Roll-Forward-Recovery"><a href="#前滚恢复原理Roll-Forward-Recovery" class="headerlink" title="前滚恢复原理Roll-Forward Recovery"></a>前滚恢复原理Roll-Forward Recovery</h3><p>还是先看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820214217698.png" srcset="/img/loading.gif" lazyload alt="image-20230820214217698" style="zoom:50%;">
+
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820214243206.png" srcset="/img/loading.gif" lazyload alt="image-20230820214243206" style="zoom:50%;">
+
+<p>应用程序常常会调用fsync完成一些同步性的请求，为了满足这个同步性的请求，一个简单的方法是每次调用fsync都写一次Checkpoint。然而，由于Checkpoint需要同时写入大量与调用fsync的应用程序无关的node、 dentry block等数据，因此这是一个大开销的操作，会影响到手机的流畅性。</p>
+<p>因此，F2FS使用了高效的前滚恢复方式以优化fsync的性能。核心的概念是只写入data block和direct node到磁盘，但是而不写入其他元数据。F2FS具体实现是在fsync操作完成之后，给每一个相关的direct node加上一个特殊的标记位。当系统后滚恢复到了一个稳定的Checkpoint后，F2FS会选择性地(通过标记位)通过前滚恢复恢复一些已经fsync到磁盘，但是没有被元数据索引的一些数据。</p>
+<p>一个典型的场景是：当完成一次写操作后，需要更新node page和data block，然后执行fsync，node page以及data block在submit bio后就完成了数据写入磁盘。此时需要注意的是nat bitmap是在checkpoit的地方更新的，优化后的fsync，不会每一次fsync都会执行checkpoint。但是如果在checkpoint之前出现了宕机，虽然node page和data page本身已经写入了磁盘，但是丢失了nat bitmap，因此无法索引这些已经写入磁盘的node page和data page，这时就要利用前滚恢复机制，重新建立索引。</p>
+<p>前滚恢复的原理如下:</p>
+<ol>
+<li>假设上一次稳定的Checkpoint的日志位置是N</li>
+<li>F2FS收集了日志位置是N+n的，含有特殊标记位的direct node block，这些block之间组成一个list用于表示node information，其中n表示上一次稳定的Checkpoint之后写入了多少个block。通过这个list中的node information，系统将距离上一次稳定的Checkpoint最靠近的被更新的node block(日志位置是N-n)，载入到cache当中。</li>
+<li>比较日志位置是N-n和N+n的数据是否一致，如果不一致则使用N+n的数据覆盖已经缓存的N-n的node block，然后标记为脏。</li>
+<li>执行写Checkpoint流程，刷新元数据。</li>
+</ol>
 
                 
               </div>
