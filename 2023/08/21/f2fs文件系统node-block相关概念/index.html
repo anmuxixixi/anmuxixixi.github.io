@@ -16,26 +16,25 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="f2fs文件系统checkpoint机制学习路线1.先学习Mysql的checkpoint机制  ✉️书籍：《Mysql技术内幕：InnoDB存储引擎》   MySQL 日志：undo log、redo log、binlog 有什么用？  恢复数据页  【mysql】关于checkpoint机制    一句话概括：mysql的checkpoint做的事情：将缓存池中的脏数据刷写到磁盘，更新redo">
+    <meta name="description" content="f2fs文件系统node block相关概念1.inode、dnode、indnode区别我们知道node block的数据结构形式为： 1234567891011121314151617struct f2fs_node &amp;#123;	&#x2F;* can be one of three types: inode, direct, and indirect types *&#x2F;	union &amp;#123;		s">
 <meta property="og:type" content="article">
-<meta property="og:title" content="f2fs文件系统checkpoint机制学习路线">
-<meta property="og:url" content="http://example.com/2023/08/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/index.html">
+<meta property="og:title" content="f2fs文件系统node block相关概念">
+<meta property="og:url" content="http://example.com/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="f2fs文件系统checkpoint机制学习路线1.先学习Mysql的checkpoint机制  ✉️书籍：《Mysql技术内幕：InnoDB存储引擎》   MySQL 日志：undo log、redo log、binlog 有什么用？  恢复数据页  【mysql】关于checkpoint机制    一句话概括：mysql的checkpoint做的事情：将缓存池中的脏数据刷写到磁盘，更新redo">
+<meta property="og:description" content="f2fs文件系统node block相关概念1.inode、dnode、indnode区别我们知道node block的数据结构形式为： 1234567891011121314151617struct f2fs_node &amp;#123;	&#x2F;* can be one of three types: inode, direct, and indirect types *&#x2F;	union &amp;#123;		s">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/08/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/image-20230816233304276.png">
-<meta property="og:image" content="http://example.com/2023/08/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/image-20230816233339173.png">
-<meta property="article:published_time" content="2023-08-16T15:30:53.000Z">
-<meta property="article:modified_time" content="2023-08-16T15:38:15.955Z">
+<meta property="og:image" content="http://example.com/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/image-20230821225135550.png">
+<meta property="article:published_time" content="2023-08-21T14:32:48.000Z">
+<meta property="article:modified_time" content="2023-08-21T15:34:14.030Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/08/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/image-20230816233304276.png">
+<meta name="twitter:image" content="http://example.com/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/image-20230821225135550.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>f2fs文件系统checkpoint机制学习路线 - 一只安慕嘻</title>
+  <title>f2fs文件系统node block相关概念 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -217,7 +216,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="f2fs文件系统checkpoint机制学习路线"></span>
+            <span id="subtitle" data-typed-text="f2fs文件系统node block相关概念"></span>
           
         </div>
 
@@ -228,8 +227,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-08-16 23:30" pubdate>
-          2023年8月16日 晚上
+        <time datetime="2023-08-21 22:32" pubdate>
+          2023年8月21日 晚上
         </time>
       </span>
     
@@ -240,7 +239,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          201 字
+          2k 字
         
       </span>
     
@@ -251,7 +250,7 @@
         
         
         
-          2 分钟
+          17 分钟
         
       </span>
     
@@ -297,28 +296,39 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">f2fs文件系统checkpoint机制学习路线</h1>
+            <h1 style="display: none">f2fs文件系统node block相关概念</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="f2fs文件系统checkpoint机制学习路线"><a href="#f2fs文件系统checkpoint机制学习路线" class="headerlink" title="f2fs文件系统checkpoint机制学习路线"></a>f2fs文件系统checkpoint机制学习路线</h1><p><strong>1.先学习Mysql的checkpoint机制</strong></p>
-<ul>
-<li><p>✉️书籍：<strong>《Mysql技术内幕：InnoDB存储引擎》</strong></p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://xiaolincoding.com/mysql/log/"> MySQL 日志：undo log、redo log、binlog 有什么用？</a></p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://maimai.cn/article/detail?fid=1750463379&efid=7-na06qVPhj9rdjyPJdmng">恢复数据页</a></p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/chenpingzhao/p/5107480.html">【mysql】关于checkpoint机制</a></p>
-</li>
-</ul>
-<blockquote>
-<p><strong>一句话概括</strong>：mysql的checkpoint做的事情：将缓存池中的脏数据刷写到磁盘，更新redo log中的checkpoint信息。</p>
-</blockquote>
-<img src="/2023/08/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/image-20230816233304276.png" srcset="/img/loading.gif" lazyload alt="image-20230816233304276" style="zoom: 67%;">
+                <h1 id="f2fs文件系统node-block相关概念"><a href="#f2fs文件系统node-block相关概念" class="headerlink" title="f2fs文件系统node block相关概念"></a>f2fs文件系统node block相关概念</h1><h2 id="1-inode、dnode、indnode区别"><a href="#1-inode、dnode、indnode区别" class="headerlink" title="1.inode、dnode、indnode区别"></a>1.inode、dnode、indnode区别</h2><p>我们知道node block的数据结构形式为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_node</span> &#123;</span><br>	<span class="hljs-comment">/* can be one of three types: inode, direct, and indirect types */</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_inode</span> <span class="hljs-title">i</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">direct_node</span> <span class="hljs-title">dn</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">indirect_node</span> <span class="hljs-title">in</span>;</span><br>	&#125;;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">node_footer</span> <span class="hljs-title">footer</span>;</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">node_footer</span> &#123;</span><br>	__le32 nid;		<span class="hljs-comment">/* node id */</span><br>	__le32 ino;		<span class="hljs-comment">/* inode number */</span><br>	__le32 flag;		<span class="hljs-comment">/* include cold/fsync/dentry marks and offset */</span><br>	__le64 cp_ver;		<span class="hljs-comment">/* checkpoint version */</span><br>	__le32 next_blkaddr;	<span class="hljs-comment">/* next node page block address */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
 
-<img src="/2023/08/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/image-20230816233339173.png" srcset="/img/loading.gif" lazyload alt="image-20230816233339173" style="zoom:67%;">
+<p>在f2fs文件系统中node block可以分为<code>f2fs_inode、direct_node和indirect_node</code></p>
+<h3 id="1-1-inode"><a href="#1-1-inode" class="headerlink" title="1.1 inode"></a>1.1 inode</h3><p>f2fs_inode即为很多文章里面常说的inode，也是f2fs内核代码里面很多地方的判断形式所代表的数据结构：</p>
+<img src="/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/image-20230821225135550.png" srcset="/img/loading.gif" lazyload alt="image-20230821225135550" style="zoom: 67%;">
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">bool</span> <span class="hljs-title function_">IS_INODE</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *page)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_node</span> *<span class="hljs-title">p</span> =</span> F2FS_NODE(page);  <span class="hljs-comment">// 将node page转换成f2fs_node结构</span><br>	<span class="hljs-keyword">return</span> RAW_IS_INODE(p);<br>&#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> RAW_IS_INODE(p)	((p)-&gt;footer.nid == (p)-&gt;footer.ino)</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>从这里我们也可以知道f2fs_node尾部有一个node_footer结构，当node_footer中nid和ino相当，则认为当前结构为inode结构</strong></p>
+<h3 id="1-2-dnode"><a href="#1-2-dnode" class="headerlink" title="1.2 dnode"></a>1.2 dnode</h3><p><strong>direct_node</strong>即为很多文章中所说的<strong>dnode block</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">direct_node</span> &#123;</span><br>	__le32 addr[DEF_ADDRS_PER_BLOCK];	<span class="hljs-comment">/* array of data block address */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>注意：</p>
+<h3 id="1-3-indnode"><a href="#1-3-indnode" class="headerlink" title="1.3 indnode"></a>1.3 indnode</h3><p>indirect_node即为很多文章中所说的indnode：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">indirect_node</span> &#123;</span><br>	__le32 nid[NIDS_PER_BLOCK];	<span class="hljs-comment">/* array of data block address */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="2-node-page相关理解"><a href="#2-node-page相关理解" class="headerlink" title="2.node page相关理解"></a>2.node page相关理解</h2><h3 id="2-1-node-page是什么"><a href="#2-1-node-page是什么" class="headerlink" title="2.1 node page是什么"></a>2.1 node page是什么</h3><p>node block对应的是磁盘上对应的结构，而真实存在于内存中，准确的说应该是缓存Page Cache中的应该是页。</p>
+<p><strong>f2fs_get_node_page</strong>函数会将4K的node block转换成4K的node page。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">struct</span> page *<span class="hljs-title function_">f2fs_get_node_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">pgoff_t</span> nid)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> __get_node_page(sbi, nid, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>);<br>&#125;<br><br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *__<span class="hljs-title">get_node_page</span>(<span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sb_info</span> *<span class="hljs-title">sbi</span>, <span class="hljs-title">pgoff_t</span> <span class="hljs-title">nid</span>,</span><br><span class="hljs-class">					<span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">parent</span>, <span class="hljs-title">int</span> <span class="hljs-title">start</span>)</span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">page</span>;</span><br>	<span class="hljs-type">int</span> err;<br>	<br>    <span class="hljs-comment">// 从缓存中获取</span><br>	page = f2fs_grab_cache_page(NODE_MAPPING(sbi), nid, <span class="hljs-literal">false</span>);<br><br>    <span class="hljs-comment">// 如果缓存中没有找到</span><br>    <span class="hljs-comment">// 则构造bio，然后从磁盘中读取inode对应的block，将block数据放到刚刚创建的page</span><br>    err = read_node_page(page, <span class="hljs-number">0</span>);<br>	<span class="hljs-keyword">return</span> page;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-node-page对应的address-space"><a href="#2-2-node-page对应的address-space" class="headerlink" title="2.2 node page对应的address_space"></a>2.2 node page对应的address_space</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-keyword">struct</span> address_space *<span class="hljs-title function_">NODE_MAPPING</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> sbi-&gt;node_inode-&gt;i_mapping;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以发现所有的node page都是挂在sbi-&gt;node_inode上。f2fs_sb_info的node_inode上面是（挂载了f2fs文件系统目录的）文件对应的缓存Page Cahe。</p>
 
                 
               </div>
@@ -336,8 +346,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>f2fs文件系统checkpoint机制学习路线</div>
-      <div>http://example.com/2023/08/16/f2fs文件系统checkpoint机制学习路线/</div>
+      <div>f2fs文件系统node block相关概念</div>
+      <div>http://example.com/2023/08/21/f2fs文件系统node-block相关概念/</div>
     </div>
     <div class="license-meta">
       
@@ -349,7 +359,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年8月16日</div>
+          <div>2023年8月21日</div>
         </div>
       
       
@@ -381,9 +391,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/" title="f2fs文件系统node block相关概念">
+                      <a href="/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E6%A0%91%E7%BB%93%E6%9E%84/" title="f2fs文件系统目录树结构">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">f2fs文件系统node block相关概念</span>
+                        <span class="hidden-mobile">f2fs文件系统目录树结构</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -391,8 +401,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/08/13/%E5%AE%89%E5%8D%93SMS%E4%B8%8EVold%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/" title="安卓SMS与Vold通信机制">
-                        <span class="hidden-mobile">安卓SMS与Vold通信机制</span>
+                      <a href="/2023/08/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/" title="f2fs文件系统checkpoint机制学习路线">
+                        <span class="hidden-mobile">f2fs文件系统checkpoint机制学习路线</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
