@@ -16,23 +16,27 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一只安慕嘻学习笔记">
+    <meta name="description" content="f2fs文件系统如何解决wandering tree问题nand flash异地更新特性   读写的操作对象是page，通常是512字节或者2KB 擦除的对象是block，通常包含32或64个page（16KB或64KB） 每个block在写入前需要先擦除  Flash还有一个重要特性：Flash不支持更新操作，严格说应该是不支持原址更新。 如果我们已经往某个page中写入了数据，想修改这个pag">
 <meta property="og:type" content="article">
-<meta property="og:title" content="f2fs文件系统目录树结构">
-<meta property="og:url" content="http://example.com/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E6%A0%91%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:title" content="f2fs文件系统如何解决wandering tree问题">
+<meta property="og:url" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="一只安慕嘻学习笔记">
+<meta property="og:description" content="f2fs文件系统如何解决wandering tree问题nand flash异地更新特性   读写的操作对象是page，通常是512字节或者2KB 擦除的对象是block，通常包含32或64个page（16KB或64KB） 每个block在写入前需要先擦除  Flash还有一个重要特性：Flash不支持更新操作，严格说应该是不支持原址更新。 如果我们已经往某个page中写入了数据，想修改这个pag">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-08-21T14:33:15.000Z">
-<meta property="article:modified_time" content="2023-08-21T14:33:15.080Z">
+<meta property="og:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/ulmpx3903i.png">
+<meta property="og:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822214001394.png">
+<meta property="og:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822214933086.png">
+<meta property="article:published_time" content="2023-08-22T13:26:04.000Z">
+<meta property="article:modified_time" content="2023-08-22T13:55:01.731Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/ulmpx3903i.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>f2fs文件系统目录树结构 - 一只安慕嘻</title>
+  <title>f2fs文件系统如何解决wandering tree问题 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +218,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="f2fs文件系统目录树结构"></span>
+            <span id="subtitle" data-typed-text="f2fs文件系统如何解决wandering tree问题"></span>
           
         </div>
 
@@ -225,8 +229,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-08-21 22:33" pubdate>
-          2023年8月21日 晚上
+        <time datetime="2023-08-22 21:26" pubdate>
+          2023年8月22日 晚上
         </time>
       </span>
     
@@ -237,7 +241,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 字
+          1.3k 字
         
       </span>
     
@@ -248,7 +252,7 @@
         
         
         
-          1 分钟
+          11 分钟
         
       </span>
     
@@ -294,12 +298,71 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">f2fs文件系统目录树结构</h1>
+            <h1 style="display: none">f2fs文件系统如何解决wandering tree问题</h1>
             
             
               <div class="markdown-body">
                 
-                
+                <h1 id="f2fs文件系统如何解决wandering-tree问题"><a href="#f2fs文件系统如何解决wandering-tree问题" class="headerlink" title="f2fs文件系统如何解决wandering tree问题"></a>f2fs文件系统如何解决wandering tree问题</h1><h2 id="nand-flash异地更新特性"><a href="#nand-flash异地更新特性" class="headerlink" title="nand flash异地更新特性"></a>nand flash异地更新特性</h2><img src="/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/ulmpx3903i.png" srcset="/img/loading.gif" lazyload alt="NAND Flash布局示意图" style="zoom:75%;">
+
+<ul>
+<li>读写的操作对象是page，通常是512字节或者2KB</li>
+<li>擦除的对象是block，通常包含32或64个page（16KB或64KB）</li>
+<li>每个block在写入前需要先擦除</li>
+</ul>
+<p>Flash还有一个重要特性：<strong>Flash不支持更新操作</strong>，严格说应该是不支持原址更新。 如果我们已经往某个page中写入了数据，想修改这个page中的内容，只能通过下面的方法：</p>
+<ol>
+<li>先把本page所属block的数据全部读出来，比如先读到内存DRAM</li>
+<li>然后修改对应page的内容</li>
+<li>接下来擦除整个block</li>
+<li>最后把修改后的block数据回写到Flash</li>
+</ol>
+<p>这样的操作其实会有2个问题：</p>
+<ul>
+<li>对于Flash会加剧磨损，影响寿命</li>
+<li>读出一个整块的擦除块，擦除它，再回写更新的数据，所花时间比单独在其它已经擦除了的擦除块更新数据长100倍。换句话说，对于一个小的更新，在本地更新比异地更新更新时间长100倍。</li>
+</ul>
+<hr>
+<img src="/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822214001394.png" srcset="/img/loading.gif" lazyload alt="image-20230822214001394" style="zoom:67%;">
+
+
+
+<p>当我们需要更新一个页的时候，在一个新的块上找到空闲页，然后写入，原来的页标志为无效页，等待垃圾回收将其回收。这种页更新不在本地块，而在异地块的特性，称为<strong>异地更新</strong>特性。</p>
+<p><strong>这边会有一个问题，对于上层文件系统而言，我怎么知道异地更新后块的地址是哪里？</strong></p>
+<p>这也就需要记录逻辑页和物理页的映射关系，这部分由Flash Trabslation Layer (FTL)完成。也就是说上层文件系统访问的都是块的逻辑地址，我们在SSD中维护一张FTL表，异地更新之后只需要更新FTL中，逻辑地址对应的物理地址即可。</p>
+<p>例如：当前有一张FTL表，里面对应了块的映射关系，逻辑地址为147的块，真实物理块地址为0x19087</p>
+<table>
+<thead>
+<tr>
+<th>逻辑地址</th>
+<th>物理地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>6</td>
+<td>0x42712</td>
+</tr>
+<tr>
+<td>147</td>
+<td>0x19087</td>
+</tr>
+<tr>
+<td>51</td>
+<td>0x22893</td>
+</tr>
+</tbody></table>
+<p>此时我们异地更新了0x19087，改成了0x51209。对于上层文件系统而言其访问的依然是逻辑地址，因此它是不感知的。</p>
+<p>因此<strong>当前Nand Flash对应的文件系统主要有3种形式</strong>：<a target="_blank" rel="noopener" href="https://www.jsjkx.com/CN/article/openArticlePDF.jsp?id=738">《一种基于热数据识别技术的UBIFS优化方案》</a></p>
+<img src="/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822214933086.png" srcset="/img/loading.gif" lazyload alt="image-20230822214933086" style="zoom:80%;">
+
+<ol>
+<li>使用<strong>传统磁盘文件系统+设备端FTL</strong>管理Nand Flash中的文件，将Nand Flash设备当做磁盘使用。常见的文件系统有：ext3&#x2F;ext4文件系统</li>
+<li>同样<strong>依靠设备端FTL</strong>来管理Nand Flash，但是这种文件系统<strong>专门针对闪存特性设计</strong>。常见的文件系统有：f2fs文件系统&#x2F;ReconFS文件系统</li>
+<li>可以<strong>直接操作Nand Flash设备的物理地址内容</strong>，不需要设备端FTL支持。常见的有：UBIFS、JFFS2和YAFFS2文件系统</li>
+</ol>
+<h2 id="f2fs解决wandering-tree问题"><a href="#f2fs解决wandering-tree问题" class="headerlink" title="f2fs解决wandering tree问题"></a>f2fs解决wandering tree问题</h2><p><a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/289490302_Avoidance_techniques_for_Snowball_effect_of_Wandering_Tree_in_Flash_Memory_based_File_Systems">https://www.researchgate.net/publication/289490302_Avoidance_techniques_for_Snowball_effect_of_Wandering_Tree_in_Flash_Memory_based_File_Systems</a></p>
+<p>《Avoidance techniques for Snowball effect of  Wandering Tree in Flash Memory based File Systems》</p>
+
                 
               </div>
             
@@ -316,8 +379,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>f2fs文件系统目录树结构</div>
-      <div>http://example.com/2023/08/21/f2fs文件系统目录树结构/</div>
+      <div>f2fs文件系统如何解决wandering tree问题</div>
+      <div>http://example.com/2023/08/22/f2fs文件系统如何解决wandering-tree问题/</div>
     </div>
     <div class="license-meta">
       
@@ -329,7 +392,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年8月21日</div>
+          <div>2023年8月22日</div>
         </div>
       
       
@@ -361,18 +424,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/" title="f2fs文件系统如何解决wandering tree问题">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">f2fs文件系统如何解决wandering tree问题</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/" title="f2fs文件系统node block相关概念">
-                        <span class="hidden-mobile">f2fs文件系统node block相关概念</span>
+                      <a href="/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E6%A0%91%E7%BB%93%E6%9E%84/" title="f2fs文件系统目录树结构">
+                        <span class="hidden-mobile">f2fs文件系统目录树结构</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
