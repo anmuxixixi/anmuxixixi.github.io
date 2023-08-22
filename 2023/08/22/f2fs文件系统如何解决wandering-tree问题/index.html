@@ -16,18 +16,21 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="f2fs文件系统如何解决wandering tree问题nand flash异地更新特性   读写的操作对象是page，通常是512字节或者2KB 擦除的对象是block，通常包含32或64个page（16KB或64KB） 每个block在写入前需要先擦除  Flash还有一个重要特性：Flash不支持更新操作，严格说应该是不支持原址更新。 如果我们已经往某个page中写入了数据，想修改这个pag">
+    <meta name="description" content="f2fs文件系统如何解决wandering tree问题nand flash异地更新特性   读写的操作对象是page 擦除的对象是block 每个block在写入前需要先擦除（Erase-Before-Write）  Flash还有一个重要特性：Flash不支持更新操作，严格说应该是不支持原址更新。 如果我们已经往某个page中写入了数据，想修改这个page中的内容，只能通过下面的方法：  先把">
 <meta property="og:type" content="article">
 <meta property="og:title" content="f2fs文件系统如何解决wandering tree问题">
 <meta property="og:url" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="f2fs文件系统如何解决wandering tree问题nand flash异地更新特性   读写的操作对象是page，通常是512字节或者2KB 擦除的对象是block，通常包含32或64个page（16KB或64KB） 每个block在写入前需要先擦除  Flash还有一个重要特性：Flash不支持更新操作，严格说应该是不支持原址更新。 如果我们已经往某个page中写入了数据，想修改这个pag">
+<meta property="og:description" content="f2fs文件系统如何解决wandering tree问题nand flash异地更新特性   读写的操作对象是page 擦除的对象是block 每个block在写入前需要先擦除（Erase-Before-Write）  Flash还有一个重要特性：Flash不支持更新操作，严格说应该是不支持原址更新。 如果我们已经往某个page中写入了数据，想修改这个page中的内容，只能通过下面的方法：  先把">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/ulmpx3903i.png">
 <meta property="og:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822214001394.png">
 <meta property="og:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822214933086.png">
+<meta property="og:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822221751530.png">
+<meta property="og:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230719235441702.png">
+<meta property="og:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822224132981.png">
 <meta property="article:published_time" content="2023-08-22T13:26:04.000Z">
-<meta property="article:modified_time" content="2023-08-22T13:55:01.731Z">
+<meta property="article:modified_time" content="2023-08-22T14:48:31.016Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/ulmpx3903i.png">
@@ -241,7 +244,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.3k 字
+          2.2k 字
         
       </span>
     
@@ -252,7 +255,7 @@
         
         
         
-          11 分钟
+          18 分钟
         
       </span>
     
@@ -306,9 +309,9 @@
                 <h1 id="f2fs文件系统如何解决wandering-tree问题"><a href="#f2fs文件系统如何解决wandering-tree问题" class="headerlink" title="f2fs文件系统如何解决wandering tree问题"></a>f2fs文件系统如何解决wandering tree问题</h1><h2 id="nand-flash异地更新特性"><a href="#nand-flash异地更新特性" class="headerlink" title="nand flash异地更新特性"></a>nand flash异地更新特性</h2><img src="/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/ulmpx3903i.png" srcset="/img/loading.gif" lazyload alt="NAND Flash布局示意图" style="zoom:75%;">
 
 <ul>
-<li>读写的操作对象是page，通常是512字节或者2KB</li>
-<li>擦除的对象是block，通常包含32或64个page（16KB或64KB）</li>
-<li>每个block在写入前需要先擦除</li>
+<li>读写的操作对象是page</li>
+<li>擦除的对象是block</li>
+<li>每个block在写入前需要先擦除（Erase-Before-Write）</li>
 </ul>
 <p>Flash还有一个重要特性：<strong>Flash不支持更新操作</strong>，严格说应该是不支持原址更新。 如果我们已经往某个page中写入了数据，想修改这个page中的内容，只能通过下面的方法：</p>
 <ol>
@@ -317,7 +320,7 @@
 <li>接下来擦除整个block</li>
 <li>最后把修改后的block数据回写到Flash</li>
 </ol>
-<p>这样的操作其实会有2个问题：</p>
+<p>这样的<strong>本地更新</strong>的操作其实会有2个问题：</p>
 <ul>
 <li>对于Flash会加剧磨损，影响寿命</li>
 <li>读出一个整块的擦除块，擦除它，再回写更新的数据，所花时间比单独在其它已经擦除了的擦除块更新数据长100倍。换句话说，对于一个小的更新，在本地更新比异地更新更新时间长100倍。</li>
@@ -353,15 +356,33 @@
 </tbody></table>
 <p>此时我们异地更新了0x19087，改成了0x51209。对于上层文件系统而言其访问的依然是逻辑地址，因此它是不感知的。</p>
 <p>因此<strong>当前Nand Flash对应的文件系统主要有3种形式</strong>：<a target="_blank" rel="noopener" href="https://www.jsjkx.com/CN/article/openArticlePDF.jsp?id=738">《一种基于热数据识别技术的UBIFS优化方案》</a></p>
-<img src="/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822214933086.png" srcset="/img/loading.gif" lazyload alt="image-20230822214933086" style="zoom:80%;">
+<img src="/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822214933086.png" srcset="/img/loading.gif" lazyload alt="image-20230822214933086" style="zoom: 67%;">
 
 <ol>
 <li>使用<strong>传统磁盘文件系统+设备端FTL</strong>管理Nand Flash中的文件，将Nand Flash设备当做磁盘使用。常见的文件系统有：ext3&#x2F;ext4文件系统</li>
 <li>同样<strong>依靠设备端FTL</strong>来管理Nand Flash，但是这种文件系统<strong>专门针对闪存特性设计</strong>。常见的文件系统有：f2fs文件系统&#x2F;ReconFS文件系统</li>
 <li>可以<strong>直接操作Nand Flash设备的物理地址内容</strong>，不需要设备端FTL支持。常见的有：UBIFS、JFFS2和YAFFS2文件系统</li>
 </ol>
-<h2 id="f2fs解决wandering-tree问题"><a href="#f2fs解决wandering-tree问题" class="headerlink" title="f2fs解决wandering tree问题"></a>f2fs解决wandering tree问题</h2><p><a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/289490302_Avoidance_techniques_for_Snowball_effect_of_Wandering_Tree_in_Flash_Memory_based_File_Systems">https://www.researchgate.net/publication/289490302_Avoidance_techniques_for_Snowball_effect_of_Wandering_Tree_in_Flash_Memory_based_File_Systems</a></p>
-<p>《Avoidance techniques for Snowball effect of  Wandering Tree in Flash Memory based File Systems》</p>
+<h2 id="f2fs解决wandering-tree问题"><a href="#f2fs解决wandering-tree问题" class="headerlink" title="f2fs解决wandering tree问题"></a>f2fs解决wandering tree问题</h2><h3 id="什么是wandering-tree问题"><a href="#什么是wandering-tree问题" class="headerlink" title="什么是wandering  tree问题"></a>什么是wandering  tree问题</h3><p>我们来看论文：<a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/289490302_Avoidance_techniques_for_Snowball_effect_of_Wandering_Tree_in_Flash_Memory_based_File_Systems">《Avoidance techniques for Snowball effect of  Wandering Tree in Flash Memory based File Systems》</a></p>
+<img src="/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822221751530.png" srcset="/img/loading.gif" lazyload alt="image-20230822221751530" style="zoom:67%;">
+
+<p>一个大文件常常时一个inode表示不了的，常常需要多级node表示，例如这里的inode，有indirect block和double indirect block。假设我们要更新Pointer128指向的数据块393:</p>
+<ul>
+<li>首先要更新Indirect Block中Pointer 128指向的值，因为异地更新的缘故，393数据块对应的页会找到一个新的数据块找到空闲页写入</li>
+<li>更新Double Indirect Block中Pointer 2指向的值，因为异地更新的缘故，Indirect Block中Pointer 128存放的数据块地址值修改了，这个块要异地更新</li>
+<li>….</li>
+<li>依次类推，一直要更新到Inode这个块的值，因为Pointer 12的指向需要修改</li>
+</ul>
+<p>这样就导致了<strong>滚雪球效应</strong>（有些文章也叫做<strong>雪崩效应</strong>），也就是Wandering Tree问题。当一个数据块更新时，由于Nand Flash异地更新特性，会层层递归更新到更节点，像雪崩一样，牵一发动全身。</p>
+<h3 id="如何解决wandering-tree"><a href="#如何解决wandering-tree" class="headerlink" title="如何解决wandering tree"></a>如何解决wandering tree</h3><p>《操作系统导论》的作者戏称在架构设计里面没有什么是加一层中间层解决不了的，哈哈哈哈😯</p>
+<p>在f2fs文件系统中其实也是引用了中间层思想，与FTL有异曲同工之妙。慢慢体会。F2FS在元数据区域引入了NAT(node address table)区域，其指明了nid与真实block address的关系，我们可以查看dump_nat【命令d<strong>ump.f2fs -n 0~-1 xxx</strong> 】来看一下：</p>
+<img src="/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230719235441702.png" srcset="/img/loading.gif" lazyload alt="image-20230719235441702" style="zoom:67%;">
+
+<p>nid为4的node block（也就是第4个被使用的node block）其对应的物理块地址blkaddr为4612。</p>
+<p>这样对于上面如果在indirect node block和double indirect node block都是存放的是下一级node block的逻辑地址（也就是nid值），这样如果我们更新了393数据块，我们不再需要层层递归的去个更新了，我们只需要更细最后一级直接指向数据块的那个node block，进行异地更新，此时再去NAT中找到对应的nid更新它对应的bldaddr即可，中间层层的逻辑映射关系保持不变。</p>
+<img src="/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/image-20230822224132981.png" srcset="/img/loading.gif" lazyload alt="image-20230822224132981" style="zoom: 67%;">
+
+<h3 id="有了FTL，为什么还要NAT"><a href="#有了FTL，为什么还要NAT" class="headerlink" title="有了FTL，为什么还要NAT"></a>有了FTL，为什么还要NAT</h3><p>下面都是我本人的理解：在文件系统层面针对Nand Flash进行设计，提前规避Wandering Tree问题，这样对于FTL来说压力就说减小很多，因为FTL还要负责垃圾回收，磨损均衡等等。</p>
 
                 
               </div>
