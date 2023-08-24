@@ -24,8 +24,9 @@
 <meta property="og:description" content="Android存储域服务启动 部分参考自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;geshifei&#x2F;article&#x2F;details&#x2F;131184012  1.存储相关Service1.1 service介绍存储有3个关键service：mount、vold、storaged，通过**adb shell “service list”**可以看到。    服务名 代码路径    mount ser">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2023/08/24/Android%E5%AD%98%E5%82%A8%E5%9F%9F%E6%9C%8D%E5%8A%A1%E5%90%AF%E5%8A%A8/69175f9d8ce84cc58ab121e2a3ba7468.png">
+<meta property="og:image" content="http://example.com/2023/08/24/Android%E5%AD%98%E5%82%A8%E5%9F%9F%E6%9C%8D%E5%8A%A1%E5%90%AF%E5%8A%A8/image-20230824235423489.png">
 <meta property="article:published_time" content="2023-08-24T15:43:03.000Z">
-<meta property="article:modified_time" content="2023-08-24T15:49:24.183Z">
+<meta property="article:modified_time" content="2023-08-24T16:04:32.978Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/08/24/Android%E5%AD%98%E5%82%A8%E5%9F%9F%E6%9C%8D%E5%8A%A1%E5%90%AF%E5%8A%A8/69175f9d8ce84cc58ab121e2a3ba7468.png">
@@ -239,7 +240,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.7k 字
+          4.1k 字
         
       </span>
     
@@ -250,7 +251,7 @@
         
         
         
-          23 分钟
+          35 分钟
         
       </span>
     
@@ -335,7 +336,7 @@
 <li>storaged是一个deamon进程，提供存储相关的统计数据（磁盘使用信息、应用io信息、存储寿命信息等），并通过向应用程序和系统组件提供 API 接口，使它们能够监控和管理存储资源的使用情况。</li>
 </ul>
 <h3 id="1-2-service之间的关系"><a href="#1-2-service之间的关系" class="headerlink" title="1.2 service之间的关系"></a>1.2 service之间的关系</h3><p>mount、vold、storaged之间的层次关系如下：</p>
-<img src="/2023/08/24/Android%E5%AD%98%E5%82%A8%E5%9F%9F%E6%9C%8D%E5%8A%A1%E5%90%AF%E5%8A%A8/69175f9d8ce84cc58ab121e2a3ba7468.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+<img src="/2023/08/24/Android%E5%AD%98%E5%82%A8%E5%9F%9F%E6%9C%8D%E5%8A%A1%E5%90%AF%E5%8A%A8/69175f9d8ce84cc58ab121e2a3ba7468.png" srcset="/img/loading.gif" lazyload alt="img">
 
 <p> 图中标号说明：</p>
 <p><strong>①：looper线程监听ACTION_USER_ADDED和ACTION_USER_REMOVED消息。</strong></p>
@@ -354,7 +355,21 @@
 <p>system&#x2F;vold&#x2F;main.cpp中通过nm &#x3D; NetlinkManager::Instance()实例化了一个NetlinkManager，用于接收kernel的uevent事件。</p>
 <p><strong>⑦：VolumeManager执行系统调用，执行mount等操作。</strong></p>
 <p>VolumeManager通过VolumeManager类执行kernel的系统调用，比如VolumeManager::mountAppFuse –&gt; android::vold::MountAppFuse –&gt; RunCommand –&gt; mount等。</p>
-<h2 id="2-各服务启动"><a href="#2-各服务启动" class="headerlink" title="2.各服务启动"></a>2.各服务启动</h2><h3 id="2-1-mount-service-SMS-启动"><a href="#2-1-mount-service-SMS-启动" class="headerlink" title="2.1 mount service(SMS)启动"></a>2.1 mount service(SMS)启动</h3><h3 id="2-2-storaged启动"><a href="#2-2-storaged启动" class="headerlink" title="2.2 storaged启动"></a>2.2 storaged启动</h3>
+<h2 id="2-各服务启动"><a href="#2-各服务启动" class="headerlink" title="2.各服务启动"></a>2.各服务启动</h2><h3 id="2-1-mount-service-SMS-启动"><a href="#2-1-mount-service-SMS-启动" class="headerlink" title="2.1 mount service(SMS)启动"></a>2.1 mount service(SMS)启动</h3><p>mount service与其他服务一样，是由SystemServer拉起的：</p>
+<p>SystemServer.run -&gt; startOtherServices</p>
+<img src="/2023/08/24/Android%E5%AD%98%E5%82%A8%E5%9F%9F%E6%9C%8D%E5%8A%A1%E5%90%AF%E5%8A%A8/image-20230824235423489.png" srcset="/img/loading.gif" lazyload alt="image-20230824235423489" style="zoom:67%;">
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">STORAGE_MANAGER_SERVICE_CLASS</span> <span class="hljs-operator">=</span><br>    <span class="hljs-string">&quot;com.android.server.StorageManagerService$Lifecycle&quot;</span>;<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">STORAGE_STATS_SERVICE_CLASS</span> <span class="hljs-operator">=</span><br>    <span class="hljs-string">&quot;com.android.server.usage.StorageStatsService$Lifecycle&quot;</span>;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">startOtherServices</span><span class="hljs-params">(<span class="hljs-meta">@NonNull</span> TimingsTraceAndSlog t)</span> &#123;<br>    t.traceBegin(<span class="hljs-string">&quot;startOtherServices&quot;</span>);<br>    <br>    <span class="hljs-type">IStorageManager</span> <span class="hljs-variable">storageManager</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    <br>    <span class="hljs-keyword">if</span> (mFactoryTestMode != FactoryTest.FACTORY_TEST_LOW_LEVEL) &#123;<br>        <span class="hljs-keyword">if</span> (!<span class="hljs-string">&quot;0&quot;</span>.equals(SystemProperties.get(<span class="hljs-string">&quot;system_init.startmountservice&quot;</span>))) &#123;<br>            t.traceBegin(<span class="hljs-string">&quot;StartStorageManagerService&quot;</span>);<br>            mSystemServiceManager.startService(STORAGE_MANAGER_SERVICE_CLASS);<br>            storageManager = IStorageManager.Stub.asInterface(ServiceManager.getService(<span class="hljs-string">&quot;mount&quot;</span>));<br>            t.traceEnd();<br><br>            t.traceBegin(<span class="hljs-string">&quot;StartStorageStatsService&quot;</span>);<br>            mSystemServiceManager.startService(STORAGE_STATS_SERVICE_CLASS);<br>            t.traceEnd();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用SystemServiceManager启动服务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> SystemService <span class="hljs-title function_">startService</span><span class="hljs-params">(String className)</span> &#123;<br>	<span class="hljs-comment">// 通过Java反射机制拿到服务的类(loadClassFromLoader会通过Class.forName获取Class)</span><br>    <span class="hljs-comment">// Class.forName要求JVM查找并加载指定的类，也就是说JVM会执行该类的静态代码段</span><br>    <span class="hljs-keyword">final</span> Class&lt;SystemService&gt; serviceClass = loadClassFromLoader(className,<span class="hljs-built_in">this</span>.getClass().getClassLoader());<br>    <span class="hljs-keyword">return</span> startService(serviceClass);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="2-2-vold启动"><a href="#2-2-vold启动" class="headerlink" title="2.2 vold启动"></a>2.2 vold启动</h3><h3 id="2-3-storaged启动"><a href="#2-3-storaged启动" class="headerlink" title="2.3 storaged启动"></a>2.3 storaged启动</h3><p>安卓官网对于storaged的描述：<a target="_blank" rel="noopener" href="https://source.android.com/docs/core/tests/debug/storaged?hl=zh-cn">https://source.android.com/docs/core/tests/debug/storaged?hl=zh-cn</a></p>
+
                 
               </div>
             
