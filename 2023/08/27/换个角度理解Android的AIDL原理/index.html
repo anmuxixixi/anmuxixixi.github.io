@@ -40,7 +40,7 @@
 <meta property="og:image" content="http://example.com/2023/08/27/%E6%8D%A2%E4%B8%AA%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3Android%E7%9A%84AIDL%E5%8E%9F%E7%90%86/93f879f72ec17c9ef57d9e9578687bf8.jpeg">
 <meta property="og:image" content="http://example.com/2023/08/27/%E6%8D%A2%E4%B8%AA%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3Android%E7%9A%84AIDL%E5%8E%9F%E7%90%86/1a9c493a79260cbbe28a90ef32d28bb9.jpeg">
 <meta property="article:published_time" content="2023-08-27T15:21:00.000Z">
-<meta property="article:modified_time" content="2023-08-27T15:27:28.432Z">
+<meta property="article:modified_time" content="2023-08-27T15:43:21.932Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/08/27/%E6%8D%A2%E4%B8%AA%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3Android%E7%9A%84AIDL%E5%8E%9F%E7%90%86/f9d2a6c4d4fdec395eabf302ff80ec47.png">
@@ -254,7 +254,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.2k 字
+          1.3k 字
         
       </span>
     
@@ -265,7 +265,7 @@
         
         
         
-          11 分钟
+          12 分钟
         
       </span>
     
@@ -347,10 +347,19 @@
 <h2 id="AIDL实现IPC"><a href="#AIDL实现IPC" class="headerlink" title="AIDL实现IPC"></a>AIDL实现IPC</h2><p>上文提到的是使用“自己的方式”实现IPC,下文介绍在这个案例中是如何使用AIDL通信的，关于如何在AndroidStudio创建AIDL文件，这里笔者不再细说，不清楚的朋友可以参考这篇文章：<a target="_blank" rel="noopener" href="http://www.jianshu.com/p/d1fac6ccee98%EF%BC%8C%E4%B8%8B%E5%9B%BE%E4%B8%BA%E4%BD%BF%E7%94%A8AIDL%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%8C%E5%A6%82%E4%B8%8B">http://www.jianshu.com/p/d1fac6ccee98，下图为使用AIDL自动生成的代码，如下</a></p>
 <img src="/2023/08/27/%E6%8D%A2%E4%B8%AA%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3Android%E7%9A%84AIDL%E5%8E%9F%E7%90%86/1fdf4a758743305dfd5b51ed1910460c.jpeg" srcset="/img/loading.gif" lazyload alt="640?wx_fmt=png" style="zoom:80%;">
 
+<blockquote>
+<p>注意：Stub继承了Binder，并且实现了AIDL生成的接口BookCheckService</p>
+</blockquote>
 <img src="/2023/08/27/%E6%8D%A2%E4%B8%AA%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3Android%E7%9A%84AIDL%E5%8E%9F%E7%90%86/d6361afa94761d25a7b0a6eab191661c.jpeg" srcset="/img/loading.gif" lazyload alt="640?wx_fmt=png" style="zoom:80%;">
 
+<blockquote>
+<p>注意：Proxy是Stub中的类，所以一般我们能看到Stub.Proxy这种表示</p>
+</blockquote>
 <img src="/2023/08/27/%E6%8D%A2%E4%B8%AA%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3Android%E7%9A%84AIDL%E5%8E%9F%E7%90%86/dffd09c9418dff635e987bc8bf556676.jpeg" srcset="/img/loading.gif" lazyload alt="640?wx_fmt=png" style="zoom:80%;">
 
+<blockquote>
+<p>注意：Proxy中的remote就是Binder中传递出来的Stub对象</p>
+</blockquote>
 <p>上图是笔者使用AIDL自动成的BooKCheckService.java文件，可以用下面的UML来描述各个类之间的联系，如下：</p>
 <img src="/2023/08/27/%E6%8D%A2%E4%B8%AA%E8%A7%92%E5%BA%A6%E7%90%86%E8%A7%A3Android%E7%9A%84AIDL%E5%8E%9F%E7%90%86/b42d286e23ae18ecc4bbaaaaeca41db8.jpeg" srcset="/img/loading.gif" lazyload alt="640?wx_fmt=png" style="zoom:80%;">
 
