@@ -24,7 +24,7 @@
 <meta property="og:description" content="结构体位域 转载自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;bigrabbit&#x2F;archive&#x2F;2012&#x2F;09&#x2F;20&#x2F;2695543.html  有些信息在存储时，并不需要占用一个完整的字节， 而只需占几个或一个二进制位。例如在存放一个开关量时，只有0和1 两种状态， 用一位二进位即可。为了节省存储空间，并使处理简便，C语言又提供了一种数据结构，称为“位域”或“位段”。所谓“位域”是把一个">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-09-11T14:20:06.000Z">
-<meta property="article:modified_time" content="2023-09-11T14:47:04.569Z">
+<meta property="article:modified_time" content="2023-09-11T14:53:54.561Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -344,7 +344,14 @@
 <p><strong>2.无符号的数据类型，在向高精度扩展时，总是无符号扩展</strong></p>
 </blockquote>
 <p>d.a内存中二进制表示为10000，由于d.a为有符号的整型变量，输出时要对符号位进行扩展，所以结果为-16（二进制11111111111111111111111111110000）</p>
-<p> d.b内存中二进制表示为001，由于d.b为有符号的整型变量，输出时要对符号位进行扩展，所以结果为1（二进制为00000000000000000000000000000001）</p>
+<p>d.b内存中二进制表示为001，由于d.b为有符号的整型变量，输出时要对符号位进行扩展，所以结果为1（二进制为00000000000000000000000000000001）</p>
+<blockquote>
+<p>计算机内部使用补码表示数字：</p>
+<ul>
+<li>正数的补码&#x3D;原码</li>
+<li>负数的补码&#x3D;符号位不动 + （所有位取反后末位+1）</li>
+</ul>
+</blockquote>
 <h2 id="位域的对齐"><a href="#位域的对齐" class="headerlink" title="位域的对齐"></a>位域的对齐</h2><p>如果结构体中含有位域(bit-field)，那么VC中准则是：</p>
 <ol>
 <li><p>如果相邻位域字段的类型相同，且其位宽之和小于类型的sizeof大小，则后面的字段将紧邻前一个字段存储，直到不能容纳为止；</p>
