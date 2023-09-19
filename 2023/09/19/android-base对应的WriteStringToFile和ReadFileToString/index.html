@@ -16,23 +16,25 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="结构体位域 转载自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;bigrabbit&#x2F;archive&#x2F;2012&#x2F;09&#x2F;20&#x2F;2695543.html  有些信息在存储时，并不需要占用一个完整的字节， 而只需占几个或一个二进制位。例如在存放一个开关量时，只有0和1 两种状态， 用一位二进位即可。为了节省存储空间，并使处理简便，C语言又提供了一种数据结构，称为“位域”或“位段”。所谓“位域”是把一个">
+    <meta name="description" content="android::base对应的WriteStringToFile和ReadFileToString1.android::base对应命名空间的路径android::base对应的命名空间位于：system\libbase\file.cpp   里面的函数有：  ReadFdToString WriteStringToFd CleanUpAfterFailedWrite WriteStringTo">
 <meta property="og:type" content="article">
-<meta property="og:title" content="结构体位域">
-<meta property="og:url" content="http://example.com/2023/09/11/%E7%BB%93%E6%9E%84%E4%BD%93%E4%BD%8D%E5%9F%9F/index.html">
+<meta property="og:title" content="android::base对应的WriteStringToFile和ReadFileToString">
+<meta property="og:url" content="http://example.com/2023/09/19/android-base%E5%AF%B9%E5%BA%94%E7%9A%84WriteStringToFile%E5%92%8CReadFileToString/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="结构体位域 转载自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;bigrabbit&#x2F;archive&#x2F;2012&#x2F;09&#x2F;20&#x2F;2695543.html  有些信息在存储时，并不需要占用一个完整的字节， 而只需占几个或一个二进制位。例如在存放一个开关量时，只有0和1 两种状态， 用一位二进位即可。为了节省存储空间，并使处理简便，C语言又提供了一种数据结构，称为“位域”或“位段”。所谓“位域”是把一个">
+<meta property="og:description" content="android::base对应的WriteStringToFile和ReadFileToString1.android::base对应命名空间的路径android::base对应的命名空间位于：system\libbase\file.cpp   里面的函数有：  ReadFdToString WriteStringToFd CleanUpAfterFailedWrite WriteStringTo">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-09-11T14:20:06.000Z">
-<meta property="article:modified_time" content="2023-09-11T14:53:54.561Z">
+<meta property="og:image" content="http://example.com/2023/09/19/android-base%E5%AF%B9%E5%BA%94%E7%9A%84WriteStringToFile%E5%92%8CReadFileToString/image-20230919225124870.png">
+<meta property="article:published_time" content="2023-09-19T14:48:48.000Z">
+<meta property="article:modified_time" content="2023-09-19T14:55:58.035Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/09/19/android-base%E5%AF%B9%E5%BA%94%E7%9A%84WriteStringToFile%E5%92%8CReadFileToString/image-20230919225124870.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>结构体位域 - 一只安慕嘻</title>
+  <title>android::base对应的WriteStringToFile和ReadFileToString - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +216,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="结构体位域"></span>
+            <span id="subtitle" data-typed-text="android::base对应的WriteStringToFile和ReadFileToString"></span>
           
         </div>
 
@@ -225,8 +227,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-09-11 22:20" pubdate>
-          2023年9月11日 晚上
+        <time datetime="2023-09-19 22:48" pubdate>
+          2023年9月19日 晚上
         </time>
       </span>
     
@@ -237,7 +239,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.2k 字
+          1.8k 字
         
       </span>
     
@@ -248,7 +250,7 @@
         
         
         
-          19 分钟
+          16 分钟
         
       </span>
     
@@ -294,74 +296,36 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">结构体位域</h1>
+            <h1 style="display: none">android::base对应的WriteStringToFile和ReadFileToString</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="结构体位域"><a href="#结构体位域" class="headerlink" title="结构体位域"></a>结构体位域</h1><blockquote>
-<p>转载自：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/bigrabbit/archive/2012/09/20/2695543.html">https://www.cnblogs.com/bigrabbit/archive/2012/09/20/2695543.html</a></p>
-</blockquote>
-<p>有些信息在存储时，并不需要占用一个完整的字节， 而只需占几个或一个二进制位。例如在存放一个开关量时，只有0和1 两种状态， 用一位二进位即可。为了节省存储空间，并使处理简便，C语言又提供了一种数据结构，称为“位域”或“位段”。所谓“位域”是把一个字节中的二进位划分为几个不同的区域， 并说明每个区域的位数。每个域有一个域名，允许在程序中按域名进行操作。 这样就可以把几个不同的对象用一个字节的二进制位域来表示。</p>
-<h2 id="位域的定义"><a href="#位域的定义" class="headerlink" title="位域的定义"></a>位域的定义</h2><p>位域的定义和位域变量的说明位域定义与结构定义相仿，其形式为： </p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> 位域结构名 </span><br><span class="hljs-class">&#123;</span><br>	位域列表<br>&#125;;<br></code></pre></td></tr></table></figure>
+                <h1 id="android-base对应的WriteStringToFile和ReadFileToString"><a href="#android-base对应的WriteStringToFile和ReadFileToString" class="headerlink" title="android::base对应的WriteStringToFile和ReadFileToString"></a>android::base对应的WriteStringToFile和ReadFileToString</h1><h2 id="1-android-base对应命名空间的路径"><a href="#1-android-base对应命名空间的路径" class="headerlink" title="1.android::base对应命名空间的路径"></a>1.android::base对应命名空间的路径</h2><p>android::base对应的命名空间位于：<strong>system\libbase\file.cpp</strong></p>
+<img src="/2023/09/19/android-base%E5%AF%B9%E5%BA%94%E7%9A%84WriteStringToFile%E5%92%8CReadFileToString/image-20230919225124870.png" srcset="/img/loading.gif" lazyload alt="image-20230919225124870" style="zoom:67%;">
 
-<p>其中位域列表的形式为：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">类型说明符 位域名：位域长度<br></code></pre></td></tr></table></figure>
-
-<p>位域变量的说明与结构变量说明的方式相同。 可采用先定义后说明，同时定义说明或者直接说明这三种方式。例如：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bs</span></span><br><span class="hljs-class">&#123;</span><br>　　<span class="hljs-type">int</span> a:<span class="hljs-number">8</span>;<br>　　<span class="hljs-type">int</span> b:<span class="hljs-number">2</span>;<br>　　<span class="hljs-type">int</span> c:<span class="hljs-number">6</span>;<br>&#125;data; <br></code></pre></td></tr></table></figure>
-
-<p>说明data为bs变量，共占两个字节。其中位域a占8位，位域b占2位，位域c占6位。对于位域的定义尚有以下几点说明：</p>
-<ol>
-<li><strong>一个位域必须存储在同一个字节中，不能跨两个字节</strong>。如一个字节所剩空间不够存放另一位域时，应从下一单元起存放该位域。也可以有意使某位域从下一单元开始。例如：</li>
-</ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bs</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">unsigned</span> a:<span class="hljs-number">4</span><br>    <span class="hljs-type">unsigned</span> b:<span class="hljs-number">5</span> <span class="hljs-comment">/*从下一单元开始存放*/</span><br>    <span class="hljs-type">unsigned</span> c:<span class="hljs-number">4</span><br>&#125;<br></code></pre></td></tr></table></figure>
-
-<ol start="2">
-<li><p>由于位域不允许跨两个字节，因此<strong>位域的长度不能大于一个字节的长度</strong>。</p>
-</li>
-<li><p><strong>位域可以无位域名</strong>，这时它只用来作填充或调整位置。无名的位域是不能使用的。例如：</p>
-</li>
-</ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">k</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">int</span> a:<span class="hljs-number">1</span><br>    <span class="hljs-type">int</span> :<span class="hljs-number">2</span> <span class="hljs-comment">/*无位域名，该2位不能使用*/</span><br>    <span class="hljs-type">int</span> b:<span class="hljs-number">3</span><br>    <span class="hljs-type">int</span> c:<span class="hljs-number">2</span><br>&#125;;<br></code></pre></td></tr></table></figure>
-
-<h2 id="位域的使用"><a href="#位域的使用" class="headerlink" title="位域的使用"></a>位域的使用</h2><p>下面例子是参加一个公司（白领科技-青岛）的笔试遇到的，当时做错了，为了怕忘了，赶紧写下来。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;memory.h&gt;</span></span><br>using namespace <span class="hljs-built_in">std</span>;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">A</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">int</span> a:<span class="hljs-number">5</span>;<br>    <span class="hljs-type">int</span> b:<span class="hljs-number">3</span>;<br>&#125;;<br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">char</span> str[<span class="hljs-number">100</span>] = <span class="hljs-string">&quot;0134324324afsadfsdlfjlsdjfl&quot;</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">A</span> <span class="hljs-title">d</span>;</span><br>    <span class="hljs-built_in">memcpy</span>(&amp;d, str, <span class="hljs-keyword">sizeof</span>(A));<br>    <span class="hljs-built_in">cout</span> &lt;&lt; d.a &lt;&lt; <span class="hljs-built_in">endl</span>;<br>    <span class="hljs-built_in">cout</span> &lt;&lt; d.b &lt;&lt; <span class="hljs-built_in">endl</span>;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>在32位x86机器上输出：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">-16<br>1<br></code></pre></td></tr></table></figure>
-
-<p>解析：在默认情况下，为了方便对结构体内元素的访问和管理，当结构体内的元素长度都小于处理器的位数的时候，便以结构体里面最长的元素为对其单位，即结构体的长度一定是最长的数据元素的整数倍；如果有结构体内存长度大于处理器位数的元素，那么就以处理器的位数为对齐单元。由于是32位处理器，而且结构体中a和b元素类型均为int（也是4个字节），所以结构体的A占用内存为4个字节。</p>
-<p>上例程序中定义了位域结构A，两个个位域为a（占用5位），b（占用3位），所以a和b总共占用了结构A一个字节（低位的一个字节）。</p>
-<p>当程序运行到14行时，d内存分配情况：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">高位 <span class="hljs-number">00110100</span> <span class="hljs-number">00110011</span>   <span class="hljs-number">00110001</span>    <span class="hljs-number">00110000</span> 低位  [ASCII]<br>      <span class="hljs-string">&#x27;4&#x27;</span>       <span class="hljs-string">&#x27;3&#x27;</span>       <span class="hljs-string">&#x27;1&#x27;</span>          <span class="hljs-string">&#x27;0&#x27;</span>  <br>其中d.a和d.b占用d低位一个字节（<span class="hljs-number">00110000</span>）,d.a : <span class="hljs-number">10000</span>, d.b : <span class="hljs-number">001</span><br></code></pre></td></tr></table></figure>
-
-<blockquote>
-<p>🔴 关于符号扩展见：<a target="_blank" rel="noopener" href="http://blog.chinaunix.net/uid-13746440-id-4244281.html">http://blog.chinaunix.net/uid-13746440-id-4244281.html</a> </p>
-<p><strong>扩展的原则是：</strong></p>
-<p><strong>1.有符号的数据类型，在向高精度扩展时，总是带符号扩展</strong></p>
-<p><strong>2.无符号的数据类型，在向高精度扩展时，总是无符号扩展</strong></p>
-</blockquote>
-<p>d.a内存中二进制表示为10000，由于d.a为有符号的整型变量，输出时要对符号位进行扩展，所以结果为-16（二进制11111111111111111111111111110000）</p>
-<p>d.b内存中二进制表示为001，由于d.b为有符号的整型变量，输出时要对符号位进行扩展，所以结果为1（二进制为00000000000000000000000000000001）</p>
-<blockquote>
-<p>计算机内部使用补码表示数字：</p>
+<p>里面的函数有：</p>
 <ul>
-<li>正数的补码&#x3D;原码</li>
-<li>负数的补码&#x3D;符号位不动 + （所有位取反后末位+1）</li>
+<li>ReadFdToString</li>
+<li>WriteStringToFd</li>
+<li>CleanUpAfterFailedWrite</li>
+<li>WriteStringToFile</li>
+<li>ReadFully</li>
+<li>ReadFullyAtOffset</li>
+<li>WriteFully</li>
+<li>RemoveFileIfExists</li>
+<li>GetExecutablePath</li>
+<li>GetExecutableDirectory</li>
+<li>Basename</li>
+<li>Dirname</li>
 </ul>
-</blockquote>
-<h2 id="位域的对齐"><a href="#位域的对齐" class="headerlink" title="位域的对齐"></a>位域的对齐</h2><p>如果结构体中含有位域(bit-field)，那么VC中准则是：</p>
-<ol>
-<li><p>如果相邻位域字段的类型相同，且其位宽之和小于类型的sizeof大小，则后面的字段将紧邻前一个字段存储，直到不能容纳为止；</p>
-</li>
-<li><p>如果相邻位域字段的类型相同，但其位宽之和大于类型的sizeof大小，则后面的字段将从新的存储单元开始，其偏移量为其类型大小的整数倍；</p>
-</li>
-<li><p>如果相邻的位域字段的类型不同，则各编译器的具体实现有差异，VC6采取不压缩方式（不同位域字段存放在不同的位域类型字节中），Dev-C++和GCC都采取压缩方式；</p>
-</li>
-</ol>
-<p>系统会先为结构体成员按照对齐方式分配空间和填塞（padding）,然后对变量进行位域操作。</p>
+<h2 id="2-ReadFileToString函数"><a href="#2-ReadFileToString函数" class="headerlink" title="2.ReadFileToString函数"></a>2.ReadFileToString函数</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">ReadFileToString</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; path, std::string* content, <span class="hljs-type">bool</span> follow_symlinks)</span> </span>&#123;<br>  content-&gt;<span class="hljs-built_in">clear</span>();<br><br>  <span class="hljs-type">int</span> flags = O_RDONLY | O_CLOEXEC | O_BINARY | (follow_symlinks ? <span class="hljs-number">0</span> : O_NOFOLLOW);<br>  android::<span class="hljs-function">base::unique_fd <span class="hljs-title">fd</span><span class="hljs-params">(TEMP_FAILURE_RETRY(open(path.c_str(), flags)))</span></span>;<br>  <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">ReadFdToString</span>(fd, content);<br>&#125;<br><br><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">ReadFdToString</span><span class="hljs-params">(borrowed_fd fd, std::string* content)</span> </span>&#123;<br>  content-&gt;<span class="hljs-built_in">clear</span>();<br><br>  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">stat</span> sb;<br>  <span class="hljs-keyword">if</span> (<span class="hljs-built_in">fstat</span>(fd.<span class="hljs-built_in">get</span>(), &amp;sb) != <span class="hljs-number">-1</span> &amp;&amp; sb.st_size &gt; <span class="hljs-number">0</span>) &#123;<br>    content-&gt;<span class="hljs-built_in">reserve</span>(sb.st_size);<br>  &#125;<br><br>  <span class="hljs-type">char</span> buf[BUFSIZ] __attribute__((__uninitialized__));<br>  <span class="hljs-type">ssize_t</span> n;<br>  <span class="hljs-keyword">while</span> ((n = <span class="hljs-built_in">TEMP_FAILURE_RETRY</span>(<span class="hljs-built_in">read</span>(fd.<span class="hljs-built_in">get</span>(), &amp;buf[<span class="hljs-number">0</span>], <span class="hljs-built_in">sizeof</span>(buf)))) &gt; <span class="hljs-number">0</span>) &#123;<br>    content-&gt;<span class="hljs-built_in">append</span>(buf, n);<br>  &#125;<br>  <span class="hljs-keyword">return</span> (n == <span class="hljs-number">0</span>) ? <span class="hljs-literal">true</span> : <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-WriteStringToFile函数"><a href="#3-WriteStringToFile函数" class="headerlink" title="3.WriteStringToFile函数"></a>3.WriteStringToFile函数</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">WriteStringToFile</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; content, <span class="hljs-type">const</span> std::string&amp; path,</span></span><br><span class="hljs-params"><span class="hljs-function">                       <span class="hljs-type">bool</span> follow_symlinks)</span> </span>&#123;<br>  <span class="hljs-type">int</span> flags = O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC | O_BINARY |<br>              (follow_symlinks ? <span class="hljs-number">0</span> : O_NOFOLLOW);<br>  android::<span class="hljs-function">base::unique_fd <span class="hljs-title">fd</span><span class="hljs-params">(TEMP_FAILURE_RETRY(open(path.c_str(), flags, <span class="hljs-number">0666</span>)))</span></span>;<br>  <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">WriteStringToFd</span>(content, fd) || <span class="hljs-built_in">CleanUpAfterFailedWrite</span>(path);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">WriteStringToFd</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; content, borrowed_fd fd)</span> </span>&#123;<br>  <span class="hljs-type">const</span> <span class="hljs-type">char</span>* p = content.<span class="hljs-built_in">data</span>();<br>  <span class="hljs-type">size_t</span> left = content.<span class="hljs-built_in">size</span>();<br>  <span class="hljs-keyword">while</span> (left &gt; <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-type">ssize_t</span> n = <span class="hljs-built_in">TEMP_FAILURE_RETRY</span>(<span class="hljs-built_in">write</span>(fd.<span class="hljs-built_in">get</span>(), p, left));<br>    <span class="hljs-keyword">if</span> (n == <span class="hljs-number">-1</span>) &#123;<br>      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    p += n;<br>    left -= n;<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以发现其携带了<strong>O_CREAT</strong>参数，也就是说打开文件的时候如果不存在会去主动创建。</p>
 
                 
               </div>
@@ -379,8 +343,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>结构体位域</div>
-      <div>http://example.com/2023/09/11/结构体位域/</div>
+      <div>android::base对应的WriteStringToFile和ReadFileToString</div>
+      <div>http://example.com/2023/09/19/android-base对应的WriteStringToFile和ReadFileToString/</div>
     </div>
     <div class="license-meta">
       
@@ -392,7 +356,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年9月11日</div>
+          <div>2023年9月19日</div>
         </div>
       
       
@@ -424,18 +388,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/09/19/android-base%E5%AF%B9%E5%BA%94%E7%9A%84WriteStringToFile%E5%92%8CReadFileToString/" title="android::base对应的WriteStringToFile和ReadFileToString">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">android::base对应的WriteStringToFile和ReadFileToString</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/09/06/std-lock-guard%E5%BC%95%E8%B5%B7%E7%9A%84%E6%80%9D%E8%80%83/" title="std::lock_guard引起的思考">
-                        <span class="hidden-mobile">std::lock_guard引起的思考</span>
+                      <a href="/2023/09/11/%E7%BB%93%E6%9E%84%E4%BD%93%E4%BD%8D%E5%9F%9F/" title="结构体位域">
+                        <span class="hidden-mobile">结构体位域</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
