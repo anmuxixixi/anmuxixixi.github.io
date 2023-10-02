@@ -16,15 +16,15 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一只安慕嘻学习笔记">
+    <meta name="description" content="checkpoint版本号如何变换f2fs文件系统的版本如何变化起始还是一个挺有意思的问题，自己每次格式化文件系统后，发现checkpoint每次都不一样，感觉就很像一个随机数，那么在进行一次cp后，版本号如何变化呢，现在就一起研究一下。 1.初始化checkpoint version我们初始化磁盘的文件系统时常常用到mkfs命令，格式化f2fs文件系统时会用到f2fs-tools中的mkfs.f">
 <meta property="og:type" content="article">
 <meta property="og:title" content="checkpoint版本号如何变换">
 <meta property="og:url" content="http://example.com/2023/10/02/checkpoint%E7%89%88%E6%9C%AC%E5%8F%B7%E5%A6%82%E4%BD%95%E5%8F%98%E6%8D%A2/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="一只安慕嘻学习笔记">
+<meta property="og:description" content="checkpoint版本号如何变换f2fs文件系统的版本如何变化起始还是一个挺有意思的问题，自己每次格式化文件系统后，发现checkpoint每次都不一样，感觉就很像一个随机数，那么在进行一次cp后，版本号如何变化呢，现在就一起研究一下。 1.初始化checkpoint version我们初始化磁盘的文件系统时常常用到mkfs命令，格式化f2fs文件系统时会用到f2fs-tools中的mkfs.f">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-10-02T05:42:38.000Z">
-<meta property="article:modified_time" content="2023-10-02T05:42:38.622Z">
+<meta property="article:modified_time" content="2023-10-02T06:32:36.012Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -237,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 字
+          2.1k 字
         
       </span>
     
@@ -248,7 +248,7 @@
         
         
         
-          1 分钟
+          18 分钟
         
       </span>
     
@@ -299,7 +299,23 @@
             
               <div class="markdown-body">
                 
-                
+                <h1 id="checkpoint版本号如何变换"><a href="#checkpoint版本号如何变换" class="headerlink" title="checkpoint版本号如何变换"></a>checkpoint版本号如何变换</h1><p>f2fs文件系统的版本如何变化起始还是一个挺有意思的问题，自己每次格式化文件系统后，发现checkpoint每次都不一样，感觉就很像一个随机数，那么在进行一次cp后，版本号如何变化呢，现在就一起研究一下。</p>
+<h2 id="1-初始化checkpoint-version"><a href="#1-初始化checkpoint-version" class="headerlink" title="1.初始化checkpoint version"></a>1.初始化checkpoint version</h2><p>我们初始化磁盘的文件系统时常常用到mkfs命令，格式化f2fs文件系统时会用到f2fs-tools中的mkfs.f2fs，其对应的源码文件在Android中也包含了，路径：</p>
+<p><strong>external\f2fs-tools\mkfs</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_write_check_point_pack</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-comment">/* 1. cp page 1 of checkpoint pack 1 */</span><br>	srand((c.fake_seed) ? <span class="hljs-number">0</span> : time(<span class="hljs-literal">NULL</span>));<br>	cp-&gt;checkpoint_ver = cpu_to_le64(rand() | <span class="hljs-number">0x1</span>);<br>    <br>    <span class="hljs-comment">/* cp page 1 of check point pack 2</span><br><span class="hljs-comment">	 * Initialize other checkpoint pack with version zero</span><br><span class="hljs-comment">     */</span><br>	cp-&gt;checkpoint_ver = <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>cp pack1的checkpoint version是随机数</li>
+<li>cp pack2的checkpoint version是0</li>
+</ul>
+<h2 id="2-一次checkpoint后，版本号的变化"><a href="#2-一次checkpoint后，版本号的变化" class="headerlink" title="2.一次checkpoint后，版本号的变化"></a>2.一次checkpoint后，版本号的变化</h2><p>源码：Linux 5.10.8</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_write_checkpoint</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-keyword">struct</span> cp_control *cpc)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_checkpoint</span> *<span class="hljs-title">ckpt</span> =</span> F2FS_CKPT(sbi);<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span> ckpt_ver;<br>    <br>    ckpt_ver = cur_cp_version(ckpt);<br>	ckpt-&gt;checkpoint_ver = cpu_to_le64(++ckpt_ver);  <span class="hljs-comment">// 将ckpy_version++</span><br><br>    err = do_checkpoint(sbi, cpc);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">do_checkpoint</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-keyword">struct</span> cp_control *cpc)</span><br>&#123;<br>    start_blk = __start_cp_next_addr(sbi);  <span class="hljs-comment">// start_blk表示的是备份cp pack的起始地址</span><br> 	<br>    f2fs_update_meta_page(sbi, ckpt, start_blk++);  <span class="hljs-comment">// 往cp pack的cp page1中去写【注意这里只是写入到page cache中，还没有落盘】</span><br>    <br>    <span class="hljs-comment">/* barrier and flush checkpoint cp pack 2 page if it can */</span><br>	commit_checkpoint(sbi, ckpt, start_blk);<br>	f2fs_wait_on_all_pages(sbi, F2FS_WB_CP_DATA);<br>    <br>    __set_cp_next_pack(sbi);  <span class="hljs-comment">// 当前cp pack刷盘好了，将备份cp转正</span><br>&#125;<br><br><span class="hljs-comment">// -------------------------------------------------------------------------</span><br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">block_t</span> __start_cp_next_addr(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)<br>&#123;<br>	<span class="hljs-type">block_t</span> start_addr = le32_to_cpu(F2FS_RAW_SUPER(sbi)-&gt;cp_blkaddr);<br><br>	<span class="hljs-keyword">if</span> (sbi-&gt;cur_cp_pack == <span class="hljs-number">1</span>)<br>		start_addr += sbi-&gt;blocks_per_seg;<br>	<span class="hljs-keyword">return</span> start_addr;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> __set_cp_next_pack(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)<br>&#123;<br>	sbi-&gt;cur_cp_pack = (sbi-&gt;cur_cp_pack == <span class="hljs-number">1</span>) ? <span class="hljs-number">2</span> : <span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>✅<strong>一句话总结</strong>：进行一次checkpoint，其版本号+1</p>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><h3 id="f2fs-update-meta-page函数"><a href="#f2fs-update-meta-page函数" class="headerlink" title="f2fs_update_meta_page函数"></a>f2fs_update_meta_page函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">f2fs_update_meta_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">void</span> *src, <span class="hljs-type">block_t</span> blk_addr)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">page</span> =</span> f2fs_grab_meta_page(sbi, blk_addr);<br><br>	<span class="hljs-built_in">memcpy</span>(page_address(page), src, PAGE_SIZE);<br>	set_page_dirty(page);<br>	f2fs_put_page(page, <span class="hljs-number">1</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>将src拷贝到page对应的位置，然后设置该页为脏页，接着将这个页写入到page cache中</p>
+
                 
               </div>
             
