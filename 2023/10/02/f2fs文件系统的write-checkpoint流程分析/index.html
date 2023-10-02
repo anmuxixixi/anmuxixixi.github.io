@@ -16,15 +16,15 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="安卓checkpoint&#x3D;disable如何传递到f2fs文件系统mount -&gt; f2fs_fill_super -&gt; f2fs_disable_checkpoint remount触发checkpoint：https:&#x2F;&#x2F;vimsky.com&#x2F;examples&#x2F;detail&#x2F;cpp-ex-----f2fs_sync_fs-function.html 备忘1：f2fs的ch">
+    <meta name="description" content="f2fs文件系统的write checkpoint流程分析f2fs文件系统在2个地方都有这部分的代码，一个是原生Linux代码，一个是f2fs-tools工具中的代码。2份代码逻辑是一样的，只是代码编写方式不同，我推荐先f2fs-tools中的代码，这部分逻辑代码更加易懂，没有涉及打到缓存页的操作。 1.f2fs-tools中的write checkpoint这部分源码来自于Android 12源">
 <meta property="og:type" content="article">
-<meta property="og:title" content="安卓checkpoint&#x3D;disable如何传递到f2fs文件系统">
-<meta property="og:url" content="http://example.com/2023/09/19/%E5%AE%89%E5%8D%93checkpoint-disable%E5%A6%82%E4%BD%95%E4%BC%A0%E9%80%92%E5%88%B0f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:title" content="f2fs文件系统的write checkpoint流程分析">
+<meta property="og:url" content="http://example.com/2023/10/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84write-checkpoint%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="安卓checkpoint&#x3D;disable如何传递到f2fs文件系统mount -&gt; f2fs_fill_super -&gt; f2fs_disable_checkpoint remount触发checkpoint：https:&#x2F;&#x2F;vimsky.com&#x2F;examples&#x2F;detail&#x2F;cpp-ex-----f2fs_sync_fs-function.html 备忘1：f2fs的ch">
+<meta property="og:description" content="f2fs文件系统的write checkpoint流程分析f2fs文件系统在2个地方都有这部分的代码，一个是原生Linux代码，一个是f2fs-tools工具中的代码。2份代码逻辑是一样的，只是代码编写方式不同，我推荐先f2fs-tools中的代码，这部分逻辑代码更加易懂，没有涉及打到缓存页的操作。 1.f2fs-tools中的write checkpoint这部分源码来自于Android 12源">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-09-19T15:40:22.000Z">
-<meta property="article:modified_time" content="2023-09-19T16:01:16.195Z">
+<meta property="article:published_time" content="2023-10-02T04:46:24.000Z">
+<meta property="article:modified_time" content="2023-10-02T04:51:35.742Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -32,7 +32,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>安卓checkpoint=disable如何传递到f2fs文件系统 - 一只安慕嘻</title>
+  <title>f2fs文件系统的write checkpoint流程分析 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="安卓checkpoint=disable如何传递到f2fs文件系统"></span>
+            <span id="subtitle" data-typed-text="f2fs文件系统的write checkpoint流程分析"></span>
           
         </div>
 
@@ -225,8 +225,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-09-19 23:40" pubdate>
-          2023年9月19日 晚上
+        <time datetime="2023-10-02 12:46" pubdate>
+          2023年10月2日 下午
         </time>
       </span>
     
@@ -237,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          868 字
+          1.3k 字
         
       </span>
     
@@ -248,7 +248,7 @@
         
         
         
-          8 分钟
+          12 分钟
         
       </span>
     
@@ -294,28 +294,18 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">安卓checkpoint=disable如何传递到f2fs文件系统</h1>
+            <h1 style="display: none">f2fs文件系统的write checkpoint流程分析</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="安卓checkpoint-x3D-disable如何传递到f2fs文件系统"><a href="#安卓checkpoint-x3D-disable如何传递到f2fs文件系统" class="headerlink" title="安卓checkpoint&#x3D;disable如何传递到f2fs文件系统"></a>安卓checkpoint&#x3D;disable如何传递到f2fs文件系统</h1><p>mount -&gt; f2fs_fill_super -&gt; f2fs_disable_checkpoint</p>
-<p>remount触发checkpoint：<a target="_blank" rel="noopener" href="https://vimsky.com/examples/detail/cpp-ex-----f2fs_sync_fs-function.html">https://vimsky.com/examples/detail/cpp-ex-----f2fs_sync_fs-function.html</a></p>
-<h2 id="备忘1：f2fs的checkpoint时机"><a href="#备忘1：f2fs的checkpoint时机" class="headerlink" title="备忘1：f2fs的checkpoint时机"></a>备忘1：f2fs的checkpoint时机</h2><p>CP是一个开销很大的操作，因此合理选取CP时机，能够很好地提高性能。CP的触发时机有:</p>
-<blockquote>
-<p>前台GC(FG_GC)<br>FASTBOOT<br>UMOUNT<br>DISCARD<br>RECOVERY<br>TRIM<br><strong>周期进行</strong></p>
-</blockquote>
-<p>因此F2FS有几个宏表示CP的触发原因：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span>	CP_UMOUNT	0x00000001</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span>	CP_FASTBOOT	0x00000002</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span>	CP_SYNC		0x00000004</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span>	CP_RECOVERY	0x00000008</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span>	CP_DISCARD	0x00000010</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CP_TRIMMED	0x00000020</span><br></code></pre></td></tr></table></figure>
+                <h1 id="f2fs文件系统的write-checkpoint流程分析"><a href="#f2fs文件系统的write-checkpoint流程分析" class="headerlink" title="f2fs文件系统的write checkpoint流程分析"></a>f2fs文件系统的write checkpoint流程分析</h1><p>f2fs文件系统在2个地方都有这部分的代码，一个是原生Linux代码，一个是f2fs-tools工具中的代码。2份代码逻辑是一样的，只是代码编写方式不同，我推荐先f2fs-tools中的代码，这部分逻辑代码更加易懂，没有涉及打到缓存页的操作。</p>
+<h2 id="1-f2fs-tools中的write-checkpoint"><a href="#1-f2fs-tools中的write-checkpoint" class="headerlink" title="1.f2fs-tools中的write checkpoint"></a>1.f2fs-tools中的write checkpoint</h2><p>这部分源码来自于Android 12源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// external\f2fs-tools\fsck\mount.c</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">write_checkpoints</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)</span><br>&#123;<br>	<span class="hljs-comment">/* copy valid checkpoint to its mirror position */</span><br>	duplicate_checkpoint(sbi);<br><br>	<span class="hljs-comment">/* repair checkpoint at CP #0 position */</span><br>	sbi-&gt;cur_cp = <span class="hljs-number">1</span>;<br>	write_checkpoint(sbi);<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>✅CP执行周期查看：<strong>cat &#x2F;dev&#x2F;sys&#x2F;fs&#x2F;by-name&#x2F;userdata&#x2F;cp_interval</strong></p>
-<h2 id="备忘2：什么情况下数据需要写回磁盘"><a href="#备忘2：什么情况下数据需要写回磁盘" class="headerlink" title="备忘2：什么情况下数据需要写回磁盘"></a>备忘2：什么情况下数据需要写回磁盘</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/guoyong10721073/article/details/8718288">https://blog.csdn.net/guoyong10721073/article/details/8718288</a></p>
-</blockquote>
-<p>在内存中积累起来的脏页最终必须被写回磁盘。在以下3种情况发生时，脏页被写回磁盘：</p>
-<p>1）<strong>当空闲内存低于一个特定的阈值时</strong>，内核必须将脏页写回磁盘以便释放内存，因为只有干净内存才可以被回收。当内存干净后，内核就可以从缓存清理数据，然后收缩缓存，最终释放出更多的内存。</p>
-<p>2）当脏页在内存中<strong>驻留的时间</strong>超过了一个给定的<strong>阈值</strong>时，内核必须将超时的脏页写回磁盘，以确保脏页不会无限期地驻留在内存中。</p>
-<p>3）当用户进程调用<strong>sync</strong>和<strong>fsync</strong>系统调用时，内核会按要求执行写回操作。</p>
+<h3 id="1-1-复制cp"><a href="#1-1-复制cp" class="headerlink" title="1.1 复制cp"></a>1.1 复制cp</h3><p>这里首先了解一下啊Checkpoint的布局：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">duplicate_checkpoint</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_super_block</span> *<span class="hljs-title">sb</span> =</span> F2FS_RAW_SUPER(sbi);<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span> dst, src;<br>	<span class="hljs-type">void</span> *buf;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> seg_size = <span class="hljs-number">1</span> &lt;&lt; get_sb(log_blocks_per_seg);<br>	<span class="hljs-type">int</span> ret;<br><br>	<span class="hljs-keyword">if</span> (sbi-&gt;cp_backuped)<br>		<span class="hljs-keyword">return</span>;<br><br>	buf = <span class="hljs-built_in">malloc</span>(F2FS_BLKSIZE * seg_size);<br>	ASSERT(buf);<br>	<br>	<span class="hljs-keyword">if</span> (sbi-&gt;cur_cp == <span class="hljs-number">1</span>) &#123;<br>		src = get_sb(cp_blkaddr);<br>		dst = src + seg_size;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		dst = get_sb(cp_blkaddr);<br>		src = dst + seg_size;<br>	&#125;<br><br>	ret = dev_read(buf, src &lt;&lt; F2FS_BLKSIZE_BITS,<br>				seg_size &lt;&lt; F2FS_BLKSIZE_BITS);<br>	ASSERT(ret &gt;= <span class="hljs-number">0</span>);<br><br>	ret = dev_write(buf, dst &lt;&lt; F2FS_BLKSIZE_BITS,<br>				seg_size &lt;&lt; F2FS_BLKSIZE_BITS);<br>	ASSERT(ret &gt;= <span class="hljs-number">0</span>);<br><br>	<span class="hljs-built_in">free</span>(buf);<br><br>	ret = f2fs_fsync_device();<br>	ASSERT(ret &gt;= <span class="hljs-number">0</span>);<br><br>	sbi-&gt;cp_backuped = <span class="hljs-number">1</span>;<br><br>	MSG(<span class="hljs-number">0</span>, <span class="hljs-string">&quot;Info: Duplicate valid checkpoint to mirror position &quot;</span><br>		<span class="hljs-string">&quot;%llu -&gt; %llu\n&quot;</span>, src, dst);<br>&#125;<br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
@@ -333,8 +323,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>安卓checkpoint=disable如何传递到f2fs文件系统</div>
-      <div>http://example.com/2023/09/19/安卓checkpoint-disable如何传递到f2fs文件系统/</div>
+      <div>f2fs文件系统的write checkpoint流程分析</div>
+      <div>http://example.com/2023/10/02/f2fs文件系统的write-checkpoint流程分析/</div>
     </div>
     <div class="license-meta">
       
@@ -346,7 +336,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年9月19日</div>
+          <div>2023年10月2日</div>
         </div>
       
       
@@ -378,18 +368,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/10/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84write-checkpoint%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" title="f2fs文件系统的write checkpoint流程分析">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">f2fs文件系统的write checkpoint流程分析</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/09/19/%E9%BE%99%E8%9C%A5%E7%99%BD%E7%9A%AE%E4%B9%A6%E7%B2%BE%E9%80%89%EF%BC%9A%E5%9F%BA%E4%BA%8E-SM4-%E7%AE%97%E6%B3%95%E7%9A%84%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86%EF%BC%88fscrypt%EF%BC%89%E5%AE%9E%E8%B7%B5/" title="【转载】龙蜥白皮书精选：基于 SM4 算法的文件加密（fscrypt）实践">
-                        <span class="hidden-mobile">【转载】龙蜥白皮书精选：基于 SM4 算法的文件加密（fscrypt）实践</span>
+                      <a href="/2023/09/19/%E5%AE%89%E5%8D%93checkpoint-disable%E5%A6%82%E4%BD%95%E4%BC%A0%E9%80%92%E5%88%B0f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" title="安卓checkpoint=disable如何传递到f2fs文件系统">
+                        <span class="hidden-mobile">安卓checkpoint=disable如何传递到f2fs文件系统</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
