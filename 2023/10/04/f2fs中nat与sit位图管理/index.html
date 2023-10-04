@@ -16,17 +16,21 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一只安慕嘻学习笔记">
+    <meta name="description" content="f2fs中nat与sit位图管理 部分参考：https:&#x2F;&#x2F;blog.csdn.net&#x2F;wenj12&#x2F;article&#x2F;details&#x2F;115414147  关于NAT和SIT的有效位图123456789struct f2fs_nm_info &amp;#123; &#x2F;&#x2F;node manager 信息	&#x2F;&#x2F; ...	char *nat_bitmap;		&#x2F;* NAT bitmap pointer *&#x2F;&amp;#12">
 <meta property="og:type" content="article">
 <meta property="og:title" content="f2fs中nat与sit位图管理">
 <meta property="og:url" content="http://example.com/2023/10/04/f2fs%E4%B8%ADnat%E4%B8%8Esit%E4%BD%8D%E5%9B%BE%E7%AE%A1%E7%90%86/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="一只安慕嘻学习笔记">
+<meta property="og:description" content="f2fs中nat与sit位图管理 部分参考：https:&#x2F;&#x2F;blog.csdn.net&#x2F;wenj12&#x2F;article&#x2F;details&#x2F;115414147  关于NAT和SIT的有效位图123456789struct f2fs_nm_info &amp;#123; &#x2F;&#x2F;node manager 信息	&#x2F;&#x2F; ...	char *nat_bitmap;		&#x2F;* NAT bitmap pointer *&#x2F;&amp;#12">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/10/04/f2fs%E4%B8%ADnat%E4%B8%8Esit%E4%BD%8D%E5%9B%BE%E7%AE%A1%E7%90%86/image-20231004224145996.png">
+<meta property="og:image" content="http://example.com/2023/10/04/f2fs%E4%B8%ADnat%E4%B8%8Esit%E4%BD%8D%E5%9B%BE%E7%AE%A1%E7%90%86/e70cb7105d434b019d36cf0992dd232f.jpeg">
+<meta property="og:image" content="http://example.com/2023/10/04/f2fs%E4%B8%ADnat%E4%B8%8Esit%E4%BD%8D%E5%9B%BE%E7%AE%A1%E7%90%86/image-20231004225233756.png">
 <meta property="article:published_time" content="2023-10-04T14:23:25.000Z">
-<meta property="article:modified_time" content="2023-10-04T14:23:25.824Z">
+<meta property="article:modified_time" content="2023-10-04T15:00:32.375Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/10/04/f2fs%E4%B8%ADnat%E4%B8%8Esit%E4%BD%8D%E5%9B%BE%E7%AE%A1%E7%90%86/image-20231004224145996.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -237,7 +241,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 字
+          4.1k 字
         
       </span>
     
@@ -248,7 +252,7 @@
         
         
         
-          1 分钟
+          35 分钟
         
       </span>
     
@@ -299,7 +303,53 @@
             
               <div class="markdown-body">
                 
-                
+                <h1 id="f2fs中nat与sit位图管理"><a href="#f2fs中nat与sit位图管理" class="headerlink" title="f2fs中nat与sit位图管理"></a>f2fs中nat与sit位图管理</h1><blockquote>
+<p>部分参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/wenj12/article/details/115414147">https://blog.csdn.net/wenj12/article/details/115414147</a></p>
+</blockquote>
+<h2 id="关于NAT和SIT的有效位图"><a href="#关于NAT和SIT的有效位图" class="headerlink" title="关于NAT和SIT的有效位图"></a>关于NAT和SIT的有效位图</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nm_info</span> &#123;</span> <span class="hljs-comment">//node manager 信息</span><br>	<span class="hljs-comment">// ...</span><br>	<span class="hljs-type">char</span> *nat_bitmap;		<span class="hljs-comment">/* NAT bitmap pointer */</span><br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_info</span> &#123;</span><br>	<span class="hljs-comment">// ...</span><br>	<span class="hljs-type">char</span> *sit_bitmap;		<span class="hljs-comment">/* SIT bitmap pointer */</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>在<strong>sbi-&gt;f2fs_nm_info-&gt;nat_bitmap</strong>中是NAT的位图，<strong>sbi-&gt;sit_info-&gt;sit_bitmap</strong>为SIT的位图。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_checkpoint</span> &#123;</span><br>	__le64 checkpoint_ver;		<span class="hljs-comment">/* checkpoint block version number */</span><br>	__le64 user_block_count;	<span class="hljs-comment">/* # of user blocks */</span><br>	__le64 valid_block_count;	<span class="hljs-comment">/* # of valid blocks in main area */</span><br>	__le32 rsvd_segment_count;	<span class="hljs-comment">/* # of reserved segments for gc */</span><br>	__le32 overprov_segment_count;	<span class="hljs-comment">/* # of overprovision segments */</span><br>	__le32 free_segment_count;	<span class="hljs-comment">/* # of free segments in main area */</span><br><br>	<span class="hljs-comment">/* information of current node segments */</span><br>	__le32 cur_node_segno[MAX_ACTIVE_NODE_LOGS];<br>	__le16 cur_node_blkoff[MAX_ACTIVE_NODE_LOGS];<br>	<span class="hljs-comment">/* information of current data segments */</span><br>	__le32 cur_data_segno[MAX_ACTIVE_DATA_LOGS];<br>	__le16 cur_data_blkoff[MAX_ACTIVE_DATA_LOGS];<br>	__le32 ckpt_flags;		<span class="hljs-comment">/* Flags : umount and journal_present */</span><br>	__le32 cp_pack_total_block_count;	<span class="hljs-comment">/* total # of one cp pack */</span><br>	__le32 cp_pack_start_sum;	<span class="hljs-comment">/* start block number of data summary */</span><br>	__le32 valid_node_count;	<span class="hljs-comment">/* Total number of valid nodes */</span><br>	__le32 valid_inode_count;	<span class="hljs-comment">/* Total number of valid inodes */</span><br>	__le32 next_free_nid;		<span class="hljs-comment">/* Next free node number */</span><br>	__le32 sit_ver_bitmap_bytesize;	<span class="hljs-comment">/* Default value 64 */</span><br>	__le32 nat_ver_bitmap_bytesize; <span class="hljs-comment">/* Default value 256 */</span><br>	__le32 checksum_offset;		<span class="hljs-comment">/* checksum校验和 offset inside cp block */</span><br>	__le64 elapsed_time;		<span class="hljs-comment">/* mounted time */</span><br>	<span class="hljs-comment">/* allocation type of current segment */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> alloc_type[MAX_ACTIVE_LOGS];<br><br>	<span class="hljs-comment">/* SIT and NAT version bitmap */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> sit_nat_version_bitmap[];  <span class="hljs-comment">// 可变数组/柔性数组</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>位图在磁盘上是存储在f2fs_checkpoint里的sit_nat_version_bitmap：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//确定ckpt的sit_nat_version_bitmap中，nat和sit位图的位置</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> *__bitmap_ptr(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">int</span> flag)<br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_checkpoint</span> *<span class="hljs-title">ckpt</span> =</span> F2FS_CKPT(sbi);<br>	<span class="hljs-type">int</span> offset = (flag == NAT_BITMAP) ?<br>			le32_to_cpu(ckpt-&gt;sit_ver_bitmap_bytesize) : <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">return</span> &amp;ckpt-&gt;sit_nat_version_bitmap + offset;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>由上述函数可以看出，sit和NAT位图在sit_nat_version_bitmap中是紧挨着，其中sit在前部分，nat在后部分。</p>
+<h2 id="位图大小与cp-payload"><a href="#位图大小与cp-payload" class="headerlink" title="位图大小与cp_payload"></a>位图大小与cp_payload</h2><h3 id="位图大小"><a href="#位图大小" class="headerlink" title="位图大小"></a>位图大小</h3><p>从f2fs_checkpoint结构体定义可以找到位图的大小，sit_ver_bitmap_bytesize位于0x20009c，nat_ver_bitmap_bytesize位于0x2000a0；</p>
+<img src="/2023/10/04/f2fs%E4%B8%ADnat%E4%B8%8Esit%E4%BD%8D%E5%9B%BE%E7%AE%A1%E7%90%86/image-20231004224145996.png" srcset="/img/loading.gif" lazyload alt="image-20231004224145996" style="zoom: 50%;">
+
+<p>✅<strong>这2个数值在我们格式化磁盘mkfs.f2fs的时候就已经确定了。</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// external\f2fs-tools\mkfs\f2fs_format.c</span><br><br>set_cp(sit_ver_bitmap_bytesize, ((get_sb(segment_count_sit) / <span class="hljs-number">2</span>) &lt;&lt; get_sb(log_blocks_per_seg)) / <span class="hljs-number">8</span>);<br><br>set_cp(nat_ver_bitmap_bytesize, ((get_sb(segment_count_nat) / <span class="hljs-number">2</span>) &lt;&lt; get_sb(log_blocks_per_seg)) / <span class="hljs-number">8</span>);<br></code></pre></td></tr></table></figure>
+
+<p>sit的计算过程如下【nat的计算同理】：</p>
+<ul>
+<li><p>获取f2fs_super_block中的segment_count_sit值（看看sit总共占了几个segment），然后除以2【因为sit区域是主备的】</p>
+</li>
+<li><p>获取f2fs_super_block中的log_blocks_per_seg值（查看一个segment有几个block，当然这里取了底为2的对数）</p>
+</li>
+<li><p>我们通过 <strong>&lt;&lt;</strong> 位运算就可以算出一个sit区域总共有多少个block</p>
+</li>
+<li><p>计算出来的值除以8，因为f2fs_checkpoint结构体变量sit_nat_version_bitmap为<strong>unsigned char</strong>类型（就是8位）</p>
+</li>
+</ul>
+<blockquote>
+<p>这里可能有点小小忘记sit和nat的<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/">主备机制</a>了：</p>
+<img src="/2023/10/04/f2fs%E4%B8%ADnat%E4%B8%8Esit%E4%BD%8D%E5%9B%BE%E7%AE%A1%E7%90%86/e70cb7105d434b019d36cf0992dd232f.jpeg" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
+</blockquote>
+<h3 id="cp-payload"><a href="#cp-payload" class="headerlink" title="cp_payload"></a>cp_payload</h3><p>首先解释一下cp_payload这个字段，由于在f2fs的cp pack中的第一个块本来应该放置f2fs_checkpoint这个数据结构的，但是我们发现这个数据结构的大小不够一个block，也就是还有剩余的空间，所以当sit&#x2F;nat version bitmap比较大的时候，那么这两个bitmap是需要额外的空间来保存的，所以cp_payload记录的就是这个额外的空间的块的数量。</p>
+<img src="/2023/10/04/f2fs%E4%B8%ADnat%E4%B8%8Esit%E4%BD%8D%E5%9B%BE%E7%AE%A1%E7%90%86/image-20231004225233756.png" srcset="/img/loading.gif" lazyload alt="image-20231004225233756" style="zoom:80%;">
+
+<blockquote>
+<p>图片源自知乎LZT：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/639115192">https://zhuanlan.zhihu.com/p/639115192</a></p>
+</blockquote>
+<h3 id="位图管理与主备机制"><a href="#位图管理与主备机制" class="headerlink" title="位图管理与主备机制"></a>位图管理与主备机制</h3><p>当我们需要通过nid获取node的地址时，可能会走到这一步：【详见-&gt;sit和nat的<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/">主备机制</a>】</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pgoff_t</span> <span class="hljs-title function_">current_nat_addr</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">nid_t</span> start)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nm_info</span> *<span class="hljs-title">nm_i</span> =</span> NM_I(sbi);<br>	<span class="hljs-type">pgoff_t</span> block_off;<br>	<span class="hljs-type">pgoff_t</span> block_addr;<br>	<br>    <span class="hljs-comment">// 计算偏移量</span><br>	block_off = NAT_BLOCK_OFFSET(start);<br>	<br>    <span class="hljs-comment">// 计算在主区中的偏移量</span><br>	block_addr = (<span class="hljs-type">pgoff_t</span>)(nm_i-&gt;nat_blkaddr +<br>		(block_off &lt;&lt; <span class="hljs-number">1</span>) -<br>		(block_off &amp; (sbi-&gt;blocks_per_seg - <span class="hljs-number">1</span>)));<br>	<br>    <span class="hljs-comment">// nat_bitmap指明是在主区还是备区</span><br>    <span class="hljs-comment">// 如果在备区，还要加上blocks_per_seg</span><br>	<span class="hljs-keyword">if</span> (f2fs_test_bit(block_off, nm_i-&gt;nat_bitmap))<br>		block_addr += sbi-&gt;blocks_per_seg;<br><br>	<span class="hljs-keyword">return</span> block_addr;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到通过f2fs_test_bit来判断nid对应的node block是在nat的主区还是备区中，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//addr是char(8bit)类型数组的位图，nr为偏移量，得到nr处的位图状况</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_test_bit</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> nr, <span class="hljs-type">char</span> *addr)</span><br>&#123;<br>	<span class="hljs-type">int</span> mask;<br><br>	addr += (nr &gt;&gt; <span class="hljs-number">3</span>);<span class="hljs-comment">//找到nr属于哪个字节</span><br>	mask = <span class="hljs-number">1</span> &lt;&lt; (<span class="hljs-number">7</span> - (nr &amp; <span class="hljs-number">0x07</span>));<span class="hljs-comment">//nr &amp; 0x07就是nr%8，7-他=从后面数的第几位，然后将1左移这些位就得到了nr处mask</span><br>	<span class="hljs-keyword">return</span> mask &amp; *addr;<span class="hljs-comment">//拿着mask与该字节处做与，就得到了该位的状况</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>当我们在f2fs_checkpoint区域中的<strong>sit_nat_version_bitmap</strong>发现该位为1，说明当前还在checkpoint区域还<strong>没有下刷</strong>，所以<strong>需要取备区中</strong>的。当进行checkpoint操作的时候，会下刷到nat区域，同时位图中对应的位为被清理。那么，下次再次访问nid对应的node block地址时，在page cache找不到，在cp区域的nat journal找不到，最终回去nat区域找，而cp区域位图已经清理过了，所以在主区就可以了。</p>
+
                 
               </div>
             
