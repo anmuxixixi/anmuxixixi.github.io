@@ -1,0 +1,755 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="linux内核链表 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;to_be_better_wen&#x2F;article&#x2F;details&#x2F;127720433  一、Linux内核链表简介Linux内核中需要经常用到双链表，该链表只有指针域，没有数据域。在很多的数据结构中都会嵌入struct list_head结构体变量，它可以使结构体加入到一个双向链表中。链表的初始化，增加，删除等操作的接口在li">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux内核链表">
+<meta property="og:url" content="http://example.com/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="linux内核链表 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;to_be_better_wen&#x2F;article&#x2F;details&#x2F;127720433  一、Linux内核链表简介Linux内核中需要经常用到双链表，该链表只有指针域，没有数据域。在很多的数据结构中都会嵌入struct list_head结构体变量，它可以使结构体加入到一个双向链表中。链表的初始化，增加，删除等操作的接口在li">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/c8f72d6a3d554bc79ecb1d4076cd45ed.png">
+<meta property="og:image" content="http://example.com/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/7acf68571d31469891f10361299dcf96.png">
+<meta property="og:image" content="http://example.com/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/0f24f204a2034c5cae94e9bb7e796635.png">
+<meta property="og:image" content="http://example.com/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/b54ea1e8ca784b2bbdbaef085bc90c01.png">
+<meta property="og:image" content="http://example.com/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/dd2eeb6f00484fa7a5eb243274df053a.png">
+<meta property="article:published_time" content="2023-10-07T15:04:47.000Z">
+<meta property="article:modified_time" content="2023-10-07T15:29:54.797Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/c8f72d6a3d554bc79ecb1d4076cd45ed.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>linux内核链表 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="linux内核链表"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-10-07 23:04" pubdate>
+          2023年10月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          68 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">linux内核链表</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="linux内核链表"><a href="#linux内核链表" class="headerlink" title="linux内核链表"></a>linux内核链表</h1><blockquote>
+<p>转载自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/to_be_better_wen/article/details/127720433">https://blog.csdn.net/to_be_better_wen/article/details/127720433</a></p>
+</blockquote>
+<h2 id="一、Linux内核链表简介"><a href="#一、Linux内核链表简介" class="headerlink" title="一、Linux内核链表简介"></a>一、Linux内核链表简介</h2><p>Linux内核中需要经常用到双链表，该链表只有指针域，没有数据域。在很多的数据结构中都会嵌入struct list_head结构体变量，它可以使结构体加入到一个双向链表中。链表的初始化，增加，删除等操作的接口在linux-x.x.x&#x2F;include&#x2F;linux&#x2F;list.h里面，内核链表在内核中使用的是如此广泛，所以需要深刻的理解。</p>
+<h2 id="二、Linux内核链表使用介绍"><a href="#二、Linux内核链表使用介绍" class="headerlink" title="二、Linux内核链表使用介绍"></a>二、Linux内核链表使用介绍</h2><p><strong>1.基本数据结构</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> *<span class="hljs-title">next</span>, *<span class="hljs-title">prev</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>从结构体成员看，内核链表是一个双向链表，没有数据域，next指向下一个链表元素，prev指向上一个链表元素。</p>
+<p><strong>2. 链表的初始化</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LIST_HEAD_INIT(name) &#123; &amp;(name), &amp;(name) &#125;</span><br> <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> LIST_HEAD(name) \</span><br><span class="hljs-meta">	struct list_head name = LIST_HEAD_INIT(name)</span><br></code></pre></td></tr></table></figure>
+
+<p>链表声明和初始化的通常用LIST_HEAD(name)处理。LIST_HEAD定义了一个变量struct list变量name，并且name的next和prev指针都指向name的地址。如下图所示：</p>
+<img src="/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/c8f72d6a3d554bc79ecb1d4076cd45ed.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 80%;">
+
+<p><strong>3.链表元素添加</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> __list_add(<span class="hljs-keyword">struct</span> list_head *new,<br>			      <span class="hljs-keyword">struct</span> list_head *prev,<br>			      <span class="hljs-keyword">struct</span> list_head *next)<br>&#123;<br>	next-&gt;prev = new;<br>	new-&gt;next = next;<br>	new-&gt;prev = prev;<br>	prev-&gt;next = new;<br>&#125;<br> <br># 向头部添加 (在链表头指针和链表第一个元素之间插入元素)<br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">list_add</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> list_head *new, <span class="hljs-keyword">struct</span> list_head *head)</span><br>&#123;<br>	__list_add(new, head, head-&gt;next);<br>&#125;<br> <br># 向尾部添加 (在链表最后一个元素和链表头指针之间插入元素)<br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">list_add_tail</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> list_head *new, <span class="hljs-keyword">struct</span> list_head *head)</span><br>&#123;<br>	__list_add(new, head-&gt;prev, head);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/7acf68571d31469891f10361299dcf96.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p>list_add函数向__list_add函数传入的prev和next参数分别是head和head-&gt;next，所以list_add函数是在链表头指针和链表第一个元素之间插入new元素。</p>
+<p>list_add_tail函数向__list_add函数传入的prev和next指针分别是head-&gt;prev和head，head-&gt;prev就是指向链表的最后一个元素，所以list_add_tail是在链表最后一个元素和链表头指针之间插入元素。</p>
+<p><strong>4.链表元素删除</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> __list_del(<span class="hljs-keyword">struct</span> list_head * prev, <span class="hljs-keyword">struct</span> list_head * next)<br>&#123;<br>	next-&gt;prev = prev;<br>	prev-&gt;next = next;<br>&#125;<br> <br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> __list_del_entry(<span class="hljs-keyword">struct</span> list_head *entry)<br>&#123;<br>	__list_del(entry-&gt;prev, entry-&gt;next);<br>&#125;<br> <br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">list_del</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> list_head *entry)</span><br>&#123;<br>	__list_del(entry-&gt;prev, entry-&gt;next);<br>	entry-&gt;next = LIST_POISON1;<br>	entry-&gt;prev = LIST_POISON2;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> _list_del函数的作用是删除prev和next指针指向的元素之间的元素，如下图所示</p>
+<img src="/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/0f24f204a2034c5cae94e9bb7e796635.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+
+<p> __list_del_entry函数向__list_del函数传入的的prev和next参数分别指向是要删除元素的前一个元素和后一个元素。</p>
+<p>list_del函数和__list_del_entry函数的区别是将删除元素的前向指针和后向指针都指向一个非法值，如元素从链表中删除后仍然反问，则会产生内存页错误。</p>
+<p><strong>5.链表的遍历</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * list_for_each	-	iterate over a list</span><br><span class="hljs-comment"> * @pos:	the &amp;struct list_head to use as a loop cursor.</span><br><span class="hljs-comment"> * @head:	the head for your list.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> list_for_each(pos, head) \</span><br><span class="hljs-meta">	for (pos = (head)-&gt;next; pos != (head); pos = pos-&gt;next)</span><br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * list_for_each_prev	-	iterate over a list backwards</span><br><span class="hljs-comment"> * @pos:	the &amp;struct list_head to use as a loop cursor.</span><br><span class="hljs-comment"> * @head:	the head for your list.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> list_for_each_prev(pos, head) \</span><br><span class="hljs-meta">	for (pos = (head)-&gt;prev; pos != (head); pos = pos-&gt;prev)</span><br> <br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * list_for_each_safe - iterate over a list safe against removal of list entry</span><br><span class="hljs-comment"> * @pos:	the &amp;struct list_head to use as a loop cursor.</span><br><span class="hljs-comment"> * @n:		another &amp;struct list_head to use as temporary storage</span><br><span class="hljs-comment"> * @head:	the head for your list.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> list_for_each_safe(pos, n, head) \</span><br><span class="hljs-meta">	for (pos = (head)-&gt;next, n = pos-&gt;next; pos != (head); \</span><br><span class="hljs-meta">		pos = n, n = pos-&gt;next)</span><br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * list_for_each_prev_safe - iterate over a list backwards safe against removal of list entry</span><br><span class="hljs-comment"> * @pos:	the &amp;struct list_head to use as a loop cursor.</span><br><span class="hljs-comment"> * @n:		another &amp;struct list_head to use as temporary storage</span><br><span class="hljs-comment"> * @head:	the head for your list.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> list_for_each_prev_safe(pos, n, head) \</span><br><span class="hljs-meta">	for (pos = (head)-&gt;prev, n = pos-&gt;prev; \</span><br><span class="hljs-meta">	     pos != (head); \</span><br><span class="hljs-meta">	     pos = n, n = pos-&gt;prev)</span><br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * list_for_each_entry	-	iterate over list of given type</span><br><span class="hljs-comment"> * @pos:	the type * to use as a loop cursor.</span><br><span class="hljs-comment"> * @head:	the head for your list.</span><br><span class="hljs-comment"> * @member:	the name of the list_struct within the struct.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> list_for_each_entry(pos, head, member)				\</span><br><span class="hljs-meta">	for (pos = list_first_entry(head, typeof(*pos), member);	\</span><br><span class="hljs-meta">	     &amp;pos-&gt;member != (head);					\</span><br><span class="hljs-meta">	     pos = list_next_entry(pos, member))</span><br></code></pre></td></tr></table></figure>
+
+<p>list_for_each函数是按照从前往后的顺序遍历链表，通过不断指向元素的next元素，直到元素的指针和链表头指针地址相同，则表示链表遍历完成。</p>
+<p>list_for_each_prev函数则是从链表的尾部元素向前遍历。</p>
+<p>list_for_each_safe函数引入了指针n，用于存储pos的下一个元素的地址。引入指针n可以方便在遍历链表的时候删除pos指向的元素，而不影响遍历。list_for_each无法做到这一点。</p>
+<p>list_for_each_prev_safe函数和list_for_each_safe函数的区别是从后往前遍历。</p>
+<p>list_for_each_entry函数是list_for_each和list_entry的结合，有pos，head，member三个参数，pos是一个中间变量，指向当前访问的链表元素，head指链表头，member指pos指向的结构体中链表成员变量的名称，示意图如下：</p>
+<img src="/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/b54ea1e8ca784b2bbdbaef085bc90c01.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p><strong>6.查找链表元素</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * list_entry - get the struct for this entry</span><br><span class="hljs-comment"> * @ptr:	the &amp;struct list_head pointer.</span><br><span class="hljs-comment"> * @type:	the type of the struct this is embedded in.</span><br><span class="hljs-comment"> * @member:	the name of the list_struct within the struct.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> list_entry(ptr, type, member) \</span><br><span class="hljs-meta">	container_of(ptr, type, member)</span><br></code></pre></td></tr></table></figure>
+
+<p>list_entry宏有三个参数ptr，type，member。ptr是指数据结构中struct list_head变量成员的地址，type是指数据结构的类型，member是指数据结构中struct list_head的变量名。list_entry宏的结果是ptr指向的type类型的数据结构的变量地址。</p>
+<img src="/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/dd2eeb6f00484fa7a5eb243274df053a.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 80%;">
+
+<p><strong>代码示例：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">task_struct</span> &#123;</span><br>    ...<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">tasks</span>;</span><br>    ...<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>如果要获取某个struct task_struct类型的变量的地址，ptr指向该变量的tasks指针变量的地址，则可以这么写</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">task_struct</span> *<span class="hljs-title">addr</span> =</span> list_entry(ptr, <span class="hljs-keyword">struct</span> task_struct, tasks);<br></code></pre></td></tr></table></figure>
+
+<p>举例：list_for_each和list_entry配合使用</p>
+<p>list_for_each函数用于获取数据结构中struct list_head成员的地址，list_entry则是通过struct list_head成员的地址获取到数据结构的地址。</p>
+<p><strong>代码示例：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">list_for_each(pos, &amp;<span class="hljs-built_in">list</span>)<br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">task_struct</span> *<span class="hljs-title">addr</span> =</span> list_entry(pos, <span class="hljs-keyword">struct</span> task_struct, tasks);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h2><p><strong>代码示例：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/init.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/slab.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/list.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/rculist.h&gt;</span></span><br> <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stu_info</span></span><br><span class="hljs-class">&#123;</span><br>   <span class="hljs-type">char</span>* name;<br>   <span class="hljs-type">int</span> age;<br>   <span class="hljs-type">void</span> (*print)(<span class="hljs-keyword">struct</span> stu_info *stu);<br>   <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">list</span>;</span><br>&#125;;<br> <br><span class="hljs-type">void</span> <span class="hljs-title function_">print_info</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> stu_info *stu)</span><br>&#123;<br>    printk(<span class="hljs-string">&quot;name = %s, age = %d\n&quot;</span>, stu-&gt;name, stu-&gt;age);<br>&#125;<br> <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stu_info</span> <span class="hljs-title">students</span>[8] =</span> &#123;<br>	&#123;<span class="hljs-string">&quot;Zhao&quot;</span>, <span class="hljs-number">20</span>, print_info&#125;,<br>	&#123;<span class="hljs-string">&quot;Qian&quot;</span>, <span class="hljs-number">21</span>, print_info&#125;,<br>	&#123;<span class="hljs-string">&quot;Sun&quot;</span>, <span class="hljs-number">22</span>, print_info&#125;,<br>	&#123;<span class="hljs-string">&quot;Li&quot;</span>, <span class="hljs-number">23</span>, print_info&#125;,<br>&#125;;<br> <br>LIST_HEAD(stu);<br> <br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">student_list_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> *<span class="hljs-title">pos</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stu_info</span> *<span class="hljs-title">s</span>;</span><br> <br>	list_add(&amp;students[<span class="hljs-number">0</span>].<span class="hljs-built_in">list</span>, &amp;stu);<br>	list_add(&amp;students[<span class="hljs-number">1</span>].<span class="hljs-built_in">list</span>, &amp;stu);<br>	list_add(&amp;students[<span class="hljs-number">2</span>].<span class="hljs-built_in">list</span>, &amp;stu);<br>	list_add(&amp;students[<span class="hljs-number">3</span>].<span class="hljs-built_in">list</span>, &amp;stu);<br> <br>	list_for_each(pos, &amp;stu)<br>	&#123;<br>		s = list_entry(pos, <span class="hljs-keyword">struct</span> stu_info, <span class="hljs-built_in">list</span>);<br>		s-&gt;print(s);<br>	&#125;<br>	<br> <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">student_list_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>   printk(<span class="hljs-string">&quot;student_list_exit\n&quot;</span>);<br> <br>   <span class="hljs-keyword">return</span>;<br>&#125;<br> <br>module_init(student_list_init);<br>module_exit(student_list_exit);<br>MODULE_LICENSE(<span class="hljs-string">&quot;Dual BSD/GPL&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">[<span class="hljs-number">19764.110000</span>] name = Li, age = <span class="hljs-number">23</span><br>[<span class="hljs-number">19764.120000</span>] name = Sun, age = <span class="hljs-number">22</span><br>[<span class="hljs-number">19764.120000</span>] name = Qian, age = <span class="hljs-number">21</span><br>[<span class="hljs-number">19764.130000</span>] name = Zhao, age = <span class="hljs-number">20</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="四-常用的2个链表遍历函数"><a href="#四-常用的2个链表遍历函数" class="headerlink" title="四.常用的2个链表遍历函数"></a>四.常用的2个链表遍历函数</h2><h3 id="4-1-list-for-each-entry"><a href="#4-1-list-for-each-entry" class="headerlink" title="4.1 list_for_each_entry"></a>4.1 list_for_each_entry</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * list_for_each_entry    - iterate over list of given type</span><br><span class="hljs-comment"> * @pos:    the type * to use as a loop cursor.</span><br><span class="hljs-comment"> * @head:    the head for your list.</span><br><span class="hljs-comment"> * @member:    the name of the list_struct within the struct.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> list_for_each_entry(pos, head, member)                \</span><br><span class="hljs-meta">    for (pos = list_entry((head)-&gt;next, typeof(*pos), member);    \</span><br><span class="hljs-meta">         &amp;pos-&gt;member != (head);     \</span><br><span class="hljs-meta">         pos = list_entry(pos-&gt;member.next, typeof(*pos), member))</span><br></code></pre></td></tr></table></figure>
+
+<p>这个宏的作用就是根据list_head对链表进行遍历。</p>
+<ul>
+<li>pos ：表示每一次遍历是返回的结构体变量的首地址</li>
+<li>head : 表示要遍历的链表的头部</li>
+<li>member ：表示该链表在结构体中的成员名称</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/list.h&gt;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> *<span class="hljs-title">next</span>, *<span class="hljs-title">prev</span>;</span><br>&#125;;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">usrList</span> &#123;</span> <br>    <span class="hljs-type">int</span> index;<br>    <span class="hljs-type">int</span> data; <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">list</span>;</span> <br>&#125; USR_LIST_TYPE; <br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span> <br>&#123; <br>    USR_LIST_TYPE msg, *pmsg; <br>    LIST_HEAD(msg_head);<br>    <span class="hljs-type">int</span> *ptr = &amp;msg.data;<br>    <span class="hljs-type">int</span> i; <span class="hljs-comment">/* insert the 10 msgs */</span> <br>    <span class="hljs-keyword">for</span>(i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) &#123; <br>        pmsg = (USR_LIST_TYPE *)<span class="hljs-built_in">malloc</span>(<span class="hljs-keyword">sizeof</span>(USR_LIST_TYPE)); <br>        pmsg-&gt;index = i + <span class="hljs-number">1</span>; <br>        pmsg-&gt;data = (i + <span class="hljs-number">1</span>)*<span class="hljs-number">10</span>; <br>        list_add_tail(&amp;pmsg-&gt;<span class="hljs-built_in">list</span>, &amp;msg_head); <br>    &#125; <br><br>    <span class="hljs-comment">/* 根据list 遍历 整个链表，并打印信息 */</span> <br>    list_for_each_entry(pmsg, &amp;msg_head, <span class="hljs-built_in">list</span>)<br>    &#123; <br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;msg index:%d data:%d\n&quot;</span>, pmsg-&gt;index, pmsg-&gt;data); <br>    &#125; <br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-2-list-for-each-entry-safe"><a href="#4-2-list-for-each-entry-safe" class="headerlink" title="4.2 list_for_each_entry_safe"></a>4.2 list_for_each_entry_safe</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment">* list_for_each_entry_safe - iterate over list of given type safe against removal of list entry</span><br><span class="hljs-comment">* @pos:     the type * to use as a loop cursor.</span><br><span class="hljs-comment">* @n:          another type * to use as temporary storage</span><br><span class="hljs-comment">* @head:     the head for your list.</span><br><span class="hljs-comment">* @member:     the name of the list_struct within the struct.</span><br><span class="hljs-comment">*/</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> list_for_each_entry_safe(pos, n, head, member)               \</span><br><span class="hljs-meta">     for (pos = list_entry((head)-&gt;next, typeof(*pos), member),     \</span><br><span class="hljs-meta">          n = list_entry(pos-&gt;member.next, typeof(*pos), member);     \</span><br><span class="hljs-meta">          &amp;pos-&gt;member != (head);                         \</span><br><span class="hljs-meta">          pos = n, n = list_entry(n-&gt;member.next, typeof(*n), member))</span><br></code></pre></td></tr></table></figure>
+
+<p>这段代码是一个宏定义，用于遍历一个链表中所有的元素，并且在遍历过程中可以安全地删除元素。具体来说，这个宏定义的功能是：</p>
+<ol>
+<li>遍历链表中所有的元素，从头节点开始，直到尾节点结束。</li>
+<li>对于每个元素，使用给定的结构体成员变量名找到它所属的结构体对象，并且将该对象的指针赋值给给定的变量名。</li>
+<li>在遍历过程中，可以安全地删除当前元素，因为它在删除前会先保存下一个元素的指针，保证不会影响遍历的正确性。</li>
+</ol>
+<p>下面是这个宏定义的详细解释：</p>
+<ul>
+<li>pos：用于保存当前遍历到的元素的指针。</li>
+<li>tmp：用于保存下一个元素的指针，以便在删除当前元素后继续遍历。</li>
+<li>head：链表的头节点。</li>
+<li>member：链表节点所在的结构体成员变量名。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>linux内核链表</div>
+      <div>http://example.com/2023/10/07/linux内核链表/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年10月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/10/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%ADf2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%98%AF%E5%90%A6%E4%BD%BF%E7%94%A8%E5%A4%9A%E8%AE%BE%E5%A4%87/" title="如何判断f2fs文件系统是否使用多设备">
+                        <span class="hidden-mobile">如何判断f2fs文件系统是否使用多设备</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
