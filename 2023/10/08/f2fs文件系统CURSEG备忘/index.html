@@ -1,0 +1,707 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="f2fs文件系统CURSEG备忘 内容均来自于作者HuberyPan 🎮图标的地方仔细阅读一下！  1.f2fs_summary的作用有一些场合，需要通过data的物理地址找到保存这个地址的node的信息。例如GC的时候，F2FS会找到一个segment进行GC，将数据块迁移到新的segment中。此时系统要根据segment里面的block的物理地址，反过来找到node的信息，然后将新的数据块">
+<meta property="og:type" content="article">
+<meta property="og:title" content="f2fs文件系统CURSEG备忘">
+<meta property="og:url" content="http://example.com/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/index.html">
+<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:description" content="f2fs文件系统CURSEG备忘 内容均来自于作者HuberyPan 🎮图标的地方仔细阅读一下！  1.f2fs_summary的作用有一些场合，需要通过data的物理地址找到保存这个地址的node的信息。例如GC的时候，F2FS会找到一个segment进行GC，将数据块迁移到新的segment中。此时系统要根据segment里面的block的物理地址，反过来找到node的信息，然后将新的数据块">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE2NDk0MDA=,size_16,color_FFFFFF,t_70#pic_center.png">
+<meta property="og:image" content="http://example.com/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE2NDk0MDA=,size_16,color_FFFFFF,t_70#pic_center-1696768748324-3.png">
+<meta property="article:published_time" content="2023-10-08T12:13:35.000Z">
+<meta property="article:modified_time" content="2023-10-08T12:45:39.533Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE2NDk0MDA=,size_16,color_FFFFFF,t_70#pic_center.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>f2fs文件系统CURSEG备忘 - 一只安慕嘻</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"5f9d3edcc5e93f7fb0c85cf03554f3aa","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5f9d3edcc5e93f7fb0c85cf03554f3aa";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>一只安慕嘻</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="f2fs文件系统CURSEG备忘"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-10-08 20:13" pubdate>
+          2023年10月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          52 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">f2fs文件系统CURSEG备忘</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="f2fs文件系统CURSEG备忘"><a href="#f2fs文件系统CURSEG备忘" class="headerlink" title="f2fs文件系统CURSEG备忘"></a>f2fs文件系统CURSEG备忘</h1><blockquote>
+<p>内容均来自于作者<a target="_blank" rel="noopener" href="https://blog.csdn.net/u011649400">HuberyPan</a></p>
+<p>🎮图标的地方仔细阅读一下！</p>
+</blockquote>
+<h2 id="1-f2fs-summary的作用"><a href="#1-f2fs-summary的作用" class="headerlink" title="1.f2fs_summary的作用"></a>1.f2fs_summary的作用</h2><p>有一些场合，需要通过data的物理地址找到保存这个地址的node的信息。例如GC的时候，F2FS会找到一个segment进行GC，将数据块迁移到新的segment中。此时系统要根据segment里面的block的物理地址，反过来找到node的信息，然后将新的数据块物理地址重新更新的node的对应位置。</p>
+<p>因此SSA的<strong>主要</strong>作用是<strong>提供系统通过数据块物理地址找到所属的node的信息的能力</strong>。我们可以直接分析<code>f2fs_summary</code>的源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary</span> &#123;</span><br>	__le32 nid;		<span class="hljs-comment">/* parent node id */</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		__u8 reserved[<span class="hljs-number">3</span>];<br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>			__u8 version;		<span class="hljs-comment">/* node version number */</span><br>			__le16 ofs_in_node;	<span class="hljs-comment">/* block index in parent node */</span><br>		&#125; __packed;<br>	&#125;;<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>系统中每一个<strong>数据块</strong>的物理地址，都对应了一个f2fs_summary，系统可以通过物理地址找到对应的f2fs_summary。f2fs_summary的nid变量表示当前的数据块所属的node的nid。而ofs_in_node则表示当前的数据块位于这个node的第几个block，即f2**fs_inode-&gt;i_addr[ofs_in_node]**或者direct_node-&gt;addr[ofs_in_node]。</p>
+<h2 id="2-Checkpoint在元数据区域的物理结构"><a href="#2-Checkpoint在元数据区域的物理结构" class="headerlink" title="2.Checkpoint在元数据区域的物理结构"></a>2.Checkpoint在元数据区域的物理结构</h2><img src="/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE2NDk0MDA=,size_16,color_FFFFFF,t_70#pic_center.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>根据上述的结构图，Checkpoint区域由几个部分构成，分别是checkpoint元数据区域(f2fs_checkpoint)、orphan node区域、active segments区域。同时active segments区域在不同的情况下，会有不同的形式，目的是减少IO的写入。接下来分别讨论Checkpoint不同的部分。</p>
+<h3 id="2-1-Checkpoint元数据区域"><a href="#2-1-Checkpoint元数据区域" class="headerlink" title="2.1 Checkpoint元数据区域"></a>2.1 Checkpoint元数据区域</h3><p>F2FS使用数据结构f2fs_checkpoint表示Checkpoint结构，它保存在磁盘中f2fs_super_block之后区域中，数据结构如下。需要特别注意的是<strong>cur_node_segno</strong>、<strong>cur_node_blkoff</strong>、<strong>cur_data_segno</strong>、<strong>cur_data_blkoff</strong>这几个变量。F2FS分为了6个log区域，分别对应<strong>hot node&#x2F;data、warm node&#x2F;data、cold node&#x2F;data</strong>。F2FS必须定时执行Checkpoint去记录当前系统的log分配到哪个位置，否则在系统宕机的时候，会出现数据丢失等一致性问题，因此cur_xxx_segno以及cur_xxx_blkoff记录了上次Checkpoint时，系统正在使用的log的segment number，以及分配到这个segment的哪个位置。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_checkpoint</span> &#123;</span><br>	__le64 checkpoint_ver;		<span class="hljs-comment">/* CP版本，用于比较新旧版本进行恢复 */</span><br>	__le64 user_block_count;	<span class="hljs-comment">/* # of user blocks */</span><br>	__le64 valid_block_count;	<span class="hljs-comment">/* # of valid blocks in main area */</span><br>	__le32 rsvd_segment_count;	<span class="hljs-comment">/* # of reserved segments for gc */</span><br>	__le32 overprov_segment_count;	<span class="hljs-comment">/* # of overprovision segments */</span><br>	__le32 free_segment_count;	<span class="hljs-comment">/* # of free segments in main area */</span><br><br>	<span class="hljs-comment">/* information of current node segments */</span><br>	__le32 cur_node_segno[MAX_ACTIVE_NODE_LOGS];<br>	__le16 cur_node_blkoff[MAX_ACTIVE_NODE_LOGS];<br>	<span class="hljs-comment">/* information of current data segments */</span><br>	__le32 cur_data_segno[MAX_ACTIVE_DATA_LOGS];<br>	__le16 cur_data_blkoff[MAX_ACTIVE_DATA_LOGS];<br>	__le32 ckpt_flags;		<span class="hljs-comment">/* Flags : umount and journal_present */</span><br>	__le32 cp_pack_total_block_count;	<span class="hljs-comment">/* total # of one cp pack */</span><br>	__le32 cp_pack_start_sum;	<span class="hljs-comment">/* start block number of data summary */</span><br>	__le32 valid_node_count;	<span class="hljs-comment">/* Total number of valid nodes */</span><br>	__le32 valid_inode_count;	<span class="hljs-comment">/* Total number of valid inodes */</span><br>	__le32 next_free_nid;		<span class="hljs-comment">/* Next free node number */</span><br>	__le32 sit_ver_bitmap_bytesize;	<span class="hljs-comment">/* Default value 64 */</span><br>	__le32 nat_ver_bitmap_bytesize; <span class="hljs-comment">/* Default value 256 */</span><br>	__le32 checksum_offset;		<span class="hljs-comment">/* checksum offset inside cp block */</span><br>	__le64 elapsed_time;		<span class="hljs-comment">/* mounted time */</span><br>	<span class="hljs-comment">/* allocation type of current segment */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> alloc_type[MAX_ACTIVE_LOGS];<br><br>	<span class="hljs-comment">/* SIT and NAT version bitmap */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> sit_nat_version_bitmap[<span class="hljs-number">1</span>];<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-Active-Segments区域"><a href="#2-2-Active-Segments区域" class="headerlink" title="2.2 Active Segments区域"></a>2.2 Active Segments区域</h3><h4 id="2-2-1-Active-Segments的定义"><a href="#2-2-1-Active-Segments的定义" class="headerlink" title="2.2.1 Active Segments的定义"></a>2.2.1 Active Segments的定义</h4><p>**Active Segments，又称current segment(CURSEG)**，即当前正在用于进行数据分配的log对应的segment，如用户需要写入8KB数据，那么就会从active segments分配两个block提供给用户写入到磁盘中。F2FS为了提高数据分配的效率，根据数据的特性，一共定义了6个active segment，这6个active segments对应了(how, warm, cold) X (node, data)的数据。</p>
+<h4 id="2-2-2-Active-Segment与恢复相关的数据结构"><a href="#2-2-2-Active-Segment与恢复相关的数据结构" class="headerlink" title="2.2.2 Active Segment与恢复相关的数据结构"></a>2.2.2 Active Segment与恢复相关的数据结构</h4><p>CP的主要任务是维护数据一致性，因此CP的active segment区域的主要任务是维护Active Segment的分配状态，使系统宕机时候可以恢复正常。维护active segment需要维护三种信息，分别是f2fs_checkpoint的信息，以及该segment对应的journal和summary的信息。</p>
+<ul>
+<li>f2fs_checkpoint中Active Segment信息：从上面给出的f2fs_checkpoint定义，cur_node_segno[MAX_ACTIVE_NODE_LOGS]和cur_data_segno[MAX_ACTIVE_DATA_LOGS]表示node和data当前的Active Segment的编号(segment number, segno)，系统可以通过这个编号找到对应的segment。MAX_ACTIVE_NODE_LOGS以及MAX_ACTIVE_NODE_LOGS分别表示data和node有多少种类型，F2FS默认情况下都等于3，即HOT、WARM、COLD类型数据。cur_node_blkoff[MAX_ACTIVE_NODE_LOGS]以及cur_data_blkoff[MAX_ACTIVE_DATA_LOGS]则分别表示当前active segment分配到哪一个block(一个segment包含了512个block)。</li>
+<li>Segment对应的Journal信息：Journal在两处地方都有出现，分别是CP区域以及SSA区域。🎮<strong>CP区域的journal主要用来保存active segment的修改信息，而SSA区域的则是持久化保存的所有的segment的journal信息。</strong>如系统分配出一个block给用户，那么就要将这个block所在的segment的bitmap中标记为已分配，防止其他写请求使用。分两个区域存放journal是为了减轻频繁更新导致的系统性能下降。例如，当系统写压力很大的时候，bitmap就会频繁被更新，如果这个时候频繁将bitmap写入SIT，就会加重写压力。因此CP区域的Journal的作用就是维护这些经常修改的数据，等待CP被触发的时候才回写到闪存设备，从而减少写压力，提高闪存寿命。</li>
+<li>Segment对应的Summary信息：summary同样在CP区域和SSA区域有出现，它表示的是逻辑地址和物理地址的映射关系，这个映射关系会使用到GC流程中。summary与segment是一对一的关系，一个summary保存了一个segment所有的block的物理地址和逻辑地址的映射关系。summary保存在CP区域中同样是出于减少IO的写入。</li>
+</ul>
+<h3 id="2-3-Checkpoint内存管理结构"><a href="#2-3-Checkpoint内存管理结构" class="headerlink" title="2.3 Checkpoint内存管理结构"></a>2.3 Checkpoint内存管理结构</h3><p>Checkpoint的内存管理结构是struct f2fs_checkpoint本身，因为Checkpoint一般只在F2FS启动的时候被读取数据，用于数据恢复，而在运行过程中大部分情况都是被写，用于记录恢复信息。因此，Checkpoint不需要过于复杂的内存管理结构，因此使用struct f2fs_checkpoint本身即可以满足需求。</p>
+<p>另一方面，🎮<strong>active segments，即F2FS的log，主要用于系统free block的分配</strong>，因此需要特定的管理结构struct curseg_info进行管理，它的定义如下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">curseg_info</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mutex</span> <span class="hljs-title">curseg_mutex</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary_block</span> *<span class="hljs-title">sum_blk</span>;</span>	<span class="hljs-comment">/* 每一个segment对应一个summary block */</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rw_semaphore</span> <span class="hljs-title">journal_rwsem</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_journal</span> *<span class="hljs-title">journal</span>;</span>		<span class="hljs-comment">/*每一个segment对应一个 info */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> alloc_type;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> segno;			<span class="hljs-comment">/* 当前segno */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> next_blkoff;		<span class="hljs-comment">/* 记录当前segment用于分配的下一个给block号 */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> zone;			<span class="hljs-comment">/* current zone number */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> next_segno;		<span class="hljs-comment">/* 当前segno用完以后，下个即将用来分配的segno */</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>从结构分析可以直到，curseg_info记录当前的segment的分配信息，当系统出现宕机的时候，可以从CP记录的curseg_info恢复当上一次CP点的状态。</p>
+<p>🎮 <strong>每一种类型的active segment就对应一个struct curseg_info结构</strong>。在F2FS中，使用一个数组来表示:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sm_info</span> &#123;</span><br>	...<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">curseg_info</span> *<span class="hljs-title">curseg_array</span>;</span> <span class="hljs-comment">// 默认是分配6个curseg_info，分别对应不同类型</span><br>	...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>struct f2fs_sm_info</code>是SIT的管理结构，它也管理了CP最终的active segment的信息，是一个跨区域的管理结构。</p>
+<h2 id="3-元数据区SSA区域"><a href="#3-元数据区SSA区域" class="headerlink" title="3.元数据区SSA区域"></a>3.元数据区SSA区域</h2><img src="/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE2NDk0MDA=,size_16,color_FFFFFF,t_70#pic_center-1696768748324-3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<h3 id="3-1-SSA物理存放区域结构"><a href="#3-1-SSA物理存放区域结构" class="headerlink" title="3.1 SSA物理存放区域结构"></a>3.1 SSA物理存放区域结构</h3><p>SSA的基本存放单元是<code>struct f2fs_summary_block</code>，它结构如下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary_block</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary</span> <span class="hljs-title">entries</span>[<span class="hljs-title">ENTRIES_IN_SUM</span>];</span> <span class="hljs-comment">// ENTRIES_IN_SUM = 512</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_journal</span> <span class="hljs-title">journal</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">summary_footer</span> <span class="hljs-title">footer</span>;</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>与summary直接相关的是<code>struct f2fs_summary</code>以及<code>struct summary_footer</code>。<code>ENTRIES_IN_SUM</code>的值512，因此每一个entry对应一个block，记录了从物理地址到逻辑地址的映射关系，entry的结构如下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary</span> &#123;</span><br>	__le32 nid;		<span class="hljs-comment">/* parent node id */</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		__u8 reserved[<span class="hljs-number">3</span>];<br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>			__u8 version;		<span class="hljs-comment">/* node version number */</span><br>			__le16 ofs_in_node;	<span class="hljs-comment">/* block index in parent node */</span><br>		&#125; __packed;<br>	&#125;;<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>用了一个union结构进行表示，但是核心信息是nid、version以及ofs_in_node。数据的索引是通过node来进行，文件访问某一个页的数据时，需要首先根据页的索引，找到对应的nid以及offset(两者构成逻辑地址)，从而根据nid得到node page，再根据offset得到了该页的物理地址，然后从磁盘中读取出来。f2fs_summary则是记录物理地址到逻辑地址的映射，即根据物理地址找到对应的nid以及offset。例如，现在需要根据物理地址为624的block，找到对应的nid以及offset。那么物理地址为624，可以得到该地址位于第二个segment，然后属于第二个segment的第113个block(block的编址从0开始)。因此根据属于第二个segment的信息，找到第二个struct f2fs_summary_block，然后根据偏移量为113的信息，找到对应的struct f2fs_summary结构，从而得到nid以及ofs_in_node。</p>
+<p>struct summary_footer结构记录了校验信息，以及这个summary对应的segment是<strong>属于保存data数据的segment还是node数据的segment</strong>。</p>
+<h3 id="3-2-SSA内存管理结构"><a href="#3-2-SSA内存管理结构" class="headerlink" title="3.2 SSA内存管理结构"></a>3.2 SSA内存管理结构</h3><p>SSA在内存没有单独的管理结构，summary以及journal在内存中主要存在于<code>CURSEG</code>中，可以从Checkpoint结构这一章节（第2节）找到相关的描述。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>f2fs文件系统CURSEG备忘</div>
+      <div>http://example.com/2023/10/08/f2fs文件系统CURSEG备忘/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年10月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/10/07/linux%E5%86%85%E6%A0%B8%E9%93%BE%E8%A1%A8/" title="linux内核链表">
+                        <span class="hidden-mobile">linux内核链表</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
