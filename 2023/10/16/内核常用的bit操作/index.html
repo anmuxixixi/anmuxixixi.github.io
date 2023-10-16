@@ -16,15 +16,15 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="内核常用的bit操作set_bit&#x2F;clear_bitset_bit(nr,addr)将addr的第nr位置1 clear_bit(nr,addr) test_and_set_bit(nr,addr)将addr的第nr位置1，并返回原始addr第nr位的值 test_and_clear_bit(nr,addr) 页锁123456789101112131415161718192021sta">
+    <meta name="description" content="内核常用的bit操作set_bit&#x2F;clear_bitset_bit(nr,addr)将addr的第nr位置1 clear_bit(nr,addr) test_and_set_bit(nr,addr)将addr的第nr位置1，并返回原始addr第nr位的值 test_and_clear_bit(nr,addr) 页锁12345678910111213141516171819202122s">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内核常用的bit操作">
 <meta property="og:url" content="http://example.com/2023/10/16/%E5%86%85%E6%A0%B8%E5%B8%B8%E7%94%A8%E7%9A%84bit%E6%93%8D%E4%BD%9C/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="内核常用的bit操作set_bit&#x2F;clear_bitset_bit(nr,addr)将addr的第nr位置1 clear_bit(nr,addr) test_and_set_bit(nr,addr)将addr的第nr位置1，并返回原始addr第nr位的值 test_and_clear_bit(nr,addr) 页锁123456789101112131415161718192021sta">
+<meta property="og:description" content="内核常用的bit操作set_bit&#x2F;clear_bitset_bit(nr,addr)将addr的第nr位置1 clear_bit(nr,addr) test_and_set_bit(nr,addr)将addr的第nr位置1，并返回原始addr第nr位的值 test_and_clear_bit(nr,addr) 页锁12345678910111213141516171819202122s">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-10-16T13:59:02.000Z">
-<meta property="article:modified_time" content="2023-10-16T14:22:58.881Z">
+<meta property="article:modified_time" content="2023-10-16T14:50:12.922Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -237,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          687 字
+          732 字
         
       </span>
     
@@ -248,7 +248,7 @@
         
         
         
-          6 分钟
+          7 分钟
         
       </span>
     
@@ -303,7 +303,7 @@
 <p>clear_bit(nr,addr)</p>
 <p>test_and_set_bit(nr,addr)将addr的第nr位置1，并返回原始addr第nr位的值</p>
 <p>test_and_clear_bit(nr,addr)</p>
-<h3 id="页锁"><a href="#页锁" class="headerlink" title="页锁"></a>页锁</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">lock_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *page)</span><br>&#123;<br>	might_sleep();<br>	<span class="hljs-keyword">if</span> (!trylock_page(page))<br>		__lock_page(page);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">int</span> <span class="hljs-title function_">trylock_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *page)</span><br>&#123;<br>	page = compound_head(page);<br>    <span class="hljs-comment">// 将page-&gt;flags的第PG_locked(0)位设置为1</span><br>	<span class="hljs-keyword">return</span> (likely(!test_and_set_bit_lock(PG_locked, &amp;page-&gt;flags)));<br>&#125;<br><br><span class="hljs-type">void</span> __lock_page(<span class="hljs-keyword">struct</span> page *__page)<br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">page</span> =</span> compound_head(__page);<br>	<span class="hljs-type">wait_queue_head_t</span> *q = page_waitqueue(page);<br>	wait_on_page_bit_common(q, page, PG_locked, TASK_UNINTERRUPTIBLE,<br>				EXCLUSIVE);<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="页锁"><a href="#页锁" class="headerlink" title="页锁"></a>页锁</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">lock_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *page)</span><br>&#123;<br>	might_sleep();<br>	<span class="hljs-keyword">if</span> (!trylock_page(page))<br>		__lock_page(page);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">int</span> <span class="hljs-title function_">trylock_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *page)</span><br>&#123;<br>	page = compound_head(page);<br>    <span class="hljs-comment">// 检查是否可以锁定这个page.如果没有其他进程用这个page，则直接设置flag来锁定这个page，否则调用__lock_page</span><br>	<span class="hljs-comment">// 来等待这个页面被释放</span><br>	<span class="hljs-keyword">return</span> (likely(!test_and_set_bit_lock(PG_locked, &amp;page-&gt;flags)));<br>&#125;<br><br><span class="hljs-type">void</span> __lock_page(<span class="hljs-keyword">struct</span> page *__page)<br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">page</span> =</span> compound_head(__page);<br>	<span class="hljs-type">wait_queue_head_t</span> *q = page_waitqueue(page);<br>	wait_on_page_bit_common(q, page, PG_locked, TASK_UNINTERRUPTIBLE,<br>				EXCLUSIVE);<br>&#125;<br></code></pre></td></tr></table></figure>
 
 
                 
