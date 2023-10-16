@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>内核常用的bit操作</title>
+    <link href="/2023/10/16/%E5%86%85%E6%A0%B8%E5%B8%B8%E7%94%A8%E7%9A%84bit%E6%93%8D%E4%BD%9C/"/>
+    <url>/2023/10/16/%E5%86%85%E6%A0%B8%E5%B8%B8%E7%94%A8%E7%9A%84bit%E6%93%8D%E4%BD%9C/</url>
+    
+    <content type="html"><![CDATA[<h1 id="内核常用的bit操作"><a href="#内核常用的bit操作" class="headerlink" title="内核常用的bit操作"></a>内核常用的bit操作</h1><h3 id="set-bit-x2F-clear-bit"><a href="#set-bit-x2F-clear-bit" class="headerlink" title="set_bit&#x2F;clear_bit"></a>set_bit&#x2F;clear_bit</h3><p>set_bit(nr,addr)将addr的第nr位置1</p><p>clear_bit(nr,addr)</p><p>test_and_set_bit(nr,addr)将addr的第nr位置1，并返回原始addr第nr位的值</p><p>test_and_clear_bit(nr,addr)</p><h3 id="页锁"><a href="#页锁" class="headerlink" title="页锁"></a>页锁</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">lock_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *page)</span><br>&#123;<br>might_sleep();<br><span class="hljs-keyword">if</span> (!trylock_page(page))<br>__lock_page(page);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">int</span> <span class="hljs-title function_">trylock_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *page)</span><br>&#123;<br>page = compound_head(page);<br>    <span class="hljs-comment">// 将page-&gt;flags的第PG_locked(0)位设置为1</span><br><span class="hljs-keyword">return</span> (likely(!test_and_set_bit_lock(PG_locked, &amp;page-&gt;flags)));<br>&#125;<br><br><span class="hljs-type">void</span> __lock_page(<span class="hljs-keyword">struct</span> page *__page)<br>&#123;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">page</span> =</span> compound_head(__page);<br><span class="hljs-type">wait_queue_head_t</span> *q = page_waitqueue(page);<br>wait_on_page_bit_common(q, page, PG_locked, TASK_UNINTERRUPTIBLE,<br>EXCLUSIVE);<br>&#125;<br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>bio实现对磁盘读写，用bio_add_page与submit_bio的方式</title>
     <link href="/2023/10/16/bio%E5%AE%9E%E7%8E%B0%E5%AF%B9%E7%A3%81%E7%9B%98%E8%AF%BB%E5%86%99%EF%BC%8C%E7%94%A8bio-add-page%E4%B8%8Esubmit-bio%E7%9A%84%E6%96%B9%E5%BC%8F/"/>
     <url>/2023/10/16/bio%E5%AE%9E%E7%8E%B0%E5%AF%B9%E7%A3%81%E7%9B%98%E8%AF%BB%E5%86%99%EF%BC%8C%E7%94%A8bio-add-page%E4%B8%8Esubmit-bio%E7%9A%84%E6%96%B9%E5%BC%8F/</url>
