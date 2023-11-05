@@ -244,6 +244,72 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/09/11/%E7%BB%93%E6%9E%84%E4%BD%93%E4%BD%8D%E5%9F%9F/" target="_self">
+          结构体位域
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/11/%E7%BB%93%E6%9E%84%E4%BD%93%E4%BD%8D%E5%9F%9F/" target="_self">
+        <div>
+          结构体位域 转载自：https://www.cnblogs.com/bigrabbit/archive/2012/09/20/2695543.html  有些信息在存储时，并不需要占用一个完整的字节， 而只需占几个或一个二进制位。例如在存放一个开关量时，只有0和1 两种状态， 用一位二进位即可。为了节省存储空间，并使处理简便，C语言又提供了一种数据结构，称为“位域”或“位段”。所谓“位域”是把一个
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-11 22:20" pubdate>
+              2023-09-11
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/09/06/std-lock-guard%E5%BC%95%E8%B5%B7%E7%9A%84%E6%80%9D%E8%80%83/" target="_self">
+          std::lock_guard引起的思考
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/06/std-lock-guard%E5%BC%95%E8%B5%B7%E7%9A%84%E6%80%9D%E8%80%83/" target="_self">
+        <div>
+          std::lock_guard引起的思考 转载自：https://www.jianshu.com/p/681f553fa4ab  std::lock_guard 简介这个类是一个互斥量的包装类，用来提供自动为互斥量上锁和解锁的功能，简化了多线程编程，用法如下： 12345678910#include &lt;mutex&gt;std::mutex kMutex;void function() &#
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-06 22:00" pubdate>
+              2023-09-06
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/09/06/C-%E7%8B%AC%E7%AB%8B%E5%A4%A7%E6%8B%AC%E5%8F%B7/" target="_self">
           C++独立大括号
         </a>
@@ -521,72 +587,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2023-08-22 21:26" pubdate>
               2023-08-22
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E6%A0%91%E7%BB%93%E6%9E%84/" target="_self">
-          f2fs文件系统目录树结构
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E6%A0%91%E7%BB%93%E6%9E%84/" target="_self">
-        <div>
-          
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-08-21 22:33" pubdate>
-              2023-08-21
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/" target="_self">
-          f2fs文件系统node block相关概念
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/" target="_self">
-        <div>
-          f2fs文件系统node block相关概念1.inode、dnode、indnode区别我们知道node block的数据结构形式为： 1234567891011121314151617struct f2fs_node &#123;	/* can be one of three types: inode, direct, and indirect types */	union &#123;		s
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-08-21 22:32" pubdate>
-              2023-08-21
             </time>
           </div>
         

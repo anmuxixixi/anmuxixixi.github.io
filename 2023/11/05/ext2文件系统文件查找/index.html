@@ -16,25 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Linux命令拾遗-使用blktrace分析io情况 原创：打码日记（微信公众号ID：codelogs），欢迎分享，转载请保留出处。 https:&#x2F;&#x2F;www.cnblogs.com&#x2F;codelogs&#x2F;p&#x2F;16060775.html  简介一般来说，想检查磁盘I&#x2F;O情况，可以使用iostat、iotop、sar等，但这些命令只能做一个整体的了解，没法具体到某一次io的详细情况，而今天介绍的">
+    <meta name="description" content="ext2文件系统学习笔记 参考：https:&#x2F;&#x2F;www.bilibili.com&#x2F;read&#x2F;cv17345430&#x2F;  1.准备文件系统镜像1）制作128K大小的镜像文件 1234amx@amxxxx:~&#x2F;Desktop&#x2F;ext2$ dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;ext2.img bs&#x3D;1k count&#x3D;128128+0 records in128+0 records out131072 b">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux命令拾遗-使用blktrace分析io情况">
-<meta property="og:url" content="http://example.com/2023/10/30/Linux%E5%91%BD%E4%BB%A4%E6%8B%BE%E9%81%97-%E4%BD%BF%E7%94%A8blktrace%E5%88%86%E6%9E%90io%E6%83%85%E5%86%B5/index.html">
+<meta property="og:title" content="ext2文件系统学习笔记">
+<meta property="og:url" content="http://example.com/2023/11/05/ext2%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE/index.html">
 <meta property="og:site_name" content="一只安慕嘻">
-<meta property="og:description" content="Linux命令拾遗-使用blktrace分析io情况 原创：打码日记（微信公众号ID：codelogs），欢迎分享，转载请保留出处。 https:&#x2F;&#x2F;www.cnblogs.com&#x2F;codelogs&#x2F;p&#x2F;16060775.html  简介一般来说，想检查磁盘I&#x2F;O情况，可以使用iostat、iotop、sar等，但这些命令只能做一个整体的了解，没法具体到某一次io的详细情况，而今天介绍的">
+<meta property="og:description" content="ext2文件系统学习笔记 参考：https:&#x2F;&#x2F;www.bilibili.com&#x2F;read&#x2F;cv17345430&#x2F;  1.准备文件系统镜像1）制作128K大小的镜像文件 1234amx@amxxxx:~&#x2F;Desktop&#x2F;ext2$ dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;ext2.img bs&#x3D;1k count&#x3D;128128+0 records in128+0 records out131072 b">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/10/30/Linux%E5%91%BD%E4%BB%A4%E6%8B%BE%E9%81%97-%E4%BD%BF%E7%94%A8blktrace%E5%88%86%E6%9E%90io%E6%83%85%E5%86%B5/2792815-20220326203847680-773190512.png">
-<meta property="article:published_time" content="2023-10-30T14:11:54.000Z">
-<meta property="article:modified_time" content="2023-10-30T14:14:31.413Z">
+<meta property="article:published_time" content="2023-11-05T15:22:51.000Z">
+<meta property="article:modified_time" content="2023-11-05T15:31:02.790Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/10/30/Linux%E5%91%BD%E4%BB%A4%E6%8B%BE%E9%81%97-%E4%BD%BF%E7%94%A8blktrace%E5%88%86%E6%9E%90io%E6%83%85%E5%86%B5/2792815-20220326203847680-773190512.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Linux命令拾遗-使用blktrace分析io情况 - 一只安慕嘻</title>
+  <title>ext2文件系统学习笔记 - 一只安慕嘻</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -216,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Linux命令拾遗-使用blktrace分析io情况"></span>
+            <span id="subtitle" data-typed-text="ext2文件系统学习笔记"></span>
           
         </div>
 
@@ -227,8 +225,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-10-30 22:11" pubdate>
-          2023年10月30日 晚上
+        <time datetime="2023-11-05 23:22" pubdate>
+          2023年11月5日 晚上
         </time>
       </span>
     
@@ -239,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          869 字
+          1.8k 字
         
       </span>
     
@@ -250,7 +248,7 @@
         
         
         
-          8 分钟
+          15 分钟
         
       </span>
     
@@ -296,27 +294,23 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Linux命令拾遗-使用blktrace分析io情况</h1>
+            <h1 style="display: none">ext2文件系统学习笔记</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="Linux命令拾遗-使用blktrace分析io情况"><a href="#Linux命令拾遗-使用blktrace分析io情况" class="headerlink" title="Linux命令拾遗-使用blktrace分析io情况"></a>Linux命令拾遗-使用blktrace分析io情况</h1><blockquote>
-<p>原创：打码日记（微信公众号ID：codelogs），欢迎分享，转载请保留出处。</p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/codelogs/p/16060775.html">https://www.cnblogs.com/codelogs/p/16060775.html</a></p>
+                <h1 id="ext2文件系统学习笔记"><a href="#ext2文件系统学习笔记" class="headerlink" title="ext2文件系统学习笔记"></a>ext2文件系统学习笔记</h1><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv17345430/">https://www.bilibili.com/read/cv17345430/</a></p>
 </blockquote>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>一般来说，想检查磁盘I&#x2F;O情况，可以使用iostat、iotop、sar等，但这些命令只能做一个整体的了解，没法具体到某一次io的详细情况，而今天介绍的blktrace就可以深入到Linux I&#x2F;O栈的方方面面，把一切都搞得明明白白的！</p>
-<h2 id="Linux内核I-x2F-O栈"><a href="#Linux内核I-x2F-O栈" class="headerlink" title="Linux内核I&#x2F;O栈"></a>Linux内核I&#x2F;O栈</h2><p>先了解下Linux内核I&#x2F;O栈，一般来说，我们对网络协议栈比较熟悉，比如网络协议分了5层，每一层都是干什么的，但对于I&#x2F;O栈，则了解相对较少，如下：</p>
-<img src="/2023/10/30/Linux%E5%91%BD%E4%BB%A4%E6%8B%BE%E9%81%97-%E4%BD%BF%E7%94%A8blktrace%E5%88%86%E6%9E%90io%E6%83%85%E5%86%B5/2792815-20220326203847680-773190512.png" srcset="/img/loading.gif" lazyload alt="Linux-storage-stack-diagram_v4.0" style="zoom:80%;">
+<h2 id="1-准备文件系统镜像"><a href="#1-准备文件系统镜像" class="headerlink" title="1.准备文件系统镜像"></a>1.准备文件系统镜像</h2><p><strong>1）制作128K大小的镜像文件</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">amx@amxxxx:~/Desktop/ext2$ dd if=/dev/zero of=ext2.img bs=1k count=128<br>128+0 records in<br>128+0 records out<br>131072 bytes (131 kB, 128 KiB) copied, 0.000203712 s, 643 MB/s<br></code></pre></td></tr></table></figure>
 
-<p>Linux内核I&#x2F;O栈大概分了6层，如下：</p>
-<ul>
-<li>文件系统层<br>提供了open、read、write等文件操作的系统调用给应用程序使用，并且Linux提供了文件系统的统一抽象vfs，使得Linux中可适配各种类型的文件系统，如ext4、btrfs、zfs、fat32、ntfs等，而我们常说的磁盘格式化，实际上就是在安装文件系统，重新写入相关文件系统的初始元数据信息到磁盘。</li>
-<li>卷管理层<br>比如我们常听到的<code>Device Mapper</code>、<code>LVM</code>、<code>soft raid</code>就属于这一层，用于将多个磁盘合为一个，或将一个磁盘拆分为多个。</li>
-<li>块存储层<br>这一层主要实现io调度逻辑，比如将一个大io请求拆分为多个小的io请求，将相邻的io请求合并，实现各种io调度算法等，常见io调度算法有CFQ、NOOP、Deadline、AS。</li>
-<li>存储驱动层<br>每一个硬件都需要驱动程序，硬盘也不例外，如常听到的SCSI、ACHI、NVME等，且如&#x2F;dev&#x2F;sda这样的设备抽象文件，也由这一层实现。</li>
-<li>硬件层<br>硬件层就是具体的硬盘实物了，但我们经常听到ATA、SATA、SCSI、PCIe、SAS等这样的名词，这是不同的硬盘接口规范，就像手机充电线有Type-A、Type-B、Type-C一样。</li>
-</ul>
+<p><strong>2）格式化为ext2文件系统格式</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell">amx@amxxxx:~/Desktop/ext2$ mkfs.ext2 ext2.img <br>mke2fs 1.44.5 (15-Dec-2018)<br>Discarding device blocks: done                            <br>Creating filesystem with 128 1k blocks and 16 inodes<br><br>Allocating group tables: done                            <br>Writing inode tables: done                            <br>Writing superblocks and filesystem accounting information: done<br></code></pre></td></tr></table></figure>
+
+<p><strong>3）查看文件系统信息</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs shell">amx@amxxxx:~/Desktop/ext2$ dumpe2fs ext2.img <br>dumpe2fs 1.44.5 (15-Dec-2018)<br>Filesystem volume name:   &lt;none&gt;<br>Last mounted on:          &lt;not available&gt;<br>Filesystem UUID:          f3e761bb-a73f-405b-9753-ebb9c66bff9f<br>Filesystem magic number:  0xEF53<br>Filesystem revision #:    1 (dynamic)<br>Filesystem features:      ext_attr resize_inode dir_index filetype sparse_super large_file<br>Filesystem flags:         signed_directory_hash <br>Default mount options:    user_xattr acl<br>Filesystem state:         clean<br>Errors behavior:          Continue<br>Filesystem OS type:       Linux<br>Inode count:              16<br>Block count:              128<br>Reserved block count:     6<br>Free blocks:              107<br>Free inodes:              5<br>First block:              1<br>Block size:               1024<br>Fragment size:            1024<br>Blocks per group:         8192<br>Fragments per group:      8192<br>Inodes per group:         16<br>Inode blocks per group:   2<br>Filesystem created:       Sun Nov  5 23:30:07 2023<br>Last mount time:          n/a<br>Last write time:          Sun Nov  5 23:30:07 2023<br>Mount count:              0<br>Maximum mount count:      -1<br>Last checked:             Sun Nov  5 23:30:07 2023<br>Check interval:           0 (&lt;none&gt;)<br>Reserved blocks uid:      0 (user root)<br>Reserved blocks gid:      0 (group root)<br>First inode:              11<br>Inode size:               128<br>Default directory hash:   half_md4<br>Directory Hash Seed:      74e00af1-b33a-44a6-bc36-184f882b344b<br><br><br>Group 0: (Blocks 1-127)<br>  Primary superblock at 1, Group descriptors at 2-2<br>  Block bitmap at 3 (+2)<br>  Inode bitmap at 4 (+3)<br>  Inode table at 5-6 (+4)<br>  107 free blocks, 5 free inodes, 2 directories<br>  Free blocks: 21-127<br>  Free inodes: 12-16<br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
@@ -334,8 +328,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Linux命令拾遗-使用blktrace分析io情况</div>
-      <div>http://example.com/2023/10/30/Linux命令拾遗-使用blktrace分析io情况/</div>
+      <div>ext2文件系统学习笔记</div>
+      <div>http://example.com/2023/11/05/ext2文件系统文件查找/</div>
     </div>
     <div class="license-meta">
       
@@ -347,7 +341,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年10月30日</div>
+          <div>2023年11月5日</div>
         </div>
       
       
@@ -379,9 +373,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/11/05/ext2%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE/" title="ext2文件系统学习笔记">
+                      <a href="/2023/11/05/ext2%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/" title="ext2文件系统学习路径">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">ext2文件系统学习笔记</span>
+                        <span class="hidden-mobile">ext2文件系统学习路径</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -389,8 +383,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/10/30/%E8%BD%AF%E4%B8%AD%E6%96%AD%E7%AC%94%E8%AE%B0/" title="软中断笔记">
-                        <span class="hidden-mobile">软中断笔记</span>
+                      <a href="/2023/10/30/Linux%E5%91%BD%E4%BB%A4%E6%8B%BE%E9%81%97-%E4%BD%BF%E7%94%A8blktrace%E5%88%86%E6%9E%90io%E6%83%85%E5%86%B5/" title="Linux命令拾遗-使用blktrace分析io情况">
+                        <span class="hidden-mobile">Linux命令拾遗-使用blktrace分析io情况</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
