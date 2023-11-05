@@ -20,11 +20,11 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="ext2文件系统学习笔记">
 <meta property="og:url" content="http://example.com/2023/11/05/ext2%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE/index.html">
-<meta property="og:site_name" content="一只安慕嘻">
+<meta property="og:site_name" content="疯狂少年">
 <meta property="og:description" content="ext2文件系统学习笔记 参考：https:&#x2F;&#x2F;www.bilibili.com&#x2F;read&#x2F;cv17345430&#x2F;  1.准备文件系统镜像1）制作128K大小的镜像文件 1234amx@amxxxx:~&#x2F;Desktop&#x2F;ext2$ dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;ext2.img bs&#x3D;1k count&#x3D;128128+0 records in128+0 records out131072 b">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-11-05T15:22:51.000Z">
-<meta property="article:modified_time" content="2023-11-05T15:44:50.997Z">
+<meta property="article:modified_time" content="2023-11-05T15:50:27.527Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -32,7 +32,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>ext2文件系统学习笔记 - 一只安慕嘻</title>
+  <title>ext2文件系统学习笔记 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -237,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.4k 字
+          4.2k 字
         
       </span>
     
@@ -248,7 +248,7 @@
         
         
         
-          20 分钟
+          36 分钟
         
       </span>
     
@@ -327,9 +327,24 @@
 <blockquote>
 <p>hello文件夹的inode号为12，amx.txt文件的inode号为13</p>
 </blockquote>
-<h2 id="2-解析文件系统镜像"><a href="#2-解析文件系统镜像" class="headerlink" title="2.解析文件系统镜像"></a>2.解析文件系统镜像</h2><ol>
-<li></li>
-</ol>
+<h2 id="2-解析文件系统镜像"><a href="#2-解析文件系统镜像" class="headerlink" title="2.解析文件系统镜像"></a>2.解析文件系统镜像</h2><p><strong>1）dump文件系统镜像</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs shell">amx@amxxxx:~/Desktop/ext2$ hexdump -C ext2.img    <br>00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>00000400  10 00 00 00 80 00 00 00  06 00 00 00 6b 00 00 00  |............k...|<br>00000410  05 00 00 00 01 00 00 00  00 00 00 00 00 00 00 00  |................|<br>00000420  00 20 00 00 00 20 00 00  10 00 00 00 00 00 00 00  |. ... ..........|<br>00000430  20 b6 47 65 01 00 ff ff  53 ef 00 00 01 00 00 00  | .Ge....S.......|<br>00000440  ff b4 47 65 00 00 00 00  00 00 00 00 01 00 00 00  |..Ge............|<br>00000450  00 00 00 00 0b 00 00 00  80 00 00 00 38 00 00 00  |............8...|<br>00000460  02 00 00 00 03 00 00 00  f3 e7 61 bb a7 3f 40 5b  |..........a..?@[|<br>00000470  97 53 eb b9 c6 6b ff 9f  00 00 00 00 00 00 00 00  |.S...k..........|<br>00000480  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>000004e0  00 00 00 00 00 00 00 00  00 00 00 00 74 e0 0a f1  |............t...|<br>000004f0  b3 3a 44 a6 bc 36 18 4f  88 2b 34 4b 01 00 00 00  |.:D..6.O.+4K....|<br>00000500  0c 00 00 00 00 00 00 00  ff b4 47 65 00 00 00 00  |..........Ge....|<br>00000510  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>00000560  01 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>00000570  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>00000800  03 00 00 00 04 00 00 00  05 00 00 00 69 00 03 00  |............i...|<br>00000810  03 00 04 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>00000820  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>......<br>00001a60  00 00 00 00 7d 9b ef 10  00 00 00 00 00 00 00 00  |....&#125;...........|<br>00001a70  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>00001c00  02 00 00 00 0c 00 01 02  2e 00 00 00 02 00 00 00  |................|<br>00001c10  0c 00 02 02 2e 2e 00 00  0b 00 00 00 14 00 0a 02  |................|<br>00001c20  6c 6f 73 74 2b 66 6f 75  6e 64 00 00 0c 00 00 00  |lost+found......|<br>00001c30  d4 03 05 02 68 65 6c 6c  6f 00 00 00 00 00 00 00  |....hello.......|<br>00001c40  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|<br>*<br>......<br>*<br>00020000<br></code></pre></td></tr></table></figure>
+
+<p>镜像文件中（均为16进制显示） </p>
+<ul>
+<li>00000000 开始的1k大小 保留的引导块 </li>
+<li>块1 00000400 开始的1k大小 保存磁盘的超级块 （dumpe2fs的部分信息从这里获得） </li>
+<li>块2 00000800 开始的1k大小 保存块组描述符 （dumpe2fs的部分信息从这里获得） </li>
+<li>块3 00000c00 开始的1k大小 保存块位图 </li>
+<li>块4 00001000 开始的1k大小 保存 Inode 位图 </li>
+<li>块5 块6 00001400 开始的2k大小 保存 Inode表</li>
+<li>剩下的为数据块</li>
+</ul>
+<blockquote>
+<p>其分别对应了ext2文件系统的布局结构体</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
