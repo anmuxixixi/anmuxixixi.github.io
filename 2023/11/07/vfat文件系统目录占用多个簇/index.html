@@ -16,23 +16,28 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？ 版权声明：本文为CSDN博主「Icy_Ybk」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。原文链接：https:&#x2F;&#x2F;blog.csdn.net&#x2F;Icy_Ybk&#x2F;article&#x2F;details&#x2F;88619890  问题发现首先不得不说的是，当年在我不了解如何格式化一个分区到 FAT">
+    <meta name="description" content="vfat文件系统目录占用多个簇背景在读fsck_msdos代码的时候，这里很迷惑，readDosDirSection这个是用来建立目录树的，到底在什么样的情况下do while循环会读多个簇，然后将簇里面所有的目录项进行处理，今天探究一下！   环境构造1）创建128M的vfat.img 1234amx@amxxxx:~&#x2F;Desktop&#x2F;vfat$ dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;vfat.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？">
-<meta property="og:url" content="http://example.com/2023/11/07/Linux-%E4%B8%8B%E6%A0%BC%E5%BC%8F%E5%8C%96-FAT32-%E5%88%86%E5%8C%BA%EF%BC%8C%E5%8F%AA%E6%98%AF%E4%B8%80%E4%B8%AA-mkfs-vfat-%E5%B0%B1%E8%A1%8C%E4%BA%86%E5%90%97%EF%BC%9F/index.html">
+<meta property="og:title" content="vfat文件系统目录占用多个簇">
+<meta property="og:url" content="http://example.com/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？ 版权声明：本文为CSDN博主「Icy_Ybk」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。原文链接：https:&#x2F;&#x2F;blog.csdn.net&#x2F;Icy_Ybk&#x2F;article&#x2F;details&#x2F;88619890  问题发现首先不得不说的是，当年在我不了解如何格式化一个分区到 FAT">
+<meta property="og:description" content="vfat文件系统目录占用多个簇背景在读fsck_msdos代码的时候，这里很迷惑，readDosDirSection这个是用来建立目录树的，到底在什么样的情况下do while循环会读多个簇，然后将簇里面所有的目录项进行处理，今天探究一下！   环境构造1）创建128M的vfat.img 1234amx@amxxxx:~&#x2F;Desktop&#x2F;vfat$ dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;vfat.">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-11-07T14:19:26.000Z">
-<meta property="article:modified_time" content="2023-11-07T14:22:42.939Z">
+<meta property="og:image" content="http://example.com/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/image-20231107225831715.png">
+<meta property="og:image" content="http://example.com/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/image-20231107231225501.png">
+<meta property="og:image" content="http://example.com/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/image-20231107230945625.png">
+<meta property="og:image" content="http://example.com/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/image-20231107234334629.png">
+<meta property="article:published_time" content="2023-11-07T14:46:16.000Z">
+<meta property="article:modified_time" content="2023-11-07T15:52:10.915Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/image-20231107225831715.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？ - 疯狂少年</title>
+  <title>vfat文件系统目录占用多个簇 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +219,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？"></span>
+            <span id="subtitle" data-typed-text="vfat文件系统目录占用多个簇"></span>
           
         </div>
 
@@ -225,7 +230,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-11-07 22:19" pubdate>
+        <time datetime="2023-11-07 22:46" pubdate>
           2023年11月7日 晚上
         </time>
       </span>
@@ -237,7 +242,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.6k 字
+          950 字
         
       </span>
     
@@ -248,7 +253,7 @@
         
         
         
-          13 分钟
+          8 分钟
         
       </span>
     
@@ -294,31 +299,37 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？</h1>
+            <h1 style="display: none">vfat文件系统目录占用多个簇</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="Linux-下格式化-FAT32-分区，只是一个-mkfs-vfat-就行了吗？"><a href="#Linux-下格式化-FAT32-分区，只是一个-mkfs-vfat-就行了吗？" class="headerlink" title="Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？"></a>Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？</h1><blockquote>
-<p>版权声明：本文为CSDN博主「Icy_Ybk」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Icy_Ybk/article/details/88619890">https://blog.csdn.net/Icy_Ybk/article/details/88619890</a></p>
-</blockquote>
-<h4 id="问题发现"><a href="#问题发现" class="headerlink" title="问题发现"></a>问题发现</h4><p>首先不得不说的是，当年在我不了解如何格式化一个分区到 FAT32 类型时，我选择了百度，当时得到的答案是 <code>mkfs.vfat device</code>。虽然惊奇于为何如此简单，但却没做深究，后来学会了如何看 infopage、manpage，也没仔细研究这里面的问题。</p>
-<p>直到现在，在种种偶然情况下，我恰好在研究制作启动盘中出现的问题，恰好在研究 windows bootsect.exe 原理，恰好用 qemu 模拟了不同的磁盘去在虚拟机里做实验，又恰好地注意到一个问题：我测试的是 FAT32，为什么有一部分盘，引导代码与其他的不一样？经过详细的分析，反推出了 bootsect.exe 的相关源码，这才知道，其中有一部分，是 FAT（准确说是 FAT16），而非 FAT32。</p>
-<h4 id="真实答案"><a href="#真实答案" class="headerlink" title="真实答案"></a>真实答案</h4><p>经过查看了 <code>man mkfs.vfat</code>，我发现了其中有这么一个参数：</p>
-<blockquote>
-<p>-F FAT-SIZE<br>    Specifies the type of file allocation tables used (12, 16 or 32 bit). If nothing is<br>    specified, mkfs.fat will automatically select between 12, 16 and 32 bit, whatever fits<br>    better for the filesystem size.</p>
-</blockquote>
-<p>-F 参数指定 FAT 的类型，可选的值有 12 位、16 位以及 32 位。当未指定时，<code>mkfs.fat</code> 会自动选择其中最合适的。</p>
-<p>所以，<code>mkfs.vfat device</code> 不能保证你格式化得到的分区一定是 FAT32，它会自动决定。真正有效的方案，应该是使用 <code>mkfs.vfat -F 32 device</code> 才可。<br>（注：由于 FAT32 的设定限制，<strong>不支持小于 32MB 的分区</strong>，否则会导致簇数达不到要求，在某些情况可能导致系统识别出错。）</p>
-<h4 id="详细探究"><a href="#详细探究" class="headerlink" title="详细探究"></a>详细探究</h4><p>或许让 mkfs.vfat 自己决定最佳的情况并不理想，但为什么有些情况下，就是 FAT32，而有些情况却不行？</p>
-<p>经过研究发现，在 dosfstools 源码的 mkfs.fat.c 文件中，有两个函数起到了关键作用：<code>establish_params</code> 和 <code>setup_tables</code>。</p>
-<p>函数 <code>establish_params</code> 对各种参数，比如每个扇区的字节数、一个簇有多少个扇区等，进行了初始设定，设定的来源包括用户指定参数、分区大小等。由代码中看出来，在用户未通过 -F 参数指定类型，且分区的大小达到了 512MB 时，程序自动采用 FAT32 类型。</p>
-<p>而在 <code>setup_tables</code> 中的决定分区类型部分，则是根据之前函数中设置的簇大小，以及分区的信息，分别计算出使用 FAT12、FAT16、FAT32 时簇数目是多少。判断得到的簇数是否满足要求，如果是，则进行之后的检查及决定。如果不是，在一个确定的簇大小范围内（用户指定或者自动判断），它会尝试增加簇大小，直到满足要求。最后，根据何种情况下能取得更多的簇数，选择是使用 FAT12 或者 FAT16。</p>
-<p>可见，<code>mkfs.vfat</code> 除了判断分区大小达到 512MB 时才使用 FAT32 类型，小于这个值，则只在 FAT12 或 FAT16 之间选择，就连源码中都有这么一个注释：</p>
-<blockquote>
-<p>FAT32 is (not yet) choosen automatically</p>
-</blockquote>
-<p>就实际状况而言，我们的存储介质一般并不小，不大可能低于 512MB，或许不指定 -F 参数的答案并非错误，只是不严谨；而当我们进行一些研究时，或者恰好碰上小于 512MB 的存储介质时，问题才得以显现。</p>
+                <h1 id="vfat文件系统目录占用多个簇"><a href="#vfat文件系统目录占用多个簇" class="headerlink" title="vfat文件系统目录占用多个簇"></a>vfat文件系统目录占用多个簇</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在读fsck_msdos代码的时候，这里很迷惑，<code>readDosDirSection</code>这个是用来建立目录树的，到底在什么样的情况下do while循环会读多个簇，然后将簇里面所有的目录项进行处理，今天探究一下！</p>
+<img src="/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/image-20231107225831715.png" srcset="/img/loading.gif" lazyload alt="image-20231107225831715" style="zoom:67%;">
+
+<h2 id="环境构造"><a href="#环境构造" class="headerlink" title="环境构造"></a>环境构造</h2><p><strong>1）创建128M的vfat.img</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">amx@amxxxx:~/Desktop/vfat$ <span class="hljs-built_in">dd</span> <span class="hljs-keyword">if</span>=/dev/zero of=vfat.img bs=4k count=32768<br>32768+0 records <span class="hljs-keyword">in</span><br>32768+0 records out<br>134217728 bytes (134 MB, 128 MiB) copied, 0.367814 s, 365 MB/s<br></code></pre></td></tr></table></figure>
+
+<p><strong>2）格式化为vfat格式</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">amx@amxxxx:~/Desktop/vfat$ mkfs.vfat -F 32 vfat.img <br>mkfs.fat 4.1 (2017-01-24)<br></code></pre></td></tr></table></figure>
+
+<p><strong>3）进行挂载</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">amx@amxxxx:~/Desktop/vfat$ <span class="hljs-built_in">mkdir</span> root_dir<br>amx@amxxxx:~/Desktop/vfat$ sudo mount -t vfat vfat.img root_dir/<br></code></pre></td></tr></table></figure>
+
+<p><strong>4）运行脚本，创建多个文件</strong></p>
+<p>通过<strong>bootblock</strong>结构体可以读出 <strong>bpbSecPerClust</strong> 和 <strong>bpbBytesPerSec</strong></p>
+<img src="/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/image-20231107231225501.png" srcset="/img/loading.gif" lazyload alt="image-20231107231225501" style="zoom:80%;">
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">iosize = boot-&gt;bpbSecPerClust * boot-&gt;bpbBytesPerSec;<br>entries = iosize / <span class="hljs-number">32</span>;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">* 这里我的:</span><br><span class="hljs-comment">* boot-&gt;bpbSecPerClust = 1    boot-&gt;bpbBytesPerSec = 512</span><br><span class="hljs-comment">* 因此 entries = 512 / 32 = 16</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
+
+<p>所以我这里只要创建大于16个文件接口，编写脚本<code>touch_vfat.sh</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br><br>for i in &#123;1..20&#125;<br>do<br>    name=&#x27;hello&#x27;$i&#x27;.txt&#x27;<br>    sudo touch $name<br>done<br></code></pre></td></tr></table></figure>
+
+<p>创建成功：</p>
+<img src="/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/image-20231107230945625.png" srcset="/img/loading.gif" lazyload alt="image-20231107230945625" style="zoom:80%;">
+
+<h2 id><a href="#" class="headerlink" title></a></h2><p>根目录开始地址 &#x3D; ((保留扇区数) + (每 FAT 扇区数) * (FAT 数)) * 扇区字节数<br>根目录开始地址 &#x3D; (0x20 + 0x07E1 * 0x02) * 512 &#x3D; <strong>0x1FC400</strong> Bytes</p>
+<img src="/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/image-20231107234334629.png" srcset="/img/loading.gif" lazyload alt="image-20231107234334629" style="zoom: 70%;">
 
                 
               </div>
@@ -336,8 +347,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？</div>
-      <div>http://example.com/2023/11/07/Linux-下格式化-FAT32-分区，只是一个-mkfs-vfat-就行了吗？/</div>
+      <div>vfat文件系统目录占用多个簇</div>
+      <div>http://example.com/2023/11/07/vfat文件系统目录占用多个簇/</div>
     </div>
     <div class="license-meta">
       
@@ -381,18 +392,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/11/07/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9B%AE%E5%BD%95%E5%8D%A0%E7%94%A8%E5%A4%9A%E4%B8%AA%E7%B0%87/" title="vfat文件系统目录占用多个簇">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">vfat文件系统目录占用多个簇</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/11/05/ext2%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/" title="ext2文件系统学习路径">
-                        <span class="hidden-mobile">ext2文件系统学习路径</span>
+                      <a href="/2023/11/07/Linux-%E4%B8%8B%E6%A0%BC%E5%BC%8F%E5%8C%96-FAT32-%E5%88%86%E5%8C%BA%EF%BC%8C%E5%8F%AA%E6%98%AF%E4%B8%80%E4%B8%AA-mkfs-vfat-%E5%B0%B1%E8%A1%8C%E4%BA%86%E5%90%97%EF%BC%9F/" title="Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？">
+                        <span class="hidden-mobile">Linux 下格式化 FAT32 分区，只是一个 mkfs.vfat 就行了吗？</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
