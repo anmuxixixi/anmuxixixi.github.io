@@ -249,6 +249,40 @@
       <h1 class="index-header">
         
         
+        <a href="/2023/10/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84write-checkpoint%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" target="_self">
+          f2fs文件系统的write checkpoint流程分析
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/10/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84write-checkpoint%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" target="_self">
+        <div>
+          f2fs文件系统的write checkpoint流程分析f2fs文件系统在2个地方都有这部分的代码，一个是原生Linux代码，一个是f2fs-tools工具中的代码。2份代码逻辑是一样的，只是代码编写方式不同，我推荐先f2fs-tools中的代码，这部分逻辑代码更加易懂，没有涉及打到缓存页的操作。 1.f2fs-tools中的write checkpoint这部分源码来自于Android 12源
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-10-02 12:46" pubdate>
+              2023-10-02
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
         <a href="/2023/09/19/%E5%AE%89%E5%8D%93checkpoint-disable%E5%A6%82%E4%BD%95%E4%BC%A0%E9%80%92%E5%88%B0f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" target="_self">
           安卓checkpoint=disable如何传递到f2fs文件系统
         </a>
@@ -543,68 +577,6 @@
           </div>
         
         
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2023/08/27/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0Android%E7%9A%84SystemService/" target="_self">
-          自己实现Android的SystemService
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/27/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0Android%E7%9A%84SystemService/" target="_self">
-        <div>
-          自己实现Android的SystemService 转载自：https://segmentfault.com/a/1190000039997577#item-2  在android启动过程中会有各式各样的服务，如何编写自己的服务呢？   1.编写AIDL文件新建 frameworks&#x2F;base&#x2F;core&#x2F;java&#x2F;android&#x2F;hardware&
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-08-27 20:08" pubdate>
-              2023-08-27
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Android学习笔记</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android/">#Android</a>
-            
-          </div>
         
       </div>
     </article>
