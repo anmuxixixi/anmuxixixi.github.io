@@ -34,8 +34,9 @@
 <meta property="og:image" content="http://example.com/2023/11/14/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE/image-20231114225130883.png">
 <meta property="og:image" content="http://example.com/2023/11/14/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE/image-20231114230809363.png">
 <meta property="og:image" content="http://example.com/2023/11/14/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE/image-20231114233113356.png">
+<meta property="og:image" content="http://example.com/2023/11/14/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE/image-20231115000055194.png">
 <meta property="article:published_time" content="2023-11-14T13:53:01.000Z">
-<meta property="article:modified_time" content="2023-11-14T15:56:42.147Z">
+<meta property="article:modified_time" content="2023-11-14T16:01:27.917Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/11/14/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE/image-20231114220202440.png">
@@ -428,6 +429,8 @@
 <h2 id="4-代码流程"><a href="#4-代码流程" class="headerlink" title="4.代码流程"></a>4.代码流程</h2><p>我是在fsck.f2fs看到了这一块的代码，所以自己写了个Demo验证一下，才有了此文。代码流程如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"># 根目录开始: fsck_chk_node_blk(sbi, <span class="hljs-literal">NULL</span>, sbi-&gt;root_ino_num, F2FS_FT_DIR, TYPE_INODE, &amp;blk_cnt, <span class="hljs-literal">NULL</span>);<br># 找到根目录对应的Node block，文件夹对应f2fs_inode: 以fsck_chk_inode_blk(sbi, nid, ftype, node_blk, blk_cnt, &amp;ni, child);<br># 找到i_addr为对应的data block: fsck_chk_data_blk(sbi,IS_CASEFOLDED(&amp;node_blk-&gt;i),blkaddr,...)<br># 此data block为dentry block，处理目录项: __chk_dentries<br># 建立目录树，开始校验子文件【逐步递归，检验所有】: fsck_chk_node_blk(sbi,<span class="hljs-literal">NULL</span>, le32_to_cpu(dentry[i].ino), ftype, TYPE_INODE,...)<br></code></pre></td></tr></table></figure>
 
+<p>node block为<strong>f2fs_inode</strong>类型时处理内联数据和内联文件夹为：</p>
+<img src="/2023/11/14/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE/image-20231115000055194.png" srcset="/img/loading.gif" lazyload alt="image-20231115000055194" style="zoom:67%;">
 
                 
               </div>
