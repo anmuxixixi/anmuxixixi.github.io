@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2023/11/27/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E9%85%8Dsegment/image-20231127221230546.png">
 <meta property="og:image" content="http://example.com/2023/11/27/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E9%85%8Dsegment/image-20231127221624982.png">
 <meta property="article:published_time" content="2023-11-27T13:42:08.000Z">
-<meta property="article:modified_time" content="2023-11-27T15:38:38.731Z">
+<meta property="article:modified_time" content="2023-11-27T15:47:02.200Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/11/27/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E9%85%8Dsegment/webp.webp">
@@ -251,7 +251,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.2k 字
+          9.4k 字
         
       </span>
     
@@ -262,7 +262,7 @@
         
         
         
-          77 分钟
+          79 分钟
         
       </span>
     
@@ -376,10 +376,10 @@
 
 <h3 id="3-3-找到最小代价的segment"><a href="#3-3-找到最小代价的segment" class="headerlink" title="3.3 找到最小代价的segment"></a>3.3 找到最小代价的segment</h3><img src="/2023/11/27/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E9%85%8Dsegment/image-20231127233247450.png" srcset="/img/loading.gif" lazyload alt="image-20231127233247450" style="zoom:67%;">
 
-<h3 id="3-4-赋值后退出"><a href="#3-4-赋值后退出" class="headerlink" title="3.4 赋值后退出"></a>3.4 赋值后退出</h3><p>两段赋值代码值得注意：</p>
+<h3 id="3-4-赋值后退出"><a href="#3-4-赋值后退出" class="headerlink" title="3.4 赋值后退出"></a>3.4 赋值后退出</h3><p>✅<strong>两段赋值代码值得注意：</strong></p>
 <ul>
 <li>**sm-&gt;last_victim[p.gc_mode]**：遍历结束后，根据segNo和上一次搜索的最终位置last_victim取最大值后 + of_unit，将其保存为这次搜素的最终位置，这样下次搜索就可以直接从这个位置开始【记忆化搜索，节省时间复杂度】。</li>
-<li>*<strong>result &#x3D; (p.min_segno &#x2F; p.ofs_unit) * p.ofs_unit</strong>：将找到的最小代价的segmentNo返回。</li>
+<li><em><strong>result &#x3D; (p.min_segno &#x2F; p.ofs_unit) * p.ofs_unit</strong>：将找到的最小代价的segmentNo返回。</em>*这里为什么先除后乘**，主要是针对victim为section的场景【这里的result返回的都是一个section中的第一个segno，min_segno&#x3D;9，一个section有4个segment（即ofs_unit&#x3D;4），最终结果为(9&#x2F;4)*4&#x3D;8，也就是找到了最小代价的那个section的起始segNo】</li>
 </ul>
 <h2 id="4-代码角度解析LFS和SSR"><a href="#4-代码角度解析LFS和SSR" class="headerlink" title="4.代码角度解析LFS和SSR"></a>4.代码角度解析LFS和SSR</h2><p>f2fs文件系统中分配segment是一个钩子函数（函数指针）</p>
 <img src="/2023/11/27/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E9%85%8Dsegment/image-20231127221230546.png" srcset="/img/loading.gif" lazyload alt="image-20231127221230546" style="zoom:67%;">
@@ -457,6 +457,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2023/11/28/%E4%BD%BF%E5%91%BD%E5%8F%AC%E5%94%A417%E5%86%B7%E6%88%98%E8%A1%8C%E5%8A%A8%E8%A7%A3%E9%94%81%E6%B7%B7%E6%B2%8C%E8%A1%8C%E5%8A%A8/" title="使命召唤17冷战行动解锁混沌行动">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">使命召唤17冷战行动解锁混沌行动</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
