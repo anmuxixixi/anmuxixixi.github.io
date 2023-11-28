@@ -26,7 +26,7 @@
 <meta property="og:image" content="http://example.com/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/1.png">
 <meta property="og:image" content="http://example.com/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/2.png">
 <meta property="article:published_time" content="2023-10-08T12:13:35.000Z">
-<meta property="article:modified_time" content="2023-10-09T13:41:31.939Z">
+<meta property="article:modified_time" content="2023-11-28T14:42:47.108Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/1.png">
@@ -314,7 +314,7 @@
 <p>因此SSA的<strong>主要</strong>作用是<strong>提供系统通过数据块物理地址找到所属的node的信息的能力</strong>。我们可以直接分析<code>f2fs_summary</code>的源码：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary</span> &#123;</span><br>	__le32 nid;		<span class="hljs-comment">/* parent node id */</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		__u8 reserved[<span class="hljs-number">3</span>];<br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>			__u8 version;		<span class="hljs-comment">/* node version number */</span><br>			__le16 ofs_in_node;	<span class="hljs-comment">/* block index in parent node */</span><br>		&#125; __packed;<br>	&#125;;<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
 
-<p>系统中每一个<strong>数据块</strong>的物理地址，都对应了一个f2fs_summary，系统可以通过物理地址找到对应的f2fs_summary。f2fs_summary的nid变量表示当前的数据块所属的node的nid。而ofs_in_node则表示当前的数据块位于这个node的第几个block，即f2**fs_inode-&gt;i_addr[ofs_in_node]**或者direct_node-&gt;addr[ofs_in_node]。</p>
+<p>系统中每一个<strong>数据块</strong>的物理地址，都对应了一个f2fs_summary，系统可以通过物理地址找到对应的f2fs_summary。f2fs_summary的nid变量表示当前的数据块所属的node的nid。而ofs_in_node则表示当前的数据块位于这个node的第几个block，即**f2fs_inode-&gt;i_addr[ofs_in_node]**或者direct_node-&gt;addr[ofs_in_node]。</p>
 <h2 id="2-Checkpoint在元数据区域的物理结构"><a href="#2-Checkpoint在元数据区域的物理结构" class="headerlink" title="2.Checkpoint在元数据区域的物理结构"></a>2.Checkpoint在元数据区域的物理结构</h2><img src="/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
 
 <p>根据上述的结构图，Checkpoint区域由几个部分构成，分别是checkpoint元数据区域(f2fs_checkpoint)、orphan node区域、active segments区域。同时active segments区域在不同的情况下，会有不同的形式，目的是减少IO的写入。接下来分别讨论Checkpoint不同的部分。</p>
