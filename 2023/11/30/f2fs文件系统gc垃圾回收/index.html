@@ -29,7 +29,7 @@
 <meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130223841049.png">
 <meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130225728130.png">
 <meta property="article:published_time" content="2023-11-30T14:13:07.000Z">
-<meta property="article:modified_time" content="2023-12-02T12:11:42.707Z">
+<meta property="article:modified_time" content="2023-12-02T12:17:51.557Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/v2-887eb43aa793e4ddd190ffeb53a1f66b_r.jpg">
@@ -217,7 +217,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.5k 字
+          6.7k 字
         
       </span>
     
@@ -228,7 +228,7 @@
         
         
         
-          55 分钟
+          56 分钟
         
       </span>
     
@@ -324,10 +324,10 @@
 <h3 id="3-3-脏Segment维护的数据结构"><a href="#3-3-脏Segment维护的数据结构" class="headerlink" title="3.3 脏Segment维护的数据结构"></a>3.3 脏Segment维护的数据结构</h3><p><code>struct f2fs_sm_info</code> 主要维护了文件系统的脏segment信息，包括 dirty 和 prefree，具体数据结构如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dirty_seglist_info</span> &#123;</span><br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">victim_selection</span> *<span class="hljs-title">v_ops</span>;</span>	<span class="hljs-comment">/* victim selction operation */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> *dirty_segmap[NR_DIRTY_TYPE];<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> *dirty_secmap;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mutex</span> <span class="hljs-title">seglist_lock</span>;</span>		<span class="hljs-comment">/* lock for segment bitmaps */</span><br>	<span class="hljs-type">int</span> nr_dirty[NR_DIRTY_TYPE];		<span class="hljs-comment">/* # of dirty segments */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> *victim_secmap;		<span class="hljs-comment">/* background GC victims */</span><br>&#125;;<br></code></pre></td></tr></table></figure>
 
-
-
-
-
+<p>f2fs文件系统使用结构体dirty_seglist_info维护脏Segment，其中有2个比较重要的变量需要留意：dirty_segmap和nr_dirty；</p>
+<ul>
+<li>dirty_segmap中维护的是脏Segment的状态，Segment分为Node和Data两种类型，又分为三种状态：dirty-&gt;pre-free-&gt;free</li>
+</ul>
 <h2 id="4-硬啃代码"><a href="#4-硬啃代码" class="headerlink" title="4.硬啃代码"></a>4.硬啃代码</h2><p>理解了垃圾回收的基本思想，我们把垃圾回收定义为三步走：【目标选择】-&gt; 【数据迁移】-&gt; 【后续清流】</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_gc</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">bool</span> sync,</span><br><span class="hljs-params">			<span class="hljs-type">bool</span> background, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> segno)</span><br>&#123;<br>	<span class="hljs-type">int</span> gc_type = sync ? FG_GC : BG_GC;<br><br>	cpc.reason = __get_cp_reason(sbi);<br><br>	ret = __get_victim(sbi, &amp;segno, gc_type);<br><br>	seg_freed = do_garbage_collect(sbi, segno, &amp;gc_list, gc_type);<br>&#125;<br></code></pre></td></tr></table></figure>
 
