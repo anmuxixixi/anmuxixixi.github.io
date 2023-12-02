@@ -27,9 +27,12 @@
 <meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130223739664.png">
 <meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130223754438.png">
 <meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130223841049.png">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202203311290.png">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202204113251.png">
 <meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130225728130.png">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202211013776.png">
 <meta property="article:published_time" content="2023-11-30T14:13:07.000Z">
-<meta property="article:modified_time" content="2023-12-02T12:17:51.557Z">
+<meta property="article:modified_time" content="2023-12-02T13:14:47.267Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/v2-887eb43aa793e4ddd190ffeb53a1f66b_r.jpg">
@@ -217,7 +220,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.7k 字
+          7.5k 字
         
       </span>
     
@@ -228,7 +231,7 @@
         
         
         
-          56 分钟
+          63 分钟
         
       </span>
     
@@ -328,6 +331,15 @@
 <ul>
 <li>dirty_segmap中维护的是脏Segment的状态，Segment分为Node和Data两种类型，又分为三种状态：dirty-&gt;pre-free-&gt;free</li>
 </ul>
+<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202203311290.png" srcset="/img/loading.gif" lazyload alt="image-20231202203311290" style="zoom: 67%;">
+
+<p>在<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/11/27/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E9%85%8Dsegment/#3-1-%E7%A1%AE%E5%AE%9Avictim-sel-policy%E5%8F%82%E6%95%B0">确定victim_sel_policy参数</a>文章中，我阐述了6种DIRTY的Node&#x2F;Data Segement，这次介绍DIRTY和PRE两种状态（状态不区分Data&#x2F;Node）</p>
+<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202204113251.png" srcset="/img/loading.gif" lazyload alt="image-20231202204113251" style="zoom:67%;">
+
+<p>当一个Segment中使用的块valid_blocks为0，待下刷的块为ckpt_valid_blocks为512时，说明这个Segment中的block已经迁移完成等待清理，此时状态为PRE-FREE！</p>
+<ul>
+<li>nr_dirty为列表，保存了脏Segment的个数，例如nr_dirty[DIRTY_HOT_DATA]表示的是当前环境中脏的HOT_DATA的Segment的个数</li>
+</ul>
 <h2 id="4-硬啃代码"><a href="#4-硬啃代码" class="headerlink" title="4.硬啃代码"></a>4.硬啃代码</h2><p>理解了垃圾回收的基本思想，我们把垃圾回收定义为三步走：【目标选择】-&gt; 【数据迁移】-&gt; 【后续清流】</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_gc</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">bool</span> sync,</span><br><span class="hljs-params">			<span class="hljs-type">bool</span> background, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> segno)</span><br>&#123;<br>	<span class="hljs-type">int</span> gc_type = sync ? FG_GC : BG_GC;<br><br>	cpc.reason = __get_cp_reason(sbi);<br><br>	ret = __get_victim(sbi, &amp;segno, gc_type);<br><br>	seg_freed = do_garbage_collect(sbi, segno, &amp;gc_list, gc_type);<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -342,7 +354,15 @@
 
 <h4 id="4-2-1-node页迁移"><a href="#4-2-1-node页迁移" class="headerlink" title="4.2.1 node页迁移"></a>4.2.1 node页迁移</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">gc_node_segment</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi,</span><br><span class="hljs-params">		<span class="hljs-keyword">struct</span> f2fs_summary *sum, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> segno, <span class="hljs-type">int</span> gc_type)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary</span> *<span class="hljs-title">entry</span>;</span><br>	<span class="hljs-type">block_t</span> start_addr;<br>	<span class="hljs-type">int</span> off;<br>	<span class="hljs-type">int</span> phase = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">bool</span> fggc = (gc_type == FG_GC);<br>	<span class="hljs-type">int</span> submitted = <span class="hljs-number">0</span>;<br>    <span class="hljs-comment">// 这里的usable_blks_in_seg就是一个segment中含有的block数目，固定为512</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> usable_blks_in_seg = f2fs_usable_blks_in_seg(sbi, segno);<br><br>	start_addr = START_BLOCK(sbi, segno);<br><br>next_step:<br>	entry = sum;<br><br>	<span class="hljs-keyword">for</span> (off = <span class="hljs-number">0</span>; off &lt; usable_blks_in_seg; off++, entry++) &#123;<br>		<span class="hljs-type">nid_t</span> nid = le32_to_cpu(entry-&gt;nid);<br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">node_page</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">node_info</span> <span class="hljs-title">ni</span>;</span><br><br>        <span class="hljs-comment">// 首先判断这个block在位图中是否为1</span><br>		<span class="hljs-keyword">if</span> (check_valid_map(sbi, segno, off) == <span class="hljs-number">0</span>)<br>			<span class="hljs-keyword">continue</span>;<br><br>		<span class="hljs-keyword">if</span> (phase == <span class="hljs-number">0</span>) &#123;<br>			f2fs_ra_meta_pages(sbi, NAT_BLOCK_OFFSET(nid), <span class="hljs-number">1</span>, META_NAT, <span class="hljs-literal">true</span>);<br>			<span class="hljs-keyword">continue</span>;<br>		&#125;<br><br>		<span class="hljs-keyword">if</span> (phase == <span class="hljs-number">1</span>) &#123;<br>			f2fs_ra_node_page(sbi, nid);<br>			<span class="hljs-keyword">continue</span>;<br>		&#125;<br><br>		<span class="hljs-comment">/* phase == 2 */</span><br>		node_page = f2fs_get_node_page(sbi, nid);<br><br>		err = f2fs_move_node_page(node_page, gc_type);<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (++phase &lt; <span class="hljs-number">3</span>)<br>		<span class="hljs-keyword">goto</span> next_step;<br><br>	<span class="hljs-keyword">return</span> submitted;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>TODO: 把预读部分写完</p>
+<p>这里有两次预读，分别是METADATA区域中NAT的页预读，和node page的预读，这里要说一下预读的目的：</p>
+<ul>
+<li><code>f2fs_ra_meta_pages(sbi, NAT_BLOCK_OFFSET(nid), 1, META_NAT, true)</code>：NAT_BLOCK_OFFSET通过nid定位属于哪一个f2fs_nat_block，然后将其加载到Page Cache中，提前预读的目的后面要迁移node page，那么nid和blkaddr的映射关系肯定需要修改。【在**(f2fs_move_node_page -&gt; )write node page**流程中会调用set_node_addr更新nat中对应的new_blkaddr】下面的流程可以清除的看到set_node_addr时首先会去cache中找，当然更新new_blkaddr后也是更新到page cache中，要等到checkpoint流程才会刷写到cp journal或nat中。</li>
+</ul>
+<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202211013776.png" srcset="/img/loading.gif" lazyload alt="image-20231202211013776" style="zoom: 60%;">
+
+<ul>
+<li><code>f2fs_ra_node_page(sbi, nid)</code>：根据nid读取node page加载到Page Cache，提前预读的目的是后面会调用f2fs_get_node_page拿到这个页然后进行move page。</li>
+</ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_move_node_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *node_page, <span class="hljs-type">int</span> gc_type)</span><br>&#123;<br>	<span class="hljs-type">int</span> err = <span class="hljs-number">0</span>;<br><br>	<span class="hljs-keyword">if</span> (gc_type == FG_GC) &#123;<br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">writeback_control</span> <span class="hljs-title">wbc</span> =</span> &#123;<br>			.sync_mode = WB_SYNC_ALL,<br>			.nr_to_write = <span class="hljs-number">1</span>,<br>			.for_reclaim = <span class="hljs-number">0</span>,<br>		&#125;;<br><br>		f2fs_wait_on_page_writeback(node_page, NODE, <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span>);<br><br>		set_page_dirty(node_page);<br><br>		<span class="hljs-keyword">if</span> (!clear_page_dirty_for_io(node_page)) &#123;<br>			err = -EAGAIN;<br>			<span class="hljs-keyword">goto</span> out_page;<br>		&#125;<br><br>		<span class="hljs-keyword">if</span> (__write_node_page(node_page, <span class="hljs-literal">false</span>, <span class="hljs-literal">NULL</span>,<br>					&amp;wbc, <span class="hljs-literal">false</span>, FS_GC_NODE_IO, <span class="hljs-literal">NULL</span>)) &#123;<br>			err = -EAGAIN;<br>			unlock_page(node_page);<br>		&#125;<br>		<span class="hljs-keyword">goto</span> release_page;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-keyword">if</span> (!PageWriteback(node_page))<br>			set_page_dirty(node_page);<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <ul>
