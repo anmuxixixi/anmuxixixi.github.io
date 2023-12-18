@@ -391,6 +391,40 @@
       <h1 class="index-header">
         
         
+        <a href="/2023/12/18/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%89%B9%E6%80%A7%E6%A0%87%E5%BF%97%E4%BD%8D/" target="_self">
+          f2fs文件系统特性标志位
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/18/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%89%B9%E6%80%A7%E6%A0%87%E5%BF%97%E4%BD%8D/" target="_self">
+        <div>
+          f2fs文件系统特性标志位在f2fs文件系统挂载的时候会调用parse_options解析挂载选项：   这里有一些检查特性的函数例如：f2fs_sb_has_quota_ino、f2fs_sb_has_casefold等函数死活在f2fs源码里面找不到实现。 其实，这些特性函数校验函数都有一个规律，都是以f2fs_sb_has开头，因此联想到会不是是宏控制的。  确实是这样的，这边用宏去定义了所
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-18 21:34" pubdate>
+              2023-12-18
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
         <a href="/2023/12/13/stm32f103%E9%97%AA%E5%AD%98flash%E8%AF%BB%E5%86%99/" target="_self">
           stm32f103闪存flash读写
         </a>
@@ -545,40 +579,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2023-12-04 21:39" pubdate>
               2023-12-04
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2023/12/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A4%B4%E6%96%87%E4%BB%B6f2fs-h%E7%AE%A1%E7%90%86%E7%9A%84%E4%BD%8D%E5%9B%BE%E5%92%8C-I%E5%86%85%E5%AD%98%E4%BF%A1%E6%81%AF/" target="_self">
-          f2fs文件系统头文件f2fs.h管理的位图和_I内存信息
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A4%B4%E6%96%87%E4%BB%B6f2fs-h%E7%AE%A1%E7%90%86%E7%9A%84%E4%BD%8D%E5%9B%BE%E5%92%8C-I%E5%86%85%E5%AD%98%E4%BF%A1%E6%81%AF/" target="_self">
-        <div>
-          f2fs文件系统头文件f2fs.h管理的位图和_I内存信息1._I内存信息SIT内存管理(SM_I)1234static inline struct f2fs_sm_info *SM_I(struct f2fs_sb_info *sbi)&#123;	return (struct f2fs_sm_info *)(sbi-&gt;sm_info);&#125;  sbi管理了SIT在内存中表现形式：
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-02 21:26" pubdate>
-              2023-12-02
             </time>
           </div>
         
