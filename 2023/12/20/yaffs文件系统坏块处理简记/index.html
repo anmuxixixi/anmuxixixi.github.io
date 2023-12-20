@@ -16,26 +16,21 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="yaffs文件系统布局nand flash结构  nand flash的存储结构为：一个flash由许多个block组成，一个block又是有许多个page组成，一个page又是由有效的数据区和spare area区（即oob区）。  如上图flash有1024个block，一个block有64个page，一个page有2Kbytes的有效数据+64bytes的oob数据。我们通常计算nand f">
+    <meta name="description" content="yaffs文件系统坏块处理简记先看下林子雨老师《闪存数据库概念与技术》中的描述： NAND 闪存被设计成具有很低的代价和很高的密度。为了获得更高的产出，从而减小产品成本，NAND 闪存通常都会在出厂时包含一些坏块，此外，在闪存设备使用过程中，也会出现一些新的坏块。因此，对于任何闪存文件系统而言，如果不具备坏块处理机制，就不适合用来管理闪存。 Yaffs1 使用 SM 卡类型的坏块标记，它会检查闪存">
 <meta property="og:type" content="article">
-<meta property="og:title" content="yaffs文件系统布局">
-<meta property="og:url" content="http://example.com/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/index.html">
+<meta property="og:title" content="yaffs文件系统坏块处理简记">
+<meta property="og:url" content="http://example.com/2023/12/20/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%9D%8F%E5%9D%97%E5%A4%84%E7%90%86%E7%AE%80%E8%AE%B0/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="yaffs文件系统布局nand flash结构  nand flash的存储结构为：一个flash由许多个block组成，一个block又是有许多个page组成，一个page又是由有效的数据区和spare area区（即oob区）。  如上图flash有1024个block，一个block有64个page，一个page有2Kbytes的有效数据+64bytes的oob数据。我们通常计算nand f">
+<meta property="og:description" content="yaffs文件系统坏块处理简记先看下林子雨老师《闪存数据库概念与技术》中的描述： NAND 闪存被设计成具有很低的代价和很高的密度。为了获得更高的产出，从而减小产品成本，NAND 闪存通常都会在出厂时包含一些坏块，此外，在闪存设备使用过程中，也会出现一些新的坏块。因此，对于任何闪存文件系统而言，如果不具备坏块处理机制，就不适合用来管理闪存。 Yaffs1 使用 SM 卡类型的坏块标记，它会检查闪存">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/Center.png">
-<meta property="og:image" content="http://example.com/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20231218230704748.png">
-<meta property="og:image" content="http://example.com/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20231218232136406.png">
-<meta property="og:image" content="http://example.com/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20231218232317681.png">
-<meta property="article:published_time" content="2023-12-18T14:52:40.000Z">
-<meta property="article:modified_time" content="2023-12-18T15:30:22.927Z">
+<meta property="article:published_time" content="2023-12-20T13:56:41.000Z">
+<meta property="article:modified_time" content="2023-12-20T14:04:41.118Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/Center.png">
   
   
   
-  <title>yaffs文件系统布局 - 疯狂少年</title>
+  <title>yaffs文件系统坏块处理简记 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -193,7 +188,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="yaffs文件系统布局"></span>
+            <span id="subtitle" data-typed-text="yaffs文件系统坏块处理简记"></span>
           
         </div>
 
@@ -204,8 +199,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-12-18 22:52" pubdate>
-          2023年12月18日 晚上
+        <time datetime="2023-12-20 21:56" pubdate>
+          2023年12月20日 晚上
         </time>
       </span>
     
@@ -216,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          720 字
         
       </span>
     
@@ -227,7 +222,7 @@
         
         
         
-          9 分钟
+          7 分钟
         
       </span>
     
@@ -273,39 +268,18 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">yaffs文件系统布局</h1>
+            <h1 style="display: none">yaffs文件系统坏块处理简记</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="yaffs文件系统布局"><a href="#yaffs文件系统布局" class="headerlink" title="yaffs文件系统布局"></a>yaffs文件系统布局</h1><h2 id="nand-flash结构"><a href="#nand-flash结构" class="headerlink" title="nand flash结构"></a>nand flash结构</h2><img src="/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/Center.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述" style="zoom:75%;">
-
-<p>nand flash的存储结构为：一个flash由许多个block组成，一个block又是有许多个page组成，一个page又是由有效的数据区和spare area区（即oob区）。 </p>
-<p>如上图flash有1024个block，一个block有64个page，一个page有2Kbytes的有效数据+64bytes的oob数据。<br>我们通常计算nand flash容量大小为：总共的block数 * 一个block中的page数 * 一个page中的有效数据区。oob区为特殊数据，用作硬件纠错和坏块管理的。</p>
-<blockquote>
-<p>详细的可以参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/davion_zhang/article/details/79013293?spm=1001.2014.3001.5506">https://blog.csdn.net/davion_zhang/article/details/79013293?spm=1001.2014.3001.5506</a></p>
-</blockquote>
-<h2 id="什么是chunk"><a href="#什么是chunk" class="headerlink" title="什么是chunk"></a>什么是chunk</h2><p>chunk在英文中的解释是”组块”，它的布局方式完全是按照nand flash的结构来的，这里以yaffs文件系统为例</p>
-<blockquote>
-<p>yaffs文件系统是针对page中数据区位512Byte设计的，而yaffs2文件系统则是针对page中数据区为2048Byte设计的（也就是上图）</p>
-</blockquote>
-<img src="/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20231218230704748.png" srcset="/img/loading.gif" lazyload alt="image-20231218230704748" style="zoom:67%;">
-
-<blockquote>
-<p>要说明的是：yaffs对文件系统上的所有内容（比如正常文件，目录，链接，设备文件等等）都统一当做文件来处理，每个文件都有一个页面专门存放文件头，文件头保存了文件的模式，所有者ID，组ID，长度，文件名，Parent Object ID等信息。</p>
-</blockquote>
-<p>因此，yaffs文件系统中的chunk又分为<strong>header chunk</strong>和<strong>data chunk</strong>，</p>
-<ul>
-<li>header的chunk_id为0</li>
-<li>每文件的chunk都有一个chunk_id，如果一个文件占据了多个chunk(page)，那么chunk_id从1开始计数</li>
-</ul>
-<h2 id="chunk-id与obj-id的区分"><a href="#chunk-id与obj-id的区分" class="headerlink" title="chunk_id与obj_id的区分"></a>chunk_id与obj_id的区分</h2><p>每一个chunk都是一个object，所以都有一个obj_id，根目录header chunk对应的chunk其obj_id为1，其余的所有文件对应的一个个chunk从257(<code>YAFFS_NOBJECT_BUCKETS + 1</code>)开始依次递增</p>
-<p>而每一个完整的文件都是由<strong>header + data</strong>的形式构成，文件的头(header chunk)，其chunk_id为0，真正的文件内容(data chunk)，其chunk_id从1开始递增，直到文件结束</p>
-<h2 id="文件布局"><a href="#文件布局" class="headerlink" title="文件布局"></a>文件布局</h2><p>每一个正常文件的布局都应该是header chunk，然后接下来是所有文件的data chunk</p>
-<img src="/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20231218232136406.png" srcset="/img/loading.gif" lazyload alt="image-20231218232136406" style="zoom:80%;">
-
-<p>代码依据来自于：<code>yaffs2\utils\mkyaffsimage.c</code></p>
-<img src="/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20231218232317681.png" srcset="/img/loading.gif" lazyload alt="image-20231218232317681" style="zoom: 60%;">
+                <h1 id="yaffs文件系统坏块处理简记"><a href="#yaffs文件系统坏块处理简记" class="headerlink" title="yaffs文件系统坏块处理简记"></a>yaffs文件系统坏块处理简记</h1><p>先看下<strong>林子雨老师《闪存数据库概念与技术》</strong>中的描述：</p>
+<p>NAND 闪存被设计成具有很低的代价和很高的密度。为了获得更高的产出，从而减小产品成本，NAND 闪存通常都会在出厂时包含一些坏块，此外，在闪存设备使用过程中，也会出现一些新的坏块。因此，对于任何闪存文件系统而言，如果不具备坏块处理机制，就不适合用来管理闪存。</p>
+<p>Yaffs1 使用 SM 卡类型的坏块标记，它会检查闪存页的带外区域的第6 个字节（字节 5），如果是一个好块，这个字节应该是 0XFF，如果一个块在出厂时已经被标记为坏块，这个字节应该是 0X00。当闪存设备在后续使用过程中出现坏块时，Yaffs1 会使用自己的方式对坏块进行标记，从而和工厂标记的坏块加以区分。当读或写操作失败的时候，或者当三个 ECC错误被探测到的时候，Yaffs 就会把一个块标记为―坏块‖。ECC 可以通过硬件实现，也可以通过软件驱动实现，或者在 Yaffs 自身内部实现。需要再次强调的是，任何缺乏有效 ECC处理机制的闪存文件系统，是不适合作为闪存管理的。如果 Yaffs1 确定一个块是坏块，它就会把该块标记为 0X59（’Y’）。一个块被标记为坏块以后，就会退出使用，从而改进了文件系统的鲁棒性。</p>
+<p>Yaffs2 模式被设计成支持更大范围的设备和带外区域布局。因此，Yaffs2 没有确定带外区域的哪个字节作为标记位，而是调用驱动函数来确定一个块是否是坏块以及标记它为坏块。Yaffs2 没有提供内置的 ECC，而是需要由驱动程序提供 ECC</p>
+<hr>
+<p>在yaffs文件系统中标记坏块并且退出使用的函数调用栈为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">yaffs_block_became_dirty<br>    yaffs_retire_block<br>    	yaffs_mark_bad<br></code></pre></td></tr></table></figure>
 
 
                 
@@ -324,8 +298,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>yaffs文件系统布局</div>
-      <div>http://example.com/2023/12/18/yaffs文件系统布局/</div>
+      <div>yaffs文件系统坏块处理简记</div>
+      <div>http://example.com/2023/12/20/yaffs文件系统坏块处理简记/</div>
     </div>
     <div class="license-meta">
       
@@ -337,7 +311,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年12月18日</div>
+          <div>2023年12月20日</div>
         </div>
       
       
@@ -369,18 +343,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/12/20/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%9D%8F%E5%9D%97%E5%A4%84%E7%90%86%E7%AE%80%E8%AE%B0/" title="yaffs文件系统坏块处理简记">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">yaffs文件系统坏块处理简记</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/12/18/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%89%B9%E6%80%A7%E6%A0%87%E5%BF%97%E4%BD%8D/" title="f2fs文件系统特性标志位">
-                        <span class="hidden-mobile">f2fs文件系统特性标志位</span>
+                      <a href="/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/" title="yaffs文件系统布局">
+                        <span class="hidden-mobile">yaffs文件系统布局</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

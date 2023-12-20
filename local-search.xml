@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>yaffs文件系统坏块处理简记</title>
+    <link href="/2023/12/20/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%9D%8F%E5%9D%97%E5%A4%84%E7%90%86%E7%AE%80%E8%AE%B0/"/>
+    <url>/2023/12/20/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%9D%8F%E5%9D%97%E5%A4%84%E7%90%86%E7%AE%80%E8%AE%B0/</url>
+    
+    <content type="html"><![CDATA[<h1 id="yaffs文件系统坏块处理简记"><a href="#yaffs文件系统坏块处理简记" class="headerlink" title="yaffs文件系统坏块处理简记"></a>yaffs文件系统坏块处理简记</h1><p>先看下<strong>林子雨老师《闪存数据库概念与技术》</strong>中的描述：</p><p>NAND 闪存被设计成具有很低的代价和很高的密度。为了获得更高的产出，从而减小产品成本，NAND 闪存通常都会在出厂时包含一些坏块，此外，在闪存设备使用过程中，也会出现一些新的坏块。因此，对于任何闪存文件系统而言，如果不具备坏块处理机制，就不适合用来管理闪存。</p><p>Yaffs1 使用 SM 卡类型的坏块标记，它会检查闪存页的带外区域的第6 个字节（字节 5），如果是一个好块，这个字节应该是 0XFF，如果一个块在出厂时已经被标记为坏块，这个字节应该是 0X00。当闪存设备在后续使用过程中出现坏块时，Yaffs1 会使用自己的方式对坏块进行标记，从而和工厂标记的坏块加以区分。当读或写操作失败的时候，或者当三个 ECC错误被探测到的时候，Yaffs 就会把一个块标记为―坏块‖。ECC 可以通过硬件实现，也可以通过软件驱动实现，或者在 Yaffs 自身内部实现。需要再次强调的是，任何缺乏有效 ECC处理机制的闪存文件系统，是不适合作为闪存管理的。如果 Yaffs1 确定一个块是坏块，它就会把该块标记为 0X59（’Y’）。一个块被标记为坏块以后，就会退出使用，从而改进了文件系统的鲁棒性。</p><p>Yaffs2 模式被设计成支持更大范围的设备和带外区域布局。因此，Yaffs2 没有确定带外区域的哪个字节作为标记位，而是调用驱动函数来确定一个块是否是坏块以及标记它为坏块。Yaffs2 没有提供内置的 ECC，而是需要由驱动程序提供 ECC</p><hr><p>在yaffs文件系统中标记坏块并且退出使用的函数调用栈为：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">yaffs_block_became_dirty<br>    yaffs_retire_block<br>    yaffs_mark_bad<br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>yaffs文件系统布局</title>
     <link href="/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/"/>
     <url>/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/</url>
@@ -216,7 +229,7 @@
     <link href="/2023/11/12/%E5%AD%98%E5%82%A8%E4%BB%8B%E8%B4%A8%E5%A4%87%E5%BF%98/"/>
     <url>/2023/11/12/%E5%AD%98%E5%82%A8%E4%BB%8B%E8%B4%A8%E5%A4%87%E5%BF%98/</url>
     
-    <content type="html"><![CDATA[<h1 id="存储介质备忘"><a href="#存储介质备忘" class="headerlink" title="存储介质备忘"></a>存储介质备忘</h1><p><strong>闪存：</strong></p><ul><li>【视频】<a href="https://www.bilibili.com/video/BV1U94y1v7o5/?spm_id_from=333.337.search-card.all.click&vd_source=0a2a531b678f5afe0a34f933b2fbdcb4">手机存储数据都靠它！闪存到底说的是什么？</a></li></ul><p><strong>SD卡：</strong></p><ul><li>【视频】<a href="https://www.bilibili.com/video/BV1t14y1H71v/?spm_id_from=333.999.0.0&vd_source=f509314d3ae36120a07762a088f1a038">重新认识存储卡 — SD卡</a></li></ul>]]></content>
+    <content type="html"><![CDATA[<h1 id="存储介质备忘"><a href="#存储介质备忘" class="headerlink" title="存储介质备忘"></a>存储介质备忘</h1><p><strong>闪存：</strong></p><ul><li><p>【视频】<a href="https://www.bilibili.com/video/BV1U94y1v7o5/?spm_id_from=333.337.search-card.all.click&vd_source=0a2a531b678f5afe0a34f933b2fbdcb4">手机存储数据都靠它！闪存到底说的是什么？</a></p></li><li><p>【博客】<a href="https://blog.51cto.com/u_15077549/4295050">存储设备Flash和MTD、SD、TF、MMC、eMMC、UFS</a></p></li></ul><p><strong>SD卡：</strong></p><ul><li>【视频】<a href="https://www.bilibili.com/video/BV1t14y1H71v/?spm_id_from=333.999.0.0&vd_source=f509314d3ae36120a07762a088f1a038">重新认识存储卡 — SD卡</a></li></ul><p><u>三星970EVO PLSU 2TB固态硬盘</u>【图片来源：硬件茶谈】</p><img src="/2023/11/12/%E5%AD%98%E5%82%A8%E4%BB%8B%E8%B4%A8%E5%A4%87%E5%BF%98/image-20231220214636955.png" alt="image-20231220214636955" style="zoom:67%;">]]></content>
     
     
     
