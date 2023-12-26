@@ -1,0 +1,731 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Android应用启动全流程分析（源码深度剖析） 作者：努比亚技术团队源码来源：努比亚技术团队  1.前言从用户手指点击桌面上的应用图标到屏幕上显示出应用主Activity界面而完成应用启动，快的话往往都不需要一秒钟，但是这整个过程却是十分复杂的，其中涉及了Android系统的几乎所有核心知识点。同时应用的启动速度也绝对是系统的核心用户体验指标之一，多少年来，无论是谷歌或是手机系统厂商们还是各个A">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android应用启动全流程分析（源码深度剖析）">
+<meta property="og:url" content="http://example.com/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/index.html">
+<meta property="og:site_name" content="疯狂少年">
+<meta property="og:description" content="Android应用启动全流程分析（源码深度剖析） 作者：努比亚技术团队源码来源：努比亚技术团队  1.前言从用户手指点击桌面上的应用图标到屏幕上显示出应用主Activity界面而完成应用启动，快的话往往都不需要一秒钟，但是这整个过程却是十分复杂的，其中涉及了Android系统的几乎所有核心知识点。同时应用的启动速度也绝对是系统的核心用户体验指标之一，多少年来，无论是谷歌或是手机系统厂商们还是各个A">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/9d1d580904014f5094bacd9c18b1fe81.webp">
+<meta property="og:image" content="http://example.com/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/da7a06facb0a4155b795d8c1464ed71d.webp">
+<meta property="og:image" content="http://example.com/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/3067c5b0d9284ef7b41f32c758ec3a24.webp">
+<meta property="og:image" content="http://example.com/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/831376e8bd384f588e52d31b3907bc41.webp">
+<meta property="og:image" content="http://example.com/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/a789b961b94945a2bc1cff228350c927.webp">
+<meta property="og:image" content="http://example.com/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/e729f9e2f20d43a8a9e4853ec09e2e76.webp">
+<meta property="article:published_time" content="2023-12-26T15:47:26.000Z">
+<meta property="article:modified_time" content="2023-12-26T15:57:28.561Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/9d1d580904014f5094bacd9c18b1fe81.webp">
+  
+  
+  
+  <title>Android应用启动全流程分析（源码深度剖析） - 疯狂少年</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>疯狂少年</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android应用启动全流程分析（源码深度剖析）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-26 23:47" pubdate>
+          2023年12月26日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          84 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android应用启动全流程分析（源码深度剖析）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Android应用启动全流程分析（源码深度剖析）"><a href="#Android应用启动全流程分析（源码深度剖析）" class="headerlink" title="Android应用启动全流程分析（源码深度剖析）"></a>Android应用启动全流程分析（源码深度剖析）</h1><blockquote>
+<p>作者：努比亚技术团队<br>源码来源：努比亚技术团队</p>
+</blockquote>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1.前言"></a>1.前言</h2><p>从用户手指点击桌面上的应用图标到屏幕上显示出应用主Activity界面而完成应用启动，快的话往往都不需要一秒钟，但是这整个过程却是十分复杂的，其中涉及了Android系统的几乎所有核心知识点。同时应用的启动速度也绝对是系统的核心用户体验指标之一，多少年来，无论是谷歌或是手机系统厂商们还是各个Android应用开发者，都在为实现应用打开速度更快一点的目标而不断努力。但是要想真正做好应用启动速度优化这件事情，我想是必须要对应用启动的整个流程有充分的认识和理解的，所以无论作为Android系统或应用开发者，都有必要好好的学习和了解一下这个过程的。网上有很多介绍应用启动流程源码的文章，但是总感觉大多数都不太全面，很多只是介绍了应用启动过程中的部分流程，而没有总体清晰的认识应用启动过程的总体脉络与系统架构设计思想。所以本文将结合笔者多年来的工作经历，结合systrace分析工具，基于Android R AOSP源码完整的分析一下这个从用户手指触控点击屏幕应用图标到应用界面展示到屏幕上的整个应用启动过程，也是对之前所做所学的一个总结与归纳。</p>
+<h2 id="2-大纲"><a href="#2-大纲" class="headerlink" title="2.大纲"></a>2.大纲</h2><ul>
+<li><strong>Android触控事件处理机制</strong></li>
+<li><strong>Zygote进程启动和应用进程创建流程</strong></li>
+<li><strong>Handler消息机制</strong></li>
+<li><strong>AMS的Activity组件管理</strong></li>
+<li><strong>应用Application和Activity组件创建与初始化</strong></li>
+<li><strong>应用UI布局与绘制</strong></li>
+<li><strong>RenderThread渲染</strong></li>
+<li><strong>SurfaceFlinger合成显示</strong></li>
+<li><strong>写在最后</strong></li>
+<li><strong>参考</strong></li>
+</ul>
+<h2 id="3-Input触控事件处理流程"><a href="#3-Input触控事件处理流程" class="headerlink" title="3.Input触控事件处理流程"></a>3.Input触控事件处理流程</h2><h2 id="4-应用进程的创建与启动"><a href="#4-应用进程的创建与启动" class="headerlink" title="4.应用进程的创建与启动"></a>4.应用进程的创建与启动</h2><h3 id="4-1-Pause桌面应用"><a href="#4-1-Pause桌面应用" class="headerlink" title="4.1 Pause桌面应用"></a>4.1 Pause桌面应用</h3><p>接着上一节继续往下看，桌面进程收到input触控事件并处理后<code>binder</code>调用框架<code>AMS</code>的的<code>startActivity</code>接口启动应用，相关简化代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-title function_">startActivityUnchecked</span><span class="hljs-params">(<span class="hljs-keyword">final</span> ActivityRecord r, ActivityRecord sourceRecord,</span><br><span class="hljs-params">                                   IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,</span><br><span class="hljs-params">                                   <span class="hljs-type">int</span> startFlags, <span class="hljs-type">boolean</span> doResume, ActivityOptions options, Task inTask,</span><br><span class="hljs-params">                                   <span class="hljs-type">boolean</span> restrictedBgActivity, NeededUriGrants intentGrants)</span> &#123;<br>    ...<br>    <span class="hljs-keyword">try</span> &#123;<br>        ...<br>        <span class="hljs-comment">// 添加“startActivityInner”的systrace tag</span><br>        Trace.traceBegin(Trace.TRACE_TAG_WINDOW_MANAGER, <span class="hljs-string">&quot;startActivityInner&quot;</span>);<br>        <span class="hljs-comment">// 执行startActivityInner启动应用的逻辑</span><br>        result = startActivityInner(r, sourceRecord, voiceSession, voiceInteractor,<br>                                    startFlags, doResume, options, inTask, restrictedBgActivity, intentGrants);<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        Trace.traceEnd(Trace.TRACE_TAG_WINDOW_MANAGER);<br>        ...<br>    &#125;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在执行<code>startActivityInner</code>启动应用逻辑中，<code>AMS</code>中的<code>Activity</code>栈管理的逻辑，<strong>检查发现当前处于前台<code>Resume</code>状态的<code>Activity</code>是桌面应用，所以第一步需要通知桌面应用的<code>Activity</code>进入<code>Paused</code>状态</strong>，相关简化代码逻辑如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/*frameworks/base/services/core/java/com/android/server/wm/ActivityStack.java*/</span><br><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">resumeTopActivityInnerLocked</span><span class="hljs-params">(ActivityRecord prev, ActivityOptions options)</span> &#123;<br>   ...<br>   <span class="hljs-comment">// mResumedActivity不为null，说明当前存在处于resume状态的Activity且不是新需要启动的应用</span><br>   <span class="hljs-keyword">if</span> (mResumedActivity != <span class="hljs-literal">null</span>) &#123;<br>      <span class="hljs-comment">// 执行startPausingLocked通知桌面应用进入paused状态</span><br>      pausing |= startPausingLocked(userLeaving, <span class="hljs-literal">false</span> <span class="hljs-comment">/* uiSleeping */</span>, next);<br>   &#125;<br>   ...<br>&#125;<br><br><span class="hljs-keyword">final</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">startPausingLocked</span><span class="hljs-params">(<span class="hljs-type">boolean</span> userLeaving, <span class="hljs-type">boolean</span> uiSleeping,</span><br><span class="hljs-params">            ActivityRecord resuming)</span> &#123;<br>    ...<br>    <span class="hljs-type">ActivityRecord</span> <span class="hljs-variable">prev</span> <span class="hljs-operator">=</span> mResumedActivity;<br>    ...<br>    <span class="hljs-keyword">if</span> (prev.attachedToProcess()) &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>             ...<br>             <span class="hljs-comment">// 相关执行动作封装事务，binder通知mResumedActivity也就是桌面执行pause动作</span><br>             mAtmService.getLifecycleManager().scheduleTransaction(prev.app.getThread(),<br>                        prev.appToken, PauseActivityItem.obtain(prev.finishing, userLeaving,<br>                        prev.configChangeFlags, pauseImmediately));<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>           ...<br>        &#125;<br>     &#125;<br>     ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>桌面应用进程这边执行收到<code>pause</code>消息后执行<code>Activity</code>的<code>onPause</code>生命周期，并在执行完成后，会<code>binder</code>调用<code>AMS</code>的<code>activityPaused</code>接口通知系统执行完<code>activity</code>的<code>pause</code>动作，相关代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">postExecute</span><span class="hljs-params">(ClientTransactionHandler client, IBinder token,</span><br><span class="hljs-params">                        PendingTransactionActions pendingActions)</span> &#123;<br>    ...<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// binder通知AMS当前应用activity已经执行完pause的流程</span><br>        ActivityTaskManager.getService().activityPaused(token);<br>    &#125; <span class="hljs-keyword">catch</span> (RemoteException ex) &#123;<br>        <span class="hljs-keyword">throw</span> ex.rethrowFromSystemServer();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>AMS</code>这边收到应用的<code>activityPaused</code>调用后，继续执行启动应用的逻辑，<strong>判断需要启动的应用<code>Activity</code>所在的进程不存在，所以接下来需要先<code>startProcessAsync</code>创建应用进程</strong>，相关简化代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/*frameworks/base/services/core/java/com/android/server/wm/ActivityStackSupervisor.java*/</span><br> <span class="hljs-keyword">void</span> <span class="hljs-title function_">startSpecificActivity</span><span class="hljs-params">(ActivityRecord r, <span class="hljs-type">boolean</span> andResume, <span class="hljs-type">boolean</span> checkConfig)</span> &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">WindowProcessController</span> <span class="hljs-variable">wpc</span> <span class="hljs-operator">=</span><br>                mService.getProcessController(r.processName, r.info.applicationInfo.uid);<br>     ...<br>     <span class="hljs-comment">// 1.如果wpc不为null且hasThread表示应用Activity所属进程存在，直接realStartActivityLocked启动Activity</span><br>     <span class="hljs-keyword">if</span> (wpc != <span class="hljs-literal">null</span> &amp;&amp; wpc.hasThread()) &#123;<br>         <span class="hljs-keyword">try</span> &#123;<br>             realStartActivityLocked(r, wpc, andResume, checkConfig);<br>             <span class="hljs-keyword">return</span>;<br>         &#125; <span class="hljs-keyword">catch</span> (RemoteException e) &#123;<br>             Slog.w(TAG, <span class="hljs-string">&quot;Exception when starting activity &quot;</span><br>                    + r.intent.getComponent().flattenToShortString(), e);<br>         &#125;<br>         ...<br>     &#125;<br>     ...<br>     <span class="hljs-comment">// 2.否则，调用AMS的startProcessAsync正式开始创建应用进程 </span><br>     mService.startProcessAsync(r, knownToBeDead, isTop, isTop ? <span class="hljs-string">&quot;top-activity&quot;</span> : <span class="hljs-string">&quot;activity&quot;</span>);<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<p>以上过程从systrace上看，如下图所示：</p>
+<ol>
+<li>通知pause桌面应用</li>
+</ol>
+<img src="/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/9d1d580904014f5094bacd9c18b1fe81.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<ol start="2">
+<li>确认桌面<code>activityPaused</code>状态之后，开始创建应用进程：</li>
+</ol>
+<img src="/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/da7a06facb0a4155b795d8c1464ed71d.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<h3 id="4-2-创建应用进程"><a href="#4-2-创建应用进程" class="headerlink" title="4.2 创建应用进程"></a>4.2 创建应用进程</h3><p>接上一小节的分析可以知道，Android应用进程的启动是被动式的，在桌面点击图标启动一个应用的组件如Activity时，如果Activity所在的进程不存在，就会创建并启动进程。<strong>Android系统中一般应用进程的创建都是统一由zygote进程fork创建的，AMS在需要创建应用进程时，会通过socket连接并通知到到zygote进程在开机阶段就创建好的socket服务端，然后由zygote进程fork创建出应用进程。</strong>整体架构如下图所示：</p>
+<img src="/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/3067c5b0d9284ef7b41f32c758ec3a24.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>我们接着上节中的分析，继续从<code>AMS#startProcessAsync</code>创建进程函数入手，继续看一下应用进程创建相关简化流程代码：</p>
+<h4 id="4-2-1-AMS-发送socket请求"><a href="#4-2-1-AMS-发送socket请求" class="headerlink" title="4.2.1 AMS 发送socket请求"></a>4.2.1 AMS 发送socket请求</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/*frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java*/</span>  <br> <span class="hljs-meta">@GuardedBy(&quot;this&quot;)</span><br> <span class="hljs-keyword">final</span> ProcessRecord <span class="hljs-title function_">startProcessLocked</span><span class="hljs-params">(...)</span> &#123;<br>      <span class="hljs-keyword">return</span> mProcessList.startProcessLocked(...);<br> &#125;<br> <br> <span class="hljs-comment">/*frameworks/base/services/core/java/com/android/server/am/ProcessList.java*/</span><br> <span class="hljs-keyword">private</span> Process.ProcessStartResult <span class="hljs-title function_">startProcess</span><span class="hljs-params">(HostingRecord hostingRecord, String entryPoint,</span><br><span class="hljs-params">          ProcessRecord app, <span class="hljs-type">int</span> uid, <span class="hljs-type">int</span>[] gids, <span class="hljs-type">int</span> runtimeFlags, <span class="hljs-type">int</span> zygotePolicyFlags,</span><br><span class="hljs-params">          <span class="hljs-type">int</span> mountExternal, String seInfo, String requiredAbi, String instructionSet,</span><br><span class="hljs-params">          String invokeWith, <span class="hljs-type">long</span> startTime)</span> &#123;<br>      <span class="hljs-keyword">try</span> &#123;<br>          <span class="hljs-comment">// 原生标识应用进程创建所加的systrace tag</span><br>          Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, <span class="hljs-string">&quot;Start proc: &quot;</span> +<br>                  app.processName);<br>          ...<br>          <span class="hljs-comment">// 调用Process的start方法创建进程</span><br>          startResult = Process.start(...);<br>          ...<br>      &#125; <span class="hljs-keyword">finally</span> &#123;<br>          Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);<br>      &#125;<br>  &#125;<br>  <br>  <span class="hljs-comment">/*frameworks/base/core/java/android/os/Process.java*/</span><br>  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ProcessStartResult <span class="hljs-title function_">start</span><span class="hljs-params">(...)</span> &#123;<br>      <span class="hljs-comment">// 调用ZygoteProcess的start函数</span><br>      <span class="hljs-keyword">return</span> ZYGOTE_PROCESS.start(...);<br>  &#125;<br>  <br>  <span class="hljs-comment">/*frameworks/base/core/java/android/os/ZygoteProcess.java*/</span><br>  <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> Process.ProcessStartResult <span class="hljs-title function_">start</span><span class="hljs-params">(...)</span>&#123;<br>      <span class="hljs-keyword">try</span> &#123;<br>          <span class="hljs-keyword">return</span> startViaZygote(...);<br>      &#125; <span class="hljs-keyword">catch</span> (ZygoteStartFailedEx ex) &#123;<br>         ...<br>      &#125;<br>  &#125;<br>  <br>  <span class="hljs-keyword">private</span> Process.ProcessStartResult <span class="hljs-title function_">startViaZygote</span><span class="hljs-params">(...)</span>&#123;<br>      ArrayList&lt;String&gt; argsForZygote = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;String&gt;();<br>      ...<br>      <span class="hljs-keyword">return</span> zygoteSendArgsAndGetResult(openZygoteSocketIfNeeded(abi), argsForZygote);<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<p>在ZygoteProcess#startViaZygote中，最后创建应用进程的逻辑：</p>
+<ol>
+<li>openZygoteSocketIfNeeded函数中打开本地socket客户端连接到zygote进程的socket服务端；</li>
+<li>zygoteSendArgsAndGetResult发送socket请求参数，带上了创建的应用进程参数信息；</li>
+<li>return返回的数据结构ProcessStartResult中会有新创建的进程的pid字段。</li>
+</ol>
+<p>从systrace上看这个过程如下：</p>
+<img src="/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/831376e8bd384f588e52d31b3907bc41.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<h3 id="4-2-2-Zygote-处理socket请求"><a href="#4-2-2-Zygote-处理socket请求" class="headerlink" title="4.2.2 Zygote 处理socket请求"></a>4.2.2 Zygote 处理socket请求</h3><p>其实早在系统开机阶段，<code>zygote</code>进程创建时，就会在<code>ZygoteInit#main</code>入口函数中创建服务端<code>socket</code>，<strong>并预加载系统资源和框架类（加速应用进程启动速度）</strong>，代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/*frameworks/base/core/java/com/android/internal/os/ZygoteInit.java*/</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] argv)</span> &#123;<br>       <span class="hljs-type">ZygoteServer</span> <span class="hljs-variable">zygoteServer</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        ...<br>       <span class="hljs-keyword">try</span> &#123;<br>           ...<br>           <span class="hljs-comment">// 1.preload提前加载框架通用类和系统资源到进程，加速进程启动</span><br>           preload(bootTimingsTraceLog);<br>           ...<br>           <span class="hljs-comment">// 2.创建zygote进程的socket server服务端对象</span><br>           zygoteServer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ZygoteServer</span>(isPrimaryZygote);<br>           ...<br>           <span class="hljs-comment">// 3.进入死循环，等待AMS发请求过来</span><br>           caller = zygoteServer.runSelectLoop(abiList);<br>       &#125; <span class="hljs-keyword">catch</span> (Throwable ex) &#123;<br>           ...<br>       &#125; <span class="hljs-keyword">finally</span> &#123;<br>           ...<br>       &#125;<br>       ...<br>   &#125;<br></code></pre></td></tr></table></figure>
+
+<p>继续往下看<code>ZygoteServer#runSelectLoop</code>如何监听并处理AMS客户端的请求：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/*frameworks/base/core/java/com/android/internal/os/ZygoteServer.java*/</span><br>Runnable <span class="hljs-title function_">runSelectLoop</span><span class="hljs-params">(String abiList)</span> &#123;<br>    <span class="hljs-comment">// 进入死循环监听</span><br>    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>       <span class="hljs-keyword">while</span> (--pollIndex &gt;= <span class="hljs-number">0</span>) &#123;<br>          <span class="hljs-keyword">if</span> (pollIndex == <span class="hljs-number">0</span>) &#123;<br>            ...<br>          &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (pollIndex &lt; usapPoolEventFDIndex) &#123;<br>            <span class="hljs-comment">// Session socket accepted from the Zygote server socket</span><br>            <span class="hljs-comment">// 得到一个请求连接封装对象ZygoteConnection</span><br>            <span class="hljs-type">ZygoteConnection</span> <span class="hljs-variable">connection</span> <span class="hljs-operator">=</span> peers.get(pollIndex);<br>            <span class="hljs-comment">// processCommand函数中处理AMS客户端请求</span><br>            <span class="hljs-keyword">final</span> <span class="hljs-type">Runnable</span> <span class="hljs-variable">command</span> <span class="hljs-operator">=</span> connection.processCommand(<span class="hljs-built_in">this</span>, multipleForksOK);<br>          &#125;<br>       &#125;<br>    &#125;<br>&#125;<br><br>Runnable <span class="hljs-title function_">processCommand</span><span class="hljs-params">(ZygoteServer zygoteServer, <span class="hljs-type">boolean</span> multipleOK)</span> &#123;<br>        ...<br>        <span class="hljs-comment">// 1.fork创建应用子进程</span><br>        pid = Zygote.forkAndSpecialize(...);<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-keyword">if</span> (pid == <span class="hljs-number">0</span>) &#123;<br>                ...<br>                <span class="hljs-comment">// 2.pid为0，当前处于新创建的子应用进程中，处理请求参数</span><br>                <span class="hljs-keyword">return</span> handleChildProc(parsedArgs, childPipeFd, parsedArgs.mStartChildZygote);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                ...<br>                handleParentProc(pid, serverPipeFd);<br>            &#125;<br>         &#125; <span class="hljs-keyword">finally</span> &#123;<br>            ...<br>         &#125;<br>&#125;<br><br> <span class="hljs-keyword">private</span> Runnable <span class="hljs-title function_">handleChildProc</span><span class="hljs-params">(ZygoteArguments parsedArgs,</span><br><span class="hljs-params">           FileDescriptor pipeFd, <span class="hljs-type">boolean</span> isZygote)</span> &#123;<br>       ...<br>       <span class="hljs-comment">// 关闭从父进程zygote继承过来的ZygoteServer服务端地址</span><br>       closeSocket();<br>       ...<br>       <span class="hljs-keyword">if</span> (parsedArgs.mInvokeWith != <span class="hljs-literal">null</span>) &#123;<br>          ...<br>       &#125; <span class="hljs-keyword">else</span> &#123;<br>           <span class="hljs-keyword">if</span> (!isZygote) &#123;<br>               <span class="hljs-comment">// 继续进入ZygoteInit#zygoteInit继续完成子应用进程的相关初始化工作</span><br>               <span class="hljs-keyword">return</span> ZygoteInit.zygoteInit(parsedArgs.mTargetSdkVersion,<br>                       parsedArgs.mDisabledCompatChanges,<br>                       parsedArgs.mRemainingArgs, <span class="hljs-literal">null</span> <span class="hljs-comment">/* classLoader */</span>);<br>           &#125; <span class="hljs-keyword">else</span> &#123;<br>               ...<br>           &#125;<br>       &#125;<br>   &#125;<br></code></pre></td></tr></table></figure>
+
+<p>以上过程从systrace上看如下图所示：</p>
+<img src="/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/a789b961b94945a2bc1cff228350c927.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<h4 id="4-2-3-应用进程初始化"><a href="#4-2-3-应用进程初始化" class="headerlink" title="4.2.3 应用进程初始化"></a>4.2.3 应用进程初始化</h4><p>接上一节中的分析，<code>zygote</code>进程监听接收<code>AMS</code>的请求，<code>fork</code>创建子应用进程，然后<code>pid</code>为0时进入子进程空间，然后在 <code>ZygoteInit#zygoteInit</code>中完成进程的初始化动作，相关简化代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/*frameworks/base/core/java/com/android/internal/os/ZygoteInit.java*/</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Runnable <span class="hljs-title function_">zygoteInit</span><span class="hljs-params">(<span class="hljs-type">int</span> targetSdkVersion, <span class="hljs-type">long</span>[] disabledCompatChanges,</span><br><span class="hljs-params">            String[] argv, ClassLoader classLoader)</span> &#123;<br>        ...<br>        <span class="hljs-comment">// 原生添加名为“ZygoteInit ”的systrace tag以标识进程初始化流程</span><br>        Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, <span class="hljs-string">&quot;ZygoteInit&quot;</span>);<br>        RuntimeInit.redirectLogStreams();<br>        <span class="hljs-comment">// 1.RuntimeInit#commonInit中设置应用进程默认的java异常处理机制</span><br>        RuntimeInit.commonInit();<br>        <span class="hljs-comment">// 2.ZygoteInit#nativeZygoteInit函数中JNI调用启动进程的binder线程池</span><br>        ZygoteInit.nativeZygoteInit();<br>        <span class="hljs-comment">// 3.RuntimeInit#applicationInit中反射创建ActivityThread对象并调用其“main”入口方法</span><br>        <span class="hljs-keyword">return</span> RuntimeInit.applicationInit(targetSdkVersion, disabledCompatChanges, argv,<br>                classLoader);<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<p>应用进程启动后，初始化过程中主要依次完成以下几件事情：</p>
+<ol>
+<li>应用进程默认的java异常处理机制（可以实现监听、拦截应用进程所有的Java crash的逻辑）；</li>
+<li>JNI调用启动进程的binder线程池（注意应用进程的binder线程池资源是自己创建的并非从zygote父进程继承的）；</li>
+<li>通过反射创建ActivityThread对象并调用其“main”入口方法。</li>
+</ol>
+<p>我们继续看<code>RuntimeInit#applicationInit</code>简化的代码流程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/*frameworks/base/core/java/com/android/internal/os/RuntimeInit.java*/</span><br><span class="hljs-keyword">protected</span> <span class="hljs-keyword">static</span> Runnable <span class="hljs-title function_">applicationInit</span><span class="hljs-params">(<span class="hljs-type">int</span> targetSdkVersion, <span class="hljs-type">long</span>[] disabledCompatChanges,</span><br><span class="hljs-params">           String[] argv, ClassLoader classLoader)</span> &#123;<br>       ...<br>       <span class="hljs-comment">// 结束“ZygoteInit ”的systrace tag</span><br>       Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);<br>       <span class="hljs-comment">// Remaining arguments are passed to the start class&#x27;s static main</span><br>       <span class="hljs-keyword">return</span> findStaticMain(args.startClass, args.startArgs, classLoader);<br> &#125;<br> <br> <span class="hljs-keyword">protected</span> <span class="hljs-keyword">static</span> Runnable <span class="hljs-title function_">findStaticMain</span><span class="hljs-params">(String className, String[] argv,</span><br><span class="hljs-params">           ClassLoader classLoader)</span> &#123;<br>       Class&lt;?&gt; cl;<br>       <span class="hljs-keyword">try</span> &#123;<br>           <span class="hljs-comment">// 1.反射加载创建ActivityThread类对象</span><br>           cl = Class.forName(className, <span class="hljs-literal">true</span>, classLoader);<br>       &#125; <span class="hljs-keyword">catch</span> (ClassNotFoundException ex) &#123;<br>           ...<br>       &#125;<br>       Method m;<br>       <span class="hljs-keyword">try</span> &#123;<br>           <span class="hljs-comment">// 2.反射调用其main方法</span><br>           m = cl.getMethod(<span class="hljs-string">&quot;main&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[] &#123; String[].class &#125;);<br>       &#125; <span class="hljs-keyword">catch</span> (NoSuchMethodException ex) &#123;<br>           ...<br>       &#125; <span class="hljs-keyword">catch</span> (SecurityException ex) &#123;<br>           ...<br>       &#125;<br>       ...<br>       <span class="hljs-comment">// 3.触发执行以上逻辑</span><br>       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MethodAndArgsCaller</span>(m, argv);<br>   &#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到进程<code>ActivityThread#main</code>函数初始化的主要逻辑是：</p>
+<ol>
+<li><strong>创建并启动主线程的<code>loop</code>消息循环；</strong></li>
+<li><strong>通过<code>binder</code>调用<code>AMS</code>的<code>attachApplication</code>接口将自己<code>attach</code>注册到<code>AMS</code>中。</strong></li>
+</ol>
+<p>以上初始化过程。从systrace上看如下图所示：</p>
+<img src="/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/e729f9e2f20d43a8a9e4853ec09e2e76.webp" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android应用启动全流程分析（源码深度剖析）</div>
+      <div>http://example.com/2023/12/26/Android应用启动全流程分析（源码深度剖析）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/25/ext2%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A0%BC%E5%BC%8F%E5%8C%96mke2fs/" title="ext2文件系统格式化mke2fs">
+                        <span class="hidden-mobile">ext2文件系统格式化mke2fs</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
