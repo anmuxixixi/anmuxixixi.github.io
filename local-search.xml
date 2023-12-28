@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>f2fs.fsck简记</title>
+    <link href="/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/"/>
+    <url>/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/</url>
+    
+    <content type="html"><![CDATA[<h1 id="f2fs-fsck简记"><a href="#f2fs-fsck简记" class="headerlink" title="f2fs.fsck简记"></a>f2fs.fsck简记</h1><img src="/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/1.png" alt="在这里插入图片描述" style="zoom:80%;"><p>文件校验流程：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"># 根目录开始: fsck_chk_node_blk(sbi, <span class="hljs-literal">NULL</span>, sbi-&gt;root_ino_num, F2FS_FT_DIR, TYPE_INODE, &amp;blk_cnt, <span class="hljs-literal">NULL</span>);<br># 找到根目录对应的Node block，文件夹对应f2fs_inode: 以fsck_chk_inode_blk(sbi, nid, ftype, node_blk, blk_cnt, &amp;ni, child);<br># 找到i_addr为对应的data block: fsck_chk_data_blk(sbi,IS_CASEFOLDED(&amp;node_blk-&gt;i),blkaddr,...)<br># 此data block为dentry block，处理目录项: __chk_dentries<br># 建立目录树，开始校验子文件【逐步递归，检验所有】: fsck_chk_node_blk(sbi,<span class="hljs-literal">NULL</span>, le32_to_cpu(dentry[i].ino), ftype, TYPE_INODE,...)<br></code></pre></td></tr></table></figure><p>校验到一个node块损坏的块有以下现象：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">sanity_check_nid</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, u32 nid,</span><br><span class="hljs-params"><span class="hljs-keyword">struct</span> f2fs_node *node_blk,</span><br><span class="hljs-params"><span class="hljs-keyword">enum</span> FILE_TYPE ftype, <span class="hljs-keyword">enum</span> NODE_TYPE ntype,</span><br><span class="hljs-params"><span class="hljs-keyword">struct</span> node_info *ni)</span><br>&#123;<br>    <br>    get_node_info(sbi, nid, ni);<br>    ret = dev_read_block(node_blk, ni-&gt;blk_addr);<br>    <br>    <span class="hljs-comment">// 问题出在这里</span><br>    <span class="hljs-keyword">if</span> (le32_to_cpu(node_blk-&gt;footer.nid) != nid) &#123;<br>ASSERT_MSG(<span class="hljs-string">&quot;nid[0x%x] blk_addr[0x%x] footer.nid[0x%x]&quot;</span>,<br>nid, ni-&gt;blk_addr,<br>le32_to_cpu(node_blk-&gt;footer.nid));<br><span class="hljs-keyword">return</span> -EINVAL;<br>&#125;<br>&#125;<br></code></pre></td></tr></table></figure><img src="/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/image-20231228233647975.png" alt="image-20231228233647975" style="zoom:67%;"><p>可以看到此处把位图清理了。</p>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Android应用启动全流程分析（源码深度剖析）</title>
     <link href="/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/"/>
     <url>/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/</url>
