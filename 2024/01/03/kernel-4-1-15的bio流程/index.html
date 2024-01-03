@@ -16,27 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="ufs与bio流程备忘疑问1：UFS与Scsi的关系      https:&#x2F;&#x2F;blog.csdn.net&#x2F;marlos&#x2F;article&#x2F;details&#x2F;130212441 疑问2：UFS和MMC处理request的区别 每个块设备在生成时，会设置自己的request_queue及其属性，回调函数，比如mmc和ufs设备分别设定了mmc_request_fn和scsi_request_fn作为这个">
+    <meta name="description" content="kernel-4.1.15的bio流程块设备驱动：https:&#x2F;&#x2F;blog.csdn.net&#x2F;morecrazylove&#x2F;article&#x2F;details&#x2F;128712522 block层演变：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_30522983&#x2F;article&#x2F;details&#x2F;112331407 1.发送bio的过程submit_biosubmit_bio是提交bio的总的接">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ufs与bio流程备忘">
-<meta property="og:url" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/index.html">
+<meta property="og:title" content="kernel-4.1.15的bio流程">
+<meta property="og:url" content="http://example.com/2024/01/03/kernel-4-1-15%E7%9A%84bio%E6%B5%81%E7%A8%8B/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="ufs与bio流程备忘疑问1：UFS与Scsi的关系      https:&#x2F;&#x2F;blog.csdn.net&#x2F;marlos&#x2F;article&#x2F;details&#x2F;130212441 疑问2：UFS和MMC处理request的区别 每个块设备在生成时，会设置自己的request_queue及其属性，回调函数，比如mmc和ufs设备分别设定了mmc_request_fn和scsi_request_fn作为这个">
+<meta property="og:description" content="kernel-4.1.15的bio流程块设备驱动：https:&#x2F;&#x2F;blog.csdn.net&#x2F;morecrazylove&#x2F;article&#x2F;details&#x2F;128712522 block层演变：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_30522983&#x2F;article&#x2F;details&#x2F;112331407 1.发送bio的过程submit_biosubmit_bio是提交bio的总的接">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps1.jpg">
-<meta property="og:image" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps2.jpg">
-<meta property="og:image" content="http://example.com/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps3.jpg">
-<meta property="og:image" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps4.jpg">
-<meta property="og:image" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps5.jpg">
-<meta property="article:published_time" content="2024-01-03T14:09:18.000Z">
-<meta property="article:modified_time" content="2024-01-03T14:10:57.561Z">
+<meta property="og:image" content="http://example.com/2024/01/03/kernel-4-1-15%E7%9A%84bio%E6%B5%81%E7%A8%8B/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAZmx5aW5nbm9za3k=,size_20,color_FFFFFF,t_70,g_se,x_16.png">
+<meta property="article:published_time" content="2024-01-03T15:06:51.000Z">
+<meta property="article:modified_time" content="2024-01-03T15:31:33.774Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps1.jpg">
+<meta name="twitter:image" content="http://example.com/2024/01/03/kernel-4-1-15%E7%9A%84bio%E6%B5%81%E7%A8%8B/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAZmx5aW5nbm9za3k=,size_20,color_FFFFFF,t_70,g_se,x_16.png">
   
   
   
-  <title>ufs与bio流程备忘 - 疯狂少年</title>
+  <title>kernel-4.1.15的bio流程 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -194,7 +190,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="ufs与bio流程备忘"></span>
+            <span id="subtitle" data-typed-text="kernel-4.1.15的bio流程"></span>
           
         </div>
 
@@ -205,7 +201,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-01-03 22:09" pubdate>
+        <time datetime="2024-01-03 23:06" pubdate>
           2024年1月3日 晚上
         </time>
       </span>
@@ -217,7 +213,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          592 字
+          1.2k 字
         
       </span>
     
@@ -228,7 +224,7 @@
         
         
         
-          5 分钟
+          11 分钟
         
       </span>
     
@@ -274,42 +270,32 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">ufs与bio流程备忘</h1>
+            <h1 style="display: none">kernel-4.1.15的bio流程</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="ufs与bio流程备忘"><a href="#ufs与bio流程备忘" class="headerlink" title="ufs与bio流程备忘"></a>ufs与bio流程备忘</h1><p><strong>疑问1：UFS与Scsi的关系</strong></p>
-<img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps1.jpg" srcset="/img/loading.gif" lazyload alt="img">
+                <h1 id="kernel-4-1-15的bio流程"><a href="#kernel-4-1-15的bio流程" class="headerlink" title="kernel-4.1.15的bio流程"></a>kernel-4.1.15的bio流程</h1><p>块设备驱动：<a target="_blank" rel="noopener" href="https://blog.csdn.net/morecrazylove/article/details/128712522">https://blog.csdn.net/morecrazylove/article/details/128712522</a></p>
+<p>block层演变：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_30522983/article/details/112331407">https://blog.csdn.net/weixin_30522983/article/details/112331407</a></p>
+<h2 id="1-发送bio的过程"><a href="#1-发送bio的过程" class="headerlink" title="1.发送bio的过程"></a>1.发送bio的过程</h2><h3 id="submit-bio"><a href="#submit-bio" class="headerlink" title="submit_bio"></a>submit_bio</h3><p>submit_bio是提交bio的总的接口，在块层之上，即文件系统层根据实际场景有很多对submit_bio的不同封装，submit_bio主要调用generic_make_request把bio转换成request。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">submit_bio</span><span class="hljs-params">(<span class="hljs-type">int</span> rw, <span class="hljs-keyword">struct</span> bio *bio)</span><br>&#123;<br>    generic_make_request(bio);<br>&#125;<br></code></pre></td></tr></table></figure>
 
- 
+<h3 id="generic-make-request"><a href="#generic-make-request" class="headerlink" title="generic_make_request"></a>generic_make_request</h3><blockquote>
+<p>注意：current在kernel是一个全局变量，表示当前正在运行的线程，每一个进程维护了一个bio_list</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">generic_make_request</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bio *bio)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bio_list</span> <span class="hljs-title">bio_list_on_stack</span>;</span><br>    <br>    <span class="hljs-keyword">if</span> (current-&gt;bio_list) &#123;<br>		bio_list_add(current-&gt;bio_list, bio);<br>		<span class="hljs-keyword">return</span>;<br>	&#125;<br>    <br>    bio_list_init(&amp;bio_list_on_stack);<br>	current-&gt;bio_list = &amp;bio_list_on_stack;<br>	<span class="hljs-keyword">do</span> &#123;<br>        <span class="hljs-comment">// 获取块设备对应的I/O请求队列</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request_queue</span> *<span class="hljs-title">q</span> =</span> bdev_get_queue(bio-&gt;bi_bdev);<br>        <span class="hljs-comment">// 调用请求处理函数，本文为blk_queue_bio</span><br>		q-&gt;make_request_fn(q, bio);<br>		bio = bio_list_pop(current-&gt;bio_list);<br>	&#125; <span class="hljs-keyword">while</span> (bio);<br>	current-&gt;bio_list = <span class="hljs-literal">NULL</span>; <span class="hljs-comment">/* deactivate */</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/marlos/article/details/130212441">https://blog.csdn.net/marlos/article/details/130212441</a></p>
-<p><strong>疑问2：UFS和MMC处理request的区别</strong></p>
-<p>每个块设备在生成时，会设置自己的request_queue及其属性，回调函数，比如mmc和ufs设备分别设定了mmc_request_fn和scsi_request_fn作为这个request_queue的request_fn，从而实现了block层和设备驱动层的解耦。</p>
-<img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps2.jpg" srcset="/img/loading.gif" lazyload alt="img">
-
- 
-
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/2TphQjyCkKeN5jy2kGHfoA">https://mp.weixin.qq.com/s/2TphQjyCkKeN5jy2kGHfoA</a></p>
-<p><strong>疑问3：ufs设备和scsi驱动加载流程，在scsi加载的过程中会设置request_fn</strong></p>
-<p><a target="_blank" rel="noopener" href="http://www.taodudu.cc/news/show-2094536.html?action=onClick">http://www.taodudu.cc/news/show-2094536.html?action=onClick</a></p>
-<p><img src="/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps3.jpg" srcset="/img/loading.gif" lazyload alt="img"> </p>
-<p>scsi_probe_and_add_lun</p>
-<p>scsi_alloc_sdev</p>
-<p>scsi_alloc_queue</p>
-<p>__scsi_alloc_queue</p>
-<p>blk_init_queue</p>
-<p>blk_init_queue_node</p>
-<p>blk_alloc_queue_node</p>
-<img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps4.jpg" srcset="/img/loading.gif" lazyload alt="img">
-
- 
-
-<p>此时会传递scsi_request_fn为最终在blk_init_allocated_queue中设置为request_queue的request_fn值</p>
-<img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps5.jpg" srcset="/img/loading.gif" lazyload alt="img">
-
- 
+<p>🔴<strong>为什么每一个进程要设置一个bio_list</strong></p>
+<blockquote>
+<p>详解：<a target="_blank" rel="noopener" href="https://blog.csdn.net/flyingnosky/article/details/121362813">https://blog.csdn.net/flyingnosky/article/details/121362813</a></p>
+</blockquote>
+<p><strong>对于每个线程，存在成员current-&gt;bio_list来放置本线程发送的BIO。这里有三条路径发送IO到底层：</strong></p>
+<ul>
+<li>路径一，使能了plug&#x2F;unplug机制，此时会等待plug池中存取足够的IO后统一往调度器插入IO，并选取IO下发；</li>
+<li>路径二，没有使能plug&#x2F;unplug机制，此时会将IO插入调度器中，并选取IO下发；</li>
+<li>路径三，跳过调度层，直接下发IO；</li>
+</ul>
+<img src="/2024/01/03/kernel-4-1-15%E7%9A%84bio%E6%B5%81%E7%A8%8B/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAZmx5aW5nbm9za3k=,size_20,color_FFFFFF,t_70,g_se,x_16.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
 
                 
               </div>
@@ -327,8 +313,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>ufs与bio流程备忘</div>
-      <div>http://example.com/2024/01/03/ufs与bio流程备忘/</div>
+      <div>kernel-4.1.15的bio流程</div>
+      <div>http://example.com/2024/01/03/kernel-4-1-15的bio流程/</div>
     </div>
     <div class="license-meta">
       
@@ -372,18 +358,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/01/03/kernel-4-1-15%E7%9A%84bio%E6%B5%81%E7%A8%8B/" title="kernel-4.1.15的bio流程">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">kernel-4.1.15的bio流程</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/" title="f2fs.fsck简记">
-                        <span class="hidden-mobile">f2fs.fsck简记</span>
+                      <a href="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/" title="ufs与bio流程备忘">
+                        <span class="hidden-mobile">ufs与bio流程备忘</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
