@@ -16,26 +16,27 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="f2fs.fsck简记  文件校验流程： 12345# 根目录开始: fsck_chk_node_blk(sbi, NULL, sbi-&gt;root_ino_num, F2FS_FT_DIR, TYPE_INODE, &amp;blk_cnt, NULL);# 找到根目录对应的Node block，文件夹对应f2fs_inode: 以fsck_chk_inode_blk(sbi, nid, f">
+    <meta name="description" content="ufs与bio流程备忘疑问1：UFS与Scsi的关系      https:&#x2F;&#x2F;blog.csdn.net&#x2F;marlos&#x2F;article&#x2F;details&#x2F;130212441 疑问2：UFS和MMC处理request的区别 每个块设备在生成时，会设置自己的request_queue及其属性，回调函数，比如mmc和ufs设备分别设定了mmc_request_fn和scsi_request_fn作为这个">
 <meta property="og:type" content="article">
-<meta property="og:title" content="f2fs.fsck简记">
-<meta property="og:url" content="http://example.com/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/index.html">
+<meta property="og:title" content="ufs与bio流程备忘">
+<meta property="og:url" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="f2fs.fsck简记  文件校验流程： 12345# 根目录开始: fsck_chk_node_blk(sbi, NULL, sbi-&gt;root_ino_num, F2FS_FT_DIR, TYPE_INODE, &amp;blk_cnt, NULL);# 找到根目录对应的Node block，文件夹对应f2fs_inode: 以fsck_chk_inode_blk(sbi, nid, f">
+<meta property="og:description" content="ufs与bio流程备忘疑问1：UFS与Scsi的关系      https:&#x2F;&#x2F;blog.csdn.net&#x2F;marlos&#x2F;article&#x2F;details&#x2F;130212441 疑问2：UFS和MMC处理request的区别 每个块设备在生成时，会设置自己的request_queue及其属性，回调函数，比如mmc和ufs设备分别设定了mmc_request_fn和scsi_request_fn作为这个">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/1.png">
-<meta property="og:image" content="http://example.com/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/image-20231228233647975.png">
-<meta property="og:image" content="http://example.com/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/image-20231228235700614.png">
-<meta property="og:image" content="http://example.com/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/image-20231228235527206.png">
-<meta property="article:published_time" content="2023-12-28T15:32:19.000Z">
-<meta property="article:modified_time" content="2023-12-28T15:57:18.683Z">
+<meta property="og:image" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps1.jpg">
+<meta property="og:image" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps2.jpg">
+<meta property="og:image" content="http://example.com/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps3.jpg">
+<meta property="og:image" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps4.jpg">
+<meta property="og:image" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps5.jpg">
+<meta property="article:published_time" content="2024-01-03T14:09:18.000Z">
+<meta property="article:modified_time" content="2024-01-03T14:10:57.561Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/1.png">
+<meta name="twitter:image" content="http://example.com/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps1.jpg">
   
   
   
-  <title>f2fs.fsck简记 - 疯狂少年</title>
+  <title>ufs与bio流程备忘 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -193,7 +194,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="f2fs.fsck简记"></span>
+            <span id="subtitle" data-typed-text="ufs与bio流程备忘"></span>
           
         </div>
 
@@ -204,8 +205,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-12-28 23:32" pubdate>
-          2023年12月28日 晚上
+        <time datetime="2024-01-03 22:09" pubdate>
+          2024年1月3日 晚上
         </time>
       </span>
     
@@ -216,7 +217,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          592 字
         
       </span>
     
@@ -227,7 +228,7 @@
         
         
         
-          10 分钟
+          5 分钟
         
       </span>
     
@@ -273,31 +274,42 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">f2fs.fsck简记</h1>
+            <h1 style="display: none">ufs与bio流程备忘</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="f2fs-fsck简记"><a href="#f2fs-fsck简记" class="headerlink" title="f2fs.fsck简记"></a>f2fs.fsck简记</h1><img src="/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+                <h1 id="ufs与bio流程备忘"><a href="#ufs与bio流程备忘" class="headerlink" title="ufs与bio流程备忘"></a>ufs与bio流程备忘</h1><p><strong>疑问1：UFS与Scsi的关系</strong></p>
+<img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps1.jpg" srcset="/img/loading.gif" lazyload alt="img">
 
-<p>文件校验流程：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"># 根目录开始: fsck_chk_node_blk(sbi, <span class="hljs-literal">NULL</span>, sbi-&gt;root_ino_num, F2FS_FT_DIR, TYPE_INODE, &amp;blk_cnt, <span class="hljs-literal">NULL</span>);<br># 找到根目录对应的Node block，文件夹对应f2fs_inode: 以fsck_chk_inode_blk(sbi, nid, ftype, node_blk, blk_cnt, &amp;ni, child);<br># 找到i_addr为对应的data block: fsck_chk_data_blk(sbi,IS_CASEFOLDED(&amp;node_blk-&gt;i),blkaddr,...)<br># 此data block为dentry block，处理目录项: __chk_dentries<br># 建立目录树，开始校验子文件【逐步递归，检验所有】: fsck_chk_node_blk(sbi,<span class="hljs-literal">NULL</span>, le32_to_cpu(dentry[i].ino), ftype, TYPE_INODE,...)<br></code></pre></td></tr></table></figure>
+ 
 
-<p>校验到一个node块损坏的块有以下现象：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">sanity_check_nid</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, u32 nid,</span><br><span class="hljs-params">			<span class="hljs-keyword">struct</span> f2fs_node *node_blk,</span><br><span class="hljs-params">			<span class="hljs-keyword">enum</span> FILE_TYPE ftype, <span class="hljs-keyword">enum</span> NODE_TYPE ntype,</span><br><span class="hljs-params">			<span class="hljs-keyword">struct</span> node_info *ni)</span><br>&#123;<br>    <br>    get_node_info(sbi, nid, ni);<br>    ret = dev_read_block(node_blk, ni-&gt;blk_addr);<br>    <br>    <span class="hljs-comment">// 问题出在这里</span><br>    <span class="hljs-keyword">if</span> (le32_to_cpu(node_blk-&gt;footer.nid) != nid) &#123;<br>		ASSERT_MSG(<span class="hljs-string">&quot;nid[0x%x] blk_addr[0x%x] footer.nid[0x%x]&quot;</span>,<br>				nid, ni-&gt;blk_addr,<br>				le32_to_cpu(node_blk-&gt;footer.nid));<br>		<span class="hljs-keyword">return</span> -EINVAL;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/marlos/article/details/130212441">https://blog.csdn.net/marlos/article/details/130212441</a></p>
+<p><strong>疑问2：UFS和MMC处理request的区别</strong></p>
+<p>每个块设备在生成时，会设置自己的request_queue及其属性，回调函数，比如mmc和ufs设备分别设定了mmc_request_fn和scsi_request_fn作为这个request_queue的request_fn，从而实现了block层和设备驱动层的解耦。</p>
+<img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps2.jpg" srcset="/img/loading.gif" lazyload alt="img">
 
-<img src="/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/image-20231228233647975.png" srcset="/img/loading.gif" lazyload alt="image-20231228233647975" style="zoom:67%;">
+ 
 
-<p>可以看到此处把位图清理了。</p>
-<p>下次索引的时候就不会再检查了</p>
-<img src="/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/image-20231228235700614.png" srcset="/img/loading.gif" lazyload alt="image-20231228235700614" style="zoom:67%;">
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/2TphQjyCkKeN5jy2kGHfoA">https://mp.weixin.qq.com/s/2TphQjyCkKeN5jy2kGHfoA</a></p>
+<p><strong>疑问3：ufs设备和scsi驱动加载流程，在scsi加载的过程中会设置request_fn</strong></p>
+<p><a target="_blank" rel="noopener" href="http://www.taodudu.cc/news/show-2094536.html?action=onClick">http://www.taodudu.cc/news/show-2094536.html?action=onClick</a></p>
+<p><img src="/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps3.jpg" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<p>scsi_probe_and_add_lun</p>
+<p>scsi_alloc_sdev</p>
+<p>scsi_alloc_queue</p>
+<p>__scsi_alloc_queue</p>
+<p>blk_init_queue</p>
+<p>blk_init_queue_node</p>
+<p>blk_alloc_queue_node</p>
+<img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps4.jpg" srcset="/img/loading.gif" lazyload alt="img">
 
-<hr>
-<p>一个dentry block可以记录214个dentry和文件名，成员包括：一个位图、预留空间、dentries 部分 和 文件名部分，共4KB。<br>Dentry Block(4 K) &#x3D; bitmap (27 bytes) + reserved (3 bytes) + dentries(11 * 214 bytes) + file name (8 * 214 bytes)<br>具体结构如下：</p>
-<img src="/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/image-20231228235527206.png" srcset="/img/loading.gif" lazyload alt="image-20231228235527206" style="zoom:67%;">
+ 
 
+<p>此时会传递scsi_request_fn为最终在blk_init_allocated_queue中设置为request_queue的request_fn值</p>
+<img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps5.jpg" srcset="/img/loading.gif" lazyload alt="img">
 
-
+ 
 
                 
               </div>
@@ -315,8 +327,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>f2fs.fsck简记</div>
-      <div>http://example.com/2023/12/28/f2fs-fsck简记/</div>
+      <div>ufs与bio流程备忘</div>
+      <div>http://example.com/2024/01/03/ufs与bio流程备忘/</div>
     </div>
     <div class="license-meta">
       
@@ -328,7 +340,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年12月28日</div>
+          <div>2024年1月3日</div>
         </div>
       
       
@@ -360,18 +372,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/" title="ufs与bio流程备忘">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">ufs与bio流程备忘</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/12/26/Android%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E5%85%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%EF%BC%89/" title="Android应用启动全流程分析（源码深度剖析）">
-                        <span class="hidden-mobile">Android应用启动全流程分析（源码深度剖析）</span>
+                      <a href="/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/" title="f2fs.fsck简记">
+                        <span class="hidden-mobile">f2fs.fsck简记</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

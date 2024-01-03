@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>ufs与bio流程备忘</title>
+    <link href="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/"/>
+    <url>/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/</url>
+    
+    <content type="html"><![CDATA[<h1 id="ufs与bio流程备忘"><a href="#ufs与bio流程备忘" class="headerlink" title="ufs与bio流程备忘"></a>ufs与bio流程备忘</h1><p><strong>疑问1：UFS与Scsi的关系</strong></p><img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps1.jpg" alt="img"> <p><a href="https://blog.csdn.net/marlos/article/details/130212441">https://blog.csdn.net/marlos/article/details/130212441</a></p><p><strong>疑问2：UFS和MMC处理request的区别</strong></p><p>每个块设备在生成时，会设置自己的request_queue及其属性，回调函数，比如mmc和ufs设备分别设定了mmc_request_fn和scsi_request_fn作为这个request_queue的request_fn，从而实现了block层和设备驱动层的解耦。</p><img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps2.jpg" alt="img"> <p><a href="https://mp.weixin.qq.com/s/2TphQjyCkKeN5jy2kGHfoA">https://mp.weixin.qq.com/s/2TphQjyCkKeN5jy2kGHfoA</a></p><p><strong>疑问3：ufs设备和scsi驱动加载流程，在scsi加载的过程中会设置request_fn</strong></p><p><a href="http://www.taodudu.cc/news/show-2094536.html?action=onClick">http://www.taodudu.cc/news/show-2094536.html?action=onClick</a></p><p><img src="/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps3.jpg" alt="img"> </p><p>scsi_probe_and_add_lun</p><p>scsi_alloc_sdev</p><p>scsi_alloc_queue</p><p>__scsi_alloc_queue</p><p>blk_init_queue</p><p>blk_init_queue_node</p><p>blk_alloc_queue_node</p><img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps4.jpg" alt="img"> <p>此时会传递scsi_request_fn为最终在blk_init_allocated_queue中设置为request_queue的request_fn值</p><img src="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/wps5.jpg" alt="img"> ]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>f2fs.fsck简记</title>
     <link href="/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/"/>
     <url>/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/</url>
