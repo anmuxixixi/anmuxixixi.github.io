@@ -1,0 +1,690 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Block模块之IO合并代码解析https:&#x2F;&#x2F;www.cnblogs.com&#x2F;jrchyang&#x2F;p&#x2F;16795368.html https:&#x2F;&#x2F;www.ubuntukylin.com&#x2F;news&#x2F;791-cn.html 逻辑入口Plug合并Plug合并是内核通用块层提供的机制，如果需要开启则在提交IO前执行 blk_start_plug() 函数启动蓄流，IO全部提交完成后执行 blk_finis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Block模块之IO合并代码解析">
+<meta property="og:url" content="http://example.com/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="疯狂少年">
+<meta property="og:description" content="Block模块之IO合并代码解析https:&#x2F;&#x2F;www.cnblogs.com&#x2F;jrchyang&#x2F;p&#x2F;16795368.html https:&#x2F;&#x2F;www.ubuntukylin.com&#x2F;news&#x2F;791-cn.html 逻辑入口Plug合并Plug合并是内核通用块层提供的机制，如果需要开启则在提交IO前执行 blk_start_plug() 函数启动蓄流，IO全部提交完成后执行 blk_finis">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254084160608.png">
+<meta property="og:image" content="http://example.com/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254095647471.png">
+<meta property="og:image" content="http://example.com/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254105303637.png">
+<meta property="og:image" content="http://example.com/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254118631038.png">
+<meta property="og:image" content="http://example.com/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254143306219.png">
+<meta property="og:image" content="http://example.com/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254164616153.png">
+<meta property="article:published_time" content="2024-01-04T15:25:14.000Z">
+<meta property="article:modified_time" content="2024-01-04T15:36:01.976Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254084160608.png">
+  
+  
+  
+  <title>Block模块之IO合并代码解析 - 疯狂少年</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>疯狂少年</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Block模块之IO合并代码解析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-04 23:25" pubdate>
+          2024年1月4日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          45 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Block模块之IO合并代码解析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Block模块之IO合并代码解析"><a href="#Block模块之IO合并代码解析" class="headerlink" title="Block模块之IO合并代码解析"></a>Block模块之IO合并代码解析</h1><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/jrchyang/p/16795368.html">https://www.cnblogs.com/jrchyang/p/16795368.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.ubuntukylin.com/news/791-cn.html">https://www.ubuntukylin.com/news/791-cn.html</a></p>
+<h2 id="逻辑入口"><a href="#逻辑入口" class="headerlink" title="逻辑入口"></a>逻辑入口</h2><h2 id="Plug合并"><a href="#Plug合并" class="headerlink" title="Plug合并"></a>Plug合并</h2><p>Plug合并是内核通用块层提供的机制，如果需要开启则在提交IO前执行 <code>blk_start_plug()</code> 函数启动蓄流，IO全部提交完成后执行 <code>blk_finish_plug()</code> 函数进行泄流。启动蓄流主要是为当前进程（ <code>current</code> 宏）分配plug链表，提交IO时plug链表存在则IO先缓存到该链表中，执行泄流时将该链表中缓存的IO下发。执行plug合并的函数为 <code>blk_attempt_plug_merge()</code> ，该函数的主要逻辑为遍历 <code>current-&gt;plug-&gt;list</code> 中的所有请求，将属于同一个底层设备队列且位置相邻的请求合并在一起，代码逻辑如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">bool</span> <span class="hljs-title function_">blk_attempt_plug_merge</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> request_queue *q, <span class="hljs-keyword">struct</span> bio *bio,</span><br><span class="hljs-params">			    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> *request_count,</span><br><span class="hljs-params">			    <span class="hljs-keyword">struct</span> request **same_queue_rq)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blk_plug</span> *<span class="hljs-title">plug</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request</span> *<span class="hljs-title">rq</span>;</span><br>	<span class="hljs-type">bool</span> ret = <span class="hljs-literal">false</span>;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> *<span class="hljs-title">plug_list</span>;</span><br> <br>	plug = current-&gt;plug;<br>	<span class="hljs-keyword">if</span> (!plug)<br>		<span class="hljs-keyword">goto</span> out;<br>	*request_count = <span class="hljs-number">0</span>;<br> <br>	<span class="hljs-keyword">if</span> (q-&gt;mq_ops)<br>		plug_list = &amp;plug-&gt;mq_list;<br>	<span class="hljs-keyword">else</span><br>		plug_list = &amp;plug-&gt;<span class="hljs-built_in">list</span>;<br> <br>	list_for_each_entry_reverse(rq, plug_list, queuelist) &#123;<br>		<span class="hljs-type">int</span> el_ret;<br> <br>		<span class="hljs-comment">/* 给plug_list中同一个设备的请求计数 */</span><br>		<span class="hljs-keyword">if</span> (rq-&gt;q == q) &#123;<br>			(*request_count)++;<br>			<span class="hljs-keyword">if</span> (same_queue_rq)<br>				*same_queue_rq = rq;<br>		&#125;<br> <br>		<span class="hljs-comment">/* 同一队列，满足合并的才能合并 */</span><br>		<span class="hljs-keyword">if</span> (rq-&gt;q != q || !blk_rq_merge_ok(rq, bio))<br>			<span class="hljs-keyword">continue</span>;<br> <br>		<span class="hljs-comment">/* 判断能进行合并的位置 */</span><br>		el_ret = blk_try_merge(rq, bio);<br>		<span class="hljs-keyword">if</span> (el_ret == ELEVATOR_BACK_MERGE) &#123;<br>			ret = bio_attempt_back_merge(q, rq, bio);<br>			<span class="hljs-keyword">if</span> (ret)<br>				<span class="hljs-keyword">break</span>;<br>		&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (el_ret == ELEVATOR_FRONT_MERGE) &#123;<br>			ret = bio_attempt_front_merge(q, rq, bio);<br>			<span class="hljs-keyword">if</span> (ret)<br>				<span class="hljs-keyword">break</span>;<br>		&#125;<br>	&#125;<br>out:<br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>该逻辑中有两点需要注意。一是 <code>request_count</code> 计数，该变量统计plug链表中与当前IO属于同一队列的请求个数，当数量超过 <code>BLK_MAX_REQUEST_COUNT</code> （当前定义为16）时则主动下刷plug中的请求；二是函数 <code>blk_rq_merge_ok()</code> 与函数 <code>blk_try_merge()</code> ，其中 <code>blk_rq_merge_ok()</code> 检查req及bio属性是否支持合并， <code>blk_try_merge()</code> 则是根据req及bio的起始位置与长度来检查是否相邻，以判断能否合并以及合并的类型（前向&#x2F;后向），代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">bool</span> <span class="hljs-title function_">blk_rq_merge_ok</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> request *rq, <span class="hljs-keyword">struct</span> bio *bio)</span><br>&#123;<br>	<span class="hljs-comment">/* rq_mergeable - 判断rq是否有不允许合并的标记</span><br><span class="hljs-comment">	 * bio_mergeable - 判断bio是否有不允许合并的标记</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-keyword">if</span> (!rq_mergeable(rq) || !bio_mergeable(bio))<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br> <br>	<span class="hljs-comment">/* 判断rq和bio是否是特殊的请求，</span><br><span class="hljs-comment">	 * 如果是特殊请求并且两者相同则不允许合并</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-keyword">if</span> (!blk_check_merge_flags(rq-&gt;cmd_flags, bio-&gt;bi_rw))<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br> <br>	<span class="hljs-comment">/* 请求方向不同，不能合并 */</span><br>	<span class="hljs-keyword">if</span> (bio_data_dir(bio) != rq_data_dir(rq))<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br> <br>	<span class="hljs-comment">/* 指向的通用磁盘不同或者rq是特殊请求，不能合并 */</span><br>	<span class="hljs-keyword">if</span> (rq-&gt;rq_disk != bio-&gt;bi_bdev-&gt;bd_disk || req_no_special_merge(rq))<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br> <br>	<span class="hljs-comment">/* 完整性保护不同的请求和bio，不能合并 */</span><br>	<span class="hljs-keyword">if</span> (bio_integrity(bio) != blk_integrity_rq(rq))<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br> <br>	<span class="hljs-comment">/* REQ_WRITE_SAME请求，来自不同的page，不能合并 */</span><br>	<span class="hljs-keyword">if</span> (rq-&gt;cmd_flags &amp; REQ_WRITE_SAME &amp;&amp;<br>	    !blk_write_same_mergeable(rq-&gt;bio, bio))<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br> <br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br> <br><span class="hljs-type">int</span> <span class="hljs-title function_">blk_try_merge</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> request *rq, <span class="hljs-keyword">struct</span> bio *bio)</span><br>&#123;<br>	<span class="hljs-comment">/* rq结束位置等于bio起始位置返回后向合并 */</span><br>	<span class="hljs-keyword">if</span> (blk_rq_pos(rq) + blk_rq_sectors(rq) == bio-&gt;bi_sector)<br>		<span class="hljs-keyword">return</span> ELEVATOR_BACK_MERGE;<br>	<span class="hljs-comment">/* bio结束位置等于rq起始位置返回前向合并 */</span><br>	<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (blk_rq_pos(rq) - bio_sectors(bio) == bio-&gt;bi_sector)<br>		<span class="hljs-keyword">return</span> ELEVATOR_FRONT_MERGE;<br>	<span class="hljs-keyword">return</span> ELEVATOR_NO_MERGE;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="bio向后合并"><a href="#bio向后合并" class="headerlink" title="bio向后合并"></a>bio向后合并</h3><p>为了验证IO请求在通用块层的各种合并形式，准备了以下测试程序，该测试程序使用内核原生支持的异步IO引擎，可异步地向内核一次提交多个IO请求。为了减少page cache和文件系统的干扰，使用O_DIRECT的方式直接向裸设备派发IO。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// iotc.c</span><br><br><span class="hljs-comment">/* dispatch 3 4k-size ios using the io_type specified by user */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NUM_EVENTS  3</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ALIGN_SIZE  4096</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> WR_SIZE  4096</span><br><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">io_type</span> &#123;</span><br>	SEQUENCE_IO,<span class="hljs-comment">/* dispatch 3 ios: 0-4k(0+8), 4-8k(8+8), 8-12k(16+8) */</span><br>	REVERSE_IO,<span class="hljs-comment">/* dispatch 3 ios: 8-12k(16+8), 4-8k(8+8),0-4k(0+8) */</span><br>	INTERLEAVE_IO, <span class="hljs-comment">/* dispatch 3 ios: 8-12k(16+8), 0-4k(0+8),4-8k(8+8) */</span> ,<br>	IO_TYPE_END<br>&#125;;<br><br><span class="hljs-type">int</span> io_units[IO_TYPE_END][NUM_EVENTS] = &#123;<br>	&#123;<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>&#125;,	<span class="hljs-comment">/* corresponding to SEQUENCE_IO */</span><br>	&#123;<span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>&#125;,	<span class="hljs-comment">/* corresponding to REVERSE_IO */</span><br>	&#123;<span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>&#125;	<span class="hljs-comment">/* corresponding to INTERLEAVE_IO */</span><br>&#125;;<br><br><span class="hljs-type">char</span> *io_opt = <span class="hljs-string">&quot;srid:&quot;</span>;		<span class="hljs-comment">/* acceptable options */</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>	<span class="hljs-type">int</span> fd;<br>	<span class="hljs-type">io_context_t</span> ctx;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">timespec</span> <span class="hljs-title">tms</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">io_event</span> <span class="hljs-title">events</span>[<span class="hljs-title">NUM_EVENTS</span>];</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">iocb</span> <span class="hljs-title">iocbs</span>[<span class="hljs-title">NUM_EVENTS</span>],</span><br><span class="hljs-class">                *<span class="hljs-title">iocbp</span>[<span class="hljs-title">NUM_EVENTS</span>];</span><br>	<span class="hljs-type">int</span> i, io_flag = <span class="hljs-number">-1</span>;;<br>	<span class="hljs-type">void</span> *buf;<br>	<span class="hljs-type">bool</span> hit = <span class="hljs-literal">false</span>;<br>	<span class="hljs-type">char</span> *dev = <span class="hljs-literal">NULL</span>, opt;<br><br>	<span class="hljs-comment">/* io_flag and dev got set according the options passed by user , don’t paste the code of parsing here to shrink space */</span><br>	fd = open(dev, O_RDWR | __O_DIRECT);<br><br>	<span class="hljs-comment">/* we can dispatch 32 IOs at 1 systemcall */</span><br>	ctx = <span class="hljs-number">0</span>;<br><br>	io_setup(<span class="hljs-number">32</span>, &amp;ctx);<br>	posix_memalign(&amp;buf,ALIGN_SIZE,WR_SIZE);<br><br>	<span class="hljs-comment">/* prepare IO request according to io_type */</span><br>	<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; NUM_EVENTS; iocbp[i] = iocbs + i, ++i)<br>		io_prep_pwrite(&amp;iocbs[i], fd, buf, WR_SIZE, io_units[io_flag][i] * WR_SIZE);<br><br>	<span class="hljs-comment">/* submit IOs using io_submit systemcall */</span><br>	io_submit(ctx, NUM_EVENTS, iocbp);<br><br>	<span class="hljs-comment">/* get the IO result with a timeout of 1S*/</span><br>	tms.tv_sec = <span class="hljs-number">1</span>;<br>	tms.tv_nsec = <span class="hljs-number">0</span>;<br>	io_getevents(ctx, <span class="hljs-number">1</span>, NUM_EVENTS, events, &amp;tms);<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>测试程序接收两个参数，第一个为作用的设备，第二个为IO类型，定义了三种IO类型：SEQUENCE_IO（顺序），REVERSE_IO（逆序），INTERLEAVE_IO（交替）分别用来验证蓄流阶段的bio后向合并、前向合并和泄流阶段的request合并。为了减少篇幅，此处贴出的源码删除了选项解析和容错处理，只保留主干，原版位于： <a target="_blank" rel="noopener" href="https://github.com/liuzhengyuan/iotc%E3%80%82">https://github.com/liuzhengyuan/iotc。</a></p>
+<p>为验证bio在蓄流阶段的后向合并，用上面的测试程序iotc顺序派发三个写io:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># ./iotc -d /dev/sdb -s</span><br></code></pre></td></tr></table></figure>
+
+<p>-d指定作用的设备sdb，-s指定IO方式为SEQUENCE_IO（顺序），表示顺序发起三个写请求：bio0(0 + 8), bio1(8 + 8), bio2(16 + 8)。通过blktrace来观察iotc派发的bio请求在通用块层蓄流链表中的合并情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">blktrace -d /dev/sdb -o - | blkparse -i -<br></code></pre></td></tr></table></figure>
+
+<img src="/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254084160608.png" srcset="/img/loading.gif" lazyload alt="Linux通用块层之IO合并">
+
+<p>上面的输出可以简单解析为：</p>
+<img src="/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254095647471.png" srcset="/img/loading.gif" lazyload alt="Linux通用块层之IO合并">
+
+<p>第一个bio(bio0)进入通用块层时，此时蓄流链表为空，于是申请一个request并用bio0初始化，再将request添加进蓄流链表，同时告诉blktrace蓄流已正式工作。第二个bio(bio1)到来的时候会走blk_attempt_plug_merge的逻辑，尝试调用bio_attempt_back_merge与蓄流链表中的request合并，发现正好能合并到第一个bio所在的request尾部，于是直接返回。第三个bio(bio2)的处理与第二个同理。通过蓄流合并之后，三个IO请求最终合并成了一个request(0 + 24)。用一副图来展示整个合并过程：</p>
+<img src="/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254105303637.png" srcset="/img/loading.gif" lazyload alt="Linux通用块层之IO合并" style="zoom: 80%;">
+
+<h3 id="bio向前合并"><a href="#bio向前合并" class="headerlink" title="bio向前合并"></a>bio向前合并</h3><p>为验证bio在蓄流阶段的前向合并，使用iotc逆序派发三个写io:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># ./iotc -d /dev/sdb -r</span><br></code></pre></td></tr></table></figure>
+
+<p>-r指定IO方式为REVERSE_IO（逆序），表示逆序发起三个写请求：bio0(16 + 8),bio1(8 + 8), bio2(0 + 8)。blktrace的观察结果为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">blktrace -d /dev/sdb -o - | blkparse -i -<br></code></pre></td></tr></table></figure>
+
+<img src="/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254118631038.png" srcset="/img/loading.gif" lazyload alt="Linux通用块层之IO合并">
+
+<p>上面的输出可以简单解析为：</p>
+<img src="/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254143306219.png" srcset="/img/loading.gif" lazyload alt="Linux通用块层之IO合并">
+
+<p>与前面的后向合并相比，唯一的区别是合并方式由之前的”M”变成了现在的”F”，即在blk_attempt_plug_merge中走的是bio_attempt_front_merge分支。通过下面的图来展示前向合并过程：</p>
+<img src="/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/1528254164616153.png" srcset="/img/loading.gif" lazyload alt="Linux通用块层之IO合并" style="zoom:80%;">
+
+<p>“plug合并”不会做request与request的进阶合并，蓄流链表中的request之间的合并会在泄流的时候做，即在下面介绍的“elevator合并”中做。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Block模块之IO合并代码解析</div>
+      <div>http://example.com/2024/01/04/Block模块之IO合并代码解析/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/03/kernel-4-1-15%E7%9A%84bio%E6%B5%81%E7%A8%8B/" title="kernel-4.1.15的bio流程">
+                        <span class="hidden-mobile">kernel-4.1.15的bio流程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
