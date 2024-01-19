@@ -1,0 +1,676 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="内核文件加密加密策略(fscrypt policy)加密策略V1：v1策略的秘钥通过一个8字节的标识符”descriptor”从keyring中识别 加密策略V2：v2策略的秘钥通过一个16字节的标识符”identifier”从keyring中识别   FBE秘钥简介密钥管理中有以下关键对象：   这三者的关系可以用一个例子来说明：  在 userdata 分区中， 位于 System DE St">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内核文件加密">
+<meta property="og:url" content="http://example.com/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/index.html">
+<meta property="og:site_name" content="疯狂少年">
+<meta property="og:description" content="内核文件加密加密策略(fscrypt policy)加密策略V1：v1策略的秘钥通过一个8字节的标识符”descriptor”从keyring中识别 加密策略V2：v2策略的秘钥通过一个16字节的标识符”identifier”从keyring中识别   FBE秘钥简介密钥管理中有以下关键对象：   这三者的关系可以用一个例子来说明：  在 userdata 分区中， 位于 System DE St">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119224248512.png">
+<meta property="og:image" content="http://example.com/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119225051283.png">
+<meta property="og:image" content="http://example.com/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119225545849.png">
+<meta property="article:published_time" content="2024-01-19T14:38:24.000Z">
+<meta property="article:modified_time" content="2024-01-19T15:32:49.533Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119224248512.png">
+  
+  
+  
+  <title>内核文件加密 - 疯狂少年</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>疯狂少年</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="内核文件加密"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-19 22:38" pubdate>
+          2024年1月19日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">内核文件加密</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="内核文件加密"><a href="#内核文件加密" class="headerlink" title="内核文件加密"></a>内核文件加密</h1><h2 id="加密策略-fscrypt-policy"><a href="#加密策略-fscrypt-policy" class="headerlink" title="加密策略(fscrypt policy)"></a>加密策略(fscrypt policy)</h2><p>加密策略V1：v1策略的秘钥通过一个8字节的标识符”descriptor”从keyring中识别</p>
+<p>加密策略V2：v2策略的秘钥通过一个16字节的标识符”identifier”从keyring中识别</p>
+<img src="/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119224248512.png" srcset="/img/loading.gif" lazyload alt="image-20240119224248512" style="zoom:50%;">
+
+<h2 id="FBE秘钥简介"><a href="#FBE秘钥简介" class="headerlink" title="FBE秘钥简介"></a>FBE秘钥简介</h2><p>密钥管理中有以下关键对象：</p>
+<img src="/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119225051283.png" srcset="/img/loading.gif" lazyload alt="image-20240119225051283" style="zoom:67%;">
+
+<p>这三者的关系可以用一个例子来说明：</p>
+<ol>
+<li>在 userdata 分区中， 位于 System DE Storage 中的每个文件和文件夹都有自己的 System DE Encryption Policy，被记录到文件的扩展属性中；</li>
+<li>System DE Encryption Policy 记录了：<ol>
+<li>加密使用的 key ，即 System DE Master Key；</li>
+<li>文件内容的加密算法；</li>
+<li>文件名的加密算法；</li>
+</ol>
+</li>
+<li>在 I&#x2F;O 时，底层驱动根据文件或文件夹的 System DE Encryption Policy 加密和解密数据；</li>
+</ol>
+<h2 id="fscrypt-ctl命令解析"><a href="#fscrypt-ctl命令解析" class="headerlink" title="fscrypt_ctl命令解析"></a>fscrypt_ctl命令解析</h2><h3 id="添加秘钥add-key"><a href="#添加秘钥add-key" class="headerlink" title="添加秘钥add_key"></a>添加秘钥add_key</h3><p>一句话总结：用户态构造fscrypt_add_key_arg参数结构体，通过ioctl的FS_IOC_ADD_ENCRYPTION_KEY安装秘钥</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">cmd_add_key</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *<span class="hljs-type">const</span> argv[])</span> &#123;<br>  handle_no_options(&amp;argc, &amp;argv);<br>  <span class="hljs-type">const</span> <span class="hljs-type">char</span> *mountpoint = argv[<span class="hljs-number">0</span>];<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fscrypt_add_key_arg</span> *<span class="hljs-title">arg</span> =</span><br>      <span class="hljs-built_in">calloc</span>(<span class="hljs-keyword">sizeof</span>(*arg) + FSCRYPT_MAX_KEY_SIZE, <span class="hljs-number">1</span>);<br><br>  <span class="hljs-type">int</span> status = EXIT_FAILURE;<br>  arg-&gt;raw_size = read_key(arg-&gt;raw);<br>  arg-&gt;key_spec.type = FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER;<br><br>  <span class="hljs-type">int</span> fd = open(mountpoint, O_RDONLY | O_CLOEXEC);<br><br>  <span class="hljs-comment">// 向挂载点的super block的keyring中安装arg-&gt;raw(也就是用户设置的key)</span><br>  <span class="hljs-keyword">if</span> (ioctl(fd, FS_IOC_ADD_ENCRYPTION_KEY, arg) != <span class="hljs-number">0</span>) &#123;<br>    close(fd);<br>    <span class="hljs-keyword">goto</span> cleanup;<br>  &#125;<br>  close(fd);<br><br>  <span class="hljs-comment">// 内核返回的identifier，可以通过这个identifier在内核的keyring中找到对应的key</span><br>  <span class="hljs-type">char</span> identifier_hex[FSCRYPT_KEY_IDENTIFIER_HEX_SIZE];<br>  bytes_to_hex(arg-&gt;key_spec.u.identifier, FSCRYPT_KEY_IDENTIFIER_SIZE,<br>               identifier_hex);<br>  <span class="hljs-built_in">puts</span>(identifier_hex);<br>  status = EXIT_SUCCESS;<br>cleanup:<br>  secure_wipe(arg-&gt;raw, arg-&gt;raw_size);<br>  <span class="hljs-built_in">free</span>(arg);<br>  <span class="hljs-keyword">return</span> status;<br>&#125;<br><br><span class="hljs-comment">// 作用: read_until_limit_or_eof读取输入的秘钥</span><br><span class="hljs-comment">//      这里的STDIN_FILENO通过重定向的文件读取</span><br><span class="hljs-type">static</span> <span class="hljs-type">size_t</span> <span class="hljs-title function_">read_key</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> raw_key[FSCRYPT_MAX_KEY_SIZE])</span> &#123;<br>  <span class="hljs-type">uint8_t</span> buf[FSCRYPT_MAX_KEY_SIZE + <span class="hljs-number">1</span>];<br>  <span class="hljs-type">ssize_t</span> ret = read_until_limit_or_eof(STDIN_FILENO, buf, <span class="hljs-keyword">sizeof</span>(buf));<br>  <span class="hljs-built_in">memcpy</span>(raw_key, buf, ret);<br>  <span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>具体示例如下：</p>
+<img src="/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119225545849.png" srcset="/img/loading.gif" lazyload alt="image-20240119225545849" style="zoom:67%;">
+
+<p>内核处理IOCTL</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">fscrypt_ioctl_add_key</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *filp, <span class="hljs-type">void</span> __user *_uarg)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">super_block</span> *<span class="hljs-title">sb</span> =</span> file_inode(filp)-&gt;i_sb;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fscrypt_add_key_arg</span> __<span class="hljs-title">user</span> *<span class="hljs-title">uarg</span> =</span> _uarg;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fscrypt_add_key_arg</span> <span class="hljs-title">arg</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fscrypt_master_key_secret</span> <span class="hljs-title">secret</span>;</span><br>	<span class="hljs-type">int</span> err;<br><br>	<span class="hljs-keyword">if</span> (copy_from_user(&amp;arg, uarg, <span class="hljs-keyword">sizeof</span>(arg)))<br>		<span class="hljs-keyword">return</span> -EFAULT;<br>    <br>	<span class="hljs-built_in">memset</span>(&amp;secret, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(secret));<br>	<span class="hljs-keyword">if</span> (arg.key_id) &#123;<br>		err = get_keyring_key(arg.key_id, arg.key_spec.type, &amp;secret);<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		secret.size = arg.raw_size;<br>        <span class="hljs-comment">// 用户态传进来的key</span><br>		copy_from_user(secret.raw, uarg-&gt;raw, secret.size)<br>	&#125;<br><br>	err = add_master_key(sb, &amp;secret, &amp;arg.key_spec);<br><br>	<span class="hljs-keyword">if</span> (arg.key_spec.type == FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER &amp;&amp;<br>	    copy_to_user(uarg-&gt;key_spec.u.identifier, arg.key_spec.u.identifier,<br>			 FSCRYPT_KEY_IDENTIFIER_SIZE))<br>		<span class="hljs-keyword">goto</span> out_wipe_secret;<br>	err = <span class="hljs-number">0</span>;<br>out_wipe_secret:<br>	wipe_master_key_secret(&amp;secret);<br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>真正的向keyring中添加key的函数为add_master_key</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">add_master_key</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> super_block *sb,</span><br><span class="hljs-params">			  <span class="hljs-keyword">struct</span> fscrypt_master_key_secret *secret,</span><br><span class="hljs-params">			  <span class="hljs-keyword">struct</span> fscrypt_key_specifier *key_spec)</span><br>&#123;<br>	<span class="hljs-type">int</span> err;<br>	<br>    <span class="hljs-comment">// hkdf: 是一种密钥派生函数,用于从较短的输入密钥中派生出更长的输出密钥。</span><br>	<span class="hljs-keyword">if</span> (key_spec-&gt;type == FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER) &#123;<br>        <span class="hljs-comment">// 初始化 KDF 函数，设置 KDF Key；</span><br>		err = fscrypt_init_hkdf(&amp;secret-&gt;hkdf, secret-&gt;raw,<br>					secret-&gt;size);<br><br>		memzero_explicit(secret-&gt;raw, secret-&gt;size);<br>	<br>        <span class="hljs-comment">// 通过 KDF ，从 KDF Key 派生出新的 key，作为 master_key_identifier并返回给上层用户</span><br>		err = fscrypt_hkdf_expand(&amp;secret-&gt;hkdf,<br>					  HKDF_CONTEXT_KEY_IDENTIFIER, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>,<br>					  key_spec-&gt;u.identifier,<br>					  FSCRYPT_KEY_IDENTIFIER_SIZE);<br>	&#125;<br>	<span class="hljs-keyword">return</span> do_add_master_key(sb, secret, key_spec);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>内核文件加密</div>
+      <div>http://example.com/2024/01/19/内核文件加密/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/" title="Block模块之IO合并代码解析">
+                        <span class="hidden-mobile">Block模块之IO合并代码解析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
