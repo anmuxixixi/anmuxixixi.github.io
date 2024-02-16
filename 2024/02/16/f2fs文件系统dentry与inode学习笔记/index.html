@@ -16,25 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="内核文件加密加密策略(fscrypt policy)加密策略V1：v1策略的秘钥通过一个8字节的标识符”descriptor”从keyring中识别 加密策略V2：v2策略的秘钥通过一个16字节的标识符”identifier”从keyring中识别   FBE秘钥简介密钥管理中有以下关键对象：   这三者的关系可以用一个例子来说明：  在 userdata 分区中， 位于 System DE St">
+    <meta name="description" content="f2fs文件系统dentry与inode学习笔记inode相关12345678910111213141516171819202122232425262728293031323334353637383940static int block_operations(struct f2fs_sb_info *sbi)&amp;#123;	struct writeback_control wbc &#x3D; &amp;#123;">
 <meta property="og:type" content="article">
-<meta property="og:title" content="内核文件加密">
-<meta property="og:url" content="http://example.com/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/index.html">
+<meta property="og:title" content="f2fs文件系统dentry与inode学习笔记">
+<meta property="og:url" content="http://example.com/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="内核文件加密加密策略(fscrypt policy)加密策略V1：v1策略的秘钥通过一个8字节的标识符”descriptor”从keyring中识别 加密策略V2：v2策略的秘钥通过一个16字节的标识符”identifier”从keyring中识别   FBE秘钥简介密钥管理中有以下关键对象：   这三者的关系可以用一个例子来说明：  在 userdata 分区中， 位于 System DE St">
+<meta property="og:description" content="f2fs文件系统dentry与inode学习笔记inode相关12345678910111213141516171819202122232425262728293031323334353637383940static int block_operations(struct f2fs_sb_info *sbi)&amp;#123;	struct writeback_control wbc &#x3D; &amp;#123;">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119224248512.png">
-<meta property="og:image" content="http://example.com/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119225051283.png">
-<meta property="og:image" content="http://example.com/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119225545849.png">
-<meta property="article:published_time" content="2024-01-19T14:38:24.000Z">
-<meta property="article:modified_time" content="2024-01-19T15:32:49.533Z">
+<meta property="og:image" content="http://example.com/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240216225600102.png">
+<meta property="article:published_time" content="2024-02-16T14:06:38.000Z">
+<meta property="article:modified_time" content="2024-02-16T15:32:24.870Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119224248512.png">
+<meta name="twitter:image" content="http://example.com/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240216225600102.png">
   
   
   
-  <title>内核文件加密 - 疯狂少年</title>
+  <title>f2fs文件系统dentry与inode学习笔记 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -192,7 +190,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="内核文件加密"></span>
+            <span id="subtitle" data-typed-text="f2fs文件系统dentry与inode学习笔记"></span>
           
         </div>
 
@@ -203,8 +201,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-01-19 22:38" pubdate>
-          2024年1月19日 晚上
+        <time datetime="2024-02-16 22:06" pubdate>
+          2024年2月16日 晚上
         </time>
       </span>
     
@@ -215,7 +213,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.2k 字
+          3.1k 字
         
       </span>
     
@@ -226,7 +224,7 @@
         
         
         
-          27 分钟
+          26 分钟
         
       </span>
     
@@ -272,42 +270,33 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">内核文件加密</h1>
+            <h1 style="display: none">f2fs文件系统dentry与inode学习笔记</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="内核文件加密"><a href="#内核文件加密" class="headerlink" title="内核文件加密"></a>内核文件加密</h1><h2 id="加密策略-fscrypt-policy"><a href="#加密策略-fscrypt-policy" class="headerlink" title="加密策略(fscrypt policy)"></a>加密策略(fscrypt policy)</h2><p>加密策略V1：v1策略的秘钥通过一个8字节的标识符”descriptor”从keyring中识别</p>
-<p>加密策略V2：v2策略的秘钥通过一个16字节的标识符”identifier”从keyring中识别</p>
-<img src="/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119224248512.png" srcset="/img/loading.gif" lazyload alt="image-20240119224248512" style="zoom:50%;">
+                <h1 id="f2fs文件系统dentry与inode学习笔记"><a href="#f2fs文件系统dentry与inode学习笔记" class="headerlink" title="f2fs文件系统dentry与inode学习笔记"></a>f2fs文件系统dentry与inode学习笔记</h1><h2 id="inode相关"><a href="#inode相关" class="headerlink" title="inode相关"></a>inode相关</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">block_operations</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">writeback_control</span> <span class="hljs-title">wbc</span> =</span> &#123;<br>		.sync_mode = WB_SYNC_ALL,<br>		.nr_to_write = LONG_MAX,<br>		.for_reclaim = <span class="hljs-number">0</span>,<br>	&#125;;<br>	<span class="hljs-type">int</span> err = <span class="hljs-number">0</span>, cnt = <span class="hljs-number">0</span>;<br><br>	f2fs_flush_inline_data(sbi);<br><br>retry_flush_dents:<br>	<span class="hljs-keyword">if</span> (get_pages(sbi, F2FS_DIRTY_DENTS)) &#123;<br>		f2fs_unlock_all(sbi);<br>		err = f2fs_sync_dirty_inodes(sbi, DIR_INODE);<br>		<span class="hljs-keyword">goto</span> retry_flush_quotas;<br>	&#125;<br><br>	down_write(&amp;sbi-&gt;node_change);<br><br>	<span class="hljs-keyword">if</span> (get_pages(sbi, F2FS_DIRTY_IMETA)) &#123;<br>		up_write(&amp;sbi-&gt;node_change);<br>		f2fs_unlock_all(sbi);<br>		err = f2fs_sync_inode_meta(sbi);<br>		<span class="hljs-keyword">goto</span> retry_flush_quotas;<br>	&#125;<br><br>retry_flush_nodes:<br>	down_write(&amp;sbi-&gt;node_write);<br><br>	<span class="hljs-keyword">if</span> (get_pages(sbi, F2FS_DIRTY_NODES)) &#123;<br>		up_write(&amp;sbi-&gt;node_write);<br>		<span class="hljs-type">atomic_inc</span>(&amp;sbi-&gt;wb_sync_req[NODE]);<br>		err = f2fs_sync_node_pages(sbi, &amp;wbc, <span class="hljs-literal">false</span>, FS_CP_NODE_IO);<br>		<span class="hljs-type">atomic_dec</span>(&amp;sbi-&gt;wb_sync_req[NODE]);<br>		<span class="hljs-keyword">goto</span> retry_flush_nodes;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h2 id="FBE秘钥简介"><a href="#FBE秘钥简介" class="headerlink" title="FBE秘钥简介"></a>FBE秘钥简介</h2><p>密钥管理中有以下关键对象：</p>
-<img src="/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119225051283.png" srcset="/img/loading.gif" lazyload alt="image-20240119225051283" style="zoom:67%;">
+<h3 id="f2fs-sync-dirty-inodes：刷写inode文件对应的《脏数据页》"><a href="#f2fs-sync-dirty-inodes：刷写inode文件对应的《脏数据页》" class="headerlink" title="f2fs_sync_dirty_inodes：刷写inode文件对应的《脏数据页》"></a>f2fs_sync_dirty_inodes：刷写inode文件对应的《脏数据页》</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_sync_dirty_inodes</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-keyword">enum</span> inode_type type)</span><br>&#123;<br>	<span class="hljs-comment">// ...</span><br>	fi = list_first_entry(head, <span class="hljs-keyword">struct</span> f2fs_inode_info, dirty_list);<br>	inode = igrab(&amp;fi-&gt;vfs_inode);<br>	spin_unlock(&amp;sbi-&gt;inode_lock[type]);<br>	<span class="hljs-keyword">if</span> (inode) &#123;<br>		<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> cur_ino = inode-&gt;i_ino;<br>		F2FS_I(inode)-&gt;cp_task = current;<br>		<span class="hljs-comment">// filemap_fdatawrite作用类似于fdatasync:</span><br>        <span class="hljs-comment">// 		filemap_fdatawrite的主要作用是将一个文件的所有脏页写回到存储设备。</span><br>        <span class="hljs-comment">// *****filemap_fdatawrite函数本身不是阻塞式的。它不会使调用者（通常是文件系统层或页缓存层）等待写操作完成*****</span><br>        <span class="hljs-comment">// *****调用时，它只是确保所有脏页都被标记为需要写回*****</span><br>		filemap_fdatawrite(inode-&gt;i_mapping);<br>		F2FS_I(inode)-&gt;cp_task = <span class="hljs-literal">NULL</span>;<br>		iput(inode);<br>		<span class="hljs-keyword">if</span> (ino == cur_ino)<br>			cond_resched();<br>		<span class="hljs-keyword">else</span><br>			ino = cur_ino;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		f2fs_submit_merged_write(sbi, DATA);<br>		cond_resched();<br>	&#125;<br>	<span class="hljs-keyword">goto</span> retry;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>这三者的关系可以用一个例子来说明：</p>
-<ol>
-<li>在 userdata 分区中， 位于 System DE Storage 中的每个文件和文件夹都有自己的 System DE Encryption Policy，被记录到文件的扩展属性中；</li>
-<li>System DE Encryption Policy 记录了：<ol>
-<li>加密使用的 key ，即 System DE Master Key；</li>
-<li>文件内容的加密算法；</li>
-<li>文件名的加密算法；</li>
-</ol>
-</li>
-<li>在 I&#x2F;O 时，底层驱动根据文件或文件夹的 System DE Encryption Policy 加密和解密数据；</li>
-</ol>
-<h2 id="fscrypt-ctl命令解析"><a href="#fscrypt-ctl命令解析" class="headerlink" title="fscrypt_ctl命令解析"></a>fscrypt_ctl命令解析</h2><h3 id="添加秘钥add-key"><a href="#添加秘钥add-key" class="headerlink" title="添加秘钥add_key"></a>添加秘钥add_key</h3><p>一句话总结：用户态构造fscrypt_add_key_arg参数结构体，通过ioctl的FS_IOC_ADD_ENCRYPTION_KEY安装秘钥</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">cmd_add_key</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *<span class="hljs-type">const</span> argv[])</span> &#123;<br>  handle_no_options(&amp;argc, &amp;argv);<br>  <span class="hljs-type">const</span> <span class="hljs-type">char</span> *mountpoint = argv[<span class="hljs-number">0</span>];<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fscrypt_add_key_arg</span> *<span class="hljs-title">arg</span> =</span><br>      <span class="hljs-built_in">calloc</span>(<span class="hljs-keyword">sizeof</span>(*arg) + FSCRYPT_MAX_KEY_SIZE, <span class="hljs-number">1</span>);<br><br>  <span class="hljs-type">int</span> status = EXIT_FAILURE;<br>  arg-&gt;raw_size = read_key(arg-&gt;raw);<br>  arg-&gt;key_spec.type = FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER;<br><br>  <span class="hljs-type">int</span> fd = open(mountpoint, O_RDONLY | O_CLOEXEC);<br><br>  <span class="hljs-comment">// 向挂载点的super block的keyring中安装arg-&gt;raw(也就是用户设置的key)</span><br>  <span class="hljs-keyword">if</span> (ioctl(fd, FS_IOC_ADD_ENCRYPTION_KEY, arg) != <span class="hljs-number">0</span>) &#123;<br>    close(fd);<br>    <span class="hljs-keyword">goto</span> cleanup;<br>  &#125;<br>  close(fd);<br><br>  <span class="hljs-comment">// 内核返回的identifier，可以通过这个identifier在内核的keyring中找到对应的key</span><br>  <span class="hljs-type">char</span> identifier_hex[FSCRYPT_KEY_IDENTIFIER_HEX_SIZE];<br>  bytes_to_hex(arg-&gt;key_spec.u.identifier, FSCRYPT_KEY_IDENTIFIER_SIZE,<br>               identifier_hex);<br>  <span class="hljs-built_in">puts</span>(identifier_hex);<br>  status = EXIT_SUCCESS;<br>cleanup:<br>  secure_wipe(arg-&gt;raw, arg-&gt;raw_size);<br>  <span class="hljs-built_in">free</span>(arg);<br>  <span class="hljs-keyword">return</span> status;<br>&#125;<br><br><span class="hljs-comment">// 作用: read_until_limit_or_eof读取输入的秘钥</span><br><span class="hljs-comment">//      这里的STDIN_FILENO通过重定向的文件读取</span><br><span class="hljs-type">static</span> <span class="hljs-type">size_t</span> <span class="hljs-title function_">read_key</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> raw_key[FSCRYPT_MAX_KEY_SIZE])</span> &#123;<br>  <span class="hljs-type">uint8_t</span> buf[FSCRYPT_MAX_KEY_SIZE + <span class="hljs-number">1</span>];<br>  <span class="hljs-type">ssize_t</span> ret = read_until_limit_or_eof(STDIN_FILENO, buf, <span class="hljs-keyword">sizeof</span>(buf));<br>  <span class="hljs-built_in">memcpy</span>(raw_key, buf, ret);<br>  <span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="f2fs-sync-inode-meta：刷写inode对应的《脏元数据页》"><a href="#f2fs-sync-inode-meta：刷写inode对应的《脏元数据页》" class="headerlink" title="f2fs_sync_inode_meta：刷写inode对应的《脏元数据页》"></a>f2fs_sync_inode_meta：刷写inode对应的《脏元数据页》</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_sync_inode_meta</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> *<span class="hljs-title">head</span> =</span> &amp;sbi-&gt;inode_list[DIRTY_META];<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">inode</span> *<span class="hljs-title">inode</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_inode_info</span> *<span class="hljs-title">fi</span>;</span><br>	s64 total = get_pages(sbi, F2FS_DIRTY_IMETA);<br><br>	<span class="hljs-keyword">while</span> (total--) &#123;<br>		fi = list_first_entry(head, <span class="hljs-keyword">struct</span> f2fs_inode_info,<br>							gdirty_list);<br>		inode = igrab(&amp;fi-&gt;vfs_inode);<br>		spin_unlock(&amp;sbi-&gt;inode_lock[DIRTY_META]);<br>		<span class="hljs-keyword">if</span> (inode) &#123;<br>			sync_inode_metadata(inode, <span class="hljs-number">0</span>);<br>			<span class="hljs-keyword">if</span> (is_inode_flag_set(inode, FI_DIRTY_INODE))<br>				f2fs_update_inode_page(inode);<br>			iput(inode);<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>具体示例如下：</p>
-<img src="/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/image-20240119225545849.png" srcset="/img/loading.gif" lazyload alt="image-20240119225545849" style="zoom:67%;">
-
-<p>内核处理IOCTL</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">fscrypt_ioctl_add_key</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *filp, <span class="hljs-type">void</span> __user *_uarg)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">super_block</span> *<span class="hljs-title">sb</span> =</span> file_inode(filp)-&gt;i_sb;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fscrypt_add_key_arg</span> __<span class="hljs-title">user</span> *<span class="hljs-title">uarg</span> =</span> _uarg;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fscrypt_add_key_arg</span> <span class="hljs-title">arg</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">fscrypt_master_key_secret</span> <span class="hljs-title">secret</span>;</span><br>	<span class="hljs-type">int</span> err;<br><br>	<span class="hljs-keyword">if</span> (copy_from_user(&amp;arg, uarg, <span class="hljs-keyword">sizeof</span>(arg)))<br>		<span class="hljs-keyword">return</span> -EFAULT;<br>    <br>	<span class="hljs-built_in">memset</span>(&amp;secret, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(secret));<br>	<span class="hljs-keyword">if</span> (arg.key_id) &#123;<br>		err = get_keyring_key(arg.key_id, arg.key_spec.type, &amp;secret);<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		secret.size = arg.raw_size;<br>        <span class="hljs-comment">// 用户态传进来的key</span><br>		copy_from_user(secret.raw, uarg-&gt;raw, secret.size)<br>	&#125;<br><br>	err = add_master_key(sb, &amp;secret, &amp;arg.key_spec);<br><br>	<span class="hljs-keyword">if</span> (arg.key_spec.type == FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER &amp;&amp;<br>	    copy_to_user(uarg-&gt;key_spec.u.identifier, arg.key_spec.u.identifier,<br>			 FSCRYPT_KEY_IDENTIFIER_SIZE))<br>		<span class="hljs-keyword">goto</span> out_wipe_secret;<br>	err = <span class="hljs-number">0</span>;<br>out_wipe_secret:<br>	wipe_master_key_secret(&amp;secret);<br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>真正的向keyring中添加key的函数为add_master_key</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">add_master_key</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> super_block *sb,</span><br><span class="hljs-params">			  <span class="hljs-keyword">struct</span> fscrypt_master_key_secret *secret,</span><br><span class="hljs-params">			  <span class="hljs-keyword">struct</span> fscrypt_key_specifier *key_spec)</span><br>&#123;<br>	<span class="hljs-type">int</span> err;<br>	<br>    <span class="hljs-comment">// hkdf: 是一种密钥派生函数,用于从较短的输入密钥中派生出更长的输出密钥。</span><br>	<span class="hljs-keyword">if</span> (key_spec-&gt;type == FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER) &#123;<br>        <span class="hljs-comment">// 初始化 KDF 函数，设置 KDF Key；</span><br>		err = fscrypt_init_hkdf(&amp;secret-&gt;hkdf, secret-&gt;raw,<br>					secret-&gt;size);<br><br>		memzero_explicit(secret-&gt;raw, secret-&gt;size);<br>	<br>        <span class="hljs-comment">// 通过 KDF ，从 KDF Key 派生出新的 key，作为 master_key_identifier并返回给上层用户</span><br>		err = fscrypt_hkdf_expand(&amp;secret-&gt;hkdf,<br>					  HKDF_CONTEXT_KEY_IDENTIFIER, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>,<br>					  key_spec-&gt;u.identifier,<br>					  FSCRYPT_KEY_IDENTIFIER_SIZE);<br>	&#125;<br>	<span class="hljs-keyword">return</span> do_add_master_key(sb, secret, key_spec);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>这里会调用sync_inode_metadata去刷写inode对应的元数据信息，也就是inode信息，其最终的调用栈为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">sync_inode_metadata<br>-&gt; sync_inode_metadata<br>-&gt; sync_inode<br>-&gt; writeback_single_inode<br>-&gt; __writeback_single_inode<br></code></pre></td></tr></table></figure>
 
 
+
+
+
+<h3 id="f2fs-sync-node-pages：回写《所有脏node-page页》"><a href="#f2fs-sync-node-pages：回写《所有脏node-page页》" class="headerlink" title="f2fs_sync_node_pages：回写《所有脏node page页》"></a>f2fs_sync_node_pages：回写《所有脏node page页》</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_sync_node_pages</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi,</span><br><span class="hljs-params">				<span class="hljs-keyword">struct</span> writeback_control *wbc,</span><br><span class="hljs-params">				<span class="hljs-type">bool</span> do_balance, <span class="hljs-keyword">enum</span> iostat_type io_type)</span><br>&#123;<br>    <span class="hljs-comment">// f2fs文件系统的1号元数据node inode用来管理所有缓存的node page页信息，读取里面的脏页异步回写</span><br>	<span class="hljs-keyword">while</span> (!done &amp;&amp; (nr_pages = pagevec_lookup_tag(&amp;pvec,<br>			NODE_MAPPING(sbi), &amp;index, PAGECACHE_TAG_DIRTY))) &#123;<br>		<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; nr_pages; i++) &#123;<br>            <span class="hljs-comment">// 找到对应的node page新块地址，然后下发bio</span><br>			ret = __write_node_page(page, <span class="hljs-literal">false</span>, &amp;submitted, wbc, do_balance, io_type, <span class="hljs-literal">NULL</span>);<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<img src="/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240216225600102.png" srcset="/img/loading.gif" lazyload alt="image-20240216225600102" style="zoom:80%;">
+
+
+
+
+
+<h3 id="清除脏页标记PAGECACHE-TAG-DIRTY"><a href="#清除脏页标记PAGECACHE-TAG-DIRTY" class="headerlink" title="清除脏页标记PAGECACHE_TAG_DIRTY"></a>清除脏页标记PAGECACHE_TAG_DIRTY</h3>
                 
               </div>
             
@@ -324,8 +313,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>内核文件加密</div>
-      <div>http://example.com/2024/01/19/内核文件加密/</div>
+      <div>f2fs文件系统dentry与inode学习笔记</div>
+      <div>http://example.com/2024/02/16/f2fs文件系统dentry与inode学习笔记/</div>
     </div>
     <div class="license-meta">
       
@@ -337,7 +326,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年1月19日</div>
+          <div>2024年2月16日</div>
         </div>
       
       
@@ -369,18 +358,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="f2fs文件系统dentry与inode学习笔记">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">f2fs文件系统dentry与inode学习笔记</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/" title="Block模块之IO合并代码解析">
-                        <span class="hidden-mobile">Block模块之IO合并代码解析</span>
+                      <a href="/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/" title="内核文件加密">
+                        <span class="hidden-mobile">内核文件加密</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
