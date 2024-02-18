@@ -24,8 +24,10 @@
 <meta property="og:description" content="f2fs文件系统dentry与inode学习笔记inode相关12345678910111213141516171819202122232425262728293031323334353637383940static int block_operations(struct f2fs_sb_info *sbi)&amp;#123;	struct writeback_control wbc &#x3D; &amp;#123;">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240216225600102.png">
+<meta property="og:image" content="http://example.com/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240218203147942.png">
+<meta property="og:image" content="http://example.com/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240218210103084.png">
 <meta property="article:published_time" content="2024-02-16T14:06:38.000Z">
-<meta property="article:modified_time" content="2024-02-16T15:32:24.870Z">
+<meta property="article:modified_time" content="2024-02-18T13:05:01.543Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240216225600102.png">
@@ -213,7 +215,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.1k 字
+          4.7k 字
         
       </span>
     
@@ -224,7 +226,7 @@
         
         
         
-          26 分钟
+          40 分钟
         
       </span>
     
@@ -294,9 +296,38 @@
 
 
 
+<h3 id="page页状态和基数树"><a href="#page页状态和基数树" class="headerlink" title="page页状态和基数树"></a>page页状态和基数树</h3><blockquote>
+<p>摘自：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/68071761?utm_source=wechat_session">https://zhuanlan.zhihu.com/p/68071761?utm_source=wechat_session</a></p>
+</blockquote>
+<p>如何在radix tree中找到一个指定的page呢？那就要回顾下struct page中的<strong>mapping</strong>和<strong>index</strong>域了，mapping指向page所属文件对应的address_space，进而可以找到address_space的radix tree，index既是page在文件内的offset，也可作为查找这个radix tree的索引，因为radix tree就是按page的index来组织struct page的。</p>
+<p>Linux中radix tree的每个slot除了存放指针，还存放着<strong>page的标志flag和磁盘文件同步状态的tag</strong>。如果page cache中一个page在内存中被修改后没有同步到磁盘，就说这个page是dirty的，此时tag就是PAGECACHE_TAG_DIRTY。如果正在同步，tag就是PAGECACHE_TAG_WRITEBACK。</p>
+<p>只要下一层中有一个slot指向的page是dirty的，那么上一层的这个slot的tag就是”dirty”的（就像一滴墨水一样，放入清水后，清水也就不再完全清澈了）。前面介绍struct page中的<strong>flags</strong>时提到，flags可以是PG_dirty或PG_writeback，既然struct page中已经有了标识同步状态的信息，为什么这里radix tree还要再加上tag来标记呢？</p>
+<p>因为page数量众多，内核不可能为每一个page维护一个timer，因此在判断是否应该writeback时，是以inode为单位的，而一个inode对应的address space中，有很多是dirty的page，很多是clean的，clean的page不需要writeback。</p>
+<p>在遍历radix tree的过程中，如果去逐一比对每个page的”PG_dirty”标志位，将做很多无用功。而当slot也加上”dirty”标志位后，那么如果slot是clean的，就没有必要再扫描其下一层的slot和page了，这样可以减少开销。</p>
+<blockquote>
+<p>🔴现在address_space中radix tree已经被xarray取代了（参考<a href="https://link.zhihu.com/?target=https://lwn.net/Articles/745073/">这篇文章</a>）。</p>
+<p>xarray相关的API：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Rong_Toa/article/details/106441355?spm=1001.2014.3001.5506">https://blog.csdn.net/Rong_Toa/article/details/106441355?spm=1001.2014.3001.5506</a></p>
+</blockquote>
+<h3 id="清除脏页状态PAGECACHE-TAG-DIRTY"><a href="#清除脏页状态PAGECACHE-TAG-DIRTY" class="headerlink" title="清除脏页状态PAGECACHE_TAG_DIRTY"></a>清除脏页状态PAGECACHE_TAG_DIRTY</h3><p>清除脏页状态PAGECACHE_TAG_DIRTY的调用栈如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">set_page_writeback<br>=&gt; test_set_page_writeback<br>=&gt; __test_set_page_writeback(page, false)<br>=&gt; if (!PageDirty(page) [条件成立] xas_clear_mark(&amp;xas, PAGECACHE_TAG_DIRTY);<br></code></pre></td></tr></table></figure>
+
+<img src="/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240218203147942.png" srcset="/img/loading.gif" lazyload alt="image-20240218203147942" style="zoom:80%;">
+
+<p>❓<strong>这里有2个疑问需要去解答：</strong></p>
+<p><strong>Q1：什么时候调用set_page_writeback</strong></p>
+<blockquote>
+<p>A1：简单写一下f2fs文件系统相关的调用栈：f2fs_write_cache_pages -&gt; f2fs_write_single_data_page -&gt; f2fs_do_write_data_page -&gt; set_page_writeback</p>
+</blockquote>
+<p><strong>Q2：判断条件不成立的时候才会走到xas_clear_mark，那什么时候清除脏页标记呢</strong></p>
+<blockquote>
+<p>A2：下面一章节就开始写</p>
+</blockquote>
+<h3 id="清除脏页标记PG-dirty"><a href="#清除脏页标记PG-dirty" class="headerlink" title="清除脏页标记PG_dirty"></a>清除脏页标记PG_dirty</h3><p>清除脏页标记PG_dirty的调用栈如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">调用writepages接口<br>=&gt; f2fs_write_data_pages<br>=&gt; __f2fs_write_data_pages<br>=&gt; f2fs_write_cache_pages<br>=&gt; clear_page_dirty_for_io<br>=&gt; TestClearPageDirty<br></code></pre></td></tr></table></figure>
+
+<img src="/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240218210103084.png" srcset="/img/loading.gif" lazyload alt="image-20240218210103084" style="zoom:80%;">
 
 
-<h3 id="清除脏页标记PAGECACHE-TAG-DIRTY"><a href="#清除脏页标记PAGECACHE-TAG-DIRTY" class="headerlink" title="清除脏页标记PAGECACHE_TAG_DIRTY"></a>清除脏页标记PAGECACHE_TAG_DIRTY</h3>
                 
               </div>
             
