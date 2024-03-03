@@ -161,8 +161,15 @@
 <meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233515697.png">
 <meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233532438.png">
 <meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233751028.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303183904011.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303183919422.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303184058864.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303185212685.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303185939593.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303214615586.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303214741610.png">
 <meta property="article:published_time" content="2023-07-10T15:29:30.000Z">
-<meta property="article:modified_time" content="2023-11-21T15:38:10.384Z">
+<meta property="article:modified_time" content="2024-03-03T14:18:15.415Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="汇编">
 <meta name="twitter:card" content="summary_large_image">
@@ -351,7 +358,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          13k 字
+          15k 字
         
       </span>
     
@@ -362,7 +369,7 @@
         
         
         
-          111 分钟
+          124 分钟
         
       </span>
     
@@ -1037,7 +1044,7 @@
 <h4 id="4-3-3-应用SI和DI"><a href="#4-3-3-应用SI和DI" class="headerlink" title="4.3.3 应用SI和DI"></a>4.3.3 应用SI和DI</h4><p><strong>问题：</strong>用寄存器SI和DI实现将字符串**’welcome to masm!’**复制到它后面的数据区中。</p>
 <p>思路：</p>
 <ol>
-<li>用ds:di指向要复制的原始字符串</li>
+<li>用ds:si指向要复制的原始字符串</li>
 <li>用ds:di指向目的空间</li>
 <li>然后用一个循环完成复制</li>
 </ol>
@@ -1336,6 +1343,61 @@
 <h4 id="5-4-3-为call和ret指令设置栈"><a href="#5-4-3-为call和ret指令设置栈" class="headerlink" title="5.4.3 为call和ret指令设置栈"></a>5.4.3 为call和ret指令设置栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code, ss:stack<br>stack segment<br>	   db 8 dup(0)<br>	   db 8 dup(0)<br>stack ends<br>code segment<br>start: mov ax,1<br>	   mov cx,3<br>	   call s<br>	   mov bx,ax<br>	   mov ax,4c00h<br>	   int 21h<br>	s: add ax,ax<br>	   loop s<br>	   ret<br>code ends<br>end start<br></code></pre></td></tr></table></figure>
 
 <img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233751028.png" srcset="/img/loading.gif" lazyload alt="image-20231121233751028" style="zoom: 67%;">
+
+<h3 id="5-5-mul指令"><a href="#5-5-mul指令" class="headerlink" title="5.5 mul指令"></a>5.5 mul指令</h3><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303183904011.png" srcset="/img/loading.gif" lazyload alt="image-20240303183904011" style="zoom: 67%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303183919422.png" srcset="/img/loading.gif" lazyload alt="image-20240303183919422" style="zoom:67%;">
+
+<h3 id="5-6-汇编语言的模块化程序设计"><a href="#5-6-汇编语言的模块化程序设计" class="headerlink" title="5.6 汇编语言的模块化程序设计"></a>5.6 汇编语言的模块化程序设计</h3><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303184058864.png" srcset="/img/loading.gif" lazyload alt="image-20240303184058864" style="zoom:80%;">
+
+<p>模块化调用路径：main -&gt; sub1 -&gt; sub2</p>
+<blockquote>
+<p>调用子程序：call指令</p>
+<p>返回：ret指令</p>
+<p>子程序：根据提供的参数处理一定的事务，处理后，将结果（返回值）提供给调用者</p>
+</blockquote>
+<h4 id="5-6-1-参数和结果的传递的问题"><a href="#5-6-1-参数和结果的传递的问题" class="headerlink" title="5.6.1 参数和结果的传递的问题"></a>5.6.1 参数和结果的传递的问题</h4><p>问题：根据提供的N，计算N的3次方</p>
+<p>考虑：（1）我们将参数N存储在什么地方？（2）计算得到的数值，存储在什么地方？</p>
+<p>方案：（1）用寄存器传递参数（2）用内存单元进行参数传递（3）用栈传递参数</p>
+<p>C语言的代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">cube</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span><br>&#123;<br>    <span class="hljs-type">int</span> f;<br>    f = x * x;<br>    f = f * x;<br>    <span class="hljs-keyword">return</span> f;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d\n&quot;</span>, cube(<span class="hljs-number">2</span>));<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="5-6-2-用寄存器来存储参数和结果是最常使用的方法"><a href="#5-6-2-用寄存器来存储参数和结果是最常使用的方法" class="headerlink" title="5.6.2 用寄存器来存储参数和结果是最常使用的方法"></a>5.6.2 用寄存器来存储参数和结果是最常使用的方法</h4><p>用寄存器传递参数：</p>
+<ul>
+<li>参数放到bx中，即(bx)&#x3D;x</li>
+<li>子程序中用到多个mul指令计算N^3</li>
+<li>将结果放到dx和ax中：(dx:ax)&#x3D;N^3</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code<br>data segment<br>	dw 1,2,3,4,5,6,7,8<br>	dd 0,0,0,0,0,0,0,0<br>data ends<br>code segment<br>start: 	mov ax,data<br>		mov ds,ax<br>		mov si,0<br>		mov di,16<br>		mov cx,8<br>	s:  mov bx,[si]<br>		call cube<br>		mov [di],ax<br>		mov [di].2,ax<br>		add si,2<br>		add di,4<br>		loop s<br>		<br>		mov ax,4c00h<br>		int 21h<br>		<br> cube:  mov ax,bx<br>		mul bx<br>		mul bx<br>		ret<br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<p>结果如下：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303185212685.png" srcset="/img/loading.gif" lazyload alt="image-20240303185212685" style="zoom: 67%;">
+
+<h4 id="5-6-3-用内存单元批量传递数据"><a href="#5-6-3-用内存单元批量传递数据" class="headerlink" title="5.6.3 用内存单元批量传递数据"></a>5.6.3 用内存单元批量传递数据</h4><p>方案：</p>
+<ul>
+<li>将数据放到内存中，然后将它们放到内存空间的首地址放在寄存器中，传递给需要的子程序</li>
+<li>对于具有批量数据的返回结果，也可用同样的方法</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:cdoe<br>data segment<br>	db &#x27;conversation&#x27;<br>data ends<br>code segment<br>start: 	  mov ax,data<br>		  mov ds,ax<br>		  mov si,0<br>		  mov cx,12<br>		  call capital<br>		  mov ax,4c00h<br>		  int 21h<br>capital:  and bypte ptr [si],11011111b<br>		  inc si<br>		  loop capital<br>		  ret<br><br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<p>将所有的小写字母改成大写字母后结果如下：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303185939593.png" srcset="/img/loading.gif" lazyload alt="image-20240303185939593" style="zoom:67%;">
+
+<h4 id="5-6-4-用栈传递参数"><a href="#5-6-4-用栈传递参数" class="headerlink" title="5.6.4 用栈传递参数"></a>5.6.4 用栈传递参数</h4><p>原理：由调用者将需要传递给子程序的参数压入栈中，子程序从栈中取得参数</p>
+<p>任务：计算 (a - b) ^ 3，a、b为word型数据</p>
+<p>（1）进入子程序前，参数a、b入栈</p>
+<p>（2）调用子程序，将使栈顶存放IP</p>
+<p>（3）结果：(dx:ax)&#x3D;(a-b)^3</p>
+<p>例：设 a &#x3D; 3 、b &#x3D; 1 ，计算：( a – b ) ^ 3</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303214615586.png" srcset="/img/loading.gif" lazyload alt="image-20240303214615586" style="zoom: 80%;">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs asm">difcute: push bp<br>		 mov bp,sp<br>		 mov ax,[bp+4]<br>		 sub ax,[bp+6]<br>		 mov bp,ax<br>		 mul bp<br>		 mul bp<br>		 pop bp<br>		 ret 4<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303214741610.png" srcset="/img/loading.gif" lazyload alt="image-20240303214741610" style="zoom: 50%;">
+
+<p>Q1：为什么这里需要寄存器bp？寄存器bp的值有没有被改动？</p>
+<p>A1： <code>push bp</code> 是将bp中的内容送入SS:SP指向的内存单元中，此时这个内存单元就会保存bp的旧值，然后SS:SP指向新栈顶。最后<code>pop bp</code>的时候会把这个内存单元的值重新赋值到bp寄存器里面。</p>
+<p>A2：为什么要使用bp寄存器，前面的内容提到过，bp寄存器默认是SS段的(stack segment)，用它来做偏移地址，很方便。</p>
 
                 
               </div>
