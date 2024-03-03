@@ -16,24 +16,21 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="SSD固态硬盘Trim命令为啥我们需要Trim？ 在闪存内，数据存储一般是以page（页）为最小单位存储的（典型的为4KB），而128个page组成了一个block（块），数据可以以4KB大小的页来读取和写入，但却只能以512KB(128 page)的块大小来删除。当读取数据或者写入到一个没有被使用过的page上时，固态硬盘的速度是很快的，但是覆写数据的话，就比较复杂了，需要许多步骤来完成。步骤可">
+    <meta name="description" content="疯狂少年学习笔记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SSD固态硬盘Trim命令">
-<meta property="og:url" content="http://example.com/2024/02/19/SSD%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98Trim%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:title" content="Linux命令解析大全">
+<meta property="og:url" content="http://example.com/2024/03/03/Linux%E5%91%BD%E4%BB%A4%E8%A7%A3%E6%9E%90%E5%A4%A7%E5%85%A8/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="SSD固态硬盘Trim命令为啥我们需要Trim？ 在闪存内，数据存储一般是以page（页）为最小单位存储的（典型的为4KB），而128个page组成了一个block（块），数据可以以4KB大小的页来读取和写入，但却只能以512KB(128 page)的块大小来删除。当读取数据或者写入到一个没有被使用过的page上时，固态硬盘的速度是很快的，但是覆写数据的话，就比较复杂了，需要许多步骤来完成。步骤可">
+<meta property="og:description" content="疯狂少年学习笔记">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/02/19/SSD%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98Trim%E5%91%BD%E4%BB%A4/1_120607163326_1.jpg">
-<meta property="og:image" content="http://example.com/2024/02/19/SSD%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98Trim%E5%91%BD%E4%BB%A4/image-20240219221341603.png">
-<meta property="article:published_time" content="2024-02-19T13:59:17.000Z">
-<meta property="article:modified_time" content="2024-02-19T14:40:46.926Z">
+<meta property="article:published_time" content="2024-03-03T03:08:02.000Z">
+<meta property="article:modified_time" content="2024-03-03T03:08:02.177Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/02/19/SSD%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98Trim%E5%91%BD%E4%BB%A4/1_120607163326_1.jpg">
   
   
   
-  <title>SSD固态硬盘Trim命令 - 疯狂少年</title>
+  <title>Linux命令解析大全 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -191,7 +188,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="SSD固态硬盘Trim命令"></span>
+            <span id="subtitle" data-typed-text="Linux命令解析大全"></span>
           
         </div>
 
@@ -202,8 +199,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-02-19 21:59" pubdate>
-          2024年2月19日 晚上
+        <time datetime="2024-03-03 11:08" pubdate>
+          2024年3月3日 上午
         </time>
       </span>
     
@@ -214,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.5k 字
+          0 字
         
       </span>
     
@@ -225,7 +222,7 @@
         
         
         
-          13 分钟
+          1 分钟
         
       </span>
     
@@ -271,27 +268,12 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">SSD固态硬盘Trim命令</h1>
+            <h1 style="display: none">Linux命令解析大全</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="SSD固态硬盘Trim命令"><a href="#SSD固态硬盘Trim命令" class="headerlink" title="SSD固态硬盘Trim命令"></a>SSD固态硬盘Trim命令</h1><h2 id="为啥我们需要Trim？"><a href="#为啥我们需要Trim？" class="headerlink" title="为啥我们需要Trim？"></a>为啥我们需要Trim？</h2><p> 在闪存内，数据存储一般是以page（页）为最小单位存储的（典型的为4KB），而128个page组成了一个block（块），数据可以以4KB大小的页来读取和写入，但却只能以512KB(128 page)的块大小来删除。当读取数据或者写入到一个没有被使用过的page上时，固态硬盘的速度是很快的，但是覆写数据的话，就比较复杂了，需要许多步骤来完成。步骤可见下图：</p>
-<img src="/2024/02/19/SSD%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98Trim%E5%91%BD%E4%BB%A4/1_120607163326_1.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:90%;">
-
-<p>当SSD的所有空闲块都被使用后，再有写入操作，它只能覆写数据到之前被操作系统标记为删除的区域。这也是速度下降的开始：</p>
-<p>要覆写一个4KB 页的文件系统，首先要把整个512KB 块复制进缓存里。然后，在缓存里删除这个4KB页，替换成新的数据。接下来，清空整个闪存内的这个512KB区域，并从缓存里把新的数据写回去。如果你需要同时覆写很多的块 - ”例如是一系列小文件随机写入操作或者只是简单的写入一个大文件到SSD“。你会让你的SSD缓存快速过载，然后你的写入速度就会”垂直落体“。。。告诉你，你能体会到会有多慢，早期缓存少的SSD甚至会延迟接近1秒（JMF602之流），为了修复这个问题，SSD厂商一个个都在新主控制器上加入了越来越大的外置缓存，这虽然一定程度上解决了随机写入卡的问题，但是却不能解决SSD在覆写时速度下降的问题。</p>
-<h2 id="Trim命令到底做了什么？"><a href="#Trim命令到底做了什么？" class="headerlink" title="Trim命令到底做了什么？"></a>Trim命令到底做了什么？</h2><p>简而言之，这个问题是因为操作系统和文件系统不能和SSD的主控进行删除文件的交流造成的，如果有之前没清除干净的数据，所有写入的页的操作都要先清除块再改写，将严重影响写入速度。有2种途径来修复这个问题：</p>
-<p>第一个就是定期运行垃圾回收程序(GC)（这个操作有点像整理，在SSD空闲时，全盘扫描有效的页并合并整理起来变为一个包含全部有效页的块，而那些无效的页和块都将被完全的清除）。</p>
-<p>第二个更好的途径就是当数据删除时候让系统告诉SSD数据没了，让SSD立即擦掉那些数据占用的块，这就是Trim命令做的事。<br>当一个文件在支持Trim的系统里被删除后，操作系统会发个命令给SSD，让他知道这个数据所在的这个page可以直接被写入，等于把控制权从操作系统变为了SSD主控制器固件。SSD一样会复制整个包含删除数据的块到缓存，清空块并写入有效数据的页回去，<strong>区别是这样等于把这个延迟时间从覆写数据的那个时间提前到了删除数据的时候</strong>（这个时候你对速度不敏感，如果你删除了很大很大的数据，可以去观察硬盘灯在你删除之后几秒内狂闪），自然就会显得SSD的速度回来了，因为你写入的时候有可用的空块。</p>
-<p>所以我们可以说，Trim保证速度不下跌的真正秘密是： 把将来要做的事提前做掉了。 但是这件事迟早要做，所以基本不会影响SSD原有的写入次数（寿命）。<br>有很多人说，Trim是为测试而生的，这话其实没错，因为 1.Trim不能提速，只是保证速度尽可能不下降。（实际是SSD上没被使用的容量那里的速度不下降。Trim提前把那里的块清空了。下次直接可以写当然快了。）2.Trim没改变原本要做的事，只是提前做掉了，测试软件测试时候就不需要做了，从而“显得”速度上去了。<br>对于GC来说，由于是移动，整理，合并了旧页到新块，删除了无效的旧块，会牺牲点写入次数（寿命）。但是GC支持RAID，也算有利有弊吧。</p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://bbs.pceva.com.cn/thread-20195-1-1.html">https://bbs.pceva.com.cn/thread-20195-1-1.html</a></p>
-</blockquote>
-<img src="/2024/02/19/SSD%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98Trim%E5%91%BD%E4%BB%A4/image-20240219221341603.png" srcset="/img/loading.gif" lazyload alt="image-20240219221341603" style="zoom:80%;">
-
-<h2 id="TRIM工具：IOBit公司的Smart-Defrag"><a href="#TRIM工具：IOBit公司的Smart-Defrag" class="headerlink" title="TRIM工具：IOBit公司的Smart Defrag"></a>TRIM工具：IOBit公司的Smart Defrag</h2><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Jv4y1T7zH">https://www.bilibili.com/video/BV1Jv4y1T7zH</a></p>
-
+                
                 
               </div>
             
@@ -308,8 +290,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>SSD固态硬盘Trim命令</div>
-      <div>http://example.com/2024/02/19/SSD固态硬盘Trim命令/</div>
+      <div>Linux命令解析大全</div>
+      <div>http://example.com/2024/03/03/Linux命令解析大全/</div>
     </div>
     <div class="license-meta">
       
@@ -321,7 +303,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年2月19日</div>
+          <div>2024年3月3日</div>
         </div>
       
       
@@ -353,18 +335,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/03/03/Linux%E5%91%BD%E4%BB%A4df%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/" title="Linux命令df原理解析">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Linux命令df原理解析</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="f2fs文件系统dentry与inode学习笔记">
-                        <span class="hidden-mobile">f2fs文件系统dentry与inode学习笔记</span>
+                      <a href="/2024/03/03/Linux%E5%91%BD%E4%BB%A4df%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/" title="Linux命令df原理解析">
+                        <span class="hidden-mobile">Linux命令df原理解析</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

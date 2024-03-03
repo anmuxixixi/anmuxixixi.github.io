@@ -219,6 +219,74 @@
       <h1 class="index-header">
         
         
+        <a href="/2023/12/25/ext2%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A0%BC%E5%BC%8F%E5%8C%96mke2fs/" target="_self">
+          ext2文件系统格式化mke2fs
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/25/ext2%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A0%BC%E5%BC%8F%E5%8C%96mke2fs/" target="_self">
+        <div>
+          ext2文件系统格式化mke2fsext2磁盘布局  格式化的代码都是围绕这张图来进行的 参数初始化12345678910111213141516errcode_t ext2fs_initialize(const char *name, int flags,			    struct ext2_super_block *param,			    io_manager manager, ext2_f
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-25 22:28" pubdate>
+              2023-12-25
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
+        <a href="/2023/12/20/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%9D%8F%E5%9D%97%E5%A4%84%E7%90%86%E7%AE%80%E8%AE%B0/" target="_self">
+          yaffs文件系统坏块处理简记
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/20/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%9D%8F%E5%9D%97%E5%A4%84%E7%90%86%E7%AE%80%E8%AE%B0/" target="_self">
+        <div>
+          yaffs文件系统坏块处理简记先看下林子雨老师《闪存数据库概念与技术》中的描述： NAND 闪存被设计成具有很低的代价和很高的密度。为了获得更高的产出，从而减小产品成本，NAND 闪存通常都会在出厂时包含一些坏块，此外，在闪存设备使用过程中，也会出现一些新的坏块。因此，对于任何闪存文件系统而言，如果不具备坏块处理机制，就不适合用来管理闪存。 Yaffs1 使用 SM 卡类型的坏块标记，它会检查闪存
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-20 21:56" pubdate>
+              2023-12-20
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
         <a href="/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/" target="_self">
           yaffs文件系统布局
         </a>
@@ -477,74 +545,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2023-12-04 21:39" pubdate>
               2023-12-04
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2023/12/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A4%B4%E6%96%87%E4%BB%B6f2fs-h%E7%AE%A1%E7%90%86%E7%9A%84%E4%BD%8D%E5%9B%BE%E5%92%8C-I%E5%86%85%E5%AD%98%E4%BF%A1%E6%81%AF/" target="_self">
-          f2fs文件系统头文件f2fs.h管理的位图和_I内存信息
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A4%B4%E6%96%87%E4%BB%B6f2fs-h%E7%AE%A1%E7%90%86%E7%9A%84%E4%BD%8D%E5%9B%BE%E5%92%8C-I%E5%86%85%E5%AD%98%E4%BF%A1%E6%81%AF/" target="_self">
-        <div>
-          f2fs文件系统头文件f2fs.h管理的位图和_I内存信息1._I内存信息SIT内存管理(SM_I)1234static inline struct f2fs_sm_info *SM_I(struct f2fs_sb_info *sbi)&#123;	return (struct f2fs_sm_info *)(sbi-&gt;sm_info);&#125;  sbi管理了SIT在内存中表现形式：
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-02 21:26" pubdate>
-              2023-12-02
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" target="_self">
-          f2fs文件系统gc垃圾回收
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" target="_self">
-        <div>
-          f2fs文件系统gc垃圾回收1.SSD垃圾回收简介  图片源自：https://zhuanlan.zhihu.com/p/639777178 2.垃圾回收思想及论文描述2.1 垃圾回收基本思想我们把F2FS的垃圾回收比作工厂大迁移，假设在京肯德基门店，由于生意不好，准备迁移到上海去，那么作为老板肯定要做以下几件事情：  【目标选择】选择哪些门店要迁走，在南京有许多的肯德基，肯定是选择人流量最少的迁
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-11-30 22:13" pubdate>
-              2023-11-30
             </time>
           </div>
         
