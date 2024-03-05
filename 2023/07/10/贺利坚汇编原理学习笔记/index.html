@@ -180,8 +180,11 @@
 <meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231936728.png">
 <meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304232034695.png">
 <meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304232043454.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230140896.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230235890.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230635245.png">
 <meta property="article:published_time" content="2023-07-10T15:29:30.000Z">
-<meta property="article:modified_time" content="2024-03-04T15:21:02.595Z">
+<meta property="article:modified_time" content="2024-03-05T15:08:49.545Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="汇编">
 <meta name="twitter:card" content="summary_large_image">
@@ -370,7 +373,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          16k 字
+          17k 字
         
       </span>
     
@@ -381,7 +384,7 @@
         
         
         
-          134 分钟
+          140 分钟
         
       </span>
     
@@ -1493,6 +1496,39 @@
 
 <img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304232043454.png" srcset="/img/loading.gif" lazyload alt="image-20240304232043454" style="zoom:80%;">
 
+<h3 id="5-9-带进（借）位的加减法"><a href="#5-9-带进（借）位的加减法" class="headerlink" title="5.9 带进（借）位的加减法"></a>5.9 带进（借）位的加减法</h3><h4 id="5-9-1-adc-带进位加法指令"><a href="#5-9-1-adc-带进位加法指令" class="headerlink" title="5.9.1 adc - 带进位加法指令"></a>5.9.1 adc - 带进位加法指令</h4><ul>
+<li>adc是带进位加法指令 ，它利用了CF位上记录的进位值。<ul>
+<li>格式：adc 操作对象1,操作对象2</li>
+<li>功能：操作对象1&#x3D;操作对象1+操作对象2+CF</li>
+<li>例：adc ax,bx 实现的功能是：(ax)&#x3D;(ax)+(bx)+CF</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230140896.png" srcset="/img/loading.gif" lazyload alt="image-20240305230140896" style="zoom:80%;">
+
+<h4 id="5-9-2-adc指令应用：大数相加"><a href="#5-9-2-adc指令应用：大数相加" class="headerlink" title="5.9.2 adc指令应用：大数相加"></a>5.9.2 adc指令应用：大数相加</h4><p>问题：8086指令提供add指令，完成8位或16位加法，有更大的数相加时，如何做？例如32位、64位、24位</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230235890.png" srcset="/img/loading.gif" lazyload alt="image-20240305230235890" style="zoom:80%;">
+
+<p>🧸<strong>妙啊，妙啊</strong></p>
+<h4 id="5-9-3-128位数据的相加"><a href="#5-9-3-128位数据的相加" class="headerlink" title="5.9.3 128位数据的相加"></a>5.9.3 128位数据的相加</h4><p><strong>问题：</strong>编写一个子程序，对两个128位数据进行相加。</p>
+<p>名称：add128</p>
+<p>功能：两个逆序存放的128位数据进行相加</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs asm">data segment<br>    dw 0A452H,0A8F5H,78E6H,0A8EH,8B7AH,54F6H,0F04H,671EH<br>    dw 0E71EH,0EF04H,54F6H,8B7AH,0A8EH,78E6H,58F5H,0452H<br>data end<br></code></pre></td></tr></table></figure>
+
+<p>数据为128位，需要8个字单元，由低地址单元到高地址 单元，依次存放由低到高的各个字。</p>
+<p><strong>分析：</strong></p>
+<ul>
+<li>ds:si指向存储第一个数的内存空间</li>
+<li>ds:di指向存储第二个数的内存空间</li>
+<li>运算结果存储在第一个数的存储空间中</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230635245.png" srcset="/img/loading.gif" lazyload alt="image-20240305230635245" style="zoom: 80%;">
+
+<p><strong>Q1：sub ax,ax可否替换为mov ax,0</strong></p>
+<p>A1：不可以 ，sub ax,ax目的是为了清零cf寄存器，为下一次调用子程序做初始化cf</p>
+<p><strong>Q2：两个inc di是否可以替换为add di,2</strong></p>
+<p>A2：不可以，如果di+2后溢出了，会污染cf寄存器</p>
+<h3 id="5-9-4-sub指令"><a href="#5-9-4-sub指令" class="headerlink" title="5.9.4 sub指令"></a>5.9.4 sub指令</h3>
                 
               </div>
             
