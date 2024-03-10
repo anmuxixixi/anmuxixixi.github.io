@@ -16,24 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="电梯算法及IO调度的源码分析：主要讲电梯队列和request队列函数blk_queue_bio linux IO Block layer 解析：主要里面的图画的不错，且bio结构讲的比较清晰 Linux Block子系统——IO调度层：主要里面这张图不错       块I&#x2F;O流程与 I&#x2F;O调度器：工具blktrace、工具blkparse、工具ftrace">
+    <meta name="description" content="内存回收命令drop_caches大全1.drop caches命令2.f2fs_drop_inode调用栈    123456789&#x3D;&gt; drop_caches_sysctl_handler&#x3D;&gt; drop_slab&#x3D;&gt; shrink_slab&#x3D;&gt; prune_dcache_sb&#x3D;&gt; prune_dentry_list&#x3D;&gt; _dentry_kill&#x3D;&gt; d">
 <meta property="og:type" content="article">
-<meta property="og:title" content="io研究备忘录">
-<meta property="og:url" content="http://example.com/2024/03/04/io%E7%A0%94%E7%A9%B6%E5%A4%87%E5%BF%98%E5%BD%95/index.html">
+<meta property="og:title" content="内存回收命令drop_caches大全">
+<meta property="og:url" content="http://example.com/2024/03/10/%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%E5%91%BD%E4%BB%A4drop-caches%E5%A4%A7%E5%85%A8/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="电梯算法及IO调度的源码分析：主要讲电梯队列和request队列函数blk_queue_bio linux IO Block layer 解析：主要里面的图画的不错，且bio结构讲的比较清晰 Linux Block子系统——IO调度层：主要里面这张图不错       块I&#x2F;O流程与 I&#x2F;O调度器：工具blktrace、工具blkparse、工具ftrace">
+<meta property="og:description" content="内存回收命令drop_caches大全1.drop caches命令2.f2fs_drop_inode调用栈    123456789&#x3D;&gt; drop_caches_sysctl_handler&#x3D;&gt; drop_slab&#x3D;&gt; shrink_slab&#x3D;&gt; prune_dcache_sb&#x3D;&gt; prune_dentry_list&#x3D;&gt; _dentry_kill&#x3D;&gt; d">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/03/04/io%E7%A0%94%E7%A9%B6%E5%A4%87%E5%BF%98%E5%BD%95/1624300-20190331223524431-790777662.jpg">
-<meta property="og:image" content="http://example.com/2024/03/04/io%E7%A0%94%E7%A9%B6%E5%A4%87%E5%BF%98%E5%BD%95/1624300-20190330232530720-1691499771.png">
-<meta property="article:published_time" content="2024-03-04T14:36:56.000Z">
-<meta property="article:modified_time" content="2024-03-04T14:49:58.270Z">
+<meta property="og:image" content="http://example.com/2024/03/10/%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%E5%91%BD%E4%BB%A4drop-caches%E5%A4%A7%E5%85%A8/image-20240310221621378.png">
+<meta property="article:published_time" content="2024-03-10T14:03:04.000Z">
+<meta property="article:modified_time" content="2024-03-10T15:28:38.595Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/03/04/io%E7%A0%94%E7%A9%B6%E5%A4%87%E5%BF%98%E5%BD%95/1624300-20190331223524431-790777662.jpg">
+<meta name="twitter:image" content="http://example.com/2024/03/10/%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%E5%91%BD%E4%BB%A4drop-caches%E5%A4%A7%E5%85%A8/image-20240310221621378.png">
   
   
   
-  <title>io研究备忘录 - 疯狂少年</title>
+  <title>内存回收命令drop_caches大全 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -191,7 +190,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="io研究备忘录"></span>
+            <span id="subtitle" data-typed-text="内存回收命令drop_caches大全"></span>
           
         </div>
 
@@ -202,8 +201,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-03-04 22:36" pubdate>
-          2024年3月4日 晚上
+        <time datetime="2024-03-10 22:03" pubdate>
+          2024年3月10日 晚上
         </time>
       </span>
     
@@ -214,7 +213,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          174 字
+          652 字
         
       </span>
     
@@ -225,7 +224,7 @@
         
         
         
-          2 分钟
+          6 分钟
         
       </span>
     
@@ -271,23 +270,31 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">io研究备忘录</h1>
+            <h1 style="display: none">内存回收命令drop_caches大全</h1>
             
             
               <div class="markdown-body">
                 
-                <ul>
-<li><a target="_blank" rel="noopener" href="http://www.lenzhao.com/topic/5acf20c5bedc2a8b075a6072">电梯算法及IO调度的源码分析</a>：主要讲电梯队列和request队列函数blk_queue_bio</li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Linux-tech/p/12961286.html">linux IO Block layer 解析</a>：主要里面的图画的不错，且bio结构讲的比较清晰</li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/felton/p/10624947.html">Linux Block子系统——IO调度层</a>：主要里面这张图不错</li>
-</ul>
-<img src="/2024/03/04/io%E7%A0%94%E7%A9%B6%E5%A4%87%E5%BF%98%E5%BD%95/1624300-20190331223524431-790777662.jpg" srcset="/img/loading.gif" lazyload alt="img">
+                <h1 id="内存回收命令drop-caches大全"><a href="#内存回收命令drop-caches大全" class="headerlink" title="内存回收命令drop_caches大全"></a>内存回收命令drop_caches大全</h1><h2 id="1-drop-caches命令"><a href="#1-drop-caches命令" class="headerlink" title="1.drop caches命令"></a>1.drop caches命令</h2><h2 id="2-f2fs-drop-inode调用栈"><a href="#2-f2fs-drop-inode调用栈" class="headerlink" title="2.f2fs_drop_inode调用栈"></a>2.f2fs_drop_inode调用栈</h2><img src="/2024/03/10/%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%E5%91%BD%E4%BB%A4drop-caches%E5%A4%A7%E5%85%A8/image-20240310221621378.png" srcset="/img/loading.gif" lazyload alt="image-20240310221621378" style="zoom: 67%;">
 
-<img src="/2024/03/04/io%E7%A0%94%E7%A9%B6%E5%A4%87%E5%BF%98%E5%BD%95/1624300-20190330232530720-1691499771.png" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
 
-<ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/0voice/linux_kernel_wiki/blob/main/%E6%96%87%E7%AB%A0/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/Linux%20IO%20%E4%B9%8B%20%E5%9D%97IO%E6%B5%81%E7%A8%8B%E4%B8%8EIO%E8%B0%83%E5%BA%A6%E5%99%A8.md">块I&#x2F;O流程与 I&#x2F;O调度器</a>：工具blktrace、工具blkparse、工具ftrace</li>
-</ul>
+
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs txt">=&gt; drop_caches_sysctl_handler<br>=&gt; drop_slab<br>=&gt; shrink_slab<br>=&gt; prune_dcache_sb<br>=&gt; prune_dentry_list<br>=&gt; _dentry_kill<br>=&gt; dentry_unlink_inode<br>=&gt; iput<br>=&gt; f2fs_drop_inode<br></code></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs txt">=&gt; drop_caches_sysctl_handler<br>=&gt; drop_slab<br>=&gt; shrink_slab<br>=&gt; prube_icache_sb<br>=&gt; list_lru_walk_sb<br>=&gt; _list_lru_walk_sb<br>=&gt; inode_lru_isolate<br>=&gt; iput<br>=&gt; f2fs_drop_inode<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<p>Linux中的VFS实现 [二]：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/107247475">https://zhuanlan.zhihu.com/p/107247475</a></p>
+<p>inode生命周期：<a target="_blank" rel="noopener" href="https://blog.csdn.net/u010039418/article/details/115234532?spm=1001.2014.3001.5506">https://blog.csdn.net/u010039418/article/details/115234532?spm=1001.2014.3001.5506</a></p>
+<p>drop_caches原理：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/93962657">https://zhuanlan.zhihu.com/p/93962657</a></p>
+<p>Linux内核-文件系统之目录项高速缓存（dentry cache）简介：</p>
 
                 
               </div>
@@ -305,8 +312,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>io研究备忘录</div>
-      <div>http://example.com/2024/03/04/io研究备忘录/</div>
+      <div>内存回收命令drop_caches大全</div>
+      <div>http://example.com/2024/03/10/内存回收命令drop-caches大全/</div>
     </div>
     <div class="license-meta">
       
@@ -318,7 +325,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年3月4日</div>
+          <div>2024年3月10日</div>
         </div>
       
       
@@ -350,18 +357,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/03/10/%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%E5%91%BD%E4%BB%A4drop-caches%E5%A4%A7%E5%85%A8/" title="内存回收命令drop_caches大全">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">内存回收命令drop_caches大全</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/03/03/Linux%E5%91%BD%E4%BB%A4%E8%A7%A3%E6%9E%90%E5%A4%A7%E5%85%A8/" title="Linux命令解析大全">
-                        <span class="hidden-mobile">Linux命令解析大全</span>
+                      <a href="/2024/03/04/io%E7%A0%94%E7%A9%B6%E5%A4%87%E5%BF%98%E5%BD%95/" title="io研究备忘录">
+                        <span class="hidden-mobile">io研究备忘录</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
