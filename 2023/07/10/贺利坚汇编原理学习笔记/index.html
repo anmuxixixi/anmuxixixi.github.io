@@ -205,8 +205,9 @@
 <meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233344065.png">
 <meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233624935.png">
 <meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233800314.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240313222815307.png">
 <meta property="article:published_time" content="2023-07-10T15:29:30.000Z">
-<meta property="article:modified_time" content="2024-03-07T15:41:12.156Z">
+<meta property="article:modified_time" content="2024-03-13T14:57:36.225Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="汇编">
 <meta name="twitter:card" content="summary_large_image">
@@ -395,7 +396,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          19k 字
+          20k 字
         
       </span>
     
@@ -406,7 +407,7 @@
         
         
         
-          159 分钟
+          167 分钟
         
       </span>
     
@@ -1702,11 +1703,34 @@
 </ul>
 </li>
 </ul>
-<h4 id="6-8-3-数据标号同时描述内存地址和单元长度"><a href="#6-8-3-数据标号同时描述内存地址和单元长度" class="headerlink" title="6.8.3 数据标号同时描述内存地址和单元长度"></a>6.8.3 数据标号同时描述内存地址和单元长度</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233624935.png" srcset="/img/loading.gif" lazyload alt="image-20240307233624935" style="zoom:67%;">
+<h4 id="6-3-3-数据标号同时描述内存地址和单元长度"><a href="#6-3-3-数据标号同时描述内存地址和单元长度" class="headerlink" title="6.3.3 数据标号同时描述内存地址和单元长度"></a>6.3.3 数据标号同时描述内存地址和单元长度</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233624935.png" srcset="/img/loading.gif" lazyload alt="image-20240307233624935" style="zoom:67%;">
 
-<h4 id="6-8-4-更常见的方式：数据段中的数据标号"><a href="#6-8-4-更常见的方式：数据段中的数据标号" class="headerlink" title="6.8.4 更常见的方式：数据段中的数据标号"></a>6.8.4 更常见的方式：数据段中的数据标号</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233800314.png" srcset="/img/loading.gif" lazyload alt="image-20240307233800314" style="zoom:67%;">
+<h4 id="6-3-4-更常见的方式：数据段中的数据标号"><a href="#6-3-4-更常见的方式：数据段中的数据标号" class="headerlink" title="6.3.4 更常见的方式：数据段中的数据标号"></a>6.3.4 更常见的方式：数据段中的数据标号</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233800314.png" srcset="/img/loading.gif" lazyload alt="image-20240307233800314" style="zoom:67%;">
 
 <p>🧑‍🎄<code>c dw offset a,offset b</code>：<strong>有点类似于C语言里面的指针，c里面存放了a和b的地址</strong></p>
+<h3 id="6-4-数据的直接定址表"><a href="#6-4-数据的直接定址表" class="headerlink" title="6.4 数据的直接定址表"></a>6.4 数据的直接定址表</h3><p><strong>利用表，在两个数据集合之间建立一种映射关系，用查表的方法根据给出的数据得到其在另一集合中的对应数据。</strong></p>
+<ul>
+<li>应用示例：编写程序，计算sin(x)，x∈{0° ,30° ,60° ,90° ,120° ,150° ,180°}，并在屏幕中间显示计算结果。</li>
+<li>常规解法：<ul>
+<li>利用麦克劳林公式计算：</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240313222815307.png" srcset="/img/loading.gif" lazyload alt="image-20240313222815307" style="zoom:67%;">
+
+<ul>
+<li>空间换时间方案<ul>
+<li>将所要计算得sin(x)的结果都存储到一张表中，然后用角度值来查表，找到对对应的sin(x)值</li>
+<li>具体方法：<ul>
+<li>用ax向子程序传递角度值</li>
+<li>用角度值&#x2F;30为table表中的偏移，可以找到对应的字符串首地址</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code<br>code segment<br>start:	<br>	mov al,60<br>	call showsin<br>	mov ax,4c00h<br>	int 21h<br>	<br>    showsin: jmp short show<br>            table dw ag0,ag30,ag60,ag90,ag120,ag150,ag180 <br>            ag0   db&#x27;0&#x27;,0				;sin 0=0<br>            ag30  db &#x27;0.5&#x27;,0			;sin 30=0.5<br>            ag60  db &#x27;0.866&#x27;,0			;sin 60=0.866<br>            ag90  db &#x27;1&#x27;,0<br>            ag120 db &#x27;0.866&#x27;,0<br>            ag150 db &#x27;0.5&#x27;,0<br>            ag180 db &#x27;0&#x27;,0<br>    show: 	push bx<br>            push es<br>            push si<br>            mov bx,0b800h<br>            mov es,bx<br><br>            ;计算出sin(x)对应结果字符串的偏移地址<br>            mov bl,30<br>            div bl				;用角度值/30来得到相对于table的偏移<br>            mov bl,al<br>            mov bh,0<br>            add bx,bx			;因为table中是字单元，需要再乘2<br>            mov bx,table[bx]	;bx中是对应结果字符串的偏移地址<br><br>            ;显示对应结果字符串到屏幕<br>            mov si,160*12+40*2<br>    shows: 	mov ah,cs:[bx]<br>            cmp ah,0<br>            je showret<br>            mov es:[si],ah<br>            inc bx<br>            add si,2<br>            jmp short shows<br><br>	showret:pop si	<br>            pop es<br>            pop bx<br>            ret<br><br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
 
                 
               </div>

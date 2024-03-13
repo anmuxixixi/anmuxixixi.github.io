@@ -291,11 +291,11 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">Cmdline: /vendor/bin/android.hardware.automotive.evs@1.0-ais<br></code></pre></td></tr></table></figure>
 
 <ul>
-<li>然后，看backtrace，顾名思义，出错栈。从上到下就是调用栈的逆序，可以看到赘述到<a href="mailto:&#x65;&#x76;&#115;&#64;&#x31;&#x2e;&#48;&#x2d;&#97;&#x69;&#x73;">&#x65;&#x76;&#115;&#64;&#x31;&#x2e;&#48;&#x2d;&#97;&#x69;&#x73;</a>这个动态库的GlWrapper::renderImageToScreen()函数：</li>
+<li>然后，看backtrace，顾名思义，出错栈。从上到下就是调用栈的逆序，可以看到赘述到<a href="mailto:&#101;&#x76;&#x73;&#x40;&#x31;&#46;&#48;&#45;&#97;&#105;&#115;">&#101;&#x76;&#x73;&#x40;&#x31;&#46;&#48;&#45;&#97;&#105;&#115;</a>这个动态库的GlWrapper::renderImageToScreen()函数：</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#11 pc 0000000000011258  /vendor/bin/android.hardware.automotive.evs@1.0-ais (GlWrapper::renderImageToScreen()+80) (BuildId: 22b5c23192874a857be557ff2bacc8e8)</span><br></code></pre></td></tr></table></figure>
 
-<p>范围很小了吧，但仍不够，我们想定位到具体哪一行，后面+80并不是行数，我们只关注pc后面的地址0000000000011258。那么就开始使用addr2line工具。addr2line工具在linux是就有，所以在真机上把&#x2F;vendor&#x2F;bin&#x2F;<a href="mailto:&#97;&#110;&#x64;&#x72;&#111;&#x69;&#100;&#46;&#104;&#97;&#114;&#100;&#119;&#x61;&#x72;&#x65;&#46;&#x61;&#x75;&#x74;&#x6f;&#x6d;&#111;&#x74;&#105;&#118;&#101;&#46;&#x65;&#118;&#x73;&#x40;&#49;&#46;&#48;&#45;&#97;&#x69;&#x73;">&#97;&#110;&#x64;&#x72;&#111;&#x69;&#100;&#46;&#104;&#97;&#114;&#100;&#119;&#x61;&#x72;&#x65;&#46;&#x61;&#x75;&#x74;&#x6f;&#x6d;&#111;&#x74;&#105;&#118;&#101;&#46;&#x65;&#118;&#x73;&#x40;&#49;&#46;&#48;&#45;&#97;&#x69;&#x73;</a>拉出来：</p>
+<p>范围很小了吧，但仍不够，我们想定位到具体哪一行，后面+80并不是行数，我们只关注pc后面的地址0000000000011258。那么就开始使用addr2line工具。addr2line工具在linux是就有，所以在真机上把&#x2F;vendor&#x2F;bin&#x2F;<a href="mailto:&#97;&#110;&#100;&#x72;&#x6f;&#105;&#x64;&#46;&#x68;&#97;&#114;&#x64;&#x77;&#x61;&#114;&#x65;&#x2e;&#x61;&#117;&#116;&#x6f;&#x6d;&#x6f;&#116;&#x69;&#x76;&#101;&#46;&#101;&#x76;&#x73;&#x40;&#49;&#x2e;&#48;&#45;&#x61;&#x69;&#115;">&#97;&#110;&#100;&#x72;&#x6f;&#105;&#x64;&#46;&#x68;&#97;&#114;&#x64;&#x77;&#x61;&#114;&#x65;&#x2e;&#x61;&#117;&#116;&#x6f;&#x6d;&#x6f;&#116;&#x69;&#x76;&#101;&#46;&#101;&#x76;&#x73;&#x40;&#49;&#x2e;&#48;&#45;&#x61;&#x69;&#115;</a>拉出来：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">adb pull /vendor/bin/android.hardware.automotive.evs@1.0-ais<br></code></pre></td></tr></table></figure>
 
 <p>然后放到linux系统上，执行：</p>
