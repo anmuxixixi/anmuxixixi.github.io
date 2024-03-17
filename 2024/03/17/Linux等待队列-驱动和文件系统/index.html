@@ -16,25 +16,25 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="港诡实录成就–线索这个成就不需要做全搜集那些文件，只需要在最后一章《诡秘屋邨(cun)》的摩天轮那边拿到一份文件《古书页四》  从铁轨调到摩天轮上，然后等摩天轮缓缓上升后，调到黄色铁轨上     从黄色铁轨走到第一个可以去的楼层，走几步就会打雷，桌子上放了一份文件，打开后关闭就可以解锁成就《线索》">
+    <meta name="description" content="Linux等待队列(驱动和文件系统)1.等待队列2.驱动使用等待队列3.文件系统使用等待队列当文件系统中的某个操作（如读取或写入文件）需要等待某个条件满足时（例如，等待磁盘I&#x2F;O操作完成或等待锁释放），线程可以将自己加入等待队列并进入休眠状态。这样，线程不会继续占用CPU资源，而是等待事件发生时由内核自动唤醒。这种机制有助于避免忙等待（busy-waiting），提高了系统的整体性能。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="港诡实录成就--线索">
-<meta property="og:url" content="http://example.com/2024/03/17/%E6%B8%AF%E8%AF%A1%E5%AE%9E%E5%BD%95%E6%88%90%E5%B0%B1-%E7%BA%BF%E7%B4%A2/index.html">
+<meta property="og:title" content="Linux等待队列(驱动和文件系统)">
+<meta property="og:url" content="http://example.com/2024/03/17/Linux%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97-%E9%A9%B1%E5%8A%A8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="港诡实录成就–线索这个成就不需要做全搜集那些文件，只需要在最后一章《诡秘屋邨(cun)》的摩天轮那边拿到一份文件《古书页四》  从铁轨调到摩天轮上，然后等摩天轮缓缓上升后，调到黄色铁轨上     从黄色铁轨走到第一个可以去的楼层，走几步就会打雷，桌子上放了一份文件，打开后关闭就可以解锁成就《线索》">
+<meta property="og:description" content="Linux等待队列(驱动和文件系统)1.等待队列2.驱动使用等待队列3.文件系统使用等待队列当文件系统中的某个操作（如读取或写入文件）需要等待某个条件满足时（例如，等待磁盘I&#x2F;O操作完成或等待锁释放），线程可以将自己加入等待队列并进入休眠状态。这样，线程不会继续占用CPU资源，而是等待事件发生时由内核自动唤醒。这种机制有助于避免忙等待（busy-waiting），提高了系统的整体性能。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/03/17/%E6%B8%AF%E8%AF%A1%E5%AE%9E%E5%BD%95%E6%88%90%E5%B0%B1-%E7%BA%BF%E7%B4%A2/20240317104541_1.jpg">
-<meta property="og:image" content="http://example.com/2024/03/17/%E6%B8%AF%E8%AF%A1%E5%AE%9E%E5%BD%95%E6%88%90%E5%B0%B1-%E7%BA%BF%E7%B4%A2/20240317104602_1.jpg">
-<meta property="og:image" content="http://example.com/2024/03/17/%E6%B8%AF%E8%AF%A1%E5%AE%9E%E5%BD%95%E6%88%90%E5%B0%B1-%E7%BA%BF%E7%B4%A2/20240317105128_1.jpg">
-<meta property="article:published_time" content="2024-03-17T02:46:57.000Z">
-<meta property="article:modified_time" content="2024-03-17T02:52:14.858Z">
+<meta property="og:image" content="http://example.com/2024/03/17/Linux%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97-%E9%A9%B1%E5%8A%A8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240317210425801.png">
+<meta property="og:image" content="http://example.com/2024/03/17/Linux%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97-%E9%A9%B1%E5%8A%A8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240317210449444.png">
+<meta property="og:image" content="http://example.com/2024/03/17/Linux%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97-%E9%A9%B1%E5%8A%A8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240317210515200.png">
+<meta property="article:published_time" content="2024-03-17T12:46:16.000Z">
+<meta property="article:modified_time" content="2024-03-17T13:16:27.521Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/03/17/%E6%B8%AF%E8%AF%A1%E5%AE%9E%E5%BD%95%E6%88%90%E5%B0%B1-%E7%BA%BF%E7%B4%A2/20240317104541_1.jpg">
+<meta name="twitter:image" content="http://example.com/2024/03/17/Linux%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97-%E9%A9%B1%E5%8A%A8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240317210425801.png">
   
   
   
-  <title>港诡实录成就--线索 - 疯狂少年</title>
+  <title>Linux等待队列(驱动和文件系统) - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -192,7 +192,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="港诡实录成就--线索"></span>
+            <span id="subtitle" data-typed-text="Linux等待队列(驱动和文件系统)"></span>
           
         </div>
 
@@ -203,8 +203,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-03-17 10:46" pubdate>
-          2024年3月17日 上午
+        <time datetime="2024-03-17 20:46" pubdate>
+          2024年3月17日 晚上
         </time>
       </span>
     
@@ -215,7 +215,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          142 字
+          676 字
         
       </span>
     
@@ -226,7 +226,7 @@
         
         
         
-          2 分钟
+          6 分钟
         
       </span>
     
@@ -272,23 +272,37 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">港诡实录成就--线索</h1>
+            <h1 style="display: none">Linux等待队列(驱动和文件系统)</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="港诡实录成就–线索"><a href="#港诡实录成就–线索" class="headerlink" title="港诡实录成就–线索"></a>港诡实录成就–线索</h1><p>这个成就不需要做全搜集那些文件，只需要在最后一章《诡秘屋邨(cun)》的摩天轮那边拿到一份文件《古书页四》</p>
-<ol>
-<li>从铁轨调到摩天轮上，然后等摩天轮缓缓上升后，调到黄色铁轨上</li>
-</ol>
-<img src="/2024/03/17/%E6%B8%AF%E8%AF%A1%E5%AE%9E%E5%BD%95%E6%88%90%E5%B0%B1-%E7%BA%BF%E7%B4%A2/20240317104541_1.jpg" srcset="/img/loading.gif" lazyload alt="20240317104541_1" style="zoom: 50%;">
+                <h1 id="Linux等待队列-驱动和文件系统"><a href="#Linux等待队列-驱动和文件系统" class="headerlink" title="Linux等待队列(驱动和文件系统)"></a>Linux等待队列(驱动和文件系统)</h1><h2 id="1-等待队列"><a href="#1-等待队列" class="headerlink" title="1.等待队列"></a>1.等待队列</h2><h2 id="2-驱动使用等待队列"><a href="#2-驱动使用等待队列" class="headerlink" title="2.驱动使用等待队列"></a>2.驱动使用等待队列</h2><h2 id="3-文件系统使用等待队列"><a href="#3-文件系统使用等待队列" class="headerlink" title="3.文件系统使用等待队列"></a>3.文件系统使用等待队列</h2><p>当文件系统中的某个操作（如读取或写入文件）需要等待某个条件满足时（例如，等待磁盘I&#x2F;O操作完成或等待锁释放），线程可以将自己加入等待队列并进入休眠状态。这样，线程不会继续占用CPU资源，而是等待事件发生时由内核自动唤醒。这种机制有助于避免忙等待（busy-waiting），提高了系统的整体性能。</p>
+<p>✅文件系统常常使用等待队列的模板为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">DEFINE_WAIT(wait);<br>prepare_to_wait(wq, &amp;wait, TASK_UNINTERRUPTIBLE);<br>schedule();<br>finish_wait(&amp;ei-&gt;i_fc_wait, &amp;wait);<br></code></pre></td></tr></table></figure>
 
-<ol start="2">
-<li>从黄色铁轨走到第一个可以去的楼层，走几步就会打雷，桌子上放了一份文件，打开后关闭就可以解锁成就《线索》</li>
-</ol>
-<img src="/2024/03/17/%E6%B8%AF%E8%AF%A1%E5%AE%9E%E5%BD%95%E6%88%90%E5%B0%B1-%E7%BA%BF%E7%B4%A2/20240317104602_1.jpg" srcset="/img/loading.gif" lazyload alt="20240317104602_1" style="zoom: 50%;">
+<p>这只是简单的一个模板，中间可能会有信号量的判断或者一些读写锁添加。</p>
+<ul>
+<li><p><code>DEFINE_WAIT(wait)</code>：定义了一个<strong>等待队列项</strong><code>wait</code></p>
+</li>
+<li><p><code>prepare_to_wait</code>：将当前进程添加到<strong>等待队列 头</strong><code>wq</code> 中，并设置进程状态为 <code>TASK_UNINTERRUPTIBLE</code>，意味着进程可以在等待期间不可以被信号中断</p>
+</li>
+<li><p><code>schedule</code>：将当前线程调度走，进入睡眠状态</p>
+</li>
+<li><p><code>finish_wait</code>：（当调度到当前线程，唤醒以后）将当前等待队列项从等待队列头中删除</p>
+</li>
+</ul>
+<p>文件系统中常见的等待队列使用如下：</p>
+<img src="/2024/03/17/Linux%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97-%E9%A9%B1%E5%8A%A8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240317210425801.png" srcset="/img/loading.gif" lazyload alt="image-20240317210425801" style="zoom:67%;">
 
-<img src="/2024/03/17/%E6%B8%AF%E8%AF%A1%E5%AE%9E%E5%BD%95%E6%88%90%E5%B0%B1-%E7%BA%BF%E7%B4%A2/20240317105128_1.jpg" srcset="/img/loading.gif" lazyload alt="20240317105128_1" style="zoom: 50%;">
+<hr>
+<img src="/2024/03/17/Linux%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97-%E9%A9%B1%E5%8A%A8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240317210449444.png" srcset="/img/loading.gif" lazyload alt="image-20240317210449444" style="zoom: 60%;">
+
+<hr>
+<blockquote>
+<p>可以发现btrfs文件系统与f2fs文件系统相比，f2fs文件系统调用的是io_schedule_timeout，而非shedule，也就是说指挥小睡一会会，会里面唤醒当前的线程确保IO完成下发。</p>
+</blockquote>
+<img src="/2024/03/17/Linux%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97-%E9%A9%B1%E5%8A%A8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240317210515200.png" srcset="/img/loading.gif" lazyload alt="image-20240317210515200" style="zoom:60%;">
 
                 
               </div>
@@ -306,8 +320,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>港诡实录成就--线索</div>
-      <div>http://example.com/2024/03/17/港诡实录成就-线索/</div>
+      <div>Linux等待队列(驱动和文件系统)</div>
+      <div>http://example.com/2024/03/17/Linux等待队列-驱动和文件系统/</div>
     </div>
     <div class="license-meta">
       
@@ -351,9 +365,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/03/17/Linux%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97-%E9%A9%B1%E5%8A%A8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" title="Linux等待队列(驱动和文件系统)">
+                      <a href="/2024/03/17/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97/" title="f2fs文件系统与等待队列">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Linux等待队列(驱动和文件系统)</span>
+                        <span class="hidden-mobile">f2fs文件系统与等待队列</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -361,8 +375,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/03/10/%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%E5%91%BD%E4%BB%A4drop-caches%E5%A4%A7%E5%85%A8/" title="内存回收命令drop_caches大全">
-                        <span class="hidden-mobile">内存回收命令drop_caches大全</span>
+                      <a href="/2024/03/17/%E6%B8%AF%E8%AF%A1%E5%AE%9E%E5%BD%95%E6%88%90%E5%B0%B1-%E7%BA%BF%E7%B4%A2/" title="港诡实录成就--线索">
+                        <span class="hidden-mobile">港诡实录成就--线索</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
