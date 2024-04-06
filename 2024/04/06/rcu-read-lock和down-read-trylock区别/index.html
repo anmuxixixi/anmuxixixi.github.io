@@ -16,23 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="f2fs文件系统与等待队列123456789101112131415161718void f2fs_wait_on_all_pages(struct f2fs_sb_info *sbi, int type)&amp;#123;	DEFINE_WAIT(wait);	for (;;) &amp;#123;		if (!get_pages(sbi, type))			break;		if (type &#x3D;&#x3D; F2FS_">
+    <meta name="description" content="rcu_read_lock 和 down_read_trylock 都是 Linux 内核中的读锁机制，但它们用于不同的上下文和目的。  rcu_read_lock 和 rcu_read_unlock: 这对函数用于 RCU (Read-Copy Update) 机制。RCU 是一种用于同步读者和写者的技术，它允许多个读者同时访问数据，同时只有一个写者可以修改数据。RCU 机制的核心思想是，在写者">
 <meta property="og:type" content="article">
-<meta property="og:title" content="f2fs文件系统与等待队列">
-<meta property="og:url" content="http://example.com/2024/03/17/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97/index.html">
+<meta property="og:title" content="rcu_read_lock和down_read_trylock区别">
+<meta property="og:url" content="http://example.com/2024/04/06/rcu-read-lock%E5%92%8Cdown-read-trylock%E5%8C%BA%E5%88%AB/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="f2fs文件系统与等待队列123456789101112131415161718void f2fs_wait_on_all_pages(struct f2fs_sb_info *sbi, int type)&amp;#123;	DEFINE_WAIT(wait);	for (;;) &amp;#123;		if (!get_pages(sbi, type))			break;		if (type &#x3D;&#x3D; F2FS_">
+<meta property="og:description" content="rcu_read_lock 和 down_read_trylock 都是 Linux 内核中的读锁机制，但它们用于不同的上下文和目的。  rcu_read_lock 和 rcu_read_unlock: 这对函数用于 RCU (Read-Copy Update) 机制。RCU 是一种用于同步读者和写者的技术，它允许多个读者同时访问数据，同时只有一个写者可以修改数据。RCU 机制的核心思想是，在写者">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/03/17/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97/image-20240317224353560.png">
-<meta property="article:published_time" content="2024-03-17T14:34:55.000Z">
-<meta property="article:modified_time" content="2024-03-17T14:49:35.129Z">
+<meta property="og:image" content="http://example.com/2024/04/06/rcu-read-lock%E5%92%8Cdown-read-trylock%E5%8C%BA%E5%88%AB/image-20240406225928168.png">
+<meta property="article:published_time" content="2024-04-06T14:48:38.000Z">
+<meta property="article:modified_time" content="2024-04-06T14:59:39.398Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/03/17/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97/image-20240317224353560.png">
+<meta name="twitter:image" content="http://example.com/2024/04/06/rcu-read-lock%E5%92%8Cdown-read-trylock%E5%8C%BA%E5%88%AB/image-20240406225928168.png">
   
   
   
-  <title>f2fs文件系统与等待队列 - 疯狂少年</title>
+  <title>rcu_read_lock和down_read_trylock区别 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -190,7 +190,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="f2fs文件系统与等待队列"></span>
+            <span id="subtitle" data-typed-text="rcu_read_lock和down_read_trylock区别"></span>
           
         </div>
 
@@ -201,8 +201,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-03-17 22:34" pubdate>
-          2024年3月17日 晚上
+        <time datetime="2024-04-06 22:48" pubdate>
+          2024年4月6日 晚上
         </time>
       </span>
     
@@ -213,7 +213,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          942 字
+          984 字
         
       </span>
     
@@ -224,7 +224,7 @@
         
         
         
-          8 分钟
+          9 分钟
         
       </span>
     
@@ -270,27 +270,35 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">f2fs文件系统与等待队列</h1>
+            <h1 style="display: none">rcu_read_lock和down_read_trylock区别</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="f2fs文件系统与等待队列"><a href="#f2fs文件系统与等待队列" class="headerlink" title="f2fs文件系统与等待队列"></a>f2fs文件系统与等待队列</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">f2fs_wait_on_all_pages</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">int</span> type)</span><br>&#123;<br>	DEFINE_WAIT(wait);<br><br>	<span class="hljs-keyword">for</span> (;;) &#123;<br>		<span class="hljs-keyword">if</span> (!get_pages(sbi, type))<br>			<span class="hljs-keyword">break</span>;<br><br>		<span class="hljs-keyword">if</span> (type == F2FS_DIRTY_META)<br>			f2fs_sync_meta_pages(sbi, META, LONG_MAX, FS_CP_META_IO);<br>		<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (type == F2FS_WB_CP_DATA)<br>			f2fs_submit_merged_write(sbi, DATA);<br><br>		prepare_to_wait(&amp;sbi-&gt;cp_wait, &amp;wait, TASK_UNINTERRUPTIBLE);<br>		io_schedule_timeout(DEFAULT_IO_TIMEOUT);<br>	&#125;<br>	finish_wait(&amp;sbi-&gt;cp_wait, &amp;wait);<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<ul>
-<li>DEFINE_WAIT：定义一个等待队列项</li>
-<li>f2fs_submit_merged_write：提交写IO</li>
-<li>prepare_to_wait：将定义的等待队列项插入到等待队列头<code>sbi-&gt;cp_wait</code>中</li>
-<li>io_schedule_timeout：睡眠一小会后唤醒f2fs checkpoint线程f2fs_ckpt【即使不在其他地方主动唤醒，也会超时唤醒】</li>
-<li>finish_wait：将等待队列项从等待队列头里面删除</li>
+                <p><code>rcu_read_lock</code> 和 <code>down_read_trylock</code> 都是 Linux 内核中的读锁机制，但它们用于不同的上下文和目的。</p>
+<ol>
+<li><strong>rcu_read_lock 和 rcu_read_unlock</strong>:<ul>
+<li>这对函数用于 RCU (Read-Copy Update) 机制。RCU 是一种用于同步读者和写者的技术，它允许多个读者同时访问数据，同时只有一个写者可以修改数据。RCU 机制的核心思想是，在写者修改数据之前，它会首先为数据创建一个副本，然后修改这个副本。读者在此期间可以继续读取原始数据，而不需要任何阻塞。当所有读者都完成了对原始数据的读取后，写者会更新指针，使其指向新的、已修改的数据。</li>
+<li><code>rcu_read_lock</code> 用于标记 RCU 读操作的开始，而 <code>rcu_read_unlock</code> 用于标记读操作的结束。</li>
+<li>RCU 非常适合读多写少的场景，因为它允许读者在写者进行更新时继续访问数据。</li>
 </ul>
-<p><strong>这里循环会一直进行，直到f2fs文件系统中不存在type类型的页</strong></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> s64 <span class="hljs-title function_">get_pages</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">int</span> count_type)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-type">atomic_read</span>(&amp;sbi-&gt;nr_pages[count_type]);<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><strong>当写IO完成以后，会将该类型的页从sbi-&gt;nr_pages中删除</strong></p>
-<img src="/2024/03/17/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97/image-20240317224353560.png" srcset="/img/loading.gif" lazyload alt="image-20240317224353560" style="zoom:50%;">
-
-<p>🧸<strong>因此，f2fs文件系统整段与等待队列的操作就是在等待所有的写IO完成，这也与函数名f2fs_wait_on_all_pages一致。</strong></p>
+</li>
+<li><strong>down_read_trylock</strong>:<ul>
+<li>这个函数是读写锁（read-write lock）机制的一部分，用于尝试获取读锁，但不会阻塞。如果读锁当前可用（即没有被写锁持有，也没有其他读锁持有者），则 <code>down_read_trylock</code> 会成功获取读锁并返回 true。否则，它会立即返回 false，而不会使调用者进入睡眠状态。</li>
+<li>读写锁通常用于有多个读者和一个或多个写者的场景。与互斥锁（mutex）不同，读写锁允许多个读者同时访问数据，但在有写者访问时，它会阻止其他读者和写者。</li>
+</ul>
+</li>
+</ol>
+<p><strong>区别</strong>:</p>
+<ul>
+<li><strong>用途和上下文</strong>: RCU 和读写锁都是用于同步的机制，但它们的用途和上下文有所不同。RCU 主要用于读多写少的场景，而读写锁则更通用，适用于各种读写比例的场景。</li>
+<li><strong>阻塞行为</strong>: <code>rcu_read_lock</code> 不会阻塞，它只是标记 RCU 读操作的开始。而 <code>down_read_trylock</code> 尝试获取读锁，如果锁不可用，它会立即返回 false，不会阻塞。</li>
+<li><strong>复杂性</strong>: RCU 的实现比读写锁更复杂，因为它涉及到数据副本的创建和指针的更新。而读写锁的实现相对简单，主要关注于读者和写者之间的同步。</li>
+</ul>
+<p>总的来说，选择使用 RCU 还是读写锁取决于具体的应用场景和需求。在需要高效处理大量并发读操作的场景中，RCU 可能是一个更好的选择。而在其他读写比例更为均衡的场景中，读写锁可能更合适。</p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/feisezaiyue/article/details/127809980">https://blog.csdn.net/feisezaiyue/article/details/127809980</a></p>
+<img src="/2024/04/06/rcu-read-lock%E5%92%8Cdown-read-trylock%E5%8C%BA%E5%88%AB/image-20240406225928168.png" srcset="/img/loading.gif" lazyload alt="image-20240406225928168" style="zoom:80%;">
 
                 
               </div>
@@ -308,8 +316,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>f2fs文件系统与等待队列</div>
-      <div>http://example.com/2024/03/17/f2fs文件系统与等待队列/</div>
+      <div>rcu_read_lock和down_read_trylock区别</div>
+      <div>http://example.com/2024/04/06/rcu-read-lock和down-read-trylock区别/</div>
     </div>
     <div class="license-meta">
       
@@ -321,7 +329,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年3月17日</div>
+          <div>2024年4月6日</div>
         </div>
       
       
@@ -353,18 +361,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/04/06/rcu-read-lock%E5%92%8Cdown-read-trylock%E5%8C%BA%E5%88%AB/" title="rcu_read_lock和down_read_trylock区别">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">rcu_read_lock和down_read_trylock区别</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/03/17/Linux%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97-%E9%A9%B1%E5%8A%A8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" title="Linux等待队列(驱动和文件系统)">
-                        <span class="hidden-mobile">Linux等待队列(驱动和文件系统)</span>
+                      <a href="/2024/03/17/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97/" title="f2fs文件系统与等待队列">
+                        <span class="hidden-mobile">f2fs文件系统与等待队列</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
