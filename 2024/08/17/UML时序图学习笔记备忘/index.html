@@ -1,0 +1,749 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="UML时序图学习笔记备忘1.推荐 视频：https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV1YM411f7dr 博客：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_38249409&#x2F;article&#x2F;details&#x2F;129958417  2.【UML建模】时序图（Sequence Diagram） 📍转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_38249409&#x2F;a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UML时序图学习笔记备忘">
+<meta property="og:url" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/index.html">
+<meta property="og:site_name" content="疯狂少年">
+<meta property="og:description" content="UML时序图学习笔记备忘1.推荐 视频：https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV1YM411f7dr 博客：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_38249409&#x2F;article&#x2F;details&#x2F;129958417  2.【UML建模】时序图（Sequence Diagram） 📍转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_38249409&#x2F;a">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/00a430815bb1d3b0a4cac9dc624128f3.png">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/da649eebe209ab937f92b9c50abecf70.png">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/2495e15f12657efeb478dad5459a6be6.png">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/c2ea6531a598342c7c1f22c51217879d.png">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/d9b2928ea7c1038cbd51b6c8ed4d369a.png">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/db687bdf81fa931e8b6e12e827c2b3bd.png">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/c3101592756a5c12d8635d666e23be5b.png">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/c37229c92bbf27462e712c8ee15dd099.png">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/72b176910e6c16b3da211599ee4b8fe9.png">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/d0b1d9b028191c100aa3f4e5eb90479d.png">
+<meta property="og:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/ba6142635f4fd295d7b55d540b9ff35c.png">
+<meta property="article:published_time" content="2024-08-17T15:24:19.000Z">
+<meta property="article:modified_time" content="2024-08-17T15:38:31.388Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/00a430815bb1d3b0a4cac9dc624128f3.png">
+  
+  
+  
+  <title>UML时序图学习笔记备忘 - 疯狂少年</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>疯狂少年</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="UML时序图学习笔记备忘"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-17 23:24" pubdate>
+          2024年8月17日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">UML时序图学习笔记备忘</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="UML时序图学习笔记备忘"><a href="#UML时序图学习笔记备忘" class="headerlink" title="UML时序图学习笔记备忘"></a>UML时序图学习笔记备忘</h1><h2 id="1-推荐"><a href="#1-推荐" class="headerlink" title="1.推荐"></a>1.推荐</h2><ul>
+<li>视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1YM411f7dr">https://www.bilibili.com/video/BV1YM411f7dr</a></li>
+<li>博客：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38249409/article/details/129958417">https://blog.csdn.net/qq_38249409/article/details/129958417</a></li>
+</ul>
+<h2 id="2-【UML建模】时序图（Sequence-Diagram）"><a href="#2-【UML建模】时序图（Sequence-Diagram）" class="headerlink" title="2.【UML建模】时序图（Sequence Diagram）"></a>2.【UML建模】时序图（Sequence Diagram）</h2><blockquote>
+<p>📍转载自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38249409/article/details/129958417">https://blog.csdn.net/qq_38249409/article/details/129958417</a></p>
+</blockquote>
+<h3 id="2-1-概述"><a href="#2-1-概述" class="headerlink" title="2.1 概述"></a>2.1 概述</h3><p>时序图，也称为顺序图，是用来展示对象之间交互关系的一种UML图表，它通过描述在不同时间上发生的对象的动作来帮助开发人员更清楚地理解系统的结构和功能，从而达到优化代码、简化设计、提高软件的质量和效率、帮助团队成员沟通协作等目的。</p>
+<p>时序图与活动图的区别在于：</p>
+<ul>
+<li>活动图用于描述系统或软件中的业务流程，强调的是流程步骤。</li>
+<li>时序图用于描绘多个对象之间的交互行为，强调的是时间顺序。</li>
+</ul>
+<h3 id="2-2-时序图的组成元素"><a href="#2-2-时序图的组成元素" class="headerlink" title="2.2 时序图的组成元素"></a>2.2 时序图的组成元素</h3><p>我们可以直接通过一个现成的时序图来进行学习，下面是我从<a target="_blank" rel="noopener" href="https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=8_3">微信官方文档</a>上截的一张APP支付的时序图。</p>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/00a430815bb1d3b0a4cac9dc624128f3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">
+
+<p>上图中有很多各式各样的图形，如果没有接触过时序图的话，这张图乍一看会感觉有点复杂，但是没有关系，接下来我们就将这张图分解开来，一个一个的解释各个图形的含义。</p>
+<p>另外，也会对上图中没有使用到又相对比较重要的图形做一定的补充。</p>
+<h4 id="2-2-1-角色（Actor）"><a href="#2-2-1-角色（Actor）" class="headerlink" title="2.2.1 角色（Actor）"></a>2.2.1 角色（Actor）</h4><p>角色整个流程的外部参与者，<strong>可以是某个人，也可以是某个项目或者服务</strong>，与<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38249409/article/details/129911053?spm=1001.2014.3001.5501">用例图</a>中的执行者（参与者）是一个意思，例如上面的支付时序图中的角色就是实际要执行支付动作的用户。角色通常会使用一个小人来表示：</p>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/da649eebe209ab937f92b9c50abecf70.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h4 id="2-2-2-实体和对象"><a href="#2-2-2-实体和对象" class="headerlink" title="2.2.2 实体和对象"></a>2.2.2 实体和对象</h4><p>实体与角色的意思相近，指的是流程<strong>内部</strong>的组成部分，可以表示一个服务、一个系统或者一个抽象的业务流程等，实体在时序图中一般使用<strong>矩形框</strong>或<strong>带下划线的圆形</strong>来表示。</p>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/2495e15f12657efeb478dad5459a6be6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<p>个人更喜欢使用<strong>矩形框</strong>来表示，在同一个实体下的对象比较多的情况下，矩形框更方便把宽度拉长。</p>
+<hr>
+<p>对象的含义较多，与开发人员关联度最高的一种含义就是指的某个<strong>类的对象实例</strong>，可以填写在<strong>生命周期线</strong>上的矩形框内，一般是通过<strong>对象名：类名</strong>来表示，这里引入了一个<strong>生命周期线</strong>的概念，我们继续往下看。</p>
+<h4 id="2-2-3-生命线周期（Lifeline）"><a href="#2-2-3-生命线周期（Lifeline）" class="headerlink" title="2.2.3 生命线周期（Lifeline）"></a>2.2.3 生命线周期（Lifeline）</h4><p><strong>生命周期线</strong>是时序图中的最核心的内容，它通过一个<strong>横向的矩形框</strong>和一条<strong>纵向的虚线</strong>组成，接着上面所说的对象的概念，在上图中的商户后台系统中有两个不同的对象共同完成支付流程，则可以表示成下图的格式：</p>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/c2ea6531a598342c7c1f22c51217879d.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h5 id="2-2-3-1-激活（Activation）"><a href="#2-2-3-1-激活（Activation）" class="headerlink" title="2.2.3.1 激活（Activation）"></a>2.2.3.1 激活（Activation）</h5><p>激活表示的是在对象的生命周期中在<strong>执行操作</strong>的时间段，它是在生命周期线上通过一个纵向的矩形框表示的。</p>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/d9b2928ea7c1038cbd51b6c8ed4d369a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<h5 id="2-2-3-2-消息（Messages）"><a href="#2-2-3-2-消息（Messages）" class="headerlink" title="2.2.3.2 消息（Messages）"></a>2.2.3.2 消息（Messages）</h5><p>消息用来表达对象之间的交互关系（即：请求响应的关系），并不是指的消息中间件中的消息，常见的交互关系有以下几种：</p>
+<ul>
+<li>调用消息(call&#x2F;invocation message)：在不同类的对象间发起的调用，即request，用<strong>实线+实心三角箭头</strong>表示。</li>
+<li>响应消息(return message)：对调用消息的响应，即response，用<strong>虚线+箭头</strong>表示。</li>
+<li>自调用消息(self message)：通常表示同一个对象中的不同方法间的调用。</li>
+<li>递归消息(recursive message)：通常表示同一个对象中的方法自己调用自己。</li>
+</ul>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/db687bdf81fa931e8b6e12e827c2b3bd.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">
+
+<p>可以看到的是在消息的线上面，通过数字描述了调用和响应的时间顺序，通过文字来描述当前流程步骤的含义，同时，还可以加上调用的方法名，以明确与代码的对应关系。</p>
+<p>在微信官方的时序图上，使用了递归消息来表达了自调用的含义，这里可能是因为只有实体没有对象信息，想表达的是不同对象中的方法调用（即商户系统后台中有不同的对象），但是在对象比较明确的情况下，虽然递归消息也不是不能用，但不推荐，因为递归消息更常用的含义是用来表示一个方法自己调用自己，用它来表达自调用容器引起歧义。</p>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/c3101592756a5c12d8635d666e23be5b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">
+
+<hr>
+<p>调用消息出了同步调用以外，还可以<strong>异步调用</strong>，异步调用的表示方式众说纷纭，有实线+箭头，实线+空心三角形，实线+闪烁箭头等等，当不能明确的表示异步调用时，在调用的实线上明确的标注出是异步调用也不失为一种方式，谁都能看得懂。</p>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/c37229c92bbf27462e712c8ee15dd099.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<h4 id="2-2-3-3-组合片段（Fragments）"><a href="#2-2-3-3-组合片段（Fragments）" class="headerlink" title="2.2.3.3 组合片段（Fragments）"></a>2.2.3.3 组合片段（Fragments）</h4><p>组合片段表示的是多个操作形成的组合操作，用于表达更加丰富的操作，常见的是<strong>循环、判断</strong>。片段的图形是一个<strong>包裹了多个生命线、消息的大矩形框</strong>，再大矩形框左上角还有一个小框，里面填写片段的操作类型，大概是这么一个样子：</p>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/72b176910e6c16b3da211599ee4b8fe9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<p>上图中的Loop表示的是循环，而Opt与Alt两个都表示条件分支（判断），但两者有一定的区别：</p>
+<ul>
+<li>Opt：只在特性条件下执行，如果不满足则跳过，相当于if代码块。</li>
+<li>Alt：表示不同的路径会执行不同的操作，相当于if…else代码块。</li>
+</ul>
+<p>现在有一个查询支付订单状态的流程，就可以通过组合片段来表示<strong>更为丰富的交互信息</strong>，为了方便区分，我给不同块上了不同的颜色。</p>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/d0b1d9b028191c100aa3f4e5eb90479d.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">
+
+<p>在原有的微信时序图中统一通过<code>Alt</code>来表示了一组操作以及<code>if</code>判断，虽然能大概理解其含义，但实际上没有那么准确，不推荐这么画：</p>
+<img src="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/ba6142635f4fd295d7b55d540b9ff35c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">
+
+<p>当然，还有更多的组合片段的用法，例如：</p>
+<ul>
+<li>par：支持交互片段的并行运行</li>
+<li>region：临界区，例如<code>synchronized</code>块</li>
+<li>ref：用于引入其他的时序图片段</li>
+<li>……</li>
+</ul>
+<p>因为用的频率不高，这里就不详细说明了。</p>
+<h3 id="2-3-总结"><a href="#2-3-总结" class="headerlink" title="2.3 总结"></a>2.3 总结</h3><p>总的来说，时序图可以看做是对活动图中交互明细的补充，细节更加丰富，能够指导开发同学进行开放工作。<br>一个完整流程的时序图中的交互关系可能是非常复杂的，在实际的工作中如果只需要对某一些复杂的逻辑进行建模，像上面的示例那样，只使用其中的一部分也未尝不可。</p>
+<p>最后再总结一下本篇的主要内容，即时序图的用法：</p>
+<ul>
+<li>角色：用来表示实际触发到当前流程的人（系统、服务）是谁。</li>
+<li>实体和对象：与角色类似，也是表示系统、服务等，区别在于实体与对象在流程内部。</li>
+<li>生命周期线：时序图中最核心的内容，用于表示对象间的交互操作，包含一个矩形框和一条纵向的虚线。<ul>
+<li>激活：某个对象在整个流程中发生交互操作的时间段，表示为纵向的长矩形框</li>
+<li>消息：对象间实际发生的交互，例如同步调用、异步调用、响应、自调用、递归等，使用不同的箭线表示。<ul>
+<li>同步调用：实线 + 实心三角箭头。</li>
+<li>异步调用：实线 + 空心三角箭头。（最好在实线上标注异步调用）<br>响应：虚线 + 箭头</li>
+<li>自调用：与同步调用类似，只是同步调用指向其他对象的激活框，自调用指向自己。</li>
+<li>递归：与自调用类似，只是在指向自己的激活框上，会多出一小块矩形框</li>
+</ul>
+</li>
+<li>组合片段：用来表达多个消息的组合操作，如循环、判断等，通过一个大矩形框将消息包裹起来，左上角还有一个小框填写当前的组合操作类型。<ul>
+<li>loop：循环操作</li>
+<li>Alt：判断操作，类似于if..else</li>
+<li>Opt：也是判断操作，与Alt的区别在于，只有if没有else</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>UML时序图学习笔记备忘</div>
+      <div>http://example.com/2024/08/17/UML时序图学习笔记备忘/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/17/git%E6%8B%89%E5%8F%96%E5%86%85%E6%A0%B8%E4%BB%A3%E7%A0%81%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%BA%94%E7%94%A8%E6%9F%90%E8%A1%A5%E4%B8%81%E5%88%B0%E5%86%85%E6%A0%B8/" title="git拉取内核代码，以及应用某补丁到内核">
+                        <span class="hidden-mobile">git拉取内核代码，以及应用某补丁到内核</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
