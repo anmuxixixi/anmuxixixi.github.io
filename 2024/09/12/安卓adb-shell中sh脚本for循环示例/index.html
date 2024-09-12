@@ -16,23 +16,31 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="疯狂少年学习笔记">
-<meta property="og:type" content="website">
-<meta property="og:title" content="疯狂少年">
-<meta property="og:url" content="http://example.com/archives/2024/page/3/index.html">
+    <meta name="description" content="安卓adb shell中sh脚本for循环示例安卓adb shell中的sh真的很拉胯，支持的for循环语法与linux大相径庭，不知道用的什么编译出来的 这里记录下可以用的for循环 1234#!&#x2F;bin&#x2F;bashfor i in &#96;seq 50&#96;; do	mkdir &#x2F;data&#x2F;mini_exfat&#x2F;MUSIC-$idone">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安卓adb shell中sh脚本for循环示例">
+<meta property="og:url" content="http://example.com/2024/09/12/%E5%AE%89%E5%8D%93adb-shell%E4%B8%ADsh%E8%84%9A%E6%9C%ACfor%E5%BE%AA%E7%8E%AF%E7%A4%BA%E4%BE%8B/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="疯狂少年学习笔记">
+<meta property="og:description" content="安卓adb shell中sh脚本for循环示例安卓adb shell中的sh真的很拉胯，支持的for循环语法与linux大相径庭，不知道用的什么编译出来的 这里记录下可以用的for循环 1234#!&#x2F;bin&#x2F;bashfor i in &#96;seq 50&#96;; do	mkdir &#x2F;data&#x2F;mini_exfat&#x2F;MUSIC-$idone">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-09-12T15:46:55.000Z">
+<meta property="article:modified_time" content="2024-09-12T15:49:23.146Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>疯狂少年</title>
+  <title>安卓adb shell中sh脚本for循环示例 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
 
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
 
 
 
@@ -86,7 +94,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 70vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -180,17 +188,61 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="不是滚烫的人生，活着便没有意义"></span>
+            <span id="subtitle" data-typed-text="安卓adb shell中sh脚本for循环示例"></span>
           
         </div>
 
         
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-12 23:46" pubdate>
+          2024年9月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          154 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          2 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
       </div>
 
-      
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
       
     </div>
   </div>
@@ -202,167 +254,160 @@
 
   <main>
     
-      <div class="container nopadding-x-md">
-        <div id="board"
-          style="margin-top: 0">
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">安卓adb shell中sh脚本for循环示例</h1>
+            
+            
+              <div class="markdown-body">
                 
+                <h1 id="安卓adb-shell中sh脚本for循环示例"><a href="#安卓adb-shell中sh脚本for循环示例" class="headerlink" title="安卓adb shell中sh脚本for循环示例"></a>安卓adb shell中sh脚本for循环示例</h1><p>安卓adb shell中的sh真的很拉胯，支持的for循环语法与linux大相径庭，不知道用的什么编译出来的</p>
+<p>这里记录下可以用的for循环</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>for i in `seq 50`; do<br>	mkdir /data/mini_exfat/MUSIC-$i<br>done<br></code></pre></td></tr></table></figure>
 
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/" target="_self">
-          内核文件加密
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/" target="_self">
-        <div>
-          内核文件加密加密策略(fscrypt policy)加密策略V1：v1策略的秘钥通过一个8字节的标识符”descriptor”从keyring中识别 加密策略V2：v2策略的秘钥通过一个16字节的标识符”identifier”从keyring中识别   FBE秘钥简介密钥管理中有以下关键对象：   这三者的关系可以用一个例子来说明：  在 userdata 分区中， 位于 System DE St
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-01-19 22:38" pubdate>
-              2024-01-19
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
-          Block模块之IO合并代码解析
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/01/04/Block%E6%A8%A1%E5%9D%97%E4%B9%8BIO%E5%90%88%E5%B9%B6%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
-        <div>
-          Block模块之IO合并代码解析https://www.cnblogs.com/jrchyang/p/16795368.html https://www.ubuntukylin.com/news/791-cn.html 逻辑入口Plug合并Plug合并是内核通用块层提供的机制，如果需要开启则在提交IO前执行 blk_start_plug() 函数启动蓄流，IO全部提交完成后执行 blk_finis
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-01-04 23:25" pubdate>
-              2024-01-04
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2024/01/03/kernel-4-1-15%E7%9A%84bio%E6%B5%81%E7%A8%8B/" target="_self">
-          kernel-4.1.15的bio流程
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/01/03/kernel-4-1-15%E7%9A%84bio%E6%B5%81%E7%A8%8B/" target="_self">
-        <div>
-          kernel-4.1.15的bio流程块设备驱动：https://blog.csdn.net/morecrazylove/article/details/128712522 block层演变：https://blog.csdn.net/weixin_30522983/article/details/112331407 linux块设备驱动blk-mq：https://www.cnblogs.com
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-01-03 23:06" pubdate>
-              2024-01-03
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/" target="_self">
-          ufs与bio流程备忘
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/01/03/ufs%E4%B8%8Ebio%E6%B5%81%E7%A8%8B%E5%A4%87%E5%BF%98/" target="_self">
-        <div>
-          ufs与bio流程备忘疑问1：UFS与Scsi的关系      https://blog.csdn.net/marlos/article/details/130212441 疑问2：UFS和MMC处理request的区别 每个块设备在生成时，会设置自己的request_queue及其属性，回调函数，比如mmc和ufs设备分别设定了mmc_request_fn和scsi_request_fn作为这个
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-01-03 22:09" pubdate>
-              2024-01-03
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-
-
-  <nav aria-label="navigation">
-    <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/archives/2024/page/2/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/archives/2024/">1</a><a class="page-number" href="/archives/2024/page/2/#board">2</a><span class="page-number current">3</span>
-    </span>
-  </nav>
-
-
-
+                
               </div>
-            </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>安卓adb shell中sh脚本for循环示例</div>
+      <div>http://example.com/2024/09/12/安卓adb-shell中sh脚本for循环示例/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
           </div>
         </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/17/UML%E6%97%B6%E5%BA%8F%E5%9B%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%A4%87%E5%BF%98/" title="UML时序图学习笔记备忘">
+                        <span class="hidden-mobile">UML时序图学习笔记备忘</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
 
     
@@ -480,6 +525,99 @@
 
 
 
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
 
   <script  src="/js/local-search.js" ></script>
 
