@@ -219,6 +219,40 @@
       <h1 class="index-header">
         
         
+        <a href="/2024/03/03/Linux%E5%91%BD%E4%BB%A4df%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/" target="_self">
+          Linux命令df原理解析
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/03/03/Linux%E5%91%BD%E4%BB%A4df%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/" target="_self">
+        <div>
+          Linux命令df原理解析1.df命令原理使用statfs这个系统调用，直接读取分区的超级块信息获取分区使用情况。它的数据是基于分区元数据的， 所以只能针对整个分区。由于df直接读取超级块，所以运行速度不受文件多少影响。  下面我们进行实验，通过**df命令打印 **和 statfs 函数调用，比较两者是不是相同的  1.1 实验环境准备 直接拿之前的实验品吧：f2fs文件系统文件查找
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-03-03 11:07" pubdate>
+              2024-03-03
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
         <a href="/2024/02/19/SSD%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98Trim%E5%91%BD%E4%BB%A4/" target="_self">
           SSD固态硬盘Trim命令
         </a>
@@ -509,40 +543,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2023-12-25 22:28" pubdate>
               2023-12-25
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2023/12/20/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%9D%8F%E5%9D%97%E5%A4%84%E7%90%86%E7%AE%80%E8%AE%B0/" target="_self">
-          yaffs文件系统坏块处理简记
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/20/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%9D%8F%E5%9D%97%E5%A4%84%E7%90%86%E7%AE%80%E8%AE%B0/" target="_self">
-        <div>
-          yaffs文件系统坏块处理简记先看下林子雨老师《闪存数据库概念与技术》中的描述： NAND 闪存被设计成具有很低的代价和很高的密度。为了获得更高的产出，从而减小产品成本，NAND 闪存通常都会在出厂时包含一些坏块，此外，在闪存设备使用过程中，也会出现一些新的坏块。因此，对于任何闪存文件系统而言，如果不具备坏块处理机制，就不适合用来管理闪存。 Yaffs1 使用 SM 卡类型的坏块标记，它会检查闪存
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-20 21:56" pubdate>
-              2023-12-20
             </time>
           </div>
         
