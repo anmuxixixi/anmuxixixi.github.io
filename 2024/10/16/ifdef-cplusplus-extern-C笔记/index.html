@@ -16,21 +16,28 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="安卓App创建文件Java接口调用jni分析笔记  安卓使用的是OpenJDK：https:&#x2F;&#x2F;blog.csdn.net&#x2F;u013278099&#x2F;article&#x2F;details&#x2F;50440768 开源OpenJDK仓库：https:&#x2F;&#x2F;github.com&#x2F;openjdk&#x2F;jdk OpenJDK与JDK区别：https:&#x2F;&#x2F;blog.csdn.net&#x2F;DreamWeaver_zhou&#x2F;articl">
+    <meta name="description" content="ifdef __cplusplus extern C笔记0.豆包的回答    1.定义和声明的区别声明：声明是用来告诉编译器变量的名称和类型，而不分配内存。  告诉编译器，这个变量或者对象已经匹配到一块内存空间上了，下面代码中用到的变量或者对象会在别的地方定义，但此处并不分配内存，所以声明可以出现多次； 告诉编译器，这个名字已经被预定了，别的地方不能再用它作为变量或者对象名。这种声明最典型的例子就">
 <meta property="og:type" content="article">
-<meta property="og:title" content="安卓App创建文件Java接口调用jni分析笔记">
-<meta property="og:url" content="http://example.com/2024/10/14/%E5%AE%89%E5%8D%93App%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6Java%E6%8E%A5%E5%8F%A3%E8%B0%83%E7%94%A8jni%E5%88%86%E6%9E%90%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:title" content="ifdef __cplusplus extern C笔记">
+<meta property="og:url" content="http://example.com/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="疯狂少年">
-<meta property="og:description" content="安卓App创建文件Java接口调用jni分析笔记  安卓使用的是OpenJDK：https:&#x2F;&#x2F;blog.csdn.net&#x2F;u013278099&#x2F;article&#x2F;details&#x2F;50440768 开源OpenJDK仓库：https:&#x2F;&#x2F;github.com&#x2F;openjdk&#x2F;jdk OpenJDK与JDK区别：https:&#x2F;&#x2F;blog.csdn.net&#x2F;DreamWeaver_zhou&#x2F;articl">
+<meta property="og:description" content="ifdef __cplusplus extern C笔记0.豆包的回答    1.定义和声明的区别声明：声明是用来告诉编译器变量的名称和类型，而不分配内存。  告诉编译器，这个变量或者对象已经匹配到一块内存空间上了，下面代码中用到的变量或者对象会在别的地方定义，但此处并不分配内存，所以声明可以出现多次； 告诉编译器，这个名字已经被预定了，别的地方不能再用它作为变量或者对象名。这种声明最典型的例子就">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-10-14T15:27:01.000Z">
-<meta property="article:modified_time" content="2024-10-14T15:39:04.690Z">
+<meta property="og:image" content="http://example.com/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016223855178.png">
+<meta property="og:image" content="http://example.com/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016223925247.png">
+<meta property="og:image" content="http://example.com/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016225524867.png">
+<meta property="og:image" content="http://example.com/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016233501480.png">
+<meta property="og:image" content="http://example.com/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016233611151.png">
+<meta property="og:image" content="http://example.com/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016233538954.png">
+<meta property="article:published_time" content="2024-10-16T14:38:07.000Z">
+<meta property="article:modified_time" content="2024-10-16T15:36:25.352Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016223855178.png">
   
   
   
-  <title>安卓App创建文件Java接口调用jni分析笔记 - 疯狂少年</title>
+  <title>ifdef __cplusplus extern C笔记 - 疯狂少年</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -188,7 +195,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="安卓App创建文件Java接口调用jni分析笔记"></span>
+            <span id="subtitle" data-typed-text="ifdef __cplusplus extern C笔记"></span>
           
         </div>
 
@@ -199,8 +206,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-10-14 23:27" pubdate>
-          2024年10月14日 晚上
+        <time datetime="2024-10-16 22:38" pubdate>
+          2024年10月16日 晚上
         </time>
       </span>
     
@@ -211,7 +218,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.3k 字
+          1.2k 字
         
       </span>
     
@@ -222,7 +229,7 @@
         
         
         
-          11 分钟
+          10 分钟
         
       </span>
     
@@ -268,30 +275,47 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">安卓App创建文件Java接口调用jni分析笔记</h1>
+            <h1 style="display: none">ifdef __cplusplus extern C笔记</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="安卓App创建文件Java接口调用jni分析笔记"><a href="#安卓App创建文件Java接口调用jni分析笔记" class="headerlink" title="安卓App创建文件Java接口调用jni分析笔记"></a>安卓App创建文件Java接口调用jni分析笔记</h1><blockquote>
+                <h1 id="ifdef-cplusplus-extern-C笔记"><a href="#ifdef-cplusplus-extern-C笔记" class="headerlink" title="ifdef __cplusplus extern C笔记"></a>ifdef __cplusplus extern C笔记</h1><h2 id="0-豆包的回答"><a href="#0-豆包的回答" class="headerlink" title="0.豆包的回答"></a>0.豆包的回答</h2><img src="/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016223855178.png" srcset="/img/loading.gif" lazyload alt="image-20241016223855178" style="zoom:80%;">
+
+<img src="/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016223925247.png" srcset="/img/loading.gif" lazyload alt="image-20241016223925247" style="zoom:80%;">
+
+<h2 id="1-定义和声明的区别"><a href="#1-定义和声明的区别" class="headerlink" title="1.定义和声明的区别"></a>1.定义和声明的区别</h2><p>声明：声明是用来告诉编译器变量的名称和类型，而不分配内存。</p>
 <ul>
-<li>安卓使用的是OpenJDK：<a target="_blank" rel="noopener" href="https://blog.csdn.net/u013278099/article/details/50440768">https://blog.csdn.net/u013278099/article/details/50440768</a></li>
-<li>开源OpenJDK仓库：<a target="_blank" rel="noopener" href="https://github.com/openjdk/jdk">https://github.com/openjdk/jdk</a></li>
-<li>OpenJDK与JDK区别：<a target="_blank" rel="noopener" href="https://blog.csdn.net/DreamWeaver_zhou/article/details/141632539">https://blog.csdn.net/DreamWeaver_zhou/article/details/141632539</a></li>
+<li>告诉编译器，这个变量或者对象已经匹配到一块内存空间上了，下面代码中用到的变量或者对象会在别的地方定义，但此处并不分配内存，所以声明可以出现多次；</li>
+<li>告诉编译器，这个名字已经被预定了，别的地方不能再用它作为变量或者对象名。这种声明最典型的例子就是函数参数的声明。</li>
 </ul>
+<p>定义：就是编译器为一个变量或者对象分配到一块内存空间上，并给它取名字。这个名字就是变量名或对象名，所以同一名字的变量或者对象只能被定义一次，当多次被定义的时候，编译器就会提示重复定义同一变量或对象的错误。</p>
+<p>定义是为了给变量分配内存，可以为变量赋初值。</p>
+<p>❗C语言变量使用之前需要先<strong>定义</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> x; <span class="hljs-comment">//这是一个定义   </span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> x; <span class="hljs-comment">//这是声明   </span><br><span class="hljs-type">int</span> x = <span class="hljs-number">10</span>; <span class="hljs-comment">//这也是一个定义  </span><br><br># ------------------------------------------------------<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">int</span> a = <span class="hljs-number">10</span>; <span class="hljs-comment">// 定义并初始化变量a</span><br>    <span class="hljs-comment">// 或者</span><br>    <span class="hljs-type">int</span> a;<br>    a = <span class="hljs-number">10</span>; <span class="hljs-comment">// 先定义变量a，后使用变量a</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-extern关键字"><a href="#2-extern关键字" class="headerlink" title="2.extern关键字"></a>2.extern关键字</h2><blockquote>
+<p>extern在c语言中是什么意思：<a target="_blank" rel="noopener" href="https://baijiahao.baidu.com/s?id=1788135077288641611&wfr=spider&for=pc">https://baijiahao.baidu.com/s?id=1788135077288641611&amp;wfr=spider&amp;for=pc</a></p>
+<img src="/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016225524867.png" srcset="/img/loading.gif" lazyload alt="image-20241016225524867" style="zoom:80%;">
 </blockquote>
-<h2 id="创建文件"><a href="#创建文件" class="headerlink" title="创建文件"></a>创建文件</h2><p><strong>java createnewfile会创建目录吗</strong>： <a target="_blank" rel="noopener" href="https://blog.51cto.com/u_16213305/10465036">https://blog.51cto.com/u_16213305/10465036</a></p>
-<blockquote>
-<p>📍在Java中，File类的createNewFile方法只能用于创建文件，而不能用于创建目录。如果希望在创建文件的同时创建目录，需要分别调用mkdirs()方法和createNewFile方法。希望以上内容能够帮助你更好地理解Java中文件和目录的操作。</p>
-</blockquote>
-<p>从报错打印的调用栈来看：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java">W/System.err: java.io.IOException: No such file or directory<br>W/System.err:     at java.io.UnixFileSystem.createFileExclusively0(Native Method)<br>W/System.err:     at java.io.UnixFileSystem.createFileExclusively(UnixFileSystem.java:<span class="hljs-number">317</span>)<br>W/System.err:     at java.io.File.createNewFile(File.java:<span class="hljs-number">1008</span>)<br>W/System.err:     at com.zpd.testservice.utils.MyLogger.writeLogtoFile(MyLogger.java:<span class="hljs-number">273</span>)<br>W/System.err:     at com.zpd.testservice.utils.MyLogger.e(MyLogger.java:<span class="hljs-number">208</span>)<br>W/System.err:     at com.zpd.testservice.MyService$TestOutNetRunnable.run(MyService.java:<span class="hljs-number">126</span>)<br>W/System.err:     at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:<span class="hljs-number">1167</span>)<br>W/System.err:     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:<span class="hljs-number">641</span>)<br>W/System.err:     at java.lang.Thread.run(Thread.java:<span class="hljs-number">919</span>)<br></code></pre></td></tr></table></figure>
+<p>在C++中用extern关键字来声明变量和函数；</p>
+<ul>
+<li><p>🕯️对于函数而言（有函数体，也就是<code>&#123;&#125;</code> 就是 定义），由于函数的声明如<code>extern int method();</code>与函数定义<code>nt method()&#123;&#125;</code>可以很清晰的区分开来，为了简便起见，<strong>可以把extern关键字省略</strong>，于是有了我们常见的函数声明方式<code>int method();</code>，</p>
+</li>
+<li><p>✅然而对于变量并非如此，变量的定义格式如<code>int i;</code>，声明格式为<code>extern int i;</code>，如果省略extern关键字，就会造成混乱，故不允许省略。</p>
+</li>
+</ul>
+<h2 id="3-ifdef-cplusplus"><a href="#3-ifdef-cplusplus" class="headerlink" title="3.ifdef __cplusplus"></a>3.ifdef __cplusplus</h2><p>__cplusplus是C++编译器内部定义的宏，如果使用的C编译器，__cplusplus宏不会被定义。它可以作为区分使用的是C编译器还是C++编译器的标志。在标准C中C代码直接写就可以了。而在C++中，需要加extern “C”或包含在extern “C”块中。</p>
+<h2 id="4-extern-“C”"><a href="#4-extern-“C”" class="headerlink" title="4.extern “C”"></a>4.extern “C”</h2><p>extern “C”的真实目的是实现类C和C++的混合编程。在C++源文件中的语句前面加上extern “C”，表明它按照类C的编译和连接规约来编译和连接，而不是C++的编译的连接规约。这样在类C的代码中就可以调用C++的函数or变量等。</p>
+<p>安卓源码实例</p>
+<p><img src="/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016233501480.png" srcset="/img/loading.gif" lazyload alt="image-20241016233501480" style="zoom: 67%;">、</p>
+<p>用C实现：</p>
+<img src="/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016233611151.png" srcset="/img/loading.gif" lazyload alt="image-20241016233611151" style="zoom: 80%;">
 
-
-
-
-
-<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000041911374?utm_source=sf-similar-article">https://segmentfault.com/a/1190000041911374?utm_source=sf-similar-article</a></p>
+<p>C++调用C代码：</p>
+<img src="/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/image-20241016233538954.png" srcset="/img/loading.gif" lazyload alt="image-20241016233538954" style="zoom:67%;">
 
                 
               </div>
@@ -309,8 +333,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>安卓App创建文件Java接口调用jni分析笔记</div>
-      <div>http://example.com/2024/10/14/安卓App创建文件Java接口调用jni分析笔记/</div>
+      <div>ifdef __cplusplus extern C笔记</div>
+      <div>http://example.com/2024/10/16/ifdef-cplusplus-extern-C笔记/</div>
     </div>
     <div class="license-meta">
       
@@ -322,7 +346,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年10月14日</div>
+          <div>2024年10月16日</div>
         </div>
       
       
@@ -354,18 +378,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/10/16/ifdef-cplusplus-extern-C%E7%AC%94%E8%AE%B0/" title="ifdef __cplusplus extern C笔记">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">ifdef __cplusplus extern C笔记</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/10/02/C-%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7Cppcheck%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="C++静态分析工具Cppcheck学习笔记">
-                        <span class="hidden-mobile">C++静态分析工具Cppcheck学习笔记</span>
+                      <a href="/2024/10/14/%E5%AE%89%E5%8D%93App%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6Java%E6%8E%A5%E5%8F%A3%E8%B0%83%E7%94%A8jni%E5%88%86%E6%9E%90%E7%AC%94%E8%AE%B0/" title="安卓App创建文件Java接口调用jni分析笔记">
+                        <span class="hidden-mobile">安卓App创建文件Java接口调用jni分析笔记</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
