@@ -219,6 +219,40 @@
       <h1 class="index-header">
         
         
+        <a href="/2023/12/18/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%89%B9%E6%80%A7%E6%A0%87%E5%BF%97%E4%BD%8D/" target="_self">
+          f2fs文件系统特性标志位
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/18/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%89%B9%E6%80%A7%E6%A0%87%E5%BF%97%E4%BD%8D/" target="_self">
+        <div>
+          f2fs文件系统特性标志位在f2fs文件系统挂载的时候会调用parse_options解析挂载选项：   这里有一些检查特性的函数例如：f2fs_sb_has_quota_ino、f2fs_sb_has_casefold等函数死活在f2fs源码里面找不到实现。 其实，这些特性函数校验函数都有一个规律，都是以f2fs_sb_has开头，因此联想到会不是是宏控制的。  确实是这样的，这边用宏去定义了所
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-18 21:34" pubdate>
+              2023-12-18
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
         <a href="/2023/12/13/stm32f103%E9%97%AA%E5%AD%98flash%E8%AF%BB%E5%86%99/" target="_self">
           stm32f103闪存flash读写
         </a>
@@ -512,40 +546,6 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
             <time datetime="2023-11-28 22:50" pubdate>
-              2023-11-28
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2023/11/28/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AF%B9%E4%BA%8Enode-page%E7%9A%84%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/" target="_self">
-          f2fs文件系统对于node page的读写操作
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/28/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AF%B9%E4%BA%8Enode-page%E7%9A%84%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/" target="_self">
-        <div>
-          f2fs文件系统对于node page的读写操作读node page写node page123456789void f2fs_do_write_node_page(unsigned int nid, struct f2fs_io_info *fio)&#123;	struct f2fs_summary sum;	set_summary(&amp;sum, nid, 0, 0);	do_write_
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-11-28 22:27" pubdate>
               2023-11-28
             </time>
           </div>
