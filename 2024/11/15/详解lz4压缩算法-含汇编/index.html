@@ -16,21 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="C++中的常见语法糖汇总 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_47987343&#x2F;article&#x2F;details&#x2F;139509574  C++中的语法糖是指使代码更简洁、可读性更高的语言特性和简化的语法。以下是一些常见的C++语法糖： 1.自动类型推导（auto）使用 auto 关键字可以让编译器自动推导变量的类型，简化变量的声明。 123auto x &#x3D; 10;">
+    <meta name="description" content="详解lz4压缩算法(含汇编)Python-LZ4Python-Lz4开源项目  项目地址：https:&#x2F;&#x2F;github.com&#x2F;python-lz4&#x2F;python-lz4 安装：pip install lz4  1234567891011121314151617181920212223import binasciiimport lz4.frame# 原始数据original_data &#x3D; b&amp;qu">
 <meta property="og:type" content="article">
-<meta property="og:title" content="C++中的常见语法糖汇总">
-<meta property="og:url" content="http://example.com/2024/11/13/C-%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E8%AF%AD%E6%B3%95%E7%B3%96%E6%B1%87%E6%80%BB/index.html">
+<meta property="og:title" content="详解lz4压缩算法(含汇编)">
+<meta property="og:url" content="http://example.com/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="C++中的常见语法糖汇总 转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_47987343&#x2F;article&#x2F;details&#x2F;139509574  C++中的语法糖是指使代码更简洁、可读性更高的语言特性和简化的语法。以下是一些常见的C++语法糖： 1.自动类型推导（auto）使用 auto 关键字可以让编译器自动推导变量的类型，简化变量的声明。 123auto x &#x3D; 10;">
+<meta property="og:description" content="详解lz4压缩算法(含汇编)Python-LZ4Python-Lz4开源项目  项目地址：https:&#x2F;&#x2F;github.com&#x2F;python-lz4&#x2F;python-lz4 安装：pip install lz4  1234567891011121314151617181920212223import binasciiimport lz4.frame# 原始数据original_data &#x3D; b&amp;qu">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-11-13T12:28:03.000Z">
-<meta property="article:modified_time" content="2024-11-13T12:33:36.358Z">
+<meta property="og:image" content="http://example.com/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241115234611539.png">
+<meta property="article:published_time" content="2024-11-15T15:43:21.000Z">
+<meta property="article:modified_time" content="2024-11-15T15:46:14.739Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241115234611539.png">
   
   
   
-  <title>C++中的常见语法糖汇总 - 喝口白桃呜龙</title>
+  <title>详解lz4压缩算法(含汇编) - 喝口白桃呜龙</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -188,7 +190,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="C++中的常见语法糖汇总"></span>
+            <span id="subtitle" data-typed-text="详解lz4压缩算法(含汇编)"></span>
           
         </div>
 
@@ -199,8 +201,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-11-13 20:28" pubdate>
-          2024年11月13日 晚上
+        <time datetime="2024-11-15 23:43" pubdate>
+          2024年11月15日 晚上
         </time>
       </span>
     
@@ -211,7 +213,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.6k 字
+          1.1k 字
         
       </span>
     
@@ -222,7 +224,7 @@
         
         
         
-          14 分钟
+          10 分钟
         
       </span>
     
@@ -268,52 +270,22 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">C++中的常见语法糖汇总</h1>
+            <h1 style="display: none">详解lz4压缩算法(含汇编)</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="C-中的常见语法糖汇总"><a href="#C-中的常见语法糖汇总" class="headerlink" title="C++中的常见语法糖汇总"></a>C++中的常见语法糖汇总</h1><blockquote>
-<p>转载自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_47987343/article/details/139509574">https://blog.csdn.net/weixin_47987343/article/details/139509574</a></p>
+                <h1 id="详解lz4压缩算法-含汇编"><a href="#详解lz4压缩算法-含汇编" class="headerlink" title="详解lz4压缩算法(含汇编)"></a>详解lz4压缩算法(含汇编)</h1><h2 id="Python-LZ4"><a href="#Python-LZ4" class="headerlink" title="Python-LZ4"></a>Python-LZ4</h2><p>Python-Lz4开源项目</p>
+<blockquote>
+<p>项目地址：<a target="_blank" rel="noopener" href="https://github.com/python-lz4/python-lz4">https://github.com/python-lz4/python-lz4</a></p>
+<p>安装：pip install lz4</p>
 </blockquote>
-<p>C++中的<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E8%AF%AD%E6%B3%95%E7%B3%96&spm=1001.2101.3001.7020">语法糖</a>是指使代码更简洁、可读性更高的语言特性和简化的语法。以下是一些常见的C++语法糖：</p>
-<h3 id="1-自动类型推导（auto）"><a href="#1-自动类型推导（auto）" class="headerlink" title="1.自动类型推导（auto）"></a>1.自动类型推导（auto）</h3><p>使用 auto 关键字可以让编译器自动推导变量的类型，简化变量的声明。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">auto</span> x = <span class="hljs-number">10</span>;         <span class="hljs-comment">// 编译器推导 x 为 int</span><br><span class="hljs-keyword">auto</span> y = <span class="hljs-number">3.14</span>;       <span class="hljs-comment">// 编译器推导 y 为 double</span><br><span class="hljs-keyword">auto</span> z = <span class="hljs-string">&quot;Hello&quot;</span>;    <span class="hljs-comment">// 编译器推导 z 为 const char*</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> binascii<br><br><span class="hljs-keyword">import</span> lz4.frame<br><br><span class="hljs-comment"># 原始数据</span><br>original_data = <span class="hljs-string">b&quot;This is some sample data that we will compress and decompress using LZ4.&quot;</span><br><br><span class="hljs-comment"># 进行压缩</span><br>compressed_data = lz4.frame.compress(original_data)<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;压缩后的数据：&quot;</span>, compressed_data)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;压缩后的数据（十六进制）：&quot;</span>, binascii.hexlify(compressed_data).decode(<span class="hljs-string">&#x27;utf-8&#x27;</span>))<br><br><span class="hljs-comment"># 进行解压缩</span><br>decompressed_data = lz4.frame.decompress(compressed_data)<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;解压缩后的数据：&quot;</span>, decompressed_data)<br><br><span class="hljs-comment"># 验证解压缩后的数据是否与原始数据一致</span><br><span class="hljs-keyword">if</span> decompressed_data == original_data:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;解压缩后的数据与原始数据一致。&quot;</span>)<br><span class="hljs-keyword">else</span>:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;解压缩后的数据与原始数据不一致。&quot;</span>)<br></code></pre></td></tr></table></figure>
 
-<h3 id="2-范围基于的for循环"><a href="#2-范围基于的for循环" class="headerlink" title="2.范围基于的for循环"></a>2.范围基于的for循环</h3><p>范围基于的 <code>for</code> 循环使遍历容器中的元素变得更简单。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; vec = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> num : vec) &#123;<br>    std::cout &lt;&lt; num &lt;&lt; std::endl;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>结果打印</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">压缩后的数据： b<span class="hljs-string">&#x27;\x04&quot;M\x18h@H\x00\x00\x00\x00\x00\x00\x00OD\x00\x00\x00\xf5&amp;This is some sample data that we will compress and de\x0f\x00\xa0using LZ4.\x00\x00\x00\x00&#x27;</span><br>压缩后的数据（十六进制）： 04224d18684048000000000000004f44000000f5265468697320697320736f6d652073616d706c65206461746120746861742077652077696c6c20636f6d707265737320616e642064650f00a07573696e67204c5a342e00000000<br>解压缩后的数据： b<span class="hljs-string">&#x27;This is some sample data that we will compress and decompress using LZ4.&#x27;</span><br>解压缩后的数据与原始数据一致。<br></code></pre></td></tr></table></figure>
 
-<h3 id="3-初始化列表"><a href="#3-初始化列表" class="headerlink" title="3.初始化列表"></a>3.初始化列表</h3><p>可以使用初始化列表对对象进行初始化，这在类的构造函数中非常有用。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; vec = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;; <span class="hljs-comment">// 初始化列表</span><br></code></pre></td></tr></table></figure>
-
-<h3 id="4-Lambda表达式"><a href="#4-Lambda表达式" class="headerlink" title="4.Lambda表达式"></a>4.Lambda表达式</h3><p>Lambda 表达式用于定义匿名函数，使代码更简洁和可读。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">auto</span> add = [](<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b) &#123; <span class="hljs-keyword">return</span> a + b; &#125;;<br><span class="hljs-type">int</span> result = <span class="hljs-built_in">add</span>(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>); <span class="hljs-comment">// result 为 7</span><br></code></pre></td></tr></table></figure>
-
-<h3 id="5-nullptr"><a href="#5-nullptr" class="headerlink" title="5.nullptr"></a>5.nullptr</h3><p><code>nullptr</code> 是一种类型安全的空指针，取代了传统的 <code>NULL</code>。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span>* p = <span class="hljs-literal">nullptr</span>; <span class="hljs-comment">// 空指针</span><br></code></pre></td></tr></table></figure>
-
-<h3 id="6-统一的初始化语法"><a href="#6-统一的初始化语法" class="headerlink" title="6. 统一的初始化语法"></a>6. 统一的初始化语法</h3><p>C++11 引入了大括号 <code>&#123;&#125;</code> 作为统一的初始化语法，用于初始化类对象、数组和内置类型。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> arr[] = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; vec&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br></code></pre></td></tr></table></figure>
-
-<h3 id="7-decltype"><a href="#7-decltype" class="headerlink" title="7.decltype"></a>7.decltype</h3><p><code>decltype</code> 关键字用于获取表达式的类型。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-type">int</span> x = <span class="hljs-number">5</span>;<br><span class="hljs-keyword">decltype</span>(x) y = <span class="hljs-number">10</span>; <span class="hljs-comment">// y 的类型与 x 相同，即 int</span><br></code></pre></td></tr></table></figure>
-
-<h3 id="8-using-关键字"><a href="#8-using-关键字" class="headerlink" title="8.using 关键字"></a>8.using 关键字</h3><p><code>using</code> 关键字可以用于创建类型别名，取代了传统的 <code>typedef</code>。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">using</span> IntVec = std::vector&lt;<span class="hljs-type">int</span>&gt;;<br>IntVec vec = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br></code></pre></td></tr></table></figure>
-
-<h3 id="9-类内成员初始化"><a href="#9-类内成员初始化" class="headerlink" title="9.类内成员初始化"></a>9.类内成员初始化</h3><p>C++11 允许在类内直接初始化成员变量。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">int</span> x = <span class="hljs-number">10</span>;<br>    <span class="hljs-type">double</span> y = <span class="hljs-number">3.14</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
-<h3 id="10-默认和删除的函数"><a href="#10-默认和删除的函数" class="headerlink" title="10.默认和删除的函数"></a>10.默认和删除的函数</h3><p>可以使用 <code>= default</code> 和 <code>= delete</code> 来显式声明默认函数和删除函数。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">MyClass</span>() = <span class="hljs-keyword">default</span>; <span class="hljs-comment">// 默认构造函数</span><br>    <span class="hljs-built_in">MyClass</span>(<span class="hljs-type">const</span> MyClass&amp;) = <span class="hljs-keyword">delete</span>; <span class="hljs-comment">// 禁用拷贝构造函数</span><br>&#125;;<br></code></pre></td></tr></table></figure>
-
-<h3 id="11-移动语义和std-move"><a href="#11-移动语义和std-move" class="headerlink" title="11.移动语义和std::move"></a>11.移动语义和std::move</h3><p>移动语义允许对象资源的高效转移，<code>std::move</code> 可以显式地将对象转为右值引用。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; vec1 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; vec2 = std::<span class="hljs-built_in">move</span>(vec1); <span class="hljs-comment">// vec1 的资源被转移到 vec2</span><br></code></pre></td></tr></table></figure>
-
-<h3 id="12-委托构造函数"><a href="#12-委托构造函数" class="headerlink" title="12.委托构造函数"></a>12.委托构造函数</h3><p>C++11 允许一个构造函数调用另一个构造函数，简化了构造函数的实现。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">MyClass</span>() : <span class="hljs-built_in">MyClass</span>(<span class="hljs-number">0</span>) &#123;&#125; <span class="hljs-comment">// 委托构造函数</span><br>    <span class="hljs-built_in">MyClass</span>(<span class="hljs-type">int</span> x) : <span class="hljs-built_in">x</span>(x) &#123;&#125;<br> <br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> x;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
-<p>这些语法糖在不同的场景中使代码更简洁、更清晰，并且减少了手动管理资源和类型推导的繁琐。理解并善用这些特性能够显著提高C++编程的效率和代码质量。</p>
+<img src="/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241115234611539.png" srcset="/img/loading.gif" lazyload alt="image-20241115234611539" style="zoom:80%;">
 
                 
               </div>
@@ -331,8 +303,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>C++中的常见语法糖汇总</div>
-      <div>http://example.com/2024/11/13/C-中的常见语法糖汇总/</div>
+      <div>详解lz4压缩算法(含汇编)</div>
+      <div>http://example.com/2024/11/15/详解lz4压缩算法-含汇编/</div>
     </div>
     <div class="license-meta">
       
@@ -344,7 +316,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年11月13日</div>
+          <div>2024年11月15日</div>
         </div>
       
       
@@ -376,18 +348,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/" title="详解lz4压缩算法(含汇编)">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">详解lz4压缩算法(含汇编)</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/11/10/GDB%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="GDB学习笔记">
-                        <span class="hidden-mobile">GDB学习笔记</span>
+                      <a href="/2024/11/13/C-%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E8%AF%AD%E6%B3%95%E7%B3%96%E6%B1%87%E6%80%BB/" title="C++中的常见语法糖汇总">
+                        <span class="hidden-mobile">C++中的常见语法糖汇总</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
