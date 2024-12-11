@@ -34,8 +34,11 @@
 <meta property="og:image" content="http://example.com/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241208234556338.png">
 <meta property="og:image" content="http://example.com/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241208234612700.png">
 <meta property="og:image" content="http://example.com/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/1733672786201-1.png">
+<meta property="og:image" content="http://example.com/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241211205011412.png">
+<meta property="og:image" content="http://example.com/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241211205351964.png">
+<meta property="og:image" content="http://example.com/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241211211945591.png">
 <meta property="article:published_time" content="2024-11-15T15:43:21.000Z">
-<meta property="article:modified_time" content="2024-12-08T15:47:01.261Z">
+<meta property="article:modified_time" content="2024-12-11T13:22:03.772Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241127195336632.png">
@@ -223,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          13k 字
+          14k 字
         
       </span>
     
@@ -234,7 +237,7 @@
         
         
         
-          105 分钟
+          118 分钟
         
       </span>
     
@@ -402,7 +405,54 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs Assembly">Get_long_matchlength\@:<br>    check_src_overflow1<br>    ldrb    w_tmp, [x3], #1  /* 读取match length的第一个字节*/<br>    add x0, x0, tmp<br>    add match_length, match_length, tmp<br>    cmp tmp, #255   /*如果等于155(0xFF)，继续读取*/<br>    b.eq    Get_long_matchlength\@<br><br>Copy_match_begin\@:<br>    check_dst_overflow1<br>    cmp offset , match_length  /* offset &gt;= match_length */<br>    b.hs    Cond_offset_ge_matchlength\@<br></code></pre></td></tr></table></figure>
 
 <p>后面延续上一节的读法，一直拷贝匹配字符串直到结束</p>
-<h3 id="4-7-匹配量小于匹配长度（offset-lt-matchlen）"><a href="#4-7-匹配量小于匹配长度（offset-lt-matchlen）" class="headerlink" title="4.7 匹配量小于匹配长度（offset &lt; matchlen）"></a>4.7 匹配量小于匹配长度（offset &lt; matchlen）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs Assembly">Cond_offset_lt_matchlength\@:<br>    cmp offset , #32  /* offset &gt;= 32 */<br>    b.hs    Cond_offset_ge_matchlength\@<br><br>/* 显然offset &lt; 32的不会跳转，会走下面的指令 */<br>Copy_offset_lt_32\@:<br>    ldr q1, [copy_from_ptr]<br>    add tmp, permtable_addr, offset, lsl #5<br>    ldp q2, q3, [tmp]<br>    tbl v0.16b, &#123;v1.16b&#125;, v2.16b<br>    tbl v1.16b, &#123;v1.16b&#125;, v3.16b<br>    cmp     offset , #16  /*offset &lt; 16*/<br>    b.lo    Copy_match_perm\@<br>    ldp     q0, q1, [copy_from_ptr]<br>Copy_match_perm\@:<br>    ldrb    w_tmp, [cplen_table_addr, offset]<br>    stp q0, q1, [copy_to_ptr]<br>    add copy_to_ptr, copy_to_ptr, tmp<br>    cmp x0, copy_to_ptr  /* x0 &lt;= copy_to_str */<br>    b.ls    Lz4_decompress_begin\@<br>Copy_offset_lt_32_loop\@:<br>    stp q0, q1, [copy_to_ptr]<br>    add copy_to_ptr, copy_to_ptr, tmp<br>    stp q0, q1, [copy_to_ptr]<br>    add copy_to_ptr, copy_to_ptr, tmp<br>    cmp x0, copy_to_ptr<br>    b.hi    Copy_offset_lt_32_loop\@<br>    b   Lz4_decompress_begin\@<br></code></pre></td></tr></table></figure>
+<h3 id="4-7-匹配量小于匹配长度（offset-lt-matchlen）"><a href="#4-7-匹配量小于匹配长度（offset-lt-matchlen）" class="headerlink" title="4.7 匹配量小于匹配长度（offset &lt; matchlen）"></a>4.7 匹配量小于匹配长度（offset &lt; matchlen）</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1JT411779C">NEON指令学习视频</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/ch15717502064/article/details/142176716?spm=1001.2014.3001.5506">NEON指令集</a></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs Assembly">Copy_offset_lt_32\@:<br>	ldr	q1, [copy_from_ptr]          // 加载copy_from_ptr的16字节到q1中<br>	add	tmp, permtable_addr, offset, lsl #5    // 96<br>	ldp	q2, q3, [tmp]   // tmp加载到q2 q3<br>	tbl	v0.16b, &#123;v1.16b&#125;, v2.16b  // 16b就是16个8bit数据<br>	tbl	v1.16b, &#123;v1.16b&#125;, v3.16b<br>	cmp     offset , #16<br>	b.lo    Copy_match_perm\@<br>	ldp     q0, q1, [copy_from_ptr]<br>Copy_match_perm\@:<br>	ldrb	w_tmp, [cplen_table_addr, offset]  // 30<br>	stp	q0, q1, [copy_to_ptr]  // 向量加载，先加载q0 16字节，再加载q1 16字节<br>	add	copy_to_ptr, copy_to_ptr, tmp<br>	cmp	x0, copy_to_ptr<br>	b.ls	Lz4_decompress_begin\@<br>Copy_offset_lt_32_loop\@:<br>	stp	q0, q1, [copy_to_ptr]<br>	add	copy_to_ptr, copy_to_ptr, tmp<br>	stp	q0, q1, [copy_to_ptr]<br>	add	copy_to_ptr, copy_to_ptr, tmp<br>	cmp	x0, copy_to_ptr  /* x0 &gt; copy_to_ptr */<br>	b.hi	Copy_offset_lt_32_loop\@<br>	b	Lz4_decompress_begin\@<br><br>.p2align 8	<br>Permtable:<br>.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  //offset = 0<br>.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  //offset = 1<br>.byte 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1  //offset = 2<br>.byte 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1  //offset = 3<br>// .....<br><br>.p2align 8<br>Copylength_table:<br>.byte 32,32,32,30,32,30,30,28,32,27,30,22,24,26,28,30  // 0  .. 15<br>.byte 16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31  // 16 .. 31<br>.popsection<br></code></pre></td></tr></table></figure>
+
+<p>这边的算法比较难理解，我们重新举一个栗子🦈</p>
+<p>假设原始字符为：</p>
+<p><u>abcdefgabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc</u>【总共65字符，最后有个默认的0字符】</p>
+<p>压缩后为：</p>
+<p><u>AF 61 62 63 64 65 66 67 61 62 63 03 00 1F 50 63 61 62 63 00</u></p>
+<p>第一个token为：</p>
+<p><u>AF 61 62 63 64 65 66 67 61 62 63 03 00 1F</u></p>
+<p>第二个token比较简单：就是最后5个字符【<code>63 61 62 63 00：cabc0</code>】</p>
+<blockquote>
+<p>literal len：10【abcdefgabc】</p>
+<p>offset：3</p>
+<p>match len：50</p>
+</blockquote>
+<p>这里正好符合条件<strong>offset &lt; 32 &amp;offset &lt; matchlen</strong>这种情况：</p>
+<ol>
+<li>执行完<code>ldr q1, [copy_from_ptr] </code>后，q1向量寄存器的值为：copy_from_ptr后面的16字节，即abcabcabcabcabca</li>
+</ol>
+<img src="/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241211205011412.png" srcset="/img/loading.gif" lazyload alt="image-20241211205011412" style="zoom:80%;">
+
+<ol start="2">
+<li>执行下列语句</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs asm">add	tmp, permtable_addr, offset, lsl #5    // 96<br>ldp	q2, q3, [tmp]<br>tbl	v0.16b, &#123;v1.16b&#125;, v2.16b //16b，表示16个8bit，就是16字节<br>tbl	v1.16b, &#123;v1.16b&#125;, v3.16b<br></code></pre></td></tr></table></figure>
+
+<p>将tmp的前16字节加载到q2，后16字节加载到q3</p>
+<img src="/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241211205351964.png" srcset="/img/loading.gif" lazyload alt="image-20241211205351964" style="zoom:80%;">
+
+<p><code>tbl v0.16b, &#123;v1.16b&#125;, v2.16b </code>：以V2的索引，在V1的表中查找，加载到V0</p>
+<p><code>tbl v1.16b, &#123;v1.16b&#125;, v3.16b</code>：以V3的索引，在V1的表中查找，加载到V1</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/chaoguo1234/article/details/139933633">https://blog.csdn.net/chaoguo1234/article/details/139933633</a></p>
+<p>SIMD是单指令多数据的缩写(Signle Instruction，Multiple Data)，FP代表浮点数(Float Point)。</p>
+<p>SIMD&amp;FP寄存器有32个，记为V0~V31，每一个寄存器都是128bit。</p>
+<p>当访问SIMD&amp;FP寄存器的全部128bit时，它们也可以被记为Q0~Q31。</p>
+</blockquote>
+<p>V1就是刚刚第一步加载的16个字节，执行完上面2句汇编后</p>
+<p>V0：abcabcabcabcabca | V1：bcabcabcabcabcab</p>
+<p>此时已经匹配了32个字节，离50字节还差了18字节</p>
+<ol start="3">
+<li>再执行一遍，又有32字节在家到copy_to_ptr，但此时已经抄了，但没关系X0才是真正存储目标解压字节串的寄存器地址，即使当前X0后面的数值全是abc也没关系，毕竟是个指针，后面会进行覆盖的</li>
+</ol>
+<img src="/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/image-20241211211945591.png" srcset="/img/loading.gif" lazyload alt="image-20241211211945591" style="zoom:80%;">
 
                 
               </div>
