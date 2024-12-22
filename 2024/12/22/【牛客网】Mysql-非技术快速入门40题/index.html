@@ -24,7 +24,7 @@
 <meta property="og:description" content="【牛客网】Mysql-非技术快速入门40题牛客网非技术快速入门40题  查询所有列 &#x2F;&#x2F;select * from table  1select * from user_profile   查询多列 &#x2F;&#x2F; select columns  123456selectdevice_id,gender,age,universityfrom user_profile">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-12-22T12:24:55.000Z">
-<meta property="article:modified_time" content="2024-12-22T12:33:47.407Z">
+<meta property="article:modified_time" content="2024-12-22T12:52:01.136Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -211,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.9k 字
+          3.3k 字
         
       </span>
     
@@ -222,7 +222,7 @@
         
         
         
-          25 分钟
+          28 分钟
         
       </span>
     
@@ -388,6 +388,16 @@
 <li><strong>浙江大学用户题目回答情况 &#x2F;&#x2F;left join表连接 + where筛选</strong></li>
 </ol>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span><br>    a.device_id <span class="hljs-keyword">as</span> device_id,<br>    a.question_id <span class="hljs-keyword">as</span> question_id,<br>    a.result <span class="hljs-keyword">as</span> <span class="hljs-keyword">result</span><br><span class="hljs-keyword">from</span> question_practice_detail a<br><span class="hljs-keyword">left</span> <span class="hljs-keyword">join</span> user_profile b<br><span class="hljs-keyword">on</span> a.device_id <span class="hljs-operator">=</span> b.device_id<br><span class="hljs-keyword">where</span> b.university <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;浙江大学&#x27;</span><br><span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> <span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+
+
+
+<ol start="23">
+<li><strong>统计每个学校各难度的用户平均刷题数 &#x2F;&#x2F;left join表连接 + 聚合</strong></li>
+</ol>
+<blockquote>
+<p>题干中<code>表：question_detail</code>中的字段名<code>diffcult_level</code>拼写错误，是个大坑</p>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <br>    b.university <span class="hljs-keyword">as</span> university,<br>    c.difficult_level <span class="hljs-keyword">as</span> difficult_level,<br>    <span class="hljs-built_in">count</span>(<span class="hljs-number">1</span>) <span class="hljs-operator">/</span> <span class="hljs-built_in">count</span>(<span class="hljs-keyword">distinct</span> a.device_id) <span class="hljs-keyword">as</span> avg_answer_cnt<br><br><span class="hljs-keyword">from</span> question_practice_detail a<br><br><span class="hljs-keyword">left</span> <span class="hljs-keyword">join</span> user_profile b<br><span class="hljs-keyword">on</span> a.device_id <span class="hljs-operator">=</span> b.device_id<br><br><span class="hljs-keyword">left</span> <span class="hljs-keyword">join</span> question_detail c<br><span class="hljs-keyword">on</span> a.question_id <span class="hljs-operator">=</span> c.question_id<br><br><span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
 
 
                 
