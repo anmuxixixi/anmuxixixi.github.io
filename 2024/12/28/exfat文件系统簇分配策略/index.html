@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/12/28/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B0%87%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/image-20241228232228411.png">
 <meta property="article:published_time" content="2024-12-28T14:23:56.000Z">
-<meta property="article:modified_time" content="2024-12-28T15:25:09.429Z">
+<meta property="article:modified_time" content="2024-12-28T15:40:22.313Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2024/12/28/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B0%87%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/image-20241228232228411.png">
@@ -213,7 +213,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.1k 字
+          3.4k 字
         
       </span>
     
@@ -224,7 +224,7 @@
         
         
         
-          27 分钟
+          29 分钟
         
       </span>
     
@@ -282,6 +282,11 @@
 
 <h2 id="簇分配策略"><a href="#簇分配策略" class="headerlink" title="簇分配策略"></a>簇分配策略</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">exfat_alloc_cluster</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> num_alloc,</span><br><span class="hljs-params">		<span class="hljs-keyword">struct</span> exfat_chain *p_chain)</span><br>&#123;<br>	total_cnt = EXFAT_DATA_CLUSTER_COUNT(sbi);<br><br>	<span class="hljs-keyword">if</span> (num_alloc &gt; total_cnt - sbi-&gt;used_clusters)<br>		<span class="hljs-keyword">return</span> -ENOSPC;<br><br>	hint_clu = p_chain-&gt;dir;<br>	<span class="hljs-comment">/* find new cluster */</span><br>	<span class="hljs-keyword">if</span> (hint_clu == EXFAT_EOF_CLUSTER) &#123;<br>		<span class="hljs-keyword">if</span> (sbi-&gt;clu_srch_ptr &lt; EXFAT_FIRST_CLUSTER) &#123;<br>			exfat_err(sb, <span class="hljs-string">&quot;sbi-&gt;clu_srch_ptr is invalid (%u)\n&quot;</span>,<br>				  sbi-&gt;clu_srch_ptr);<br>			sbi-&gt;clu_srch_ptr = EXFAT_FIRST_CLUSTER;<br>		&#125;<br><br>		hint_clu = exfat_find_free_bitmap(sb, sbi-&gt;clu_srch_ptr);<br>		<span class="hljs-keyword">if</span> (hint_clu == EXFAT_EOF_CLUSTER)<br>			<span class="hljs-keyword">return</span> -ENOSPC;<br>	&#125;<br><br>	p_chain-&gt;dir = EXFAT_EOF_CLUSTER;<br><br>	<span class="hljs-keyword">while</span> ((new_clu = exfat_find_free_bitmap(sb, hint_clu)) !=<br>	       EXFAT_EOF_CLUSTER) &#123;<br>		<span class="hljs-comment">/* 这里有一个疑问，只申请一个簇的文件，明明可以是ALLOC_NOT_FAT_CHAIN，但由于下一个空闲簇不连续，而导致变成ALLOC_FAT_CHAIN */</span><br>		<span class="hljs-keyword">if</span> (new_clu != hint_clu &amp;&amp;<br>		    p_chain-&gt;flags == ALLOC_NO_FAT_CHAIN) &#123;<br>			<span class="hljs-keyword">if</span> (exfat_chain_cont_cluster(sb, p_chain-&gt;dir, num_clusters)) &#123;&#125;<br>			p_chain-&gt;flags = ALLOC_FAT_CHAIN;<br>		&#125;<br><br>		<span class="hljs-comment">/* update allocation bitmap */</span><br>		<span class="hljs-keyword">if</span> (exfat_set_bitmap(inode, new_clu)) &#123;&#125;<br><br>		num_clusters++;<br><br>		<span class="hljs-comment">/* update FAT table */</span><br>		<span class="hljs-keyword">if</span> (p_chain-&gt;flags == ALLOC_FAT_CHAIN) &#123;<br>			<span class="hljs-keyword">if</span> (exfat_ent_set(sb, new_clu, EXFAT_EOF_CLUSTER)) &#123;&#125;<br>		&#125;<br><br>		<span class="hljs-keyword">if</span> (p_chain-&gt;dir == EXFAT_EOF_CLUSTER) &#123;<br>			p_chain-&gt;dir = new_clu;  		<span class="hljs-comment">/* 当前簇链尾设置为new_clu */</span><br>		&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (p_chain-&gt;flags == ALLOC_FAT_CHAIN) &#123;<br>			<span class="hljs-keyword">if</span> (exfat_ent_set(sb, last_clu, new_clu)) &#123;&#125;<br>		&#125;<br>		last_clu = new_clu;<br><br>		<span class="hljs-keyword">if</span> (--num_alloc == <span class="hljs-number">0</span>) &#123;<br>			sbi-&gt;clu_srch_ptr = hint_clu;<br>			sbi-&gt;used_clusters += num_clusters;<br><br>			p_chain-&gt;size += num_clusters;<br>			<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>		&#125;<br><br>		hint_clu = new_clu + <span class="hljs-number">1</span>;<br>		<span class="hljs-keyword">if</span> (hint_clu &gt;= sbi-&gt;num_clusters) &#123;<br>			hint_clu = EXFAT_FIRST_CLUSTER;<br><br>			<span class="hljs-keyword">if</span> (p_chain-&gt;flags == ALLOC_NO_FAT_CHAIN) &#123;<br>				<span class="hljs-keyword">if</span> (exfat_chain_cont_cluster(sb, p_chain-&gt;dir,num_clusters)) &#123;&#125;<br>				p_chain-&gt;flags = ALLOC_FAT_CHAIN;<br>			&#125;<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<p>这种分配策略有大问题，碎片化问题严重：</p>
+<ol>
+<li>如果之前的p_chain-&gt;dir(hint_clu)为EXFAT_EOF_CLUSTER，会从sbi-&gt;clu_srch_ptr寻找(很有可能是别的文件的)，导致碎片【特别是多线程情况下，两个文件交替分配簇，则会产生大量的碎片（当前文件分配上一个文件后面的簇）】。</li>
+<li>由于挂载的时候sbi-&gt;clu_srch_ptr为起始簇，也就是说只要重新挂载，必从头开始，也就是说最新挂载后的那个文件大概率会形成碎片（只要这个文件前面有空闲簇）。</li>
+</ol>
 
                 
               </div>
