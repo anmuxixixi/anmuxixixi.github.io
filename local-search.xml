@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>《文件系统大全》</title>
+    <link href="/2025/01/01/%E3%80%8A%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A4%A7%E5%85%A8%E3%80%8B/"/>
+    <url>/2025/01/01/%E3%80%8A%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A4%A7%E5%85%A8%E3%80%8B/</url>
+    
+    <content type="html"><![CDATA[<h1 id="《文件系统大全》"><a href="#《文件系统大全》" class="headerlink" title="《文件系统大全》"></a>《文件系统大全》</h1><h2 id="fuse文件系统学习资料"><a href="#fuse文件系统学习资料" class="headerlink" title="fuse文件系统学习资料"></a><strong>fuse文件系统学习资料</strong></h2><ul><li><p><a href="https://fishpi.cn/article/1640420458343">详解 FUSE 用户态文件系统</a></p></li><li><p><a href="https://www.jianshu.com/p/c2b77d0bbc43">FUSE架构</a></p></li><li><p><a href="https://zhoubofsy.github.io/2017/01/13/linux/filesystem-userspace-usage/">FUSE使用实例</a></p></li><li><p><a href="https://juejin.cn/post/7260746629396152379?searchId=20231205221857A49D19E7DB8503104AF8">深入分析Android 11 FUSE文件系统</a></p></li><li><p>✅<a href="https://developer.aliyun.com/article/1164554">基于FUSE的简单文件系统</a></p></li><li><p><a href="https://www.cnblogs.com/pengdonglin137/p/17893209.html">fuse死锁案例</a></p></li><li><p><a href="https://github.com/wuzhouhui/fs_on_fuse">github上实现基于fuse的自定义文件系统全源码</a></p></li><li><p><a href="https://juejin.cn/post/7206239276894748733">Android Fuse的paththrough方案</a></p></li><li><p><a href="https://www.jianshu.com/p/9602b3b93528">Android Fuse USB文件系统问题分析</a></p></li><li><p>✅<a href="https://article.juejin.cn/post/7205928315588313146">安卓fuse文件系统核心原理</a></p></li></ul><h2 id="vfat文件系统"><a href="#vfat文件系统" class="headerlink" title="vfat文件系统"></a>vfat文件系统</h2><ul><li><a href="https://anmuxixixi.github.io/2023/06/29/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">vfat文件系统</a></li><li><a href="https://anmuxixixi.github.io/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/">FAT文件系统原理</a></li><li><a href="https://anmuxixixi.github.io/2023/06/30/%E5%AE%9A%E4%BD%8D%E5%92%8C%E6%8F%90%E5%8F%96FAT32%E5%88%86%E5%8C%BA%E7%9A%84%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE/">【实验】定位和提取FAT32分区的文件数据</a></li></ul><h2 id="exfat文件系统"><a href="#exfat文件系统" class="headerlink" title="exfat文件系统"></a>exfat文件系统</h2><ul><li><a href="https://anmuxixixi.github.io/2024/12/28/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B0%87%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/">exfat文件系统簇分配策略</a></li></ul><h2 id="f2fs文件系统"><a href="#f2fs文件系统" class="headerlink" title="f2fs文件系统"></a>f2fs文件系统</h2><h2 id="vfs相关"><a href="#vfs相关" class="headerlink" title="vfs相关"></a>vfs相关</h2>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>touch命令源码解析</title>
     <link href="/2025/01/01/touch%E5%91%BD%E4%BB%A4%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
     <url>/2025/01/01/touch%E5%91%BD%E4%BB%A4%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/</url>
