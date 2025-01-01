@@ -263,7 +263,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2025/01/01/touch%E5%91%BD%E4%BB%A4%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
         <div>
-          touch命令源码解析源码分析源码目录：https://github.com/coreutils/coreutils/blob/master/src/touch.c   调用了fd_reopen函数 使用strace抓一把touch命令看下创建文件过程中的系统调用（省略一些系统库的调用） 1234amx@amxxxx:~/Desktop/exfat_test/mnt_exfat$ cat touc
+          touch命令源码解析源码分析源码目录：https://github.com/coreutils/coreutils/blob/master/src/touch.c   调用了fd_reopen函数   显然是直接调用了open函数（携带O_CREAT参数），我们可以使用strace抓一把touch命令看下创建文件过程中的系统调用（省略一些系统库的调用） 1234amx@amxxxx:~/Desk
         </div>
       </a>
 
