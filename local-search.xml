@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>linux系统安装ntfs-3g及格式化</title>
+    <link href="/2025/01/02/linux%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85ntfs-3g%E5%8F%8A%E6%A0%BC%E5%BC%8F%E5%8C%96/"/>
+    <url>/2025/01/02/linux%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85ntfs-3g%E5%8F%8A%E6%A0%BC%E5%BC%8F%E5%8C%96/</url>
+    
+    <content type="html"><![CDATA[<h1 id="linux系统安装ntfs-3g及格式化"><a href="#linux系统安装ntfs-3g及格式化" class="headerlink" title="linux系统安装ntfs-3g及格式化"></a>linux系统安装ntfs-3g及格式化</h1><h2 id="安装ntfs-3g"><a href="#安装ntfs-3g" class="headerlink" title="安装ntfs-3g"></a>安装ntfs-3g</h2><p>项目源码：<a href="https://github.com/tuxera/ntfs-3g/">https://github.com/tuxera/ntfs-3g/</a></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">amx@amxxxx:~/Desktop/ntfs_dir/ntfs-3g-edge$ sh autogen.sh<br>amx@amxxxx:~/Desktop/ntfs_dir/ntfs-3g-edge$ ./configure<br>amx@amxxxx:~/Desktop/ntfs_dir/ntfs-3g-edge$ make<br>amx@amxxxx:~/Desktop/ntfs_dir/ntfs-3g-edge$ sudo make install<br></code></pre></td></tr></table></figure><p>格式化命令位于：</p><img src="/2025/01/02/linux%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85ntfs-3g%E5%8F%8A%E6%A0%BC%E5%BC%8F%E5%8C%96/image-20250102221540726.png" alt="image-20250102221540726" style="zoom: 80%;"><h2 id="格式化dd镜像"><a href="#格式化dd镜像" class="headerlink" title="格式化dd镜像"></a>格式化dd镜像</h2><p>如果直接格式化有问题：</p><img src="/2025/01/02/linux%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85ntfs-3g%E5%8F%8A%E6%A0%BC%E5%BC%8F%E5%8C%96/image-20250102221707194.png" alt="image-20250102221707194" style="zoom:80%;"><p>看了源码以后，只需要加一个<code>-F</code>就可以 了</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">amx@amxxxx:~/Desktop/ntfs_dir$ mkntfs -F ntfs.img<br></code></pre></td></tr></table></figure><blockquote><p>注：一般的linux不需要安装ntfs-3g</p><p>我的<strong>deepin操作系统</strong>自带了mkntfs或者mkfs.ntfs（两个一个东西，mkfs.ntfs软连接到了mkntfs）</p><img src="/2025/01/02/linux%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85ntfs-3g%E5%8F%8A%E6%A0%BC%E5%BC%8F%E5%8C%96/image-20250102222114216.png" alt="image-20250102222114216" style="zoom:80%;"></blockquote>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>如何查看linux社区exfat所有提交记录</title>
     <link href="/2025/01/01/%E5%A6%82%E4%BD%95%E6%9F%A5%E7%9C%8Blinux%E7%A4%BE%E5%8C%BAexfat%E6%89%80%E6%9C%89%E6%8F%90%E4%BA%A4%E8%AE%B0%E5%BD%95/"/>
     <url>/2025/01/01/%E5%A6%82%E4%BD%95%E6%9F%A5%E7%9C%8Blinux%E7%A4%BE%E5%8C%BAexfat%E6%89%80%E6%9C%89%E6%8F%90%E4%BA%A4%E8%AE%B0%E5%BD%95/</url>
