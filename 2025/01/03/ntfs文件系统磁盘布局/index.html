@@ -25,8 +25,9 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2025/01/03/ntfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%A3%81%E7%9B%98%E5%B8%83%E5%B1%80/NTFS.jpg">
 <meta property="og:image" content="http://example.com/2025/01/03/ntfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%A3%81%E7%9B%98%E5%B8%83%E5%B1%80/image-20250103220710220.png">
+<meta property="og:image" content="http://example.com/2025/01/03/ntfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%A3%81%E7%9B%98%E5%B8%83%E5%B1%80/image-20250103225957619.png">
 <meta property="article:published_time" content="2025-01-03T12:59:31.000Z">
-<meta property="article:modified_time" content="2025-01-03T14:18:28.853Z">
+<meta property="article:modified_time" content="2025-01-03T15:00:04.603Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2025/01/03/ntfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%A3%81%E7%9B%98%E5%B8%83%E5%B1%80/NTFS.jpg">
@@ -214,7 +215,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          833 字
+          1.8k 字
         
       </span>
     
@@ -225,7 +226,7 @@
         
         
         
-          7 分钟
+          15 分钟
         
       </span>
     
@@ -383,7 +384,7 @@
 <td>0</td>
 <td>0x44</td>
 <td>4</td>
-<td>每索引粗疏</td>
+<td>每索引簇数</td>
 <td>1</td>
 </tr>
 <tr>
@@ -397,6 +398,111 @@
 <td></td>
 </tr>
 </tbody></table>
+<h3 id="MFT（Master-File-Table，主文件表）"><a href="#MFT（Master-File-Table，主文件表）" class="headerlink" title="$MFT（Master File Table，主文件表）"></a>$MFT（Master File Table，主文件表）</h3><p>主文件表MFT，包含16个元文件的文件记录。 为了尽可能减少$MFT文件产生碎片的可能性，系统预先为其预先为其预留整个文件系统大约12.5%的空间。只有在用户数据区的空间用尽时，才会临时让出MFT区的部分空间存储数据，但一旦数据区有了足够的空间，就会立即收回原来让出的MFT空间。主文件表MFT由一个个的MFT项组成，每个MFT项实际就是一个文件记录，其中用各种属性记录着该文件或目录的各种信息。每<strong>个MFT项实际的大小在引导扇区中进行说明，Microsoft的所有版本都使用1024字节的大小（2个扇区）</strong>。前部为一个包含几十个字节的具有固定的大小和结构的MFT头，剩余的字节为属性列表，用于存放各种属性。</p>
+<p><strong>MFT的基本特点：</strong></p>
+<ul>
+<li>MFT的第一个区域是签名，所有的MFT项都有相同的签名（FILE）。如果在项中发现错误，可能将其改写成“BAAD”的字样。</li>
+<li>MFT项还有一个标志域用以说明该项是一个文件项还是目录项，以及它的分配状态。MFT的分配状态也在一个$BITMAP属性文件中进行描述。</li>
+<li>每个MFT项占用两个扇区，每个扇区的结束两个字节都有一个修正值，这个修正值与MFT项的<u><strong>更新序列号</strong></u>相同，如果发现不同，会认为该MFT项存在错误。</li>
+<li>如果一个文件的属性较多，使用一个MFT项无法容纳下全部的属性，可以使用多个MFT项，第一个项被称为基本文件记录或基本MFT项。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>字节偏移</th>
+<th>字节数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00-03</td>
+<td>4</td>
+<td>签名值“46494C45”（明文“FILE”）</td>
+</tr>
+<tr>
+<td>04-05</td>
+<td>2</td>
+<td>更新序列号偏移</td>
+</tr>
+<tr>
+<td>06-07</td>
+<td>2</td>
+<td>更新序列号的数组个数</td>
+</tr>
+<tr>
+<td>08-0F</td>
+<td>8</td>
+<td>日志序列号（LSN）</td>
+</tr>
+<tr>
+<td>10-11</td>
+<td>2</td>
+<td>序列号</td>
+</tr>
+<tr>
+<td>12-13</td>
+<td>2</td>
+<td>硬链接数</td>
+</tr>
+<tr>
+<td>14-15</td>
+<td>2</td>
+<td>第一个属性的偏移地址</td>
+</tr>
+<tr>
+<td>16-17</td>
+<td>2</td>
+<td>标志，00已删除的文件；01文件；02已删除目录；03目录。</td>
+</tr>
+<tr>
+<td>18-1B</td>
+<td>4</td>
+<td>MFT项逻辑长度</td>
+</tr>
+<tr>
+<td>1C-1F</td>
+<td>4</td>
+<td>MFT的物理长度</td>
+</tr>
+<tr>
+<td>20-27</td>
+<td>8</td>
+<td>基本文件记录索引号</td>
+</tr>
+<tr>
+<td>28-29</td>
+<td>2</td>
+<td>下一属性ID</td>
+</tr>
+<tr>
+<td>2A-2B</td>
+<td>2</td>
+<td>边界</td>
+</tr>
+<tr>
+<td>2C-2F</td>
+<td>4</td>
+<td>MFT记录编号（起始编号0）</td>
+</tr>
+<tr>
+<td>30-37</td>
+<td>8</td>
+<td>更新序列号数组</td>
+</tr>
+<tr>
+<td>38-3FF</td>
+<td>968</td>
+<td>属性和修正值</td>
+</tr>
+</tbody></table>
+<p>重要字节码解释如下：</p>
+<ol>
+<li>00-03：MFT项签名值“46494C45”，明文为“FILE”。</li>
+<li>04-05：更新序列号编号的偏移。</li>
+<li>06-07：更新序列号的数组个数，通常为3。</li>
+<li>08-0F：日志序列号。</li>
+</ol>
+<img src="/2025/01/03/ntfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%A3%81%E7%9B%98%E5%B8%83%E5%B1%80/image-20250103225957619.png" srcset="/img/loading.gif" lazyload alt="image-20250103225957619" style="zoom: 80%;">
 
                 
               </div>
