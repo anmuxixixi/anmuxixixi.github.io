@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>github提交代码慢问题解决记录</title>
+    <link href="/2025/01/07/github%E6%8F%90%E4%BA%A4%E4%BB%A3%E7%A0%81%E6%85%A2%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E8%AE%B0%E5%BD%95/"/>
+    <url>/2025/01/07/github%E6%8F%90%E4%BA%A4%E4%BB%A3%E7%A0%81%E6%85%A2%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E8%AE%B0%E5%BD%95/</url>
+    
+    <content type="html"><![CDATA[<h1 id="github提交代码慢问题解决记录"><a href="#github提交代码慢问题解决记录" class="headerlink" title="github提交代码慢问题解决记录"></a>github提交代码慢问题解决记录</h1><p>查看代码IP和端口，没有的话配一个：</p><img src="/2025/01/07/github%E6%8F%90%E4%BA%A4%E4%BB%A3%E7%A0%81%E6%85%A2%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E8%AE%B0%E5%BD%95/image-20250107230649171.png" alt="image-20250107230649171" style="zoom:80%;"><p>配置git proxy代理：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 设置proxy</span><br>git config --global https.proxy https://127.0.0.1:7879<br><br><span class="hljs-comment"># 如果不小心搞错了，取消设置（注意区分http和https）</span><br>git config --global --<span class="hljs-built_in">unset</span> http.proxy<br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>exfat大事件</title>
     <link href="/2025/01/06/exfat%E5%A4%A7%E4%BA%8B%E4%BB%B6/"/>
     <url>/2025/01/06/exfat%E5%A4%A7%E4%BA%8B%E4%BB%B6/</url>
