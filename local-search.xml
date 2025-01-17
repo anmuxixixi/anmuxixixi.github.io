@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>安卓toybox源码</title>
+    <link href="/2025/01/17/%E5%AE%89%E5%8D%93toybox%E6%BA%90%E7%A0%81/"/>
+    <url>/2025/01/17/%E5%AE%89%E5%8D%93toybox%E6%BA%90%E7%A0%81/</url>
+    
+    <content type="html"><![CDATA[<h1 id="安卓toybox源码"><a href="#安卓toybox源码" class="headerlink" title="安卓toybox源码"></a>安卓toybox源码</h1><p>安卓源码路径：<code>external\toybox</code></p><p>github官网toybox项目：<a href="https://github.com/landley/toybox">https://github.com/landley/toybox</a></p><p>常见的shell命令位于<code>external\toybox\toys\posix</code></p><img src="/2025/01/17/%E5%AE%89%E5%8D%93toybox%E6%BA%90%E7%A0%81/image-20250117214420151.png" alt="image-20250117214420151" style="zoom:80%;">]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>内存管理博客汇总</title>
     <link href="/2025/01/16/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8D%9A%E5%AE%A2%E6%B1%87%E6%80%BB/"/>
     <url>/2025/01/16/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8D%9A%E5%AE%A2%E6%B1%87%E6%80%BB/</url>
