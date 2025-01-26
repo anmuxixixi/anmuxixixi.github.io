@@ -16,21 +16,21 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="崩溃信号说明 声明：转载自：https:&#x2F;&#x2F;developer.umeng.com&#x2F;docs&#x2F;193624&#x2F;detail&#x2F;204694  一、概念说明在应用崩溃的时候，我们将会获取到两个信息:  signal: 信号量，下文将会详细的说明不同的信号量及其含义 code: 错误码, 除了几个所有信号量(signal) 公共的错误码(code)，一般不同信号量(signal)有特定的错误码(code)">
+    <meta name="description" content="喝口白桃呜龙学习笔记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="崩溃信号说明">
-<meta property="og:url" content="http://example.com/2025/01/12/%E5%B4%A9%E6%BA%83%E4%BF%A1%E5%8F%B7%E8%AF%B4%E6%98%8E/index.html">
+<meta property="og:title" content="ext4文件系统延迟分配核心思想">
+<meta property="og:url" content="http://example.com/2025/01/26/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BB%B6%E8%BF%9F%E5%88%86%E9%85%8D%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="崩溃信号说明 声明：转载自：https:&#x2F;&#x2F;developer.umeng.com&#x2F;docs&#x2F;193624&#x2F;detail&#x2F;204694  一、概念说明在应用崩溃的时候，我们将会获取到两个信息:  signal: 信号量，下文将会详细的说明不同的信号量及其含义 code: 错误码, 除了几个所有信号量(signal) 公共的错误码(code)，一般不同信号量(signal)有特定的错误码(code)">
+<meta property="og:description" content="喝口白桃呜龙学习笔记">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-01-12T12:37:34.000Z">
-<meta property="article:modified_time" content="2025-01-12T12:49:01.279Z">
+<meta property="article:published_time" content="2025-01-26T12:01:39.000Z">
+<meta property="article:modified_time" content="2025-01-26T12:01:39.682Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>崩溃信号说明 - 喝口白桃呜龙</title>
+  <title>ext4文件系统延迟分配核心思想 - 喝口白桃呜龙</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -188,7 +188,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="崩溃信号说明"></span>
+            <span id="subtitle" data-typed-text="ext4文件系统延迟分配核心思想"></span>
           
         </div>
 
@@ -199,8 +199,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-01-12 20:37" pubdate>
-          2025年1月12日 晚上
+        <time datetime="2025-01-26 20:01" pubdate>
+          2025年1月26日 晚上
         </time>
       </span>
     
@@ -211,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.5k 字
+          0 字
         
       </span>
     
@@ -222,7 +222,7 @@
         
         
         
-          21 分钟
+          1 分钟
         
       </span>
     
@@ -268,208 +268,12 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">崩溃信号说明</h1>
+            <h1 style="display: none">ext4文件系统延迟分配核心思想</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="崩溃信号说明"><a href="#崩溃信号说明" class="headerlink" title="崩溃信号说明"></a>崩溃信号说明</h1><blockquote>
-<p>声明：转载自：<a target="_blank" rel="noopener" href="https://developer.umeng.com/docs/193624/detail/204694">https://developer.umeng.com/docs/193624/detail/204694</a></p>
-</blockquote>
-<h2 id="一、概念说明"><a href="#一、概念说明" class="headerlink" title="一、概念说明"></a>一、概念说明</h2><p>在应用崩溃的时候，我们将会获取到两个信息:</p>
-<ul>
-<li>signal: 信号量，下文将会详细的说明不同的信号量及其含义</li>
-<li>code: 错误码, 除了几个所有信号量(signal) 公共的错误码(code)，一般不同信号量(signal)有特定的错误码(code)，可以看做是信号量(signal)的补充说明。</li>
-</ul>
-<h2 id="二、信号量-signal-和-错误码-code-说明"><a href="#二、信号量-signal-和-错误码-code-说明" class="headerlink" title="二、信号量(signal) 和 错误码(code)说明"></a>二、信号量(signal) 和 错误码(code)说明</h2><p>本节只介绍与崩溃相关的几个 signal（CrashSDK 捕获的 signal）及相关 code 的说明，更多内容见后面的参考文献或网上找资料了解。</p>
-<h3 id="1-SIGILL"><a href="#1-SIGILL" class="headerlink" title="1. SIGILL"></a>1. SIGILL</h3><p>IG是信号名的通用前缀，ILL是 illegal instruction（非法指令） 的缩写。</p>
-<p>对应的数值为4。</p>
-<p>SIGILL 是当一个进程尝试执行一个非法指令时发送给它的信号。</p>
-<p>常见原因有:</p>
-<ol>
-<li>CPU架构不匹配</li>
-<li>.so 文件被破坏，或者代码段被破坏导致；</li>
-<li>主动崩溃，如 <a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-_005f_005fbuiltin_005ftrap">_builtintrap()</a> 也会使用非法指令来实现。</li>
-</ol>
-<p>si_addr 为出错的指令。</p>
-<p>该信号量中常见的错误码说明：</p>
-<table>
-<thead>
-<tr>
-<th align="left">Code</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">ILL_ILLOPC</td>
-<td align="left">非法的操作码(opcode)</td>
-</tr>
-<tr>
-<td align="left">ILL_ILLOPN</td>
-<td align="left">非法的操作数(operand)</td>
-</tr>
-<tr>
-<td align="left">ILL_ILLADR</td>
-<td align="left">非法的寻址模式</td>
-</tr>
-<tr>
-<td align="left">ILL_ILLTRP</td>
-<td align="left">非法的trap</td>
-</tr>
-<tr>
-<td align="left">ILL_PRVOPC</td>
-<td align="left">特权操作码(Privileged opcode)</td>
-</tr>
-<tr>
-<td align="left">ILL_PRVREG</td>
-<td align="left">特权寄存器(Privileged register)</td>
-</tr>
-<tr>
-<td align="left">ILL_COPROC</td>
-<td align="left">协处理器错误</td>
-</tr>
-<tr>
-<td align="left">ILL_BADSTK</td>
-<td align="left">内部堆栈错误</td>
-</tr>
-</tbody></table>
-<h3 id="2-SIGBUS"><a href="#2-SIGBUS" class="headerlink" title="2. SIGBUS"></a>2. SIGBUS</h3><p>SIG是信号名的通用前缀，BUS是bus error (总线错误) ，意味着系统检测到硬件问题后发送给进程的信号。</p>
-<p>对应的数值为7。</p>
-<p>通常该信号的产生不是因为硬件有物理上的损坏，而是代码实现有 bug 导致，如地址不对齐，或者不存在的物理地址等。</p>
-<p>si_addr 为所访问的非法地址。</p>
-<p>该信号量中常见的错误码说明：</p>
-<table>
-<thead>
-<tr>
-<th align="left">Code</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">BUS_ADRALN</td>
-<td align="left">访问的地址不对齐。32位处理器一般要求指针是4字节对齐的</td>
-</tr>
-<tr>
-<td align="left">BUS_ADRERR</td>
-<td align="left">访问不存在的物理地址。一般是由于 mmap 的文件发生 truncated 导致。常见于文件访问过程中，被删除或者替换；或 mmap 到内存后，继续向文件写入且导致文件 truncated，再读取时就会出现该错误；另外， mmap 且访问超过文件实际大小的空间时，也可能会出现该错误</td>
-</tr>
-<tr>
-<td align="left">BUS_OBJERR</td>
-<td align="left">特定对象的硬件错误</td>
-</tr>
-<tr>
-<td align="left">BUS_MCEERR_AR</td>
-<td align="left">发生在访问内存时检测到校验和错误。</td>
-</tr>
-<tr>
-<td align="left">BUS_MCEERR_AQ</td>
-<td align="left">发生在访问内存时检测到地址和校验和错误。</td>
-</tr>
-</tbody></table>
-<h3 id="3-SIGSEGV"><a href="#3-SIGSEGV" class="headerlink" title="3. SIGSEGV"></a>3. SIGSEGV</h3><p>SIG 是信号名的通用前缀, SEGV 是 segmentation violation 的缩写。对应的数值为 11。该信号意味着一个进程执行了一个无效的内存引用，或发生段错误。</p>
-<p>si_addr 为所访问的无效地址。</p>
-<p>该信号量中常见的错误码说明：</p>
-<table>
-<thead>
-<tr>
-<th align="left">Code</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">SEGV_MAPERR</td>
-<td align="left">地址不在 &#x2F;proc&#x2F;self&#x2F;map 映射中</td>
-</tr>
-<tr>
-<td align="left">SEGV_ACCERR</td>
-<td align="left">没有访问权限</td>
-</tr>
-</tbody></table>
-<h3 id="4-SIGFPE"><a href="#4-SIGFPE" class="headerlink" title="4. SIGFPE"></a>4. SIGFPE</h3><p>SIG是信号名的通用前缀。FPE是floating-point exception（浮点异常）的首字母缩写拼接而成。</p>
-<p>对应的数值为 8。</p>
-<p>该信号一般是算术运算相关问题导致的。</p>
-<p>si_addr 为失败的指令。</p>
-<p>该信号量中常见的错误码说明：</p>
-<table>
-<thead>
-<tr>
-<th align="left">Code</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">FPE_INTDIV</td>
-<td align="left">整数除以 0</td>
-</tr>
-<tr>
-<td align="left">FPE_INTOVF</td>
-<td align="left">整数溢出</td>
-</tr>
-<tr>
-<td align="left">FPE_FLTDIV</td>
-<td align="left">浮点数除以 0</td>
-</tr>
-<tr>
-<td align="left">FPE_FLTOVF</td>
-<td align="left">浮点数向上溢出</td>
-</tr>
-<tr>
-<td align="left">FPE_FLTUND</td>
-<td align="left">浮点数向下溢出</td>
-</tr>
-<tr>
-<td align="left">FPE_FLTRES</td>
-<td align="left">浮点数结果不精确</td>
-</tr>
-<tr>
-<td align="left">FPE_FLTINV</td>
-<td align="left">无效的浮点运算</td>
-</tr>
-<tr>
-<td align="left">FPE_FLTSUB</td>
-<td align="left">下标超出范围</td>
-</tr>
-</tbody></table>
-<h3 id="5-SIGABRT"><a href="#5-SIGABRT" class="headerlink" title="5. SIGABRT"></a>5. SIGABRT</h3><p>SIG是信号名的通用前缀。ABRT是abort program的缩写。对应的数值为 6。该信号意味着异常退出；通常是调用<a target="_blank" rel="noopener" href="https://www.mkssoftware.com/docs/man3/abort.3.asp"> abort()</a>, <a target="_blank" rel="noopener" href="https://www.mkssoftware.com/docs/man3/raise.3.asp">raise()</a>, <a target="_blank" rel="noopener" href="https://www.mkssoftware.com/docs/man3/kill.3.asp">kill()</a>, <a target="_blank" rel="noopener" href="https://www.mkssoftware.com/docs/man3/pthread_kill.3.asp">pthread_kill()</a> 或者被系统进程杀死时出现。当错误码为 SI_USER 时表示是被其它程序杀死，一般情况是由于ANR被 system_server 杀死；</p>
-<p>其他错误码一般是业务自己调用 abort() 等函数退出，此时错误码一般认为无效</p>
-<h3 id="6-SIGSTKFLT"><a href="#6-SIGSTKFLT" class="headerlink" title="6. SIGSTKFLT"></a>6. SIGSTKFLT</h3><p>SIG是信号名的通用前缀，STKFLT是stack fault 的缩写。</p>
-<p>对应的数值为 16。</p>
-<p>按照官方文档说明，该信号量意味着协处理器栈故障。</p>
-<p>根据网上的部分问题结论说明，在内存耗尽时，一般 malloc 返回 NULL 且设置 errno 为 ENOMEM，但有些系统可能会使用 SIGSTKFLT 信号代替。</p>
-<h3 id="7-SIGPIPE"><a href="#7-SIGPIPE" class="headerlink" title="7. SIGPIPE"></a>7. SIGPIPE</h3><p>该信号对应的数值为 13。</p>
-<p>该信号意味着管道错误，通常在进程间通信产生，比如采用FIFO(管道)通信的两个进程，读管道没打开或者意外终止仍继续往管道写，写进程就会收到 SIGPIPE 信号。</p>
-<h3 id="8-SIGUSR2"><a href="#8-SIGUSR2" class="headerlink" title="8. SIGUSR2"></a>8. SIGUSR2</h3><p>为 12。用户自定义信号2。</p>
-<h3 id="9-SIGTERM"><a href="#9-SIGTERM" class="headerlink" title="9. SIGTERM"></a>9. SIGTERM</h3><p>SIG是信号名的通用前缀，TERM 是 Termination 的缩写。</p>
-<p>该信号对应的数值为 15。</p>
-<p>与 SIGKILL (signal 9) 类似，不过 SIGKILL 不可捕获，而 SIGTERM 可被捕获。一般常见于 APP 处于后台时，被系统 vold 进程使用 SIGTERM 杀死，该情形基本没有意义，可忽略。另外，chromium 多进程架构中，经常也会使用 SIGTERM 杀死出现了异常的子进程。</p>
-<h3 id="10-SIGSYS"><a href="#10-SIGSYS" class="headerlink" title="10. SIGSYS"></a>10. SIGSYS</h3><p>该信号对应的数值为 31，通常是因为无效的 linux 内核系统调用而产生。</p>
-<p>在 android O (android 8.0) 中，部分不安全的系统调用被移除，若代码中仍然使用它们，则会出现 SIGSYS。</p>
-<h3 id="11-SIGTRAP"><a href="#11-SIGTRAP" class="headerlink" title="11. SIGTRAP"></a>11. SIGTRAP</h3><p>该信号对应的数值为 5。gdb 调试设置断点等操作使用的信号。</p>
-<table>
-<thead>
-<tr>
-<th align="left">Code</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">TRAP_BRKPT</td>
-<td align="left">TRAP_BRKPT</td>
-</tr>
-<tr>
-<td align="left">TRAP_TRACE</td>
-<td align="left">TRAP_TRACE</td>
-</tr>
-<tr>
-<td align="left">TRAP_BRANCH</td>
-<td align="left">TRAP_BRANCH</td>
-</tr>
-<tr>
-<td align="left">TRAP_HWBKPT</td>
-<td align="left">TRAP_HWBKPT</td>
-</tr>
-</tbody></table>
-
+                
                 
               </div>
             
@@ -486,8 +290,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>崩溃信号说明</div>
-      <div>http://example.com/2025/01/12/崩溃信号说明/</div>
+      <div>ext4文件系统延迟分配核心思想</div>
+      <div>http://example.com/2025/01/26/ext4文件系统延迟分配核心思想/</div>
     </div>
     <div class="license-meta">
       
@@ -499,7 +303,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年1月12日</div>
+          <div>2025年1月26日</div>
         </div>
       
       
@@ -531,18 +335,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/01/16/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8D%9A%E5%AE%A2%E6%B1%87%E6%80%BB/" title="内存管理博客汇总">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">内存管理博客汇总</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/" title="ext4文件系统预分配机制【作废】">
-                        <span class="hidden-mobile">ext4文件系统预分配机制【作废】</span>
+                      <a href="/2025/01/17/exfat%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/" title="exfat文件写入流程">
+                        <span class="hidden-mobile">exfat文件写入流程</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
