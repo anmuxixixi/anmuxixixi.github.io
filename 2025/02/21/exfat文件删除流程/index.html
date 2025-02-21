@@ -30,9 +30,13 @@
 <meta property="og:image" content="http://example.com/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221214931288.png">
 <meta property="og:image" content="http://example.com/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221214913271.png">
 <meta property="og:image" content="http://example.com/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221214405674.png">
+<meta property="og:image" content="http://example.com/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221221227914.png">
 <meta property="og:image" content="http://example.com/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221212258908.png">
+<meta property="og:image" content="http://example.com/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221223018750.png">
+<meta property="og:image" content="http://example.com/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221223125993.png">
+<meta property="og:image" content="http://example.com/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221223219931.png">
 <meta property="article:published_time" content="2025-02-21T13:21:52.000Z">
-<meta property="article:modified_time" content="2025-02-21T13:50:10.681Z">
+<meta property="article:modified_time" content="2025-02-21T14:32:26.095Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221214033377.png">
@@ -220,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          360 字
+          723 字
         
       </span>
     
@@ -231,7 +235,7 @@
         
         
         
-          4 分钟
+          7 分钟
         
       </span>
     
@@ -316,7 +320,31 @@
 <p>rmdir不能删除非空文件夹</p>
 <img src="/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221214405674.png" srcset="/img/loading.gif" lazyload alt="image-20250221214405674" style="zoom:80%;">
 </blockquote>
-<h2 id="exfat删除"><a href="#exfat删除" class="headerlink" title="exfat删除"></a>exfat删除</h2><img src="/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221212258908.png" srcset="/img/loading.gif" lazyload alt="image-20250221212258908" style="zoom:80%;">
+<h2 id="exfat删除流程"><a href="#exfat删除流程" class="headerlink" title="exfat删除流程"></a>exfat删除流程</h2><p>unlinkat系统调用：</p>
+<img src="/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221221227914.png" srcset="/img/loading.gif" lazyload alt="image-20250221221227914" style="zoom:80%;">
+
+<img src="/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221212258908.png" srcset="/img/loading.gif" lazyload alt="image-20250221212258908" style="zoom:80%;">
+
+<p>这里分别记录一下exfat_unlink和exfat_rmdir的调用栈：</p>
+<ul>
+<li>exfat_unlink</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs she">__arm64_sys_unlinkat<br>do_unlinkat<br>vfs_unlink<br>exfat_unlink<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>exfat_rmdir</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">__arm64_sys_unlinkat<br>do_rmdir<br>vfs_rmdir<br>exfat_rmdir<br></code></pre></td></tr></table></figure>
+
+<p>这里我刚开始有个问题很奇怪：为什么这里的inode_operation名字是exfat_dir_inode_operations是文件夹的操作函数，而且删除文件的时候调用的竟然也是文件夹的exfat_unlink</p>
+<img src="/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221223018750.png" srcset="/img/loading.gif" lazyload alt="image-20250221223018750" style="zoom: 50%;">
+
+<p>我们查看do_unlinkat的时候发现原来文件删除的时候调用vfs_unlink，其参数为</p>
+<img src="/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221223125993.png" srcset="/img/loading.gif" lazyload alt="image-20250221223125993" style="zoom: 67%;">
+
+<img src="/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/image-20250221223219931.png" srcset="/img/loading.gif" lazyload alt="image-20250221223219931" style="zoom: 50%;">
+
+<p>现在明白了，<strong>原来删除文件的时候调用的时父目录的操作函数</strong></p>
 
                 
               </div>
