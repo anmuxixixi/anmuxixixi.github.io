@@ -16,15 +16,15 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="安卓adb shell中sh脚本for循环示例安卓adb shell中的sh真的很拉胯，支持的for循环语法与linux大相径庭，不知道用的什么编译出来的 这里记录下可以用的for循环 1234#!&#x2F;bin&#x2F;bashfor i in &#96;seq 50&#96;; do	mkdir &#x2F;data&#x2F;mini_exfat&#x2F;MUSIC-$idone">
+    <meta name="description" content="安卓adb shell中sh脚本for循环示例安卓adb shell中的sh真的很拉胯，支持的for循环语法与linux大相径庭，不知道用的什么编译出来的 这里记录下可以用的for循环 1234#!&#x2F;bin&#x2F;bashfor i in &#96;seq 50&#96;; do	mkdir &#x2F;data&#x2F;mini_exfat&#x2F;MUSIC-$idone  解决无法adb shell无法识别do的报错问题：https:&#x2F;&#x2F;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="安卓adb shell中sh脚本for循环示例">
 <meta property="og:url" content="http://example.com/2024/09/12/%E5%AE%89%E5%8D%93adb-shell%E4%B8%ADsh%E8%84%9A%E6%9C%ACfor%E5%BE%AA%E7%8E%AF%E7%A4%BA%E4%BE%8B/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="安卓adb shell中sh脚本for循环示例安卓adb shell中的sh真的很拉胯，支持的for循环语法与linux大相径庭，不知道用的什么编译出来的 这里记录下可以用的for循环 1234#!&#x2F;bin&#x2F;bashfor i in &#96;seq 50&#96;; do	mkdir &#x2F;data&#x2F;mini_exfat&#x2F;MUSIC-$idone">
+<meta property="og:description" content="安卓adb shell中sh脚本for循环示例安卓adb shell中的sh真的很拉胯，支持的for循环语法与linux大相径庭，不知道用的什么编译出来的 这里记录下可以用的for循环 1234#!&#x2F;bin&#x2F;bashfor i in &#96;seq 50&#96;; do	mkdir &#x2F;data&#x2F;mini_exfat&#x2F;MUSIC-$idone  解决无法adb shell无法识别do的报错问题：https:&#x2F;&#x2F;">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-09-12T15:46:55.000Z">
-<meta property="article:modified_time" content="2024-09-12T15:49:23.146Z">
+<meta property="article:modified_time" content="2025-02-23T08:47:58.555Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -211,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          154 字
+          322 字
         
       </span>
     
@@ -222,7 +222,7 @@
         
         
         
-          2 分钟
+          3 分钟
         
       </span>
     
@@ -277,6 +277,7 @@
 <p>这里记录下可以用的for循环</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>for i in `seq 50`; do<br>	mkdir /data/mini_exfat/MUSIC-$i<br>done<br></code></pre></td></tr></table></figure>
 
+<p>解决无法adb shell无法识别do的报错问题：<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/02/23/linux-shell%E8%84%9A%E6%9C%AC-%E8%BF%90%E8%A1%8C%E6%8A%A5%E9%94%99syntax-error-near-unexpected-token-do/">https://anmuxixixi.github.io/2025/02/23/linux-shell%E8%84%9A%E6%9C%AC-%E8%BF%90%E8%A1%8C%E6%8A%A5%E9%94%99syntax-error-near-unexpected-token-do/</a></p>
 
                 
               </div>
