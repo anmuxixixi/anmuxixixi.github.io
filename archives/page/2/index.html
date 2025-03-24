@@ -219,6 +219,74 @@
       <h1 class="index-header">
         
         
+        <a href="/2025/01/17/exfat%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/" target="_self">
+          exfat文件写入流程
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/01/17/exfat%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/" target="_self">
+        <div>
+          exfat文件写入流程数据从用户态拷贝到内核态PageCache12345vfs_iter_writedo_iter_readv_writevgeneric_file_write_iter__generic_file_write_itergeneric_perform_write    12345678910111213141516171819202122232425262728293031323
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-01-17 23:01" pubdate>
+              2025-01-17
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
+        <a href="/2025/01/17/%E5%AE%89%E5%8D%93toybox%E6%BA%90%E7%A0%81/" target="_self">
+          安卓toybox源码
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/01/17/%E5%AE%89%E5%8D%93toybox%E6%BA%90%E7%A0%81/" target="_self">
+        <div>
+          安卓toybox源码安卓源码路径：external\toybox github官网toybox项目：https://github.com/landley/toybox 常见的shell命令位于external\toybox\toys\posix
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-01-17 21:43" pubdate>
+              2025-01-17
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
         <a href="/2025/01/16/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8D%9A%E5%AE%A2%E6%B1%87%E6%80%BB/" target="_self">
           内存管理博客汇总
         </a>
@@ -474,76 +542,6 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
             <time datetime="2025-01-01 20:28" pubdate>
-              2025-01-01
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-          <i class="index-pin iconfont icon-top" title="Pin on top"></i>
-        
-        <a href="/2025/01/01/%E3%80%8A%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A4%A7%E5%85%A8%E3%80%8B/" target="_self">
-          《文件系统大全》
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2025/01/01/%E3%80%8A%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A4%A7%E5%85%A8%E3%80%8B/" target="_self">
-        <div>
-          《文件系统大全》fuse文件系统学习资料 详解 FUSE 用户态文件系统  FUSE架构  FUSE使用实例  深入分析Android 11 FUSE文件系统  ✅基于FUSE的简单文件系统  fuse死锁案例  github上实现基于fuse的自定义文件系统全源码  Android Fuse的paththrough方案  Android Fuse USB文件系统问题分析  ✅安卓fuse文件系统
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-01-01 19:41" pubdate>
-              2025-01-01
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2025/01/01/touch%E5%91%BD%E4%BB%A4%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
-          touch命令源码解析
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2025/01/01/touch%E5%91%BD%E4%BB%A4%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
-        <div>
-          touch命令源码解析源码分析源码目录：https://github.com/coreutils/coreutils/blob/master/src/touch.c   调用了fd_reopen函数   显然是直接调用了open函数（携带O_CREAT参数），我们可以使用strace抓一把touch命令看下创建文件过程中的系统调用（省略一些系统库的调用） 1234amx@amxxxx:~/Desk
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-01-01 19:26" pubdate>
               2025-01-01
             </time>
           </div>
