@@ -371,7 +371,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/" target="_self">
         <div>
-          exfat文件系统元数据写入流程  从 wirshark抓包U盘写入数据 文章中可以看到文件系统元数据是最后写入的！  哪些数据属于exfat元数据从exfat本身来说，有MBR区域，FAT表，bitmap区域属于会操作修改的区域，在代码中表现为：  sbi-&gt;boot_bh sbi-&gt;vol_amap[i] FAT项由独立的bh控制    直接抛结论：exfat元数据属于块设备123
+          exfat文件系统元数据写入流程  从 wirshark抓包U盘写入数据 文章中可以看到文件系统元数据是最后写入的！  哪些数据属于exfat元数据从exfat本身来说，有MBR区域，FAT表，bitmap区域属于会操作修改的区域，在代码中表现为：  sbi-&gt;boot_bh sbi-&gt;vol_amap[i] FAT项由独立的bh控制    直接抛结论：exfat元数据属于块设备，块设
         </div>
       </a>
 

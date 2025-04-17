@@ -16,18 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="exfat文件系统元数据写入流程  从 wirshark抓包U盘写入数据 文章中可以看到文件系统元数据是最后写入的！  哪些数据属于exfat元数据从exfat本身来说，有MBR区域，FAT表，bitmap区域属于会操作修改的区域，在代码中表现为：  sbi-&gt;boot_bh sbi-&gt;vol_amap[i] FAT项由独立的bh控制    直接抛结论：exfat元数据属于块设备123">
+    <meta name="description" content="exfat文件系统元数据写入流程  从 wirshark抓包U盘写入数据 文章中可以看到文件系统元数据是最后写入的！  哪些数据属于exfat元数据从exfat本身来说，有MBR区域，FAT表，bitmap区域属于会操作修改的区域，在代码中表现为：  sbi-&gt;boot_bh sbi-&gt;vol_amap[i] FAT项由独立的bh控制    直接抛结论：exfat元数据属于块设备，块设">
 <meta property="og:type" content="article">
 <meta property="og:title" content="exfat文件系统元数据写入流程">
 <meta property="og:url" content="http://example.com/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="exfat文件系统元数据写入流程  从 wirshark抓包U盘写入数据 文章中可以看到文件系统元数据是最后写入的！  哪些数据属于exfat元数据从exfat本身来说，有MBR区域，FAT表，bitmap区域属于会操作修改的区域，在代码中表现为：  sbi-&gt;boot_bh sbi-&gt;vol_amap[i] FAT项由独立的bh控制    直接抛结论：exfat元数据属于块设备123">
+<meta property="og:description" content="exfat文件系统元数据写入流程  从 wirshark抓包U盘写入数据 文章中可以看到文件系统元数据是最后写入的！  哪些数据属于exfat元数据从exfat本身来说，有MBR区域，FAT表，bitmap区域属于会操作修改的区域，在代码中表现为：  sbi-&gt;boot_bh sbi-&gt;vol_amap[i] FAT项由独立的bh控制    直接抛结论：exfat元数据属于块设备，块设">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417210038199.png">
 <meta property="og:image" content="http://example.com/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417204604728.png">
 <meta property="og:image" content="http://example.com/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417205515307.png">
+<meta property="og:image" content="http://example.com/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417215246734.png">
+<meta property="og:image" content="http://example.com/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417222103243.png">
+<meta property="og:image" content="http://example.com/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417222436740.png">
+<meta property="og:image" content="http://example.com/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417222310708.png">
+<meta property="og:image" content="http://example.com/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417222710163.png">
 <meta property="article:published_time" content="2025-04-17T12:20:46.000Z">
-<meta property="article:modified_time" content="2025-04-17T13:07:10.062Z">
+<meta property="article:modified_time" content="2025-04-17T14:28:46.970Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417210038199.png">
@@ -215,7 +220,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          1.8k 字
         
       </span>
     
@@ -226,7 +231,7 @@
         
         
         
-          9 分钟
+          16 分钟
         
       </span>
     
@@ -288,7 +293,7 @@
 </ul>
 <img src="/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417210038199.png" srcset="/img/loading.gif" lazyload alt="image-20250417210038199" style="zoom: 67%;">
 
-<h2 id="直接抛结论：exfat元数据属于块设备"><a href="#直接抛结论：exfat元数据属于块设备" class="headerlink" title="直接抛结论：exfat元数据属于块设备"></a>直接抛结论：exfat元数据属于块设备</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">ret_from_fork<br>kthread<br>worker_thread<br>process_one_work<br>wb_workfn<br>wb_do_writeback<br>wb_writeback<br>__writeback_inodes_wb<br>writeback_sb_inodes<br>__writeback_single_inode<br>blkdev_writepages   # fs\block_dev.c<br>generic_writepages  # mm\page-writeback.c<br></code></pre></td></tr></table></figure>
+<h2 id="直接抛结论：exfat元数据属于块设备，块设备脏页回写"><a href="#直接抛结论：exfat元数据属于块设备，块设备脏页回写" class="headerlink" title="直接抛结论：exfat元数据属于块设备，块设备脏页回写"></a>直接抛结论：exfat元数据属于块设备，块设备脏页回写</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">ret_from_fork<br>kthread<br>worker_thread<br>process_one_work<br>wb_workfn<br>wb_do_writeback<br>wb_writeback<br>__writeback_inodes_wb<br>writeback_sb_inodes<br>__writeback_single_inode<br>blkdev_writepages   # fs\block_dev.c<br>generic_writepages  # mm\page-writeback.c<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p><strong>我是如何得出结论说sbi-&gt;boot_bh属于块设备blkdev</strong></p>
@@ -302,9 +307,34 @@
 </ul>
 <img src="/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417205515307.png" srcset="/img/loading.gif" lazyload alt="image-20250417205515307" style="zoom: 60%;">
 </blockquote>
+<h2 id="块设备写流程"><a href="#块设备写流程" class="headerlink" title="块设备写流程"></a>块设备写流程</h2><h3 id="sync触发"><a href="#sync触发" class="headerlink" title="sync触发"></a>sync触发</h3><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/10/15/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fsync/#1-2-1-iterate-supers%E9%81%8D%E5%8E%86%E6%89%80%E6%9C%89%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%B6%85%E7%BA%A7%E5%9D%97">sync流程</a></p>
+<p>sync如何保证先写数据区再写元数据区</p>
+<img src="/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417215246734.png" srcset="/img/loading.gif" lazyload alt="image-20250417215246734" style="zoom:80%;">
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell">ksys_sync<br>iterate_supers(sync_fs_one_sb, &amp;wait);<br><span class="hljs-meta prompt_">-&gt;</span><span class="language-bash">sync_fs =&gt; exfat_sync_fs</span><br>sync_blockdev<br>__sync_blockdev<br><span class="hljs-meta prompt_">filemap_write_and_wait(bdev-&gt;</span><span class="language-bash">bd_inode-&gt;i_mapping)</span><br>do_writepages<br>blkdev_writepages<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="脏页回写"><a href="#脏页回写" class="headerlink" title="脏页回写"></a>脏页回写</h3><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/hxm12043219/article/details/131406661">https://blog.csdn.net/hxm12043219/article/details/131406661</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c">ret_from_fork<br>kthread<br>worker_thread<br>process_one_work<br>wb_workfn<br>wb_do_writeback<br>wb_writeback<br>__writeback_inodes_wb<br>writeback_sb_inodes<br>__writeback_single_inode<br>blkdev_writepages   <span class="hljs-meta"># fs\block_dev.c</span><br>generic_writepages  <span class="hljs-meta"># mm\page-writeback.c</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/ywang-wnlo/p/writeback.html">https://www.cnblogs.com/ywang-wnlo/p/writeback.html</a></p>
+<img src="/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417222103243.png" srcset="/img/loading.gif" lazyload alt="image-20250417222103243" style="zoom:80%;">
+
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/574704571">https://zhuanlan.zhihu.com/p/574704571</a></p>
+<img src="/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417222436740.png" srcset="/img/loading.gif" lazyload alt="image-20250417222436740" style="zoom:80%;">
+
+
+</blockquote>
+<p>同理，隶属于bdev的buffer_head被置为脏，也会挂到b_dirty上</p>
+<img src="/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417222310708.png" srcset="/img/loading.gif" lazyload alt="image-20250417222310708" style="zoom:80%;">
+
+<p>而我们知道buffer_head的mapping-&gt;host就是bdev-&gt;bd_inode【实验证明过】</p>
+<img src="/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250417222710163.png" srcset="/img/loading.gif" lazyload alt="image-20250417222710163" style="zoom: 67%;">
+
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/hu1610552336/article/details/115315770">脏页回写是坏设备为基准的</a>，所以就会走上面的流程！</p>
 <h2 id="sb-bread函数在何方？"><a href="#sb-bread函数在何方？" class="headerlink" title="sb_bread函数在何方？"></a>sb_bread函数在何方？</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include\linux\buffer_head.h</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-keyword">struct</span> buffer_head *<br><span class="hljs-title function_">sb_bread</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> super_block *sb, <span class="hljs-type">sector_t</span> block)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> __bread_gfp(sb-&gt;s_bdev, block, sb-&gt;s_blocksize, __GFP_MOVABLE);<br>&#125;<br><br><span class="hljs-comment">// fs\buffer.c</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">buffer_head</span> *</span><br><span class="hljs-class">__<span class="hljs-title">bread_gfp</span>(<span class="hljs-keyword">struct</span> <span class="hljs-title">block_device</span> *<span class="hljs-title">bdev</span>, <span class="hljs-title">sector_t</span> <span class="hljs-title">block</span>,</span><br><span class="hljs-class">		   <span class="hljs-title">unsigned</span> <span class="hljs-title">size</span>, <span class="hljs-title">gfp_t</span> <span class="hljs-title">gfp</span>)</span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">buffer_head</span> *<span class="hljs-title">bh</span> =</span> __getblk_gfp(bdev, block, size, gfp);<br><br>	<span class="hljs-keyword">if</span> (likely(bh) &amp;&amp; !buffer_uptodate(bh))<br>		bh = __bread_slow(bh);<br>	<span class="hljs-keyword">return</span> bh;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
 
 
 
