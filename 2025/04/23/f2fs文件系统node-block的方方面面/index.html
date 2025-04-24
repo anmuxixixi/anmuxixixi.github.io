@@ -24,8 +24,12 @@
 <meta property="og:description" content="f2fs文件系统node block的方方面面nid号如何分配free nid维护变量由struct f2fs_nm_info *nm_i维护，几个比较重要的变量说明一下：  nm_i-&gt;free_nid_bitmap[nat_ofs]：维护了NAT中每一个f2fs_nat_block管理的node block的空闲位图 nm_i-&gt;free_nid_count[nat_ofs]：维护">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20250423212347114.png">
+<meta property="og:image" content="http://example.com/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20231203225436920.png">
+<meta property="og:image" content="http://example.com/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20231203230542715.png">
+<meta property="og:image" content="http://example.com/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20231203225928807.png">
+<meta property="og:image" content="http://example.com/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20250424220714781.png">
 <meta property="article:published_time" content="2025-04-23T12:32:03.000Z">
-<meta property="article:modified_time" content="2025-04-23T13:30:52.182Z">
+<meta property="article:modified_time" content="2025-04-24T14:57:21.240Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20250423212347114.png">
@@ -213,7 +217,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.3k 字
+          5.2k 字
         
       </span>
     
@@ -224,7 +228,7 @@
         
         
         
-          19 分钟
+          44 分钟
         
       </span>
     
@@ -293,6 +297,49 @@
 <img src="/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20250423212347114.png" srcset="/img/loading.gif" lazyload alt="image-20250423212347114" style="zoom:67%;">
 
 <p>📍<strong>一句话概括：就是从空闲nid链表中获取第一个</strong></p>
+<h2 id="三个特殊的inode"><a href="#三个特殊的inode" class="headerlink" title="三个特殊的inode"></a>三个特殊的inode</h2><img src="/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20231203225436920.png" srcset="/img/loading.gif" lazyload alt="image-20231203225436920" style="zoom:80%;">
+
+<h3 id="1号元数据node-inode"><a href="#1号元数据node-inode" class="headerlink" title="1号元数据node inode"></a>1号元数据node inode</h3><p>f2fs文件系统的1号元数据node inode用管理所有缓存的node page页信息</p>
+<img src="/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20231203230542715.png" srcset="/img/loading.gif" lazyload alt="image-20231203230542715" style="zoom: 67%;">
+
+<h3 id="2号元数据meta-inode"><a href="#2号元数据meta-inode" class="headerlink" title="2号元数据meta inode"></a>2号元数据meta inode</h3><p>f2fs文件系统的2号元数据meta inode用管理所有缓存的元数据页信息</p>
+<img src="/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20231203225928807.png" srcset="/img/loading.gif" lazyload alt="image-20231203225928807" style="zoom:67%;">
+
+<h2 id="root-node-block更新及地址分配"><a href="#root-node-block更新及地址分配" class="headerlink" title="root node block更新及地址分配"></a>root node block更新及地址分配</h2><p><strong>root node block比较确定的一点是其nid一定是3</strong></p>
+<h3 id="root-node-page置为脏"><a href="#root-node-page置为脏" class="headerlink" title="root node page置为脏"></a>root node page置为脏</h3><p> <strong>只要我们在更目录下创建文件，删除文件等都会使得root node page置为脏</strong>，因为其指向数据的i_addr一定要更新</p>
+<img src="/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/image-20250424220714781.png" srcset="/img/loading.gif" lazyload alt="image-20250424220714781" style="zoom: 67%;">
+
+<p>node page页置脏流程为：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs shell">f2fs_sync_fs<br>f2fs_write_checkpoint<br>block_operations<br>f2fs_sync_dirty_inodes<br>filemap_fdatawrite<br>__filemap_fdatawrite<br>do_writepages<br>f2fs_write_data_pages<br>__f2fs_write_data_pages<br>f2fs_write_data_page<br>f2fs_write_single_data_page<br>f2fs_do_write_data_page<br>f2fs_outplace_write_data<br>f2fs_update_data_blkaddr<br>f2fs_set_data_blkaddr<br>set_page_dirty<br>f2fs_set_node_page_dirty<br></code></pre></td></tr></table></figure>
+
+<h3 id="root-node-block分配blkaddr"><a href="#root-node-block分配blkaddr" class="headerlink" title="root node block分配blkaddr"></a>root node block分配blkaddr</h3><p>上一步置为脏以后，下一次sync触发cp时，设置node blkaddr</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">f2fs_sync_fs<br>f2fs_write_checkpoint<br>block_operations<br>f2fs_sync_node_pages<br>__write_node_page<br>f2fs_do_write_node_page(分配新地址)|set_node_addr(设置新地址)<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>分配新地址</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/11/28/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AF%B9%E4%BA%8Enode-page%E7%9A%84%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/">f2fs文件系统对于node page的读写操作</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">f2fs_do_write_node_page</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> nid, <span class="hljs-keyword">struct</span> f2fs_io_info *fio)</span><br>&#123;<br>	do_write_page(&amp;sum, fio);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">do_write_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_summary *sum, <span class="hljs-keyword">struct</span> f2fs_io_info *fio)</span><br>&#123;<br><br>	f2fs_allocate_data_block(fio-&gt;sbi, fio-&gt;page, fio-&gt;old_blkaddr, &amp;fio-&gt;new_blkaddr, sum, type, fio);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">f2fs_allocate_data_block</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-keyword">struct</span> page *page,</span><br><span class="hljs-params">		<span class="hljs-type">block_t</span> old_blkaddr, <span class="hljs-type">block_t</span> *new_blkaddr,</span><br><span class="hljs-params">		<span class="hljs-keyword">struct</span> f2fs_summary *sum, <span class="hljs-type">int</span> type,</span><br><span class="hljs-params">		<span class="hljs-keyword">struct</span> f2fs_io_info *fio)</span><br>&#123;<br>	<span class="hljs-comment">// 从curseg分配得到new_addr</span><br>	*new_blkaddr = NEXT_FREE_BLKADDR(sbi, curseg);<br><br>    <span class="hljs-comment">// 未雨绸缪</span><br>	<span class="hljs-keyword">if</span> (!__has_curseg_space(sbi, curseg)) &#123;<br>		<span class="hljs-keyword">if</span> (from_gc)<br>			get_atssr_segment(sbi, type, se-&gt;type,<br>						AT_SSR, se-&gt;mtime);<br>		<span class="hljs-keyword">else</span><br>			sit_i-&gt;s_ops-&gt;allocate_segment(sbi, type, <span class="hljs-literal">false</span>);<br>	&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>设置新地址</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> nat_set_blkaddr(nat, b)		((nat)-&gt;ni.blk_addr = (b))</span><br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">set_node_addr</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-keyword">struct</span> node_info *ni,</span><br><span class="hljs-params">			<span class="hljs-type">block_t</span> new_blkaddr, <span class="hljs-type">bool</span> fsync_done)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_entry</span> *<span class="hljs-title">e</span>;</span><br>	nat_set_blkaddr(e, new_blkaddr);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="quota相关的node"><a href="#quota相关的node" class="headerlink" title="quota相关的node"></a>quota相关的node</h2><h3 id="开启quota-ino和prjquota特性时格式化时固定分配4-5-6"><a href="#开启quota-ino和prjquota特性时格式化时固定分配4-5-6" class="headerlink" title="开启quota_ino和prjquota特性时格式化时固定分配4,5,6"></a>开启quota_ino和prjquota特性时格式化时固定分配4,5,6</h3><blockquote>
+<p>4,5,6分别对应  USRQUOTA  GRPQUOTA PRJQUOTA </p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs she">f2fs_format_device<br>f2fs_prepare_super_block|f2fs_create_root_dir<br></code></pre></td></tr></table></figure>
+<p>1.准备sb</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_prepare_super_block</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    set_sb(node_ino, <span class="hljs-number">1</span>);<br>	set_sb(meta_ino, <span class="hljs-number">2</span>);<br>	set_sb(root_ino, <span class="hljs-number">3</span>);<br>	c.next_free_nid = <span class="hljs-number">4</span>;<br><br>    <span class="hljs-keyword">if</span> (c.feature &amp; cpu_to_le32(F2FS_FEATURE_QUOTA_INO)) &#123;<br>		quotatype_bits = QUOTA_USR_BIT | QUOTA_GRP_BIT;<br>		<span class="hljs-keyword">if</span> (c.feature &amp; cpu_to_le32(F2FS_FEATURE_PRJQUOTA))<br>			quotatype_bits |= QUOTA_PRJ_BIT;<br>	&#125;<br><br>    <span class="hljs-keyword">for</span> (qtype = <span class="hljs-number">0</span>; qtype &lt; F2FS_MAX_QUOTAS; qtype++) &#123;<br>		<span class="hljs-keyword">if</span> (!((<span class="hljs-number">1</span> &lt;&lt; qtype) &amp; quotatype_bits))<br>			<span class="hljs-keyword">continue</span>;<br>		sb-&gt;qf_ino[qtype] = cpu_to_le32(c.next_free_nid++);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>2.写quota inode</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_create_root_dir</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	err = f2fs_write_root_inode();<br><br>	<span class="hljs-keyword">for</span> (qtype = <span class="hljs-number">0</span>; qtype &lt; F2FS_MAX_QUOTAS; qtype++)  &#123;<br>		<span class="hljs-keyword">if</span> (sb-&gt;qf_ino[qtype] == <span class="hljs-number">0</span>)<br>			<span class="hljs-keyword">continue</span>;<br>		err = f2fs_write_qf_inode(qtype);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_write_qf_inode</span><span class="hljs-params">(<span class="hljs-type">int</span> qtype)</span><br>&#123;<br>	<span class="hljs-comment">// 可恶啊，直接把sb-&gt;qf_ino[qtype]分配给了quota</span><br>	raw_node-&gt;footer.nid = sb-&gt;qf_ino[qtype];<br>	raw_node-&gt;footer.ino = sb-&gt;qf_ino[qtype];<br>	raw_node-&gt;footer.cp_ver = cpu_to_le64(<span class="hljs-number">1</span>);<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
