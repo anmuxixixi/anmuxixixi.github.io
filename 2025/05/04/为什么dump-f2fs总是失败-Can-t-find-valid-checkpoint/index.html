@@ -16,17 +16,23 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="喝口白桃呜龙学习笔记">
+    <meta name="description" content="为什么dump.f2fs总是失败?(Can’t find valid checkpoint)根因阐述经常遇到的打印Can&#39;t find valid checkpoint流程如下所示： 123456789101112131415161718192021222324252627282930313233int f2fs_do_mount(struct f2fs_sb_info *sbi)&amp;#12">
 <meta property="og:type" content="article">
 <meta property="og:title" content="为什么dump.f2fs总是失败?(Can&#39;t find valid checkpoint)">
 <meta property="og:url" content="http://example.com/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="喝口白桃呜龙学习笔记">
+<meta property="og:description" content="为什么dump.f2fs总是失败?(Can’t find valid checkpoint)根因阐述经常遇到的打印Can&#39;t find valid checkpoint流程如下所示： 123456789101112131415161718192021222324252627282930313233int f2fs_do_mount(struct f2fs_sb_info *sbi)&amp;#12">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504213720631.png">
+<meta property="og:image" content="http://example.com/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504214857890.png">
+<meta property="og:image" content="http://example.com/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504215848638.png">
+<meta property="og:image" content="http://example.com/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504220233293.png">
+<meta property="og:image" content="http://example.com/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504220306831.png">
 <meta property="article:published_time" content="2025-05-04T13:24:22.000Z">
-<meta property="article:modified_time" content="2025-05-04T13:24:22.922Z">
+<meta property="article:modified_time" content="2025-05-04T14:10:56.057Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504213720631.png">
   
   
   
@@ -211,7 +217,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 字
+          2.6k 字
         
       </span>
     
@@ -222,7 +228,7 @@
         
         
         
-          1 分钟
+          22 分钟
         
       </span>
     
@@ -273,7 +279,39 @@
             
               <div class="markdown-body">
                 
-                
+                <h1 id="为什么dump-f2fs总是失败-Can’t-find-valid-checkpoint"><a href="#为什么dump-f2fs总是失败-Can’t-find-valid-checkpoint" class="headerlink" title="为什么dump.f2fs总是失败?(Can’t find valid checkpoint)"></a>为什么dump.f2fs总是失败?(Can’t find valid checkpoint)</h1><h2 id="根因阐述"><a href="#根因阐述" class="headerlink" title="根因阐述"></a>根因阐述</h2><p>经常遇到的打印<code>Can&#39;t find valid checkpoint</code>流程如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_do_mount</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)</span><br>&#123;<br>	<span class="hljs-comment">// ...</span><br>	ret = get_valid_checkpoint(sbi);<br>	<span class="hljs-keyword">if</span> (ret) &#123;<br>		ERR_MSG(<span class="hljs-string">&quot;Can&#x27;t find valid checkpoint\n&quot;</span>);<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>	&#125;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">get_valid_checkpoint</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)</span><br>&#123;<br>	cp_start_blk_no = get_sb(cp_blkaddr);<br>	cp1 = validate_checkpoint(sbi, cp_start_blk_no, &amp;cp1_version);<br><br>	cp_start_blk_no += <span class="hljs-number">1</span> &lt;&lt; get_sb(log_blocks_per_seg);<br>	cp2 = validate_checkpoint(sbi, cp_start_blk_no, &amp;cp2_version);<br><br>	<span class="hljs-keyword">if</span> (cp1 &amp;&amp; cp2) &#123;<br>		<span class="hljs-comment">// ...</span><br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cp1) &#123;<br> 		<span class="hljs-comment">// ...</span><br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cp2) &#123;<br>		<span class="hljs-comment">// ...</span><br>	&#125; <span class="hljs-keyword">else</span><br>		<span class="hljs-keyword">goto</span> fail_no_cp;<br><br>fail_no_cp:<br>	<span class="hljs-built_in">free</span>(sbi-&gt;ckpt);<br>	sbi-&gt;ckpt = <span class="hljs-literal">NULL</span>;<br>	<span class="hljs-keyword">return</span> -EINVAL;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>下面着重看<strong>validate_checkpoint</strong>函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> *<span class="hljs-title function_">validate_checkpoint</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">block_t</span> cp_addr,</span><br><span class="hljs-params">				<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span> *version)</span><br>&#123;<br>	cp_page_1 = get_checkpoint_version(cp_addr);<br>	cp = (<span class="hljs-keyword">struct</span> f2fs_checkpoint *)cp_page_1;<br>	pre_version = get_cp(checkpoint_ver);<br><br>	cp_addr += get_cp(cp_pack_total_block_count) - <span class="hljs-number">1</span>;<br>	cp_page_2 = get_checkpoint_version(cp_addr);<br><br>	cp = (<span class="hljs-keyword">struct</span> f2fs_checkpoint *)cp_page_2;<br>	cur_version = get_cp(checkpoint_ver);<br><br>	<span class="hljs-keyword">if</span> (cur_version == pre_version) &#123;<br>		*version = cur_version;<br>		<span class="hljs-built_in">free</span>(cp_page_2);<br>		<span class="hljs-keyword">return</span> cp_page_1;<br>	&#125;<br><br>	<span class="hljs-built_in">free</span>(cp_page_2);<br>invalid_cp1:<br>	<span class="hljs-built_in">free</span>(cp_page_1);<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> *<span class="hljs-title function_">get_checkpoint_version</span><span class="hljs-params">(<span class="hljs-type">block_t</span> cp_addr)</span><br>&#123;<br>	<span class="hljs-type">void</span> *cp_page;<br><br>	<span class="hljs-keyword">if</span> (verify_checksum_chksum((<span class="hljs-keyword">struct</span> f2fs_checkpoint *)cp_page))<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">verify_checksum_chksum</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_checkpoint *cp)</span><br>&#123;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> chksum_offset = get_cp(checksum_offset);<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> crc, cal_crc;<br><br>	<span class="hljs-keyword">if</span> (chksum_offset &lt; CP_MIN_CHKSUM_OFFSET ||<br>			chksum_offset &gt; CP_CHKSUM_OFFSET) &#123;<br>		MSG(<span class="hljs-number">0</span>, <span class="hljs-string">&quot;\tInvalid CP CRC offset: %u\n&quot;</span>, chksum_offset);<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>	&#125;<br><br>	crc = le32_to_cpu(*(__le32 *)((<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *)cp + chksum_offset));<br>	cal_crc = f2fs_checkpoint_chksum(cp);<br>	<span class="hljs-keyword">if</span> (cal_crc != crc) &#123;<br>		MSG(<span class="hljs-number">0</span>, <span class="hljs-string">&quot;\tInvalid CP CRC: offset:%u, crc:0x%x, calc:0x%x\n&quot;</span>,<br>			chksum_offset, crc, cal_crc);<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>经过<strong>无数次</strong>的试验证明，无法获取cp2 version的原因在于cp1的cp_pack_total_block_count是不固定的，例如这次cp过后，cp_pack_total_block_count为0x05，那么cp2 version的起始为：0x204000；再下一次cp过后，cp_pack_total_block_count为0x03，那么cp2 version的起始为：0x203000；<strong>获取地址错了，cp2的起始位置错了，就全错了，其实是cp1的数据，误以为cp2，那么cp2做chksum_offset校验的时候拿到的是cp1数据，holy shit!!!</strong></p>
+<p><strong>fsck.f2fs和内核差异点：</strong></p>
+<ul>
+<li>内核的cp一直在更新</li>
+<li>而fsck.f2fs中拿到的cp pack中的cp1可能是N个版本以前的了【fsck.f2fs一直保存在缓存里面】</li>
+</ul>
+</blockquote>
+<p>把日志级别放开，实验证明，疯狂打下面的报错！【因为现在的cp2根本就不是cp2，是cp1的数据】</p>
+<img src="/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504213720631.png" srcset="/img/loading.gif" lazyload alt="image-20250504213720631" style="zoom:67%;">
+
+<p>通常CP_MIN_CHKSUM_OFFSET为192，CP_CHKSUM_OFFSET为4092</p>
+<img src="/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504214857890.png" srcset="/img/loading.gif" lazyload alt="image-20250504214857890" style="zoom:67%;">
+
+<img src="/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504215848638.png" srcset="/img/loading.gif" lazyload alt="image-20250504215848638" style="zoom: 67%;">
+
+<p>🧃举个例子：</p>
+<img src="/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504220233293.png" srcset="/img/loading.gif" lazyload alt="image-20250504220233293" style="zoom:67%;">
+
+<p>那么cp2的位置应为0x202000【cp1 + (3-1)*4096】</p>
+<img src="/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/image-20250504220306831.png" srcset="/img/loading.gif" lazyload alt="image-20250504220306831" style="zoom: 67%;">
+
+<p>版本号匹配</p>
+<h2 id="有效措施"><a href="#有效措施" class="headerlink" title="有效措施"></a>有效措施</h2><p>我们只需要把缓存清理一下就行了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">echo 3 &gt; /proc/sys/vm/drop_caches<br></code></pre></td></tr></table></figure>
+
+
                 
               </div>
             
