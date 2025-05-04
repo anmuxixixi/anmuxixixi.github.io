@@ -219,6 +219,74 @@
       <h1 class="index-header">
         
         
+        <a href="/2025/03/19/exfat%E6%96%87%E4%BB%B6%E8%B5%B7%E5%A7%8B%E7%B0%87%E5%86%99%E5%85%A5%E6%97%B6%E6%9C%BA/" target="_self">
+          exfat文件起始簇写入时机
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/03/19/exfat%E6%96%87%E4%BB%B6%E8%B5%B7%E5%A7%8B%E7%B0%87%E5%86%99%E5%85%A5%E6%97%B6%E6%9C%BA/" target="_self">
+        <div>
+          exfat文件起始簇写入时机12345678910111213141516171819202122232425262728293031323334353637static int exfat_map_cluster(struct inode *inode, unsigned int clu_offset,		unsigned int *clu, int create)&#123;	if (*clu
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-03-19 20:20" pubdate>
+              2025-03-19
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
+        <a href="/2025/03/19/exfat%E6%96%B0%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5%E6%97%B6%E8%B5%B7%E5%A7%8B%E7%B0%87%E5%8F%B7%E6%BE%84%E6%B8%85/" target="_self">
+          exfat新文件写入时起始簇号澄清
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/03/19/exfat%E6%96%B0%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5%E6%97%B6%E8%B5%B7%E5%A7%8B%E7%B0%87%E5%8F%B7%E6%BE%84%E6%B8%85/" target="_self">
+        <div>
+          exfat新文件写入时起始簇号澄清当我们执行以下操作时【创建新文件并写入】： 12touch 123.txtecho helloamxixixi &gt; 123.txt    之前的帖子exfat写流程 中所示，最终会调用到exfat_get_block，进一步调用到exfat_map_cluster   我们之前仅仅touch一个文件，起始簇号是为0的，那么要写入文件的时候，此时的起始簇sta
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-03-19 20:06" pubdate>
+              2025-03-19
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
         <a href="/2025/02/23/linux-shell%E8%84%9A%E6%9C%AC-%E8%BF%90%E8%A1%8C%E6%8A%A5%E9%94%99syntax-error-near-unexpected-token-do/" target="_self">
           linux shell脚本 运行报错syntax error near unexpected token `do
         </a>
@@ -475,74 +543,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2025-01-16 22:11" pubdate>
               2025-01-16
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2025/01/12/%E5%B4%A9%E6%BA%83%E4%BF%A1%E5%8F%B7%E8%AF%B4%E6%98%8E/" target="_self">
-          崩溃信号说明
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2025/01/12/%E5%B4%A9%E6%BA%83%E4%BF%A1%E5%8F%B7%E8%AF%B4%E6%98%8E/" target="_self">
-        <div>
-          崩溃信号说明 声明：转载自：https://developer.umeng.com/docs/193624/detail/204694  一、概念说明在应用崩溃的时候，我们将会获取到两个信息:  signal: 信号量，下文将会详细的说明不同的信号量及其含义 code: 错误码, 除了几个所有信号量(signal) 公共的错误码(code)，一般不同信号量(signal)有特定的错误码(code)
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-01-12 20:37" pubdate>
-              2025-01-12
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/" target="_self">
-          ext4文件系统预分配机制【作废】
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/" target="_self">
-        <div>
-          ext4文件系统预分配机制【作废】 http://nyx.skku.ac.kr/wp-content/uploads/2019/11/12-EXT4-1.pdf      ext4对于大文件采用的是per inode预留分配空间的方式分配，对于小文件采用的是per_cpu locality group的方式，那么怎么定义文件是大文件还是小文件呢？在sys文件系统的“&#x2F;sys&#x2F;f
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-01-08 21:18" pubdate>
-              2025-01-08
             </time>
           </div>
         
