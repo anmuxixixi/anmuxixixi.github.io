@@ -16,30 +16,30 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="f2fs文件系统gc垃圾回收1.SSD垃圾回收简介  图片源自：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;639777178 2.垃圾回收思想及论文描述2.1 垃圾回收基本思想我们把F2FS的垃圾回收比作工厂大迁移，假设在京肯德基门店，由于生意不好，准备迁移到上海去，那么作为老板肯定要做以下几件事情：  【目标选择】选择哪些门店要迁走，在南京有许多的肯德基，肯定是选择人流量最少的迁">
+    <meta name="description" content="f2fs文件系统gc垃圾回收（一）概述1.SSD垃圾回收简介  图片源自：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;639777178 2.垃圾回收思想及论文描述2.1 垃圾回收基本思想我们把F2FS的垃圾回收比作工厂大迁移，假设在京肯德基门店，由于生意不好，准备迁移到上海去，那么作为老板肯定要做以下几件事情：  【目标选择】选择哪些门店要迁走，在南京有许多的肯德基，肯定是选择人流">
 <meta property="og:type" content="article">
-<meta property="og:title" content="f2fs文件系统gc垃圾回收">
-<meta property="og:url" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/index.html">
+<meta property="og:title" content="f2fs文件系统gc垃圾回收（一）概述">
+<meta property="og:url" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="f2fs文件系统gc垃圾回收1.SSD垃圾回收简介  图片源自：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;639777178 2.垃圾回收思想及论文描述2.1 垃圾回收基本思想我们把F2FS的垃圾回收比作工厂大迁移，假设在京肯德基门店，由于生意不好，准备迁移到上海去，那么作为老板肯定要做以下几件事情：  【目标选择】选择哪些门店要迁走，在南京有许多的肯德基，肯定是选择人流量最少的迁">
+<meta property="og:description" content="f2fs文件系统gc垃圾回收（一）概述1.SSD垃圾回收简介  图片源自：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;639777178 2.垃圾回收思想及论文描述2.1 垃圾回收基本思想我们把F2FS的垃圾回收比作工厂大迁移，假设在京肯德基门店，由于生意不好，准备迁移到上海去，那么作为老板肯定要做以下几件事情：  【目标选择】选择哪些门店要迁走，在南京有许多的肯德基，肯定是选择人流">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/v2-887eb43aa793e4ddd190ffeb53a1f66b_r.jpg">
-<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130223739664.png">
-<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130223754438.png">
-<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130223841049.png">
-<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202203311290.png">
-<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202204113251.png">
-<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130225728130.png">
-<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202211013776.png">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/v2-887eb43aa793e4ddd190ffeb53a1f66b_r.jpg">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231130223739664.png">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231130223754438.png">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231130223841049.png">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231202203311290.png">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231202204113251.png">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231130225728130.png">
+<meta property="og:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231202211013776.png">
 <meta property="article:published_time" content="2023-11-30T14:13:07.000Z">
-<meta property="article:modified_time" content="2023-12-02T13:14:47.267Z">
+<meta property="article:modified_time" content="2025-05-28T15:04:17.084Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/v2-887eb43aa793e4ddd190ffeb53a1f66b_r.jpg">
+<meta name="twitter:image" content="http://example.com/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/v2-887eb43aa793e4ddd190ffeb53a1f66b_r.jpg">
   
   
   
-  <title>f2fs文件系统gc垃圾回收 - 喝口白桃呜龙</title>
+  <title>f2fs文件系统gc垃圾回收（一）概述 - 喝口白桃呜龙</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -197,7 +197,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="f2fs文件系统gc垃圾回收"></span>
+            <span id="subtitle" data-typed-text="f2fs文件系统gc垃圾回收（一）概述"></span>
           
         </div>
 
@@ -277,12 +277,12 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">f2fs文件系统gc垃圾回收</h1>
+            <h1 style="display: none">f2fs文件系统gc垃圾回收（一）概述</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="f2fs文件系统gc垃圾回收"><a href="#f2fs文件系统gc垃圾回收" class="headerlink" title="f2fs文件系统gc垃圾回收"></a>f2fs文件系统gc垃圾回收</h1><h2 id="1-SSD垃圾回收简介"><a href="#1-SSD垃圾回收简介" class="headerlink" title="1.SSD垃圾回收简介"></a>1.SSD垃圾回收简介</h2><img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/v2-887eb43aa793e4ddd190ffeb53a1f66b_r.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
+                <h1 id="f2fs文件系统gc垃圾回收（一）概述"><a href="#f2fs文件系统gc垃圾回收（一）概述" class="headerlink" title="f2fs文件系统gc垃圾回收（一）概述"></a>f2fs文件系统gc垃圾回收（一）概述</h1><h2 id="1-SSD垃圾回收简介"><a href="#1-SSD垃圾回收简介" class="headerlink" title="1.SSD垃圾回收简介"></a>1.SSD垃圾回收简介</h2><img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/v2-887eb43aa793e4ddd190ffeb53a1f66b_r.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:67%;">
 
 <p>图片源自：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/639777178">https://zhuanlan.zhihu.com/p/639777178</a></p>
 <h2 id="2-垃圾回收思想及论文描述"><a href="#2-垃圾回收思想及论文描述" class="headerlink" title="2.垃圾回收思想及论文描述"></a>2.垃圾回收思想及论文描述</h2><h3 id="2-1-垃圾回收基本思想"><a href="#2-1-垃圾回收基本思想" class="headerlink" title="2.1 垃圾回收基本思想"></a>2.1 垃圾回收基本思想</h3><p>我们把F2FS的垃圾回收比作工厂大迁移，假设在京肯德基门店，由于生意不好，准备迁移到上海去，那么作为老板肯定要做以下几件事情：</p>
@@ -295,17 +295,17 @@
 <ol>
 <li>Victim Selection：【目标选择】</li>
 </ol>
-<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130223739664.png" srcset="/img/loading.gif" lazyload alt="image-20231130223739664" style="zoom: 67%;">
+<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231130223739664.png" srcset="/img/loading.gif" lazyload alt="image-20231130223739664" style="zoom: 67%;">
 
 <ol start="2">
 <li>Valid block identfication and migration：【数据迁移】</li>
 </ol>
-<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130223754438.png" srcset="/img/loading.gif" lazyload alt="image-20231130223754438" style="zoom: 67%;">
+<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231130223754438.png" srcset="/img/loading.gif" lazyload alt="image-20231130223754438" style="zoom: 67%;">
 
 <ol start="3">
 <li>Post-cleaning process：【后续清理】</li>
 </ol>
-<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130223841049.png" srcset="/img/loading.gif" lazyload alt="image-20231130223841049" style="zoom:67%;">
+<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231130223841049.png" srcset="/img/loading.gif" lazyload alt="image-20231130223841049" style="zoom:67%;">
 
 
 
@@ -331,10 +331,10 @@
 <ul>
 <li>dirty_segmap中维护的是脏Segment的状态，Segment分为Node和Data两种类型，又分为三种状态：dirty-&gt;pre-free-&gt;free</li>
 </ul>
-<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202203311290.png" srcset="/img/loading.gif" lazyload alt="image-20231202203311290" style="zoom: 67%;">
+<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231202203311290.png" srcset="/img/loading.gif" lazyload alt="image-20231202203311290" style="zoom: 67%;">
 
 <p>在<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/11/27/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E9%85%8Dsegment/#3-1-%E7%A1%AE%E5%AE%9Avictim-sel-policy%E5%8F%82%E6%95%B0">确定victim_sel_policy参数</a>文章中，我阐述了6种DIRTY的Node&#x2F;Data Segement，这次介绍DIRTY和PRE两种状态（状态不区分Data&#x2F;Node）</p>
-<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202204113251.png" srcset="/img/loading.gif" lazyload alt="image-20231202204113251" style="zoom:67%;">
+<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231202204113251.png" srcset="/img/loading.gif" lazyload alt="image-20231202204113251" style="zoom:67%;">
 
 <p>当一个Segment中使用的块valid_blocks为0，待下刷的块为ckpt_valid_blocks为512时，说明这个Segment中的block已经迁移完成等待清理，此时状态为PRE-FREE！</p>
 <ul>
@@ -347,7 +347,7 @@
 
 <h3 id="4-1-【目标选择】"><a href="#4-1-【目标选择】" class="headerlink" title="4.1 【目标选择】"></a>4.1 【目标选择】</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> __get_victim(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> *victim,<br>			<span class="hljs-type">int</span> gc_type)<br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_info</span> *<span class="hljs-title">sit_i</span> =</span> SIT_I(sbi);<br>    <span class="hljs-type">int</span> ret;<br>	ret = DIRTY_I(sbi)-&gt;v_ops-&gt;get_victim(sbi, victim, gc_type, NO_CHECK_TYPE, LFS, <span class="hljs-number">0</span>);<br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231130225728130.png" srcset="/img/loading.gif" lazyload alt="image-20231130225728130" style="zoom:67%;">
+<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231130225728130.png" srcset="/img/loading.gif" lazyload alt="image-20231130225728130" style="zoom:67%;">
 
 <p>如何选择我们要回收的Victim【注意，GC的基本单位为Section，但是通常Section&#x3D;Segment】，参考我的另外一篇文章：<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/11/27/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E9%85%8Dsegment/#3-Victim%E9%80%89%E6%8B%A9">Victim选择</a></p>
 <h3 id="4-2-【数据迁移】"><a href="#4-2-【数据迁移】" class="headerlink" title="4.2 【数据迁移】"></a>4.2 【数据迁移】</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">do_garbage_collect</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi,</span><br><span class="hljs-params">				<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> start_segno,</span><br><span class="hljs-params">				<span class="hljs-keyword">struct</span> gc_inode_list *gc_list, <span class="hljs-type">int</span> gc_type)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">sum_page</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary_block</span> *<span class="hljs-title">sum</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blk_plug</span> <span class="hljs-title">plug</span>;</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> segno = start_segno;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> end_segno = start_segno + sbi-&gt;segs_per_sec;<br>	<span class="hljs-type">int</span> seg_freed = <span class="hljs-number">0</span>, migrated = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> type = IS_DATASEG(get_seg_entry(sbi, segno)-&gt;type) ? SUM_TYPE_DATA : SUM_TYPE_NODE;<br><br>	<span class="hljs-keyword">for</span> (segno = start_segno; segno &lt; end_segno; segno++) &#123;<br>        <span class="hljs-comment">// 找到summary page页</span><br>		sum_page = find_get_page(META_MAPPING(sbi), GET_SUM_BLOCK(sbi, segno));<br>		sum = page_address(sum_page);<br><br>		<span class="hljs-keyword">if</span> (type == SUM_TYPE_NODE)<br>			submitted += gc_node_segment(sbi, sum-&gt;entries, segno, gc_type);<br>		<span class="hljs-keyword">else</span><br>			submitted += gc_data_segment(sbi, sum-&gt;entries, gc_list, segno, gc_type);<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> seg_freed;<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -358,7 +358,7 @@
 <ul>
 <li><code>f2fs_ra_meta_pages(sbi, NAT_BLOCK_OFFSET(nid), 1, META_NAT, true)</code>：NAT_BLOCK_OFFSET通过nid定位属于哪一个f2fs_nat_block，然后将其加载到Page Cache中，提前预读的目的后面要迁移node page，那么nid和blkaddr的映射关系肯定需要修改。【在**(f2fs_move_node_page -&gt; )write node page**流程中会调用set_node_addr更新nat中对应的new_blkaddr】下面的流程可以清除的看到set_node_addr时首先会去cache中找，当然更新new_blkaddr后也是更新到page cache中，要等到checkpoint流程才会刷写到cp journal或nat中。</li>
 </ul>
-<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/image-20231202211013776.png" srcset="/img/loading.gif" lazyload alt="image-20231202211013776" style="zoom: 60%;">
+<img src="/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/image-20231202211013776.png" srcset="/img/loading.gif" lazyload alt="image-20231202211013776" style="zoom: 60%;">
 
 <ul>
 <li><code>f2fs_ra_node_page(sbi, nid)</code>：根据nid读取node page加载到Page Cache，提前预读的目的是后面会调用f2fs_get_node_page拿到这个页然后进行move page。</li>
@@ -403,8 +403,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>f2fs文件系统gc垃圾回收</div>
-      <div>http://example.com/2023/11/30/f2fs文件系统gc垃圾回收/</div>
+      <div>f2fs文件系统gc垃圾回收（一）概述</div>
+      <div>http://example.com/2023/11/30/f2fs文件系统gc垃圾回收（一）概述/</div>
     </div>
     <div class="license-meta">
       
