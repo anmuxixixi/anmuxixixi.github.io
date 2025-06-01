@@ -16,17 +16,20 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="f2fs_summary到底是什么一直对f2fs_summary一知半解，只知道外貌，精神内核却不得而知。最近正好在读gc代码，发现这玩意非常有用，就记录一下！ 首先看他的定义：include\linux\f2fs_fs.h 1234567891011&#x2F;* a summary entry for a 4KB-sized block in a segment *&#x2F;struct f2fs_summar">
+    <meta name="description" content="f2fs_summary到底是什么一直对f2fs_summary一知半解，只知道外貌，精神内核却不得而知。最近正好在读gc代码，发现这玩意非常有用，就记录一下！   首先看他的定义：include\linux\f2fs_fs.h 1234567891011121314151617181920212223#define ENTRIES_IN_SUM		512struct f2fs_summary_b">
 <meta property="og:type" content="article">
 <meta property="og:title" content="f2fs_summary到底是什么">
 <meta property="og:url" content="http://example.com/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="f2fs_summary到底是什么一直对f2fs_summary一知半解，只知道外貌，精神内核却不得而知。最近正好在读gc代码，发现这玩意非常有用，就记录一下！ 首先看他的定义：include\linux\f2fs_fs.h 1234567891011&#x2F;* a summary entry for a 4KB-sized block in a segment *&#x2F;struct f2fs_summar">
+<meta property="og:description" content="f2fs_summary到底是什么一直对f2fs_summary一知半解，只知道外貌，精神内核却不得而知。最近正好在读gc代码，发现这玩意非常有用，就记录一下！   首先看他的定义：include\linux\f2fs_fs.h 1234567891011121314151617181920212223#define ENTRIES_IN_SUM		512struct f2fs_summary_b">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/1.png">
+<meta property="og:image" content="http://example.com/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/image-20250601132811761.png">
 <meta property="article:published_time" content="2025-06-01T02:56:11.000Z">
-<meta property="article:modified_time" content="2025-06-01T03:00:28.972Z">
+<meta property="article:modified_time" content="2025-06-01T05:28:15.707Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/1.png">
   
   
   
@@ -211,7 +214,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          372 字
+          635 字
         
       </span>
     
@@ -222,7 +225,7 @@
         
         
         
-          4 分钟
+          6 分钟
         
       </span>
     
@@ -274,9 +277,17 @@
               <div class="markdown-body">
                 
                 <h1 id="f2fs-summary到底是什么"><a href="#f2fs-summary到底是什么" class="headerlink" title="f2fs_summary到底是什么"></a>f2fs_summary到底是什么</h1><p>一直对f2fs_summary一知半解，只知道外貌，精神内核却不得而知。最近正好在读gc代码，发现这玩意非常有用，就记录一下！</p>
-<p>首先看他的定义：<em><strong>include\linux\f2fs_fs.h</strong></em></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* a summary entry for a 4KB-sized block in a segment */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary</span> &#123;</span><br>	__le32 nid;		<span class="hljs-comment">/* parent node id */</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		__u8 reserved[<span class="hljs-number">3</span>];<br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>			__u8 version;		<span class="hljs-comment">/* node version number */</span><br>			__le16 ofs_in_node;	<span class="hljs-comment">/* block index in parent node */</span><br>		&#125; __packed;<br>	&#125;;<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+<img src="/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
 
+<p>首先看他的定义：<em><strong>include\linux\f2fs_fs.h</strong></em></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> ENTRIES_IN_SUM		512</span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary_block</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary</span> <span class="hljs-title">entries</span>[<span class="hljs-title">ENTRIES_IN_SUM</span>];</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_journal</span> <span class="hljs-title">journal</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">summary_footer</span> <span class="hljs-title">footer</span>;</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_summary</span> &#123;</span><br>	__le32 nid;		<span class="hljs-comment">/* parent node id */</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		__u8 reserved[<span class="hljs-number">3</span>];<br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>			__u8 version;		<span class="hljs-comment">/* node version number */</span><br>			__le16 ofs_in_node;	<span class="hljs-comment">/* block index in parent node */</span><br>		&#125; __packed;<br>	&#125;;<br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">summary_footer</span> &#123;</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> entry_type;	<span class="hljs-comment">/* SUM_TYPE_XXX */</span><br>	__le32 check_sum;		<span class="hljs-comment">/* summary checksum */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<p>实验内容：</p>
+<img src="/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/image-20250601132811761.png" srcset="/img/loading.gif" lazyload alt="image-20250601132811761" style="zoom:80%;">
 
                 
               </div>
