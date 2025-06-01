@@ -16,21 +16,21 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="f2fs文件系统gc垃圾回收（二）后台GCgc：线程启动初始化 &amp; 启动线程123456789101112131415161718int f2fs_start_gc_thread(struct f2fs_sb_info *sbi)&amp;#123;    struct f2fs_gc_kthread *gc_th;	gc_th &#x3D; f2fs_kmalloc(sbi, sizeof(struct">
+    <meta name="description" content="f2fs_summary到底是什么一直对f2fs_summary一知半解，只知道外貌，精神内核却不得而知。最近正好在读gc代码，发现这玩意非常有用，就记录一下！">
 <meta property="og:type" content="article">
-<meta property="og:title" content="f2fs文件系统gc垃圾回收（二）后台GC">
-<meta property="og:url" content="http://example.com/2025/05/28/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%BA%8C%EF%BC%89%E5%90%8E%E5%8F%B0GC/index.html">
+<meta property="og:title" content="f2fs_summary到底是什么">
+<meta property="og:url" content="http://example.com/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="f2fs文件系统gc垃圾回收（二）后台GCgc：线程启动初始化 &amp; 启动线程123456789101112131415161718int f2fs_start_gc_thread(struct f2fs_sb_info *sbi)&amp;#123;    struct f2fs_gc_kthread *gc_th;	gc_th &#x3D; f2fs_kmalloc(sbi, sizeof(struct">
+<meta property="og:description" content="f2fs_summary到底是什么一直对f2fs_summary一知半解，只知道外貌，精神内核却不得而知。最近正好在读gc代码，发现这玩意非常有用，就记录一下！">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-05-28T15:11:21.000Z">
-<meta property="article:modified_time" content="2025-06-01T02:49:51.636Z">
+<meta property="article:published_time" content="2025-06-01T02:56:11.000Z">
+<meta property="article:modified_time" content="2025-06-01T02:57:27.133Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>f2fs文件系统gc垃圾回收（二）后台GC - 喝口白桃呜龙</title>
+  <title>f2fs_summary到底是什么 - 喝口白桃呜龙</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -188,7 +188,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="f2fs文件系统gc垃圾回收（二）后台GC"></span>
+            <span id="subtitle" data-typed-text="f2fs_summary到底是什么"></span>
           
         </div>
 
@@ -199,8 +199,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-05-28 23:11" pubdate>
-          2025年5月28日 晚上
+        <time datetime="2025-06-01 10:56" pubdate>
+          2025年6月1日 上午
         </time>
       </span>
     
@@ -211,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.6k 字
+          80 字
         
       </span>
     
@@ -222,7 +222,7 @@
         
         
         
-          30 分钟
+          1 分钟
         
       </span>
     
@@ -268,26 +268,12 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">f2fs文件系统gc垃圾回收（二）后台GC</h1>
+            <h1 style="display: none">f2fs_summary到底是什么</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="f2fs文件系统gc垃圾回收（二）后台GC"><a href="#f2fs文件系统gc垃圾回收（二）后台GC" class="headerlink" title="f2fs文件系统gc垃圾回收（二）后台GC"></a>f2fs文件系统gc垃圾回收（二）后台GC</h1><h2 id="gc：线程启动"><a href="#gc：线程启动" class="headerlink" title="gc：线程启动"></a>gc：线程启动</h2><h3 id="初始化-amp-启动线程"><a href="#初始化-amp-启动线程" class="headerlink" title="初始化 &amp; 启动线程"></a>初始化 &amp; 启动线程</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_start_gc_thread</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_gc_kthread</span> *<span class="hljs-title">gc_th</span>;</span><br>	gc_th = f2fs_kmalloc(sbi, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> f2fs_gc_kthread), GFP_KERNEL);<br><br>	gc_th-&gt;urgent_sleep_time = DEF_GC_THREAD_URGENT_SLEEP_TIME;  <span class="hljs-comment">/* 500ms*/</span><br>	gc_th-&gt;min_sleep_time = DEF_GC_THREAD_MIN_SLEEP_TIME;  <span class="hljs-comment">/* 默认30s */</span><br>	gc_th-&gt;max_sleep_time = DEF_GC_THREAD_MAX_SLEEP_TIME;  <span class="hljs-comment">/* 默认60s */</span><br>	gc_th-&gt;no_gc_sleep_time = DEF_GC_THREAD_NOGC_SLEEP_TIME;  <span class="hljs-comment">/* 默认5min(300s) */</span><br><br>	gc_th-&gt;gc_wake= <span class="hljs-number">0</span>;<br><br>	sbi-&gt;gc_thread = gc_th;<br>	init_waitqueue_head(&amp;sbi-&gt;gc_thread-&gt;gc_wait_queue_head);<br>    <span class="hljs-comment">// 启动gc_thread_func线程</span><br>	sbi-&gt;gc_thread-&gt;f2fs_gc_task = kthread_run(gc_thread_func, sbi,<br>			<span class="hljs-string">&quot;f2fs_gc-%u:%u&quot;</span>, MAJOR(dev), MINOR(dev));<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>启动线程，线程处理函数为gc_thread_func</p>
-<h3 id="执行gc的条件"><a href="#执行gc的条件" class="headerlink" title="执行gc的条件"></a>执行gc的条件</h3><p>不是线程唤醒之后每次都要执行gc，有一系列的条件，大部分唤醒之后都不符合，留了一个最常见的<code>is_idle(sbi, GC_TIME)</code></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">gc_thread_func</span><span class="hljs-params">(<span class="hljs-type">void</span> *data)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sb_info</span> *<span class="hljs-title">sbi</span> =</span> data;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_gc_kthread</span> *<span class="hljs-title">gc_th</span> =</span> sbi-&gt;gc_thread;<br>	<span class="hljs-type">wait_queue_head_t</span> *wq = &amp;sbi-&gt;gc_thread-&gt;gc_wait_queue_head;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> wait_ms;<br><br>	wait_ms = gc_th-&gt;min_sleep_time;  <span class="hljs-comment">// 默认等待时长为30s</span><br><br>	set_freezable();<br>	<span class="hljs-keyword">do</span> &#123;<br>		<span class="hljs-type">bool</span> sync_mode;<br><br>        <span class="hljs-comment">// 如果条件没有唤醒，则等待wait_ms后自动唤醒</span><br>		wait_event_interruptible_timeout(*wq,<br>				kthread_should_stop() || freezing(current) ||<br>				gc_th-&gt;gc_wake,<br>				msecs_to_jiffies(wait_ms));<br><br>		<span class="hljs-comment">/* give it a try one time */</span><br>		<span class="hljs-keyword">if</span> (gc_th-&gt;gc_wake)<br>			gc_th-&gt;gc_wake = <span class="hljs-number">0</span>;<br><br>		<span class="hljs-keyword">if</span> (!is_idle(sbi, GC_TIME)) &#123;<br>			increase_sleep_time(gc_th, &amp;wait_ms);<br>			up_write(&amp;sbi-&gt;gc_lock);<br>			stat_io_skip_bggc_count(sbi);<br>			<span class="hljs-keyword">goto</span> next;<br>		&#125;<br><br>		<span class="hljs-keyword">if</span> (has_enough_invalid_blocks(sbi))  <span class="hljs-comment">/* 有效块不足，所以缩短时间 */</span><br>			decrease_sleep_time(gc_th, &amp;wait_ms);<br>		<span class="hljs-keyword">else</span><br>			increase_sleep_time(gc_th, &amp;wait_ms);<br>do_gc:<br>		stat_inc_bggc_count(sbi-&gt;stat_info);<br>		<span class="hljs-comment">// 默认: F2FS_OPTION(sbi).bggc_mode = BGGC_MODE_ON;</span><br>		sync_mode = F2FS_OPTION(sbi).bggc_mode == BGGC_MODE_SYNC;<br><br>		<span class="hljs-keyword">if</span> (f2fs_gc(sbi, sync_mode, <span class="hljs-literal">true</span>, NULL_SEGNO))<br>			wait_ms = gc_th-&gt;no_gc_sleep_time;<br><br>		f2fs_balance_fs_bg(sbi, <span class="hljs-literal">true</span>);<br>next:<br>		sb_end_write(sbi-&gt;sb);<br><br>	&#125; <span class="hljs-keyword">while</span> (!kthread_should_stop());<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<h2 id="gc：开始牛马生活，正式执行工作"><a href="#gc：开始牛马生活，正式执行工作" class="headerlink" title="gc：开始牛马生活，正式执行工作"></a>gc：开始牛马生活，正式执行工作</h2><p>由于是后台GC，默认有足够的空间，所以去除了一些判断条件</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_gc</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi, <span class="hljs-type">bool</span> sync,</span><br><span class="hljs-params">			<span class="hljs-type">bool</span> background, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> segno)</span><br>&#123;<br>    <span class="hljs-type">int</span> gc_type = sync ? FG_GC : BG_GC;  <span class="hljs-comment">// 本文先讨论后台GC</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">gc_inode_list</span> <span class="hljs-title">gc_list</span> =</span> &#123;<br>		.ilist = LIST_HEAD_INIT(gc_list.ilist),<br>		.iroot = RADIX_TREE_INIT(gc_list.iroot, GFP_NOFS),<br>	&#125;;<br><br>	ret = __get_victim(sbi, &amp;segno, gc_type);  <span class="hljs-comment">/* 选择要清理的segment */</span><br>	seg_freed = do_garbage_collect(sbi, segno, &amp;gc_list, gc_type);<br>	total_freed += seg_freed;<br>stop:<br>	SIT_I(sbi)-&gt;last_victim[ALLOC_NEXT] = <span class="hljs-number">0</span>;<br>	SIT_I(sbi)-&gt;last_victim[FLUSH_DEVICE] = init_segno;<br><br>	up_write(&amp;sbi-&gt;gc_lock);<br>	put_gc_inode(&amp;gc_list);<br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
-
-
-
-<h3 id="清理选择的对象"><a href="#清理选择的对象" class="headerlink" title="清理选择的对象"></a>清理选择的对象</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c"><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">do_garbage_collect</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi,</span><br><span class="hljs-params">				<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> start_segno,</span><br><span class="hljs-params">				<span class="hljs-keyword">struct</span> gc_inode_list *gc_list, <span class="hljs-type">int</span> gc_type)</span><br>&#123;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> segno = start_segno;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> end_segno = start_segno + sbi-&gt;segs_per_sec;<br>	<span class="hljs-keyword">while</span> (segno &lt; end_segno) &#123;<br>        <span class="hljs-comment">// 读取segment对应的sum_page</span><br>		sum_page = f2fs_get_sum_page(sbi, segno++);<br>	&#125;<br><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> type = IS_DATASEG(get_seg_entry(sbi, segno)-&gt;type) ?<br>						SUM_TYPE_DATA : SUM_TYPE_NODE;<br>	<span class="hljs-keyword">for</span> (segno = start_segno; segno &lt; end_segno; segno++) &#123;<br>		sum_page = find_get_page(META_MAPPING(sbi), GET_SUM_BLOCK(sbi, segno));<br>		sum = page_address(sum_page);<br>		<span class="hljs-keyword">if</span> (type == SUM_TYPE_NODE)<br>			submitted += gc_node_segment(sbi, sum-&gt;entries, segno, gc_type);<br>		<span class="hljs-keyword">else</span><br>			submitted += gc_data_segment(sbi, sum-&gt;entries, gc_list, segno, gc_type);<br><br>		stat_inc_seg_count(sbi, type, gc_type);<br>		migrated++;<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (submitted)<br>		f2fs_submit_merged_write(sbi, (type == SUM_TYPE_NODE) ? NODE : DATA);<br><br>	<span class="hljs-keyword">return</span> seg_freed;<br>&#125;<br></code></pre></td></tr></table></figure>
-
+                <h1 id="f2fs-summary到底是什么"><a href="#f2fs-summary到底是什么" class="headerlink" title="f2fs_summary到底是什么"></a>f2fs_summary到底是什么</h1><p>一直对f2fs_summary一知半解，只知道外貌，精神内核却不得而知。最近正好在读gc代码，发现这玩意非常有用，就记录一下！</p>
 
                 
               </div>
@@ -305,8 +291,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>f2fs文件系统gc垃圾回收（二）后台GC</div>
-      <div>http://example.com/2025/05/28/f2fs文件系统gc垃圾回收（二）后台GC/</div>
+      <div>f2fs_summary到底是什么</div>
+      <div>http://example.com/2025/06/01/f2fs-summary到底是什么/</div>
     </div>
     <div class="license-meta">
       
@@ -318,7 +304,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年5月28日</div>
+          <div>2025年6月1日</div>
         </div>
       
       
@@ -350,18 +336,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" title="f2fs_summary到底是什么">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">f2fs_summary到底是什么</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/05/23/%E6%AD%BB%E9%94%81%E6%A3%80%E6%B5%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E5%BC%80%E5%8F%91/" title="死锁检测小工具开发">
-                        <span class="hidden-mobile">死锁检测小工具开发</span>
+                      <a href="/2025/05/28/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%BA%8C%EF%BC%89%E5%90%8E%E5%8F%B0GC/" title="f2fs文件系统gc垃圾回收（二）后台GC">
+                        <span class="hidden-mobile">f2fs文件系统gc垃圾回收（二）后台GC</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

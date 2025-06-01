@@ -219,6 +219,40 @@
       <h1 class="index-header">
         
         
+        <a href="/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" target="_self">
+          f2fs_summary到底是什么
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" target="_self">
+        <div>
+          f2fs_summary到底是什么一直对f2fs_summary一知半解，只知道外貌，精神内核却不得而知。最近正好在读gc代码，发现这玩意非常有用，就记录一下！
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-06-01 10:56" pubdate>
+              2025-06-01
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
         <a href="/2025/05/28/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%BA%8C%EF%BC%89%E5%90%8E%E5%8F%B0GC/" target="_self">
           f2fs文件系统gc垃圾回收（二）后台GC
         </a>
@@ -227,7 +261,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2025/05/28/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%BA%8C%EF%BC%89%E5%90%8E%E5%8F%B0GC/" target="_self">
         <div>
-          f2fs文件系统gc垃圾回收（二）后台GC
+          f2fs文件系统gc垃圾回收（二）后台GCgc：线程启动初始化 &amp; 启动线程123456789101112131415161718int f2fs_start_gc_thread(struct f2fs_sb_info *sbi)&#123;    struct f2fs_gc_kthread *gc_th;	gc_th = f2fs_kmalloc(sbi, sizeof(struct
         </div>
       </a>
 
@@ -509,40 +543,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2025-04-17 20:20" pubdate>
               2025-04-17
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/" target="_self">
-          exfat文件元数据写入流程
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/" target="_self">
-        <div>
-          exfat文件元数据写入流程实验部分情况一：非碎片化不需要分配新的簇写入向hello.txt写入下面的值   用wireshark抓包得到的值有2组：   首先写入的是文件数据【只下发了512字节，为什么不是4096字节？】   随后写入的是文件的元数据【元数据下发了4096字节】   情况二：非碎片化需要分配新的簇写入（直接复制一个文件）写入一个稍大的文件elf.h   比较有意思的一点是目录表
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-04-12 21:23" pubdate>
-              2025-04-12
             </time>
           </div>
         
