@@ -1,0 +1,728 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="模拟锁竞争产生futex_wait_queue_me实验模拟12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758#include &lt;iostream&gt;#include &lt;pthread.h&gt;#include &amp;lt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模拟锁竞争产生futex_wait_queue_me">
+<meta property="og:url" content="http://example.com/2025/07/01/%E6%A8%A1%E6%8B%9F%E9%94%81%E7%AB%9E%E4%BA%89%E4%BA%A7%E7%94%9Ffutex-wait-queue-me/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="模拟锁竞争产生futex_wait_queue_me实验模拟12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758#include &lt;iostream&gt;#include &lt;pthread.h&gt;#include &amp;lt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/07/01/%E6%A8%A1%E6%8B%9F%E9%94%81%E7%AB%9E%E4%BA%89%E4%BA%A7%E7%94%9Ffutex-wait-queue-me/image-20250701223209248.png">
+<meta property="article:published_time" content="2025-07-01T14:30:23.000Z">
+<meta property="article:modified_time" content="2025-07-01T14:42:13.739Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/07/01/%E6%A8%A1%E6%8B%9F%E9%94%81%E7%AB%9E%E4%BA%89%E4%BA%A7%E7%94%9Ffutex-wait-queue-me/image-20250701223209248.png">
+  
+  
+  
+  <title>模拟锁竞争产生futex_wait_queue_me - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="模拟锁竞争产生futex_wait_queue_me"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-07-01 22:30" pubdate>
+          2025年7月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">模拟锁竞争产生futex_wait_queue_me</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="模拟锁竞争产生futex-wait-queue-me"><a href="#模拟锁竞争产生futex-wait-queue-me" class="headerlink" title="模拟锁竞争产生futex_wait_queue_me"></a>模拟锁竞争产生futex_wait_queue_me</h1><h2 id="实验模拟"><a href="#实验模拟" class="headerlink" title="实验模拟"></a>实验模拟</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><br><span class="hljs-type">pthread_mutex_t</span> mutex;<br><br><span class="hljs-comment">// Shared resource counter</span><br><span class="hljs-type">int</span> sharedCounter = <span class="hljs-number">0</span>;<br><br><span class="hljs-comment">// Thread function - Simulate lock contention</span><br><span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-title">threadFunction</span><span class="hljs-params">(<span class="hljs-type">void</span>* arg)</span> </span>&#123;<br>    <span class="hljs-type">int</span> threadId = *(<span class="hljs-type">int</span>*)arg;<br>    <br>    <span class="hljs-comment">// Simulate frequent lock contention among multiple threads</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100000</span>; ++i) &#123;<br>        <span class="hljs-built_in">pthread_mutex_lock</span>(&amp;mutex);<br>        <br>        <span class="hljs-comment">// Critical section: increment shared counter</span><br>        ++sharedCounter;<br>        <br>        <span class="hljs-comment">// Simulate some workload</span><br>        <span class="hljs-keyword">if</span> (i % <span class="hljs-number">10000</span> == <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-built_in">usleep</span>(<span class="hljs-number">10000000</span>); <span class="hljs-comment">// Short sleep to increase lock contention</span><br>        &#125;<br>        <br>        <span class="hljs-built_in">pthread_mutex_unlock</span>(&amp;mutex);<br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> threadCount = <span class="hljs-number">2</span>;<br>    <span class="hljs-type">pthread_t</span> threads[threadCount];<br>    <span class="hljs-type">int</span> threadIds[threadCount];<br><br>    <span class="hljs-comment">// Initialize mutex</span><br>    <span class="hljs-built_in">pthread_mutex_init</span>(&amp;mutex, <span class="hljs-literal">nullptr</span>);<br><br>    <span class="hljs-comment">// Create multiple threads</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; threadCount; ++i) &#123;<br>        threadIds[i] = i;<br>        <span class="hljs-built_in">pthread_create</span>(&amp;threads[i], <span class="hljs-literal">nullptr</span>, threadFunction, &amp;threadIds[i]);<br>    &#125;<br><br>    <span class="hljs-comment">// Wait for all threads to complete</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; threadCount; ++i) &#123;<br>        <span class="hljs-built_in">pthread_join</span>(threads[i], <span class="hljs-literal">nullptr</span>);<br>    &#125;<br><br>    <span class="hljs-comment">// Destroy mutex</span><br>    <span class="hljs-built_in">pthread_mutex_destroy</span>(&amp;mutex);<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;All threads completed. Shared counter value: &quot;</span> &lt;&lt; sharedCounter &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Expected value: &quot;</span> &lt;&lt; <span class="hljs-number">100000</span> * threadCount &lt;&lt; std::endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>实验结果</p>
+<img src="/2025/07/01/%E6%A8%A1%E6%8B%9F%E9%94%81%E7%AB%9E%E4%BA%89%E4%BA%A7%E7%94%9Ffutex-wait-queue-me/image-20250701223209248.png" srcset="/img/loading.gif" lazyload alt="image-20250701223209248" style="zoom:80%;">
+
+<h2 id="在线源码"><a href="#在线源码" class="headerlink" title="在线源码"></a>在线源码</h2><p>pthread_mutex_lock与futex_wait关系：</p>
+<p><a target="_blank" rel="noopener" href="https://cs.android.com/android/platform/superproject/main/+/main:bionic/libc/bionic/pthread_mutex.cpp">https://cs.android.com/android/platform/superproject/main/+/main:bionic/libc/bionic/pthread_mutex.cpp</a></p>
+<h3 id="1-Futex-机制的基本原理"><a href="#1-Futex-机制的基本原理" class="headerlink" title="1. Futex 机制的基本原理"></a>1. Futex 机制的基本原理</h3><p>Futex（Fast Userspace Mutex）是 Linux 内核提供的一种用户空间与内核空间协同的同步机制，其设计目标是在无竞争的情况下避免系统调用，从而提升性能。Futex 的工作模式如下：</p>
+<ul>
+<li><strong>无竞争场景</strong>：若锁当前未被占用，线程可直接在用户空间获取锁，无需陷入内核。</li>
+<li><strong>有竞争场景</strong>：当锁已被其他线程持有时，获取锁失败的线程会先进行短暂的自旋等待。若锁仍未释放，线程就会通过系统调用进入内核，将自身加入等待队列并进入睡眠状态。</li>
+</ul>
+<h3 id="2-pthread-mutex-lock-的执行流程"><a href="#2-pthread-mutex-lock-的执行流程" class="headerlink" title="2. pthread_mutex_lock () 的执行流程"></a>2. pthread_mutex_lock () 的执行流程</h3><p>当调用 <code>pthread_mutex_lock()</code> 时，函数会按以下步骤执行：</p>
+<ol>
+<li><strong>原子操作尝试获取锁</strong>：借助原子指令（如 <code>compare-and-swap</code> 或 <code>fetch-and-add</code>）来尝试获取锁。若锁处于未被占用状态，线程会立即获取锁并继续执行。</li>
+<li><strong>自旋等待（短时间）</strong>：若锁已被占用，线程会进行数次自旋尝试（尤其是在多核处理器上），期望锁能很快被释放。</li>
+<li><strong>陷入内核（长时间等待）</strong>：若自旋后锁仍未释放，线程会通过系统调用（如 <code>futex()</code>）进入内核态。此时，线程会被加入等待队列，然后进入睡眠状态。</li>
+</ol>
+<h3 id="3-futex-wait-queue-me-的触发条件"><a href="#3-futex-wait-queue-me-的触发条件" class="headerlink" title="3. futex_wait_queue_me 的触发条件"></a>3. futex_wait_queue_me 的触发条件</h3><p><code>futex_wait_queue_me</code> 是内核中 Futex 实现的一部分，当线程需要等待锁释放时，就会触发该操作。具体触发条件如下：</p>
+<ul>
+<li><strong>锁处于竞争状态</strong>：多个线程同时尝试获取同一个锁。</li>
+<li><strong>锁被长期持有</strong>：持有锁的线程执行耗时操作，使得其他线程的自旋等待超时。</li>
+<li><strong>锁的释放顺序</strong>：当锁被释放时，内核需要从等待队列中唤醒一个或多个线程。</li>
+</ul>
+<h3 id="4-理论性能影响"><a href="#4-理论性能影响" class="headerlink" title="4. 理论性能影响"></a>4. 理论性能影响</h3><p>频繁触发 <code>futex_wait_queue_me</code> 会带来以下性能损耗：</p>
+<ul>
+<li><strong>上下文切换开销</strong>：从用户态到内核态的切换会消耗大量 CPU 周期。</li>
+<li><strong>缓存失效问题</strong>：上下文切换会导致 CPU 缓存失效，降低后续指令的执行效率。</li>
+<li><strong>线程调度延迟</strong>：线程从睡眠状态被唤醒后，需要等待调度器分配 CPU 时间片。</li>
+</ul>
+<h3 id="5-优化策略"><a href="#5-优化策略" class="headerlink" title="5. 优化策略"></a>5. 优化策略</h3><p>若要减少 <code>futex_wait_queue_me</code> 的调用，可以采用以下策略：</p>
+<ul>
+<li><strong>减少锁的粒度</strong>：避免使用大锁，将锁保护的临界区范围缩小。</li>
+<li><strong>降低锁的持有时间</strong>：把与锁无关的操作移出临界区。</li>
+<li>优化锁的使用方式：<ul>
+<li>对于读多写少的场景，使用读写锁（<code>pthread_rwlock</code>）。</li>
+<li>采用无锁数据结构（如原子操作）。</li>
+<li>运用 CAS（Compare-and-Swap）操作实现乐观锁。</li>
+</ul>
+</li>
+<li><strong>调整自旋参数</strong>：通过 <code>pthread_mutexattr_settype()</code> 函数设置 <code>PTHREAD_MUTEX_ADAPTIVE_NP</code> 类型的锁，让系统根据实际情况动态调整自旋次数。</li>
+</ul>
+<h3 id="6-与其他同步机制的对比"><a href="#6-与其他同步机制的对比" class="headerlink" title="6. 与其他同步机制的对比"></a>6. 与其他同步机制的对比</h3><p>不同的同步机制在竞争情况下的表现各异：</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>无竞争性能</th>
+<th>竞争性能</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原子操作（Atomic）</td>
+<td>极高</td>
+<td>高（无锁）</td>
+<td>简单计数器、标志位</td>
+</tr>
+<tr>
+<td>互斥锁（Mutex）</td>
+<td>高</td>
+<td>中（依赖 Futex）</td>
+<td>临界区较小的场景</td>
+</tr>
+<tr>
+<td>读写锁（RWLock）</td>
+<td>高</td>
+<td>较高</td>
+<td>读多写少的场景</td>
+</tr>
+<tr>
+<td>信号量（Semaphore）</td>
+<td>中</td>
+<td>中</td>
+<td>资源计数</td>
+</tr>
+<tr>
+<td>屏障（Barrier）</td>
+<td>中</td>
+<td>中</td>
+<td>线程同步点</td>
+</tr>
+</tbody></table>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><code>pthread_mutex_lock()</code> 在锁竞争激烈的情况下，会通过 <code>futex_wait_queue_me</code> 让线程进入内核等待状态，这是一种正常的内核同步机制。要优化程序性能，关键在于减少锁的争用，而不是完全避免 <code>futex_wait_queue_me</code> 的调用。合理设计同步策略、减小锁的粒度以及降低锁的持有时间，是提升多线程程序性能的关键所在。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>模拟锁竞争产生futex_wait_queue_me</div>
+      <div>http://example.com/2025/07/01/模拟锁竞争产生futex-wait-queue-me/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年7月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/23/gcc%E7%BC%96%E8%AF%91cold%E5%B1%9E%E6%80%A7/" title="gcc编译cold属性">
+                        <span class="hidden-mobile">gcc编译cold属性</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
