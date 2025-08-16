@@ -1,0 +1,680 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="rcu stall问题分析思路简述 转载自：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;5964588007  什么是rcu stall？RCU (Read-Copy-Update) stall 问题通常发生在 RCU 回调函数没有在预期的时间内被执行，导致内核检测到回调延迟并报告警告。rcu stall timeout的时间默认是21秒，可以在内核的.config中查看: 1CON">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rcu stall问题分析思路简述">
+<meta property="og:url" content="http://example.com/2025/08/16/rcu-stall%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E6%80%9D%E8%B7%AF%E7%AE%80%E8%BF%B0/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="rcu stall问题分析思路简述 转载自：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;5964588007  什么是rcu stall？RCU (Read-Copy-Update) stall 问题通常发生在 RCU 回调函数没有在预期的时间内被执行，导致内核检测到回调延迟并报告警告。rcu stall timeout的时间默认是21秒，可以在内核的.config中查看: 1CON">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/08/16/rcu-stall%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E6%80%9D%E8%B7%AF%E7%AE%80%E8%BF%B0/v2-47c9211b2df4b9861ea33b5c0d56607c_1440w.jpg">
+<meta property="og:image" content="http://example.com/2025/08/16/rcu-stall%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E6%80%9D%E8%B7%AF%E7%AE%80%E8%BF%B0/v2-a491f45c4ff456c487f8b117ad6cdf82_1440w.jpg">
+<meta property="og:image" content="http://example.com/2025/08/16/rcu-stall%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E6%80%9D%E8%B7%AF%E7%AE%80%E8%BF%B0/v2-219ef5fa9eb89b092a2ba181dc4056e9_1440w.jpg">
+<meta property="article:published_time" content="2025-08-16T13:19:29.000Z">
+<meta property="article:modified_time" content="2025-08-16T13:22:06.361Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/08/16/rcu-stall%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E6%80%9D%E8%B7%AF%E7%AE%80%E8%BF%B0/v2-47c9211b2df4b9861ea33b5c0d56607c_1440w.jpg">
+  
+  
+  
+  <title>rcu stall问题分析思路简述 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="rcu stall问题分析思路简述"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-08-16 21:19" pubdate>
+          2025年8月16日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          50 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">rcu stall问题分析思路简述</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="rcu-stall问题分析思路简述"><a href="#rcu-stall问题分析思路简述" class="headerlink" title="rcu stall问题分析思路简述"></a>rcu stall问题分析思路简述</h1><blockquote>
+<p>转载自：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/5964588007">https://zhuanlan.zhihu.com/p/5964588007</a></p>
+</blockquote>
+<h2 id="什么是rcu-stall？"><a href="#什么是rcu-stall？" class="headerlink" title="什么是rcu stall？"></a><strong>什么是rcu stall？</strong></h2><p>RCU (Read-Copy-Update) stall 问题通常发生在 RCU 回调函数没有在预期的时间内被执行，导致内核检测到回调延迟并报告警告。<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=250215280&content_type=Article&match_order=1&q=rcu+stall+timeout&zhida_source=entity">rcu stall timeout</a>的时间默认是21秒，可以在内核的.config中查看:</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">CONFIG_RCU_CPU_STALL_TIMEOUT=21<br></code></pre></td></tr></table></figure>
+
+<p>如果希望rcu stall时panic，执行如下命令：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">echo 1 &gt; /proc/sys/kernel/panic_on_rcu_stall<br></code></pre></td></tr></table></figure>
+
+<p>为了能在rcu stall时得到更多信息，建议在开发版本中打开panic_on_rcu_stall，panic时如果有fulldump或vmcore生成，对定位问题有一定帮助； 正式版本建议关闭panic_on_rcu_stall，避免影响扩大化。</p>
+<h2 id="造错rcu-stall及分析"><a href="#造错rcu-stall及分析" class="headerlink" title="造错rcu stall及分析"></a><strong>造错rcu stall及分析</strong></h2><p>故障注入MR：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/init.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/rcupdate.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/sched.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/delay.h&gt;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rcu_head</span> <span class="hljs-title">rcu_head</span>;</span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">stall_rcu_callback</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> rcu_head *head)</span><br>&#123;<br>    pr_alert(<span class="hljs-string">&quot;RCU callback executed!\n&quot;</span>);<br>    <span class="hljs-comment">// 故意添加一个较长的延迟来模拟RCU Stall</span><br>    mdelay(<span class="hljs-number">22000</span>);  <span class="hljs-comment">// 延迟 22 秒钟</span><br>    pr_alert(<span class="hljs-string">&quot;RCU callback completed!\n&quot;</span>);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">rcu_stall_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    pr_info(<span class="hljs-string">&quot;RCU Stall test module loaded\n&quot;</span>);<br><br>    <span class="hljs-comment">// 在此触发 RCU 回调</span><br>    call_rcu(&amp;rcu_head, stall_rcu_callback);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">rcpu_stall_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    pr_info(<span class="hljs-string">&quot;RCU Stall test module unloaded\n&quot;</span>);<br>&#125;<br><br>module_init(rcu_stall_init);<br>module_exit(rcpu_stall_exit);<br><br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL&quot;</span>);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;Your Name&quot;</span>);<br>MODULE_DESCRIPTION(<span class="hljs-string">&quot;RCU Stall Simulation Module&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>造错后日志如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs shell">benshushu:/# /sbin/insmod /mnt/testcase.ko <br>[  285.708268] RCU Stall test module loaded<br>[  285.734320] RCU callback executed!<br>[  306.729557] rcu: INFO: rcu_sched self-detected stall on CPU     /* 关注点1 */<br>[  306.730137] rcu: 	2-....: (5249 ticks this GP) idle=732/0/0x3 softirq=3307/3307 fqs=2325 <br>[  306.730357] rcu: 	 (t=5250 jiffies g=6285 q=69)  /* 关注点2 */<br>[  306.730674] Task dump for CPU 2:<br>[  306.730894] swapper/2       R  running task        0     0      1 0x0000002a<br>[  306.731252] Call trace:<br>[  306.731660]  dump_backtrace+0x0/0x528<br>[  306.731883]  show_stack+0x24/0x30<br>[  306.731960]  sched_show_task+0x6f4/0x730<br>[  306.732044]  dump_cpu_task+0x54/0x60<br>[  306.732130]  rcu_dump_cpu_stacks+0x330/0x414<br>[  306.732217]  print_cpu_stall+0x51c/0xaf8<br>[  306.732285]  check_cpu_stall+0x750/0x968     /* 关注点3 */<br>[  306.732362]  rcu_pending+0x64/0x38c<br>[  306.732435]  rcu_check_callbacks+0x54c/0x8e4<br>[  306.732532]  update_process_times+0x50/0x188<br>[  306.732621]  tick_sched_handle+0x9c/0xb0<br>[  306.732864]  tick_sched_timer+0xa4/0x108<br>[  306.732959]  __run_hrtimer+0x7d4/0xe6c<br>[  306.733044]  __hrtimer_run_queues+0xac/0x124<br>[  306.733135]  hrtimer_interrupt+0x464/0x9d8<br>[  306.733330]  arch_timer_handler_virt+0x7e4/0x824<br>[  306.733765]  handle_percpu_devid_irq+0x4e4/0xa14<br>[  306.733872]  generic_handle_irq+0x4c/0x5c<br>[  306.733961]  __handle_domain_irq+0x180/0x234<br>[  306.734057]  gic_handle_irq+0x1e4/0x590<br>[  306.734134]  el1_irq+0xb0/0x140<br>[  306.734231]  arch_counter_get_cntvct+0x200/0x20c<br>[  306.734349]  __delay+0x90/0xf4<br>[  306.734437]  __const_udelay+0x48/0x54<br>[  306.735049]  stall_rcu_callback+0x38/0x64 [testcase] /* 关注点4： 很明显是testcase模块引入的问题 */<br>[  306.735172]  rcu_do_batch+0x2e8/0x6cc<br>[  306.735259]  invoke_rcu_callbacks+0x154/0x18c<br>[  306.735356]  rcu_process_callbacks+0x7b0/0xb48<br>[  306.735469]  __do_softirq+0x868/0x12d0<br>[  306.735562]  irq_exit+0x414/0x63c<br>[  306.735629]  __handle_domain_irq+0x184/0x234<br>[  306.735727]  gic_handle_irq+0x1e4/0x590<br>[  306.735813]  el1_irq+0xb0/0x140<br>[  306.735886]  arch_cpu_idle+0x508/0xa14<br>[  306.735973]  default_idle_call+0xa4/0xb4<br>[  306.736052]  cpuidle_idle_call+0x13c/0x324<br>[  306.736154]  do_idle+0x144/0x2bc<br>[  306.736235]  cpu_startup_entry+0x24/0x28<br>[  306.736322]  secondary_start_kernel+0x5f4/0x620<br>[  306.736804] Kernel panic - not syncing: RCU Stall<br></code></pre></td></tr></table></figure>
+
+<p><strong>关注点1 &amp; 关注点3：rcu: INFO: rcu_sched self-detected stall on CPU</strong></p>
+<p>这两点涉及rcu stall的检测原理，在系统的tick中断（以CONFIG_HZ为频率）中，会进行cpu stall的检查，检查逻辑如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-number">1370</span> <span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">check_cpu_stall</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> rcu_data *rdp)</span><br>1371 &#123;<br>···<br><span class="hljs-number">1380</span>         <span class="hljs-keyword">if</span> ((rcu_cpu_stall_suppress &amp;&amp; !rcu_kick_kthreads) ||<br><span class="hljs-number">1381</span>             !rcu_gp_in_progress())    <span class="hljs-comment">/* 如果没有在宽限期（grace period），说明没有在rcu临界区，那就不需要做rcu stall的check */</span><br><span class="hljs-number">1382</span>                 <span class="hljs-keyword">return</span>;<br><span class="hljs-number">1383</span>         rcu_stall_kick_kthreads();<br><span class="hljs-number">1384</span>         j = jiffies;<br>···<br><span class="hljs-number">1404</span>         gs1 = READ_ONCE(rcu_state.gp_seq); <span class="hljs-comment">/* 第一次读取宽限期sequence*/</span><br><span class="hljs-number">1405</span>         smp_rmb(); <span class="hljs-comment">/* Pick up -&gt;gp_seq first... */</span><br><span class="hljs-number">1406</span>         js = READ_ONCE(rcu_state.jiffies_stall); <span class="hljs-comment">/*jiffies_stall:如果当前jiffies大于等于jiffies_stall,意味着rcu stall了 */</span><br><span class="hljs-number">1407</span>         smp_rmb(); <span class="hljs-comment">/* ...then -&gt;jiffies_stall before the rest... */</span><br><span class="hljs-number">1408</span>         gps = READ_ONCE(rcu_state.gp_start); <span class="hljs-comment">/* 当前gp的起始时间点（jiffies计数）*/</span><br><span class="hljs-number">1409</span>         smp_rmb(); <span class="hljs-comment">/* ...and finally -&gt;gp_start before -&gt;gp_seq again. */</span><br><span class="hljs-number">1410</span>         gs2 = READ_ONCE(rcu_state.gp_seq); <span class="hljs-comment">/* 再次读取宽限期sequence */</span><br><span class="hljs-number">1411</span>         <span class="hljs-keyword">if</span> (gs1 != gs2 ||      <span class="hljs-comment">/* 如果不是在同一个宽限期，说明在执行当前代码时已经跨了一个gp，直接退出*/</span><br><span class="hljs-number">1412</span>             ULONG_CMP_LT(j, js) ||  <span class="hljs-comment">/* 如果当前jiffies小于jiffies_stall，说明还没有rcu stall */</span><br><span class="hljs-number">1413</span>             ULONG_CMP_GE(gps, js)) <span class="hljs-comment">/* 如果当前gp的起始时间点晚于jiffies_stall，说明当前已经进入下一个gp，没有rcu stall*/</span><br><span class="hljs-number">1414</span>                 <span class="hljs-keyword">return</span>; <span class="hljs-comment">/* No stall or GP completed since entering function. */</span>   <span class="hljs-comment">/* 以上三种case都不算stall，直接退出*/</span><br><span class="hljs-number">1415</span>         rnp = rdp-&gt;mynode;<br><span class="hljs-number">1416</span>         jn = jiffies + <span class="hljs-number">3</span> * rcu_jiffies_till_stall_check() + <span class="hljs-number">3</span>;<br><span class="hljs-number">1417</span>         <span class="hljs-keyword">if</span> (rcu_gp_in_progress() &amp;&amp;  <span class="hljs-comment">/* 如果当前处于宽限期 */</span><br><span class="hljs-number">1418</span>             (READ_ONCE(rnp-&gt;qsmask) &amp; rdp-&gt;grpmask) &amp;&amp;  <span class="hljs-comment">/* 如果是当前cpu */</span><br><span class="hljs-number">1419</span>             cmpxchg(&amp;rcu_state.jiffies_stall, js, jn) == js) &#123; <span class="hljs-comment">/* 如果jiffies_stall和js一样，更新jiffies_stall为jn */</span><br><span class="hljs-number">1420</span><br><span class="hljs-number">1421</span>                 <span class="hljs-comment">/* We haven&#x27;t checked in, so go dump stack. */</span><br><span class="hljs-number">1422</span>                 print_cpu_stall(); <span class="hljs-comment">/* 本cpu rcu stall了 */</span><br><span class="hljs-number">1423</span><br><span class="hljs-number">1424</span>         &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (rcu_gp_in_progress() &amp;&amp;<br><span class="hljs-number">1425</span>                    ULONG_CMP_GE(j, js + RCU_STALL_RAT_DELAY) &amp;&amp; <span class="hljs-comment">/* 当前jiffies大于jiffies_stall + RCU_STALL_RAT_DELAY(一般为0)*/</span><br><span class="hljs-number">1426</span>                    cmpxchg(&amp;rcu_state.jiffies_stall, js, jn) == js) &#123;<br><span class="hljs-number">1427</span><br><span class="hljs-number">1428</span>                 <span class="hljs-comment">/* They had a few time units to dump stack, so complain. */</span><br><span class="hljs-number">1429</span>                 print_other_cpu_stall(gs2); <span class="hljs-comment">/* 其他cpu rcu stall了 */</span><br><span class="hljs-number">1430</span>         &#125;<br><span class="hljs-number">1431</span> &#125;<br><span class="hljs-number">1432</span><br></code></pre></td></tr></table></figure>
+
+<p>rcu: INFO: rcu_sched self-detected stall on CPU 这个打印是print_cpu_stall （1422行）里打的，响应tick中断的cpu检查到自己stall了，所以是self-detected；rcu_sched的出处是下面这里，受CONFIG_PREEMPT_RCU的影响：</p>
+<img src="/2025/08/16/rcu-stall%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E6%80%9D%E8%B7%AF%E7%AE%80%E8%BF%B0/v2-47c9211b2df4b9861ea33b5c0d56607c_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
+
+<p><strong>关注点2：rcu:(t&#x3D;5250 jiffies g&#x3D;6285 q&#x3D;69)等</strong></p>
+<ul>
+<li>t&#x3D;5250 ：rcu stall的超时时间是5250个jiffies，查看CONFIG_HZ&#x3D;250，所以是21秒，和CONFIG_RCU_CPU_STALL_TIMEOUT&#x3D;21是对应的上的；</li>
+<li>g&#x3D;6285：Grace-period sequence，标明当前是第多少个宽限期，没什么帮助；</li>
+<li>q&#x3D;69：未执行的rcu callback数量，没什么帮助；</li>
+<li>Task dump for CPU 2: swapper&#x2F;2 R running task 0010x0000002a ：dump当前rcu stall的cpu上running的task和调用栈。这个很关键，<strong>一般rcu stall的问题都是某高优先级task长时间占用cpu导致的</strong>。当前问题的调用栈很长，也很值得讨论下：</li>
+</ul>
+<img src="/2025/08/16/rcu-stall%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E6%80%9D%E8%B7%AF%E7%AE%80%E8%BF%B0/v2-a491f45c4ff456c487f8b117ad6cdf82_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>再对应下造错的代码，可得知以上分析合理。</p>
+<img src="/2025/08/16/rcu-stall%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E6%80%9D%E8%B7%AF%E7%AE%80%E8%BF%B0/v2-219ef5fa9eb89b092a2ba181dc4056e9_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>rcu stall问题分析思路简述</div>
+      <div>http://example.com/2025/08/16/rcu-stall问题分析思路简述/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年8月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/08/16/%E7%91%9E%E8%8A%AF%E5%BE%AE%E7%BB%B4%E6%B5%8B%E4%BF%A1%E6%81%AF%E8%AE%B0%E5%BD%95-1-PMPCSR%E5%AF%84%E5%AD%98%E5%99%A8/" title="瑞芯微维测信息记录(1)PMPCSR寄存器">
+                        <span class="hidden-mobile">瑞芯微维测信息记录(1)PMPCSR寄存器</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
