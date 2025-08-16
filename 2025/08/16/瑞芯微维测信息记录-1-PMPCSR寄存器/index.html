@@ -16,15 +16,15 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="喝口白桃呜龙学习笔记">
+    <meta name="description" content="瑞芯微维测信息记录(1)PMPCSR寄存器PMPCSR寄存器介绍PMPCSR 寄存器（Program Counter Monitor Control and Status Register）是 Rockchip 平台（尤其是基于 ARM 架构的处理器）中与 CPU 程序计数器（PC）监控相关的硬件寄存器，主要用于在系统异常（如 panic、死机）时捕捉 CPU 当前的执行地址和运行状态，是调试多">
 <meta property="og:type" content="article">
 <meta property="og:title" content="瑞芯微维测信息记录(1)PMPCSR寄存器">
 <meta property="og:url" content="http://example.com/2025/08/16/%E7%91%9E%E8%8A%AF%E5%BE%AE%E7%BB%B4%E6%B5%8B%E4%BF%A1%E6%81%AF%E8%AE%B0%E5%BD%95-1-PMPCSR%E5%AF%84%E5%AD%98%E5%99%A8/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="喝口白桃呜龙学习笔记">
+<meta property="og:description" content="瑞芯微维测信息记录(1)PMPCSR寄存器PMPCSR寄存器介绍PMPCSR 寄存器（Program Counter Monitor Control and Status Register）是 Rockchip 平台（尤其是基于 ARM 架构的处理器）中与 CPU 程序计数器（PC）监控相关的硬件寄存器，主要用于在系统异常（如 panic、死机）时捕捉 CPU 当前的执行地址和运行状态，是调试多">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-08-16T12:17:55.000Z">
-<meta property="article:modified_time" content="2025-08-16T12:17:55.364Z">
+<meta property="article:modified_time" content="2025-08-16T12:22:30.114Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -211,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 字
+          1.8k 字
         
       </span>
     
@@ -222,7 +222,7 @@
         
         
         
-          1 分钟
+          15 分钟
         
       </span>
     
@@ -273,7 +273,43 @@
             
               <div class="markdown-body">
                 
-                
+                <h1 id="瑞芯微维测信息记录-1-PMPCSR寄存器"><a href="#瑞芯微维测信息记录-1-PMPCSR寄存器" class="headerlink" title="瑞芯微维测信息记录(1)PMPCSR寄存器"></a>瑞芯微维测信息记录(1)PMPCSR寄存器</h1><h2 id="PMPCSR寄存器介绍"><a href="#PMPCSR寄存器介绍" class="headerlink" title="PMPCSR寄存器介绍"></a>PMPCSR寄存器介绍</h2><p><code>PMPCSR</code> 寄存器（Program Counter Monitor Control and Status Register）是 Rockchip 平台（尤其是基于 ARM 架构的处理器）中与 CPU 程序计数器（PC）监控相关的硬件寄存器，主要用于在系统异常（如 panic、死机）时捕捉 CPU 当前的执行地址和运行状态，是调试多 CPU 系统故障的重要硬件支持。<br>以下是对 <code>PMPCSR</code> 寄存器的详细解析：</p>
+<h3 id="1-核心功能"><a href="#1-核心功能" class="headerlink" title="1. 核心功能"></a>1. 核心功能</h3><p><code>PMPCSR</code> 的核心作用是<strong>实时记录 CPU 当前执行的指令地址（即程序计数器 PC 的值）</strong>，并附带 CPU 的运行状态信息（如异常级别、安全状态等）。在系统发生崩溃（如 panic）时，内核可以通过读取该寄存器获取崩溃瞬间的 CPU 执行位置，为定位故障原因（如死锁、非法指令、访问越界等）提供关键依据。</p>
+<p>尤其在多 CPU 系统中，当某个 CPU 陷入 “卡死” 状态时，<code>PMPCSR</code> 寄存器中存储的 PC 值可以反映该 CPU 最后执行的指令，帮助开发者判断其是否停留在某个循环、中断处理或锁等待中。</p>
+<h3 id="2-寄存器结构与字段解析"><a href="#2-寄存器结构与字段解析" class="headerlink" title="2. 寄存器结构与字段解析"></a>2. 寄存器结构与字段解析</h3><p><code>PMPCSR</code> 通常是一个 <strong>64 位寄存器</strong>（部分平台可能分高低 32 位寄存器，如代码中通过 <code>PMPCSR_LO</code> 和 <code>PMPCSR_HI</code> 分别读取低 32 位和高 32 位，再组合为 64 位值）。其关键字段如下（基于 Rockchip 平台常见定义，具体可能因芯片型号略有差异）：</p>
+<table>
+<thead>
+<tr>
+<th>位域范围</th>
+<th>含义</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>63</td>
+<td>安全状态位（NS&#x2F;S）</td>
+<td align="left">1 表示非安全世界（NS，Non-Secure）；0 表示安全世界（S，Secure）。</td>
+</tr>
+<tr>
+<td>61-63</td>
+<td>异常级别（EL）</td>
+<td align="left">00：EL0（用户态）；01：EL1（内核态）；10：EL2（虚拟化层）；11：EL3（安全监控）。</td>
+</tr>
+<tr>
+<td>0-60</td>
+<td>程序计数器（PC）值</td>
+<td align="left">存储 CPU 当前执行的指令地址（低 61 位，具体有效位取决于异常级别）。</td>
+</tr>
+</tbody></table>
+<h3 id="3-适用场景"><a href="#3-适用场景" class="headerlink" title="3. 适用场景"></a>3. 适用场景</h3><p><code>PMPCSR</code> 主要用于系统故障调试，尤其是：</p>
+<ul>
+<li>系统 panic 时，快速定位各 CPU 崩溃前的执行地址。</li>
+<li>多 CPU 死锁排查，判断某个 CPU 是否停留在临界区或锁等待中。</li>
+<li>内核异常（如 OOPS、宕机）的现场信息收集，辅助分析故障栈。</li>
+</ul>
+<h2 id="PMPCSR寄存器打印在代码中的体现"><a href="#PMPCSR寄存器打印在代码中的体现" class="headerlink" title="PMPCSR寄存器打印在代码中的体现"></a>PMPCSR寄存器打印在代码中的体现</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">rockchip_panic_notify_pmpcsr</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> notifier_block *nb,</span><br><span class="hljs-params">					<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> event, <span class="hljs-type">void</span> *p)</span><br>&#123;<br>	<span class="hljs-keyword">while</span> (rockchip_cs_pmu[i]) &#123;<br>		base = rockchip_cs_pmu[i];<br>		pr_err(<span class="hljs-string">&quot;CPU%d online:%d\n&quot;</span>, i, cpu_online(i));<br><br>		<span class="hljs-comment">/* Try to read a bunch of times if CPU is actually running */</span><br>		<span class="hljs-keyword">for</span> (j = <span class="hljs-number">0</span>; j &lt; NUM_CPU_SAMPLES &amp;&amp;<br>			    printed &lt; NUM_SAMPLES_TO_PRINT; j++) &#123;<br>			pmpcsr = ((u64)readl(base + PMPCSR_LO))|((u64)readl(base + PMPCSR_HI) &lt;&lt; <span class="hljs-number">32</span>);<br><br>			el = (pmpcsr &gt;&gt; <span class="hljs-number">61</span>) &amp; <span class="hljs-number">0x3</span>;<br>			<span class="hljs-keyword">if</span> (pmpcsr &amp; <span class="hljs-number">0x8000000000000000</span>)<br>				ns = <span class="hljs-number">1</span>;<br>			<span class="hljs-keyword">else</span><br>				ns = <span class="hljs-number">0</span>;<br><br>			<span class="hljs-keyword">if</span> (el == <span class="hljs-number">2</span>)<br>				pmpcsr |= <span class="hljs-number">0xff00000000000000</span>;<br>			<span class="hljs-keyword">else</span><br>				pmpcsr &amp;= <span class="hljs-number">0x0fffffffffffffff</span>;<br><br>			pc = (<span class="hljs-type">void</span> *)(pmpcsr &amp; ~<span class="hljs-number">1</span>);<br>			<span class="hljs-keyword">if</span> (pc != prev_pc) &#123;<br>				pr_err(<span class="hljs-string">&quot;\tEL%d(%s) PC: &lt;0x%px&gt; %pS\n&quot;</span>, el, ns?<span class="hljs-string">&quot;NS&quot;</span>:<span class="hljs-string">&quot;S&quot;</span>, pc, pc);<br>				printed++;<br>			&#125;<br>			prev_pc = pc;<br>		&#125;<br><br>		pr_err(<span class="hljs-string">&quot;\n&quot;</span>);<br>		i++;<br>		prev_pc = <span class="hljs-literal">NULL</span>;<br>		printed = <span class="hljs-number">0</span>;<br>	&#125;<br>	<span class="hljs-keyword">return</span> NOTIFY_OK;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
                 
               </div>
             
