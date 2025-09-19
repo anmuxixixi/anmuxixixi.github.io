@@ -16,13 +16,14 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="du和df命令的诡异差别 df命令源码解析  du和df结果不一致复现步骤 首先我创建了三个文件，2个10M大小的1.img和2.img，又创建了一个120M的3.img     此时一切正常，du和df查出来都是使用了161M（包含lost+found）     此时另起一个终端执行tail -f 3.img【时刻监控3.img的变化，目的是占用文件句柄，无法删除】     在原来的终端删除3.">
+    <meta name="description" content="du和df命令的诡异差别 df命令源码解析  du命令用法  du源码解析我们以最常用的du -sh来说 12345678void du_main(void)&amp;#123;  char *noargs[] &#x3D; &amp;#123;&quot;.&quot;, 0&amp;#125;, **args;  for (args &#x3D; toys.optc ? toys.optargs : noargs; *args; arg">
 <meta property="og:type" content="article">
 <meta property="og:title" content="du和df命令的诡异差别">
 <meta property="og:url" content="http://example.com/2025/09/19/du%E5%92%8Cdf%E5%91%BD%E4%BB%A4%E7%9A%84%E8%AF%A1%E5%BC%82%E5%B7%AE%E5%88%AB/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="du和df命令的诡异差别 df命令源码解析  du和df结果不一致复现步骤 首先我创建了三个文件，2个10M大小的1.img和2.img，又创建了一个120M的3.img     此时一切正常，du和df查出来都是使用了161M（包含lost+found）     此时另起一个终端执行tail -f 3.img【时刻监控3.img的变化，目的是占用文件句柄，无法删除】     在原来的终端删除3.">
+<meta property="og:description" content="du和df命令的诡异差别 df命令源码解析  du命令用法  du源码解析我们以最常用的du -sh来说 12345678void du_main(void)&amp;#123;  char *noargs[] &#x3D; &amp;#123;&quot;.&quot;, 0&amp;#125;, **args;  for (args &#x3D; toys.optc ? toys.optargs : noargs; *args; arg">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/09/19/du%E5%92%8Cdf%E5%91%BD%E4%BB%A4%E7%9A%84%E8%AF%A1%E5%BC%82%E5%B7%AE%E5%88%AB/image-20250919202333464.png">
 <meta property="og:image" content="http://example.com/2025/09/19/du%E5%92%8Cdf%E5%91%BD%E4%BB%A4%E7%9A%84%E8%AF%A1%E5%BC%82%E5%B7%AE%E5%88%AB/image-20250919200008282.png">
 <meta property="og:image" content="http://example.com/2025/09/19/du%E5%92%8Cdf%E5%91%BD%E4%BB%A4%E7%9A%84%E8%AF%A1%E5%BC%82%E5%B7%AE%E5%88%AB/image-20250919195548310.png">
 <meta property="og:image" content="http://example.com/2025/09/19/du%E5%92%8Cdf%E5%91%BD%E4%BB%A4%E7%9A%84%E8%AF%A1%E5%BC%82%E5%B7%AE%E5%88%AB/image-20250919195623136.png">
@@ -30,10 +31,10 @@
 <meta property="og:image" content="http://example.com/2025/09/19/du%E5%92%8Cdf%E5%91%BD%E4%BB%A4%E7%9A%84%E8%AF%A1%E5%BC%82%E5%B7%AE%E5%88%AB/image-20250919195716582.png">
 <meta property="og:image" content="http://example.com/2025/09/19/du%E5%92%8Cdf%E5%91%BD%E4%BB%A4%E7%9A%84%E8%AF%A1%E5%BC%82%E5%B7%AE%E5%88%AB/image-20250919195815935.png">
 <meta property="article:published_time" content="2025-09-19T11:51:22.000Z">
-<meta property="article:modified_time" content="2025-09-19T12:03:44.090Z">
+<meta property="article:modified_time" content="2025-09-19T12:39:18.528Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2025/09/19/du%E5%92%8Cdf%E5%91%BD%E4%BB%A4%E7%9A%84%E8%AF%A1%E5%BC%82%E5%B7%AE%E5%88%AB/image-20250919200008282.png">
+<meta name="twitter:image" content="http://example.com/2025/09/19/du%E5%92%8Cdf%E5%91%BD%E4%BB%A4%E7%9A%84%E8%AF%A1%E5%BC%82%E5%B7%AE%E5%88%AB/image-20250919202333464.png">
   
   
   
@@ -218,7 +219,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          406 字
+          2.5k 字
         
       </span>
     
@@ -229,7 +230,7 @@
         
         
         
-          4 分钟
+          21 分钟
         
       </span>
     
@@ -283,6 +284,29 @@
                 <h1 id="du和df命令的诡异差别"><a href="#du和df命令的诡异差别" class="headerlink" title="du和df命令的诡异差别"></a>du和df命令的诡异差别</h1><blockquote>
 <p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2024/03/03/Linux%E5%91%BD%E4%BB%A4df%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/">df命令源码解析</a></p>
 </blockquote>
+<h2 id="du命令用法"><a href="#du命令用法" class="headerlink" title="du命令用法"></a>du命令用法</h2><img src="/2025/09/19/du%E5%92%8Cdf%E5%91%BD%E4%BB%A4%E7%9A%84%E8%AF%A1%E5%BC%82%E5%B7%AE%E5%88%AB/image-20250919202333464.png" srcset="/img/loading.gif" lazyload alt="image-20250919202333464" style="zoom: 70%;">
+
+<h2 id="du源码解析"><a href="#du源码解析" class="headerlink" title="du源码解析"></a>du源码解析</h2><p>我们以最常用的du -sh来说</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">du_main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-type">char</span> *noargs[] = &#123;<span class="hljs-string">&quot;.&quot;</span>, <span class="hljs-number">0</span>&#125;, **args;<br><br>  <span class="hljs-keyword">for</span> (args = toys.optc ? toys.optargs : noargs; *args; args++)<br>    dirtree_flagread(*args, DIRTREE_SYMFOLLOW*!!(toys.optflags&amp;(FLAG_H|FLAG_L)),<br>      do_du);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>解释一下DIRTREE_SYMFOLLOW*!!(toys.optflags&amp;(FLAG_H|FLAG_L):</p>
+<ul>
+<li>(1)当用户指定 -H 或 -L 时：DIRTREE_SYMFOLLOW * 1 &#x3D; DIRTREE_SYMFOLLOW，即开启 “跟随符号链接” 模式。</li>
+<li>(2)当用户未指定这两个选项时：DIRTREE_SYMFOLLOW * 0 &#x3D; 0，即关闭 “跟随符号链接” 模式（默认不跟随）。</li>
+</ul>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">struct</span> dirtree *<span class="hljs-title function_">dirtree_flagread</span><span class="hljs-params">(<span class="hljs-type">char</span> *path, <span class="hljs-type">int</span> flags,</span><br><span class="hljs-params">  <span class="hljs-type">int</span> (*callback)(<span class="hljs-keyword">struct</span> dirtree *node))</span><br>&#123;<br>  <span class="hljs-keyword">return</span> dirtree_handle_callback(dirtree_add_node(<span class="hljs-number">0</span>, path, flags), callback);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> dirtree *<span class="hljs-title function_">dirtree_handle_callback</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> dirtree *new,</span><br><span class="hljs-params">  <span class="hljs-type">int</span> (*callback)(<span class="hljs-keyword">struct</span> dirtree *node))</span><br>&#123;<br>  <span class="hljs-type">int</span> flags;<br>  flags = callback(new); <span class="hljs-comment">// 调用do_du获取每个文件的block数</span><br><br>  <span class="hljs-comment">// 迭代子目录</span><br>  <span class="hljs-keyword">if</span> (S_ISDIR(new-&gt;st.st_mode) &amp;&amp; (flags &amp; (DIRTREE_RECURSE|DIRTREE_COMEAGAIN)))<br>    flags = dirtree_recurse(new, callback, !*new-&gt;name ? AT_FDCWD :<br>      openat(dirtree_parentfd(new), new-&gt;name, O_CLOEXEC), flags);<br><br>  <span class="hljs-keyword">return</span> (flags &amp; DIRTREE_ABORT)==DIRTREE_ABORT ? DIRTREE_ABORTVAL : new;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>说白了在添加文件子节点的时候通过<code>fstatat</code>接口拿到了每个文件的stat信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">struct</span> dirtree *<span class="hljs-title function_">dirtree_add_node</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> dirtree *parent, <span class="hljs-type">char</span> *name, <span class="hljs-type">int</span> flags)</span><br>&#123;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dirtree</span> *<span class="hljs-title">dt</span> =</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">st</span>;</span><br>  <span class="hljs-type">int</span> len = <span class="hljs-number">0</span>, linklen = <span class="hljs-number">0</span>, statless = <span class="hljs-number">0</span>;<br><br>  <span class="hljs-keyword">if</span> (name) &#123;<br>    <span class="hljs-type">int</span> fd = parent ? parent-&gt;dirfd : AT_FDCWD,<br>      sym = AT_SYMLINK_NOFOLLOW*!(flags&amp;DIRTREE_SYMFOLLOW);<br><br>    <span class="hljs-keyword">if</span> (fstatat(fd, name, &amp;st, sym)) &#123;<br>		<span class="hljs-comment">// ...</span><br>    &#125;<br>  &#125;<br><br>  <span class="hljs-keyword">return</span> dt;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>do_du就是统计每个文件的block数目</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dirtree</span> &#123;</span><br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dirtree</span> *<span class="hljs-title">next</span>, *<span class="hljs-title">parent</span>, *<span class="hljs-title">child</span>;</span><br>  <span class="hljs-type">long</span> extra; <span class="hljs-comment">// place for user to store their stuff (can be pointer)</span><br>  <span class="hljs-type">char</span> *symlink;<br>  <span class="hljs-type">int</span> dirfd;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">st</span>;</span><br>  <span class="hljs-type">char</span> again;<br>  <span class="hljs-type">char</span> name[];<br>&#125;;<br><br><span class="hljs-comment">// do_du就是统计每个文件的block数目</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">do_du</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> dirtree *node)</span><br>&#123;<br>  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> blocks;<br><br>  blocks = FLAG(b) ? node-&gt;st.st_size : node-&gt;st.st_blocks;<br>  <span class="hljs-comment">// node-&gt;extra 存储该文件自身的磁盘块数</span><br>  blocks += (<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>)node-&gt;extra;<br>  node-&gt;extra = blocks;<br>  <span class="hljs-keyword">if</span> (node-&gt;parent)<br>    node-&gt;parent-&gt;extra = (<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>)node-&gt;parent-&gt;extra+blocks;<br>  <span class="hljs-keyword">else</span> TT.total += node-&gt;extra;<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>🎄<u>一句话总结原理：<code>du</code> 命令通过递归遍历目录树，每次通过fstatat获取文件的大小，总而统计所有的文件</u></p>
 <h2 id="du和df结果不一致复现步骤"><a href="#du和df结果不一致复现步骤" class="headerlink" title="du和df结果不一致复现步骤"></a>du和df结果不一致复现步骤</h2><ol>
 <li>首先我创建了三个文件，2个10M大小的1.img和2.img，又创建了一个120M的3.img</li>
 </ol>
