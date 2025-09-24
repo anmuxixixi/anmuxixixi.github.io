@@ -407,7 +407,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2025/09/22/%E5%AE%89%E5%8D%93S%E6%A8%A1%E6%8B%9F%E5%99%A8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86%E5%85%A8%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/" target="_self">
         <div>
-          安卓S模拟器文件加密全流程梳理便于查询 有些东西每次都要查一下麻烦，索性写在最前面记录一下@  模拟器fstab中的加密策略    vold模块用户0的秘钥策略用户0：C&#x2F;D类加密策略创建 AND 加载12345678910bool fscrypt_init_user0() &#123;    if (fscrypt_is_native()) &#123;		// 查找/data/mis
+          安卓S模拟器文件加密全流程梳理便于查询 有些东西每次都要查一下麻烦，索性写在最前面记录一下@  模拟器fstab中的加密策略    vold模块用户0的秘钥策略vold在启动的时候process_config函数会去读默认的fstab【ReadDefaultFstab】（fstab已经记录在最上面的备忘录了），读的时候会解析解密项。 12345678910111213141516void Pars
         </div>
       </a>
 
