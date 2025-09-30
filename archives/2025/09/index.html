@@ -227,7 +227,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2025/09/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdiscard%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/" target="_self">
         <div>
-          f2fs文件系统discard流程梳理1234567891011121314151617181920212223static int issue_discard_thread(void *data)&#123;	do &#123;		__init_discard_policy(sbi, &amp;dpolicy, DPOLICY_BG, dcc-&gt;discard_granularity);
+          f2fs文件系统discard流程梳理🎗️首先，我们来讲一讲discard的意义，当用户态大量的写入删除操作后，磁盘势必碎片化很严重，此时会触发f2fs gc流程，对segment做整理，但这个整理只是文件系统内部的动作，ufs是不知道哪些是无效的，此时就要用到discard命令，经过block层封装到trim指令后下发到ufs器件，告诉器件这些block无效了，你可以GC（器件GC）！ 1.d
         </div>
       </a>
 
