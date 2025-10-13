@@ -16,21 +16,21 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="f2fs文件系统fiemap记录12345678910111213141516171819202122232425262728293031int f2fs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,		u64 start, u64 len)&amp;#123;	start_blk &#x3D; logical_to_blk(inod">
+    <meta name="description" content="喝口白桃呜龙学习笔记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="f2fs文件系统fiemap记录">
-<meta property="og:url" content="http://example.com/2025/10/09/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Ffiemap%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:title" content="sgdisk源码解析">
+<meta property="og:url" content="http://example.com/2025/10/13/sgdisk%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="f2fs文件系统fiemap记录12345678910111213141516171819202122232425262728293031int f2fs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,		u64 start, u64 len)&amp;#123;	start_blk &#x3D; logical_to_blk(inod">
+<meta property="og:description" content="喝口白桃呜龙学习笔记">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-10-09T13:35:40.000Z">
-<meta property="article:modified_time" content="2025-10-09T13:39:43.088Z">
+<meta property="article:published_time" content="2025-10-13T14:34:24.000Z">
+<meta property="article:modified_time" content="2025-10-13T14:34:24.914Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>f2fs文件系统fiemap记录 - 喝口白桃呜龙</title>
+  <title>sgdisk源码解析 - 喝口白桃呜龙</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -188,7 +188,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="f2fs文件系统fiemap记录"></span>
+            <span id="subtitle" data-typed-text="sgdisk源码解析"></span>
           
         </div>
 
@@ -199,8 +199,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-10-09 21:35" pubdate>
-          2025年10月9日 晚上
+        <time datetime="2025-10-13 22:34" pubdate>
+          2025年10月13日 晚上
         </time>
       </span>
     
@@ -211,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          721 字
+          0 字
         
       </span>
     
@@ -222,7 +222,7 @@
         
         
         
-          7 分钟
+          1 分钟
         
       </span>
     
@@ -268,14 +268,12 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">f2fs文件系统fiemap记录</h1>
+            <h1 style="display: none">sgdisk源码解析</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="f2fs文件系统fiemap记录"><a href="#f2fs文件系统fiemap记录" class="headerlink" title="f2fs文件系统fiemap记录"></a>f2fs文件系统fiemap记录</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_fiemap</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> fiemap_extent_info *fieinfo,</span><br><span class="hljs-params">		u64 start, u64 len)</span><br>&#123;<br>	start_blk = logical_to_blk(inode, start);<br>	last_blk = logical_to_blk(inode, start + len - <span class="hljs-number">1</span>);<br><br>next:<br>	<span class="hljs-built_in">memset</span>(&amp;map_bh, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> buffer_head));<br>	map_bh.b_size = len;<br><br>	ret = get_data_block(inode, start_blk, &amp;map_bh, <span class="hljs-number">0</span>, F2FS_GET_BLOCK_FIEMAP, &amp;next_pgofs);<br><br>	<span class="hljs-keyword">if</span> (size) &#123;<br>		ret = fiemap_fill_next_extent(fieinfo, logical, phys, size, flags);<br>		size = <span class="hljs-number">0</span>;<br>	&#125;<br><br>	logical = blk_to_logical(inode, start_blk);<br>	phys = blk_to_logical(inode, map_bh.b_blocknr);<br>	size = map_bh.b_size;<br>	flags = <span class="hljs-number">0</span>;<br>	start_blk += logical_to_blk(inode, size);<br><br>prep_next:<br>	<span class="hljs-keyword">if</span> (fatal_signal_pending(current))<br>		ret = -EINTR;<br>	<span class="hljs-keyword">else</span><br>		<span class="hljs-keyword">goto</span> next;<br>out:<br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
+                
                 
               </div>
             
@@ -292,8 +290,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>f2fs文件系统fiemap记录</div>
-      <div>http://example.com/2025/10/09/f2fs文件系统fiemap记录/</div>
+      <div>sgdisk源码解析</div>
+      <div>http://example.com/2025/10/13/sgdisk源码解析/</div>
     </div>
     <div class="license-meta">
       
@@ -305,7 +303,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年10月9日</div>
+          <div>2025年10月13日</div>
         </div>
       
       
@@ -337,18 +335,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/10/13/sgdisk%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="sgdisk源码解析">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">sgdisk源码解析</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/10/09/C%E8%AF%AD%E8%A8%80%E4%B8%AD%E5%8F%96%E5%9D%80%E7%AC%A6-%E5%92%8C%E6%8C%87%E9%92%88-%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/" title="C语言中取址符&amp;和指针-&gt;的优先级">
-                        <span class="hidden-mobile">C语言中取址符&amp;和指针-&gt;的优先级</span>
+                      <a href="/2025/10/09/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Ffiemap%E8%AE%B0%E5%BD%95/" title="f2fs文件系统fiemap记录">
+                        <span class="hidden-mobile">f2fs文件系统fiemap记录</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
