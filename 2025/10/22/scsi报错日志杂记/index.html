@@ -25,8 +25,9 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2025/10/22/scsi%E6%8A%A5%E9%94%99%E6%97%A5%E5%BF%97%E6%9D%82%E8%AE%B0/image-20251022200952355.png">
 <meta property="og:image" content="http://example.com/2025/10/22/scsi%E6%8A%A5%E9%94%99%E6%97%A5%E5%BF%97%E6%9D%82%E8%AE%B0/image-20251022201740791.png">
+<meta property="og:image" content="http://example.com/2025/10/22/scsi%E6%8A%A5%E9%94%99%E6%97%A5%E5%BF%97%E6%9D%82%E8%AE%B0/image-20251022204038479.png">
 <meta property="article:published_time" content="2025-10-22T11:58:19.000Z">
-<meta property="article:modified_time" content="2025-10-22T12:19:02.612Z">
+<meta property="article:modified_time" content="2025-10-22T12:41:49.069Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2025/10/22/scsi%E6%8A%A5%E9%94%99%E6%97%A5%E5%BF%97%E6%9D%82%E8%AE%B0/image-20251022200952355.png">
@@ -214,7 +215,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.1k 字
+          8.5k 字
         
       </span>
     
@@ -225,7 +226,7 @@
         
         
         
-          60 分钟
+          71 分钟
         
       </span>
     
@@ -280,8 +281,11 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">sd 0:0:8:0: [sdh] tag#383 UNKNOWN(0x2003) Result: hostbyte=0x00 driverbyte=0x08 cmd_age=5s<br>sd 0:0:8:0: [sdh] tag#383 Sense Key : 0x4 [current]<br>sd 0:0:8:0: [sdh] tag#383 ASC=0x15 ASCQ=0x1<br>sd 0:0:8:0: [sdh] tag#383 CDB: opcode=0x2a 2a 00 3b aa 6b c0 00 00 a8 00<br>blk_update_request: I/O error, dev sdh, sector 1001024448 op 0x1:(WRITE) flags 0x700 phys_seg 17 prio class 0<br></code></pre></td></tr></table></figure>
 
 <p>打印的栈为：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">scsi_finish_command<br>scsi_io_completion<br>scsi_io_completion_action<br>scsi_print_result<br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">scsi_softirq_done<br>scsi_finish_command<br>scsi_io_completion<br>scsi_io_completion_action<br>scsi_print_result<br></code></pre></td></tr></table></figure>
 
+<blockquote>
+<p>USB驱动完成后调用scsi的complete方法（就是<strong>scsi_softirq_done</strong>）：<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/07/16/scsi%E4%B8%8B%E5%8F%91%E5%91%BD%E4%BB%A4/">https://anmuxixixi.github.io/2025/07/16/scsi%E4%B8%8B%E5%8F%91%E5%91%BD%E4%BB%A4/</a></p>
+</blockquote>
 <p>所有的打印内容都来自这几行</p>
 <img src="/2025/10/22/scsi%E6%8A%A5%E9%94%99%E6%97%A5%E5%BF%97%E6%9D%82%E8%AE%B0/image-20251022200952355.png" srcset="/img/loading.gif" lazyload alt="image-20251022200952355" style="zoom:80%;">
 
@@ -522,6 +526,19 @@
 <li>截图摘自：<a target="_blank" rel="noopener" href="https://xxxdk.xyz/xxx/2020/01/SCSI-%E9%94%99%E8%AF%AF%E4%BF%A1%E6%81%AF%E8%A1%A8%E6%95%B4%E7%90%86/">https://xxxdk.xyz/xxx/2020/01/SCSI-%E9%94%99%E8%AF%AF%E4%BF%A1%E6%81%AF%E8%A1%A8%E6%95%B4%E7%90%86/</a></li>
 </ul>
 <img src="/2025/10/22/scsi%E6%8A%A5%E9%94%99%E6%97%A5%E5%BF%97%E6%9D%82%E8%AE%B0/image-20251022201740791.png" srcset="/img/loading.gif" lazyload alt="image-20251022201740791" style="zoom:80%;">
+
+<h2 id="blk-update-request打印"><a href="#blk-update-request打印" class="headerlink" title="blk_update_request打印"></a>blk_update_request打印</h2><p>打印的栈为：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">scsi_softirq_done<br>scsi_finish_command<br>scsi_io_completion<br>scsi_io_completion_action<br>scsi_end_request<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>USB驱动完成后调用scsi的complete方法（就是<strong>scsi_softirq_done</strong>）：<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/07/16/scsi%E4%B8%8B%E5%8F%91%E5%91%BD%E4%BB%A4/">https://anmuxixixi.github.io/2025/07/16/scsi%E4%B8%8B%E5%8F%91%E5%91%BD%E4%BB%A4/</a></p>
+</blockquote>
+<p>报错来自：</p>
+<img src="/2025/10/22/scsi%E6%8A%A5%E9%94%99%E6%97%A5%E5%BF%97%E6%9D%82%E8%AE%B0/image-20251022204038479.png" srcset="/img/loading.gif" lazyload alt="image-20251022204038479" style="zoom:80%;">
+
+
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title function_">scsi_end_request</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> request *req, <span class="hljs-type">blk_status_t</span> error,</span><br><span class="hljs-params">		<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> bytes)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">scsi_cmnd</span> *<span class="hljs-title">cmd</span> =</span> blk_mq_rq_to_pdu(req);<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">scsi_device</span> *<span class="hljs-title">sdev</span> =</span> cmd-&gt;device;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request_queue</span> *<span class="hljs-title">q</span> =</span> sdev-&gt;request_queue;<br><br>	<span class="hljs-keyword">if</span> (blk_update_request(req, error, bytes))<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br><br><span class="hljs-type">bool</span> <span class="hljs-title function_">blk_update_request</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> request *req, <span class="hljs-type">blk_status_t</span> error,</span><br><span class="hljs-params">		<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> nr_bytes)</span><br>&#123;<br>	<span class="hljs-keyword">if</span> (unlikely(error &amp;&amp; !blk_rq_is_passthrough(req) &amp;&amp;<br>		     !(req-&gt;rq_flags &amp; RQF_QUIET)))<br>		print_req_error(req, error, __func__);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">print_req_error</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> request *req, <span class="hljs-type">blk_status_t</span> status,</span><br><span class="hljs-params">		<span class="hljs-type">const</span> <span class="hljs-type">char</span> *caller)</span><br>&#123;<br>	printk_ratelimited(KERN_ERR<br>		<span class="hljs-string">&quot;%s: %s error, dev %s, sector %llu op 0x%x:(%s) flags 0x%x &quot;</span><br>		<span class="hljs-string">&quot;phys_seg %u prio class %u\n&quot;</span>,<br>		caller, blk_errors[idx].name,<br>		req-&gt;rq_disk ? req-&gt;rq_disk-&gt;disk_name : <span class="hljs-string">&quot;?&quot;</span>,<br>		blk_rq_pos(req), req_op(req), blk_op_str(req_op(req)),<br>		req-&gt;cmd_flags &amp; ~REQ_OP_MASK,<br>		req-&gt;nr_phys_segments,<br>		IOPRIO_PRIO_CLASS(req-&gt;ioprio));<br>&#125;<br></code></pre></td></tr></table></figure>
 
 
                 
