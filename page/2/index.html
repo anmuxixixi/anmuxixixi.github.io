@@ -219,6 +219,40 @@
       <h1 class="index-header">
         
         
+        <a href="/2025/10/04/fstrim-ioctl%E5%9C%A8f2fs%E7%94%9F%E6%95%88%E6%83%85%E6%99%AF%E7%A0%94%E4%B9%A0/" target="_self">
+          fstrim ioctl在f2fs生效情景研习
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/10/04/fstrim-ioctl%E5%9C%A8f2fs%E7%94%9F%E6%95%88%E6%83%85%E6%99%AF%E7%A0%94%E4%B9%A0/" target="_self">
+        <div>
+          fstrim ioctl在f2fs生效情景研习123456long f2fs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)&#123;    switch (cmd) &#123;    case FITRIM:		return f2fs_ioc_fitrim(filp, arg);&#125;
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-10-04 20:34" pubdate>
+              2025-10-04
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
         <a href="/2025/09/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdiscard%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/" target="_self">
           f2fs文件系统discard流程梳理
         </a>
@@ -509,40 +543,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2025-08-10 21:23" pubdate>
               2025-08-10
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2025/08/06/close%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8sync-blkdev/" target="_self">
-          close系统调用sync_blkdev
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2025/08/06/close%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8sync-blkdev/" target="_self">
-        <div>
-          close系统调用sync_blkdev背景：最近遇到一个问题比较诡异，blkid 和 fsck.exfat 最后竟然会调用到sync_blockdev函数，理论上blkid和fsck.exfat只是open(“&#x2F;dev&#x2F;block&#x2F;vold&#x2F;publib:8:1”, x)，然后close；感觉close中间肯定有什么猫腻 close系统调用入口1.首先来到
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-08-06 20:05" pubdate>
-              2025-08-06
             </time>
           </div>
         
