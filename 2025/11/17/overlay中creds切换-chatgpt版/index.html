@@ -1,0 +1,754 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="overlay中creds切换(chatgpt版)✅ Android 12 内核中真正调用 override_creds() 的位置 Android 12 使用的 OverlayFS 特性引入了 mount 时强制 cred 切换（override_creds）。adb remount → fs_mgr → 内核 overlayfs mount → 会进入这些调用点。 下面是你要查的 全部实际 o">
+<meta property="og:type" content="article">
+<meta property="og:title" content="overlay中creds切换(chatgpt版)">
+<meta property="og:url" content="http://example.com/2025/11/17/overlay%E4%B8%ADcreds%E5%88%87%E6%8D%A2-chatgpt%E7%89%88/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="overlay中creds切换(chatgpt版)✅ Android 12 内核中真正调用 override_creds() 的位置 Android 12 使用的 OverlayFS 特性引入了 mount 时强制 cred 切换（override_creds）。adb remount → fs_mgr → 内核 overlayfs mount → 会进入这些调用点。 下面是你要查的 全部实际 o">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-17T15:24:40.000Z">
+<meta property="article:modified_time" content="2025-11-17T15:28:24.178Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>overlay中creds切换(chatgpt版) - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="overlay中creds切换(chatgpt版)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-17 23:24" pubdate>
+          2025年11月17日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          21 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">overlay中creds切换(chatgpt版)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="overlay中creds切换-chatgpt版"><a href="#overlay中creds切换-chatgpt版" class="headerlink" title="overlay中creds切换(chatgpt版)"></a>overlay中creds切换(chatgpt版)</h1><p>✅ Android 12 内核中真正调用 override_creds() 的位置</p>
+<p>Android 12 使用的 OverlayFS 特性引入了 mount 时强制 cred 切换（override_creds）。<br>adb remount → fs_mgr → 内核 overlayfs mount → 会进入这些调用点。</p>
+<p>下面是你要查的 全部实际 override_creds 代码处。</p>
+<h2 id="🔥-①-fs-x2F-overlayfs-x2F-super-c-—-ovl-override-creds"><a href="#🔥-①-fs-x2F-overlayfs-x2F-super-c-—-ovl-override-creds" class="headerlink" title="🔥 ① fs&#x2F;overlayfs&#x2F;super.c — ovl_override_creds()"></a>🔥 <strong>① fs&#x2F;overlayfs&#x2F;super.c — ovl_override_creds()</strong></h2><p>📌 <strong>AOSP Android 12 内核中最关键的 override_creds 调用点</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">fs/overlayfs/super.c<br></code></pre></td></tr></table></figure>
+
+<p><strong>函数：<code>ovl_override_creds()</code></strong></p>
+<p>（Android 12 common kernel 中大约在 <em>line ~ 1100–1200</em>）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> cred *<span class="hljs-title function_">ovl_override_creds</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> super_block *sb)</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cred</span> *<span class="hljs-title">old_cred</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ovl_fs</span> *<span class="hljs-title">ofs</span> =</span> sb-&gt;s_fs_info;<br><br>    old_cred = override_creds(ofs-&gt;creator_cred);<br>    <span class="hljs-keyword">return</span> old_cred;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>配套：<code>ovl_revert_creds()</code></strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">ovl_revert_creds</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> cred *old_cred)</span><br>&#123;<br>    revert_creds(old_cred);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>作用</strong></p>
+<p>OverlayFS 在某些操作（stat&#x2F;lookup）会切换到 <strong>挂载者的 cred</strong>（creator_cred），<br> 导致：</p>
+<blockquote>
+<p><strong>同一个 stat() 期间出现多个不同的 current_cred()</strong></p>
+</blockquote>
+<p>你看到的现象正是由这个函数导致的。</p>
+<h2 id="🔥-②-fs-x2F-overlayfs-x2F-file-c-—-在-file-read-x2F-write-前后切-cred"><a href="#🔥-②-fs-x2F-overlayfs-x2F-file-c-—-在-file-read-x2F-write-前后切-cred" class="headerlink" title="🔥 ② fs&#x2F;overlayfs&#x2F;file.c — 在 file read&#x2F;write 前后切 cred"></a>🔥 <strong>② fs&#x2F;overlayfs&#x2F;file.c — 在 file read&#x2F;write 前后切 cred</strong></h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">fs/overlayfs/file.c<br></code></pre></td></tr></table></figure>
+
+<p><strong>函数：ovl_read_iter() &#x2F; ovl_write_iter()</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">old_cred = ovl_override_creds(file_inode(file)-&gt;i_sb);<br>...<br>ovl_revert_creds(old_cred);<br></code></pre></td></tr></table></figure>
+
+<p>作用：<br> OverlayFS 上读写文件时，临时切换 credential。</p>
+<h2 id="🔥-③-fs-x2F-overlayfs-x2F-inode-c-—-getattr-x2F-lookup-会切-cred"><a href="#🔥-③-fs-x2F-overlayfs-x2F-inode-c-—-getattr-x2F-lookup-会切-cred" class="headerlink" title="🔥 ③ fs&#x2F;overlayfs&#x2F;inode.c — getattr &#x2F; lookup 会切 cred"></a>🔥 <strong>③ fs&#x2F;overlayfs&#x2F;inode.c — getattr &#x2F; lookup 会切 cred</strong></h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">fs/overlayfs/inode.c<br></code></pre></td></tr></table></figure>
+
+<p><strong>函数：<code>ovl_getattr()</code></strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">old_cred = ovl_override_creds(inode-&gt;i_sb);<br>err = vfs_getattr(path, stat, request_mask, query_mask);<br>ovl_revert_creds(old_cred);<br></code></pre></td></tr></table></figure>
+
+<p>关键点</p>
+<p><strong>stat() 就会走这里，因此你必定看到 current_cred 切两次。</strong></p>
+<p>这就是你观察到的根本来源。</p>
+<hr>
+<h2 id="🔥-④-fs-x2F-overlayfs-x2F-namei-c-—-lookup-时临时切-cred"><a href="#🔥-④-fs-x2F-overlayfs-x2F-namei-c-—-lookup-时临时切-cred" class="headerlink" title="🔥 ④ fs&#x2F;overlayfs&#x2F;namei.c — lookup 时临时切 cred"></a>🔥 <strong>④ fs&#x2F;overlayfs&#x2F;namei.c — lookup 时临时切 cred</strong></h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">fs/overlayfs/namei.c<br></code></pre></td></tr></table></figure>
+
+<p><strong>函数：<code>ovl_lookup()</code></strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">old_cred = ovl_override_creds(inode-&gt;i_sb);<br>...<br>ovl_revert_creds(old_cred);<br></code></pre></td></tr></table></figure>
+
+<p>路径解析时（stat 的第一阶段）会调用 → 触发一次 cred 切换。</p>
+<hr>
+<h2 id="🔥-⑤-fs-x2F-overlayfs-x2F-copy-up-c-—-copy-up-时也会-override-creds"><a href="#🔥-⑤-fs-x2F-overlayfs-x2F-copy-up-c-—-copy-up-时也会-override-creds" class="headerlink" title="🔥 ⑤ fs&#x2F;overlayfs&#x2F;copy_up.c — copy-up 时也会 override_creds"></a>🔥 <strong>⑤ fs&#x2F;overlayfs&#x2F;copy_up.c — copy-up 时也会 override_creds</strong></h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">fs/overlayfs/copy_up.c<br></code></pre></td></tr></table></figure>
+
+<p>例如 <code>ovl_copy_up_one()</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">old_cred = ovl_override_creds(sb);<br>...<br>ovl_revert_creds(old_cred);<br></code></pre></td></tr></table></figure>
+
+<p>虽然 stat 通常不会 copy-up，但逻辑上这里也会切 cred。</p>
+<hr>
+<h2 id="📌-总结：Android-12-中-override-creds-的完整链"><a href="#📌-总结：Android-12-中-override-creds-的完整链" class="headerlink" title="📌 总结：Android 12 中 override_creds 的完整链"></a>📌 <strong>总结：Android 12 中 override_creds 的完整链</strong></h2><table>
+<thead>
+<tr>
+<th>文件</th>
+<th>函数</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>fs&#x2F;overlayfs&#x2F;super.c</td>
+<td>ovl_override_creds &#x2F; ovl_revert_creds</td>
+<td>所有 overlayfs 操作的核心切换</td>
+</tr>
+<tr>
+<td>fs&#x2F;overlayfs&#x2F;inode.c</td>
+<td>ovl_getattr</td>
+<td><strong>stat() 发生的 cred 切换之一</strong></td>
+</tr>
+<tr>
+<td>fs&#x2F;overlayfs&#x2F;namei.c</td>
+<td>ovl_lookup</td>
+<td>stat 路径解析阶段切 cred</td>
+</tr>
+<tr>
+<td>fs&#x2F;overlayfs&#x2F;file.c</td>
+<td>ovl_read_iter &#x2F; write_iter</td>
+<td>读写文件</td>
+</tr>
+<tr>
+<td>fs&#x2F;overlayfs&#x2F;copy_up.c</td>
+<td>ovl_copy_up_one</td>
+<td>copy-up 行为</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="🧠-为什么你看到两次不同的-current-cred？"><a href="#🧠-为什么你看到两次不同的-current-cred？" class="headerlink" title="🧠 为什么你看到两次不同的 current_cred？"></a>🧠 <strong>为什么你看到两次不同的 current_cred？</strong></h2><p><strong>因为 stat() 经过两个阶段：</strong></p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>内核函数</th>
+<th>是否使用 override_creds</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>① path lookup</td>
+<td><code>ovl_lookup()</code></td>
+<td>✔ credentials &#x3D; creator_cred</td>
+</tr>
+<tr>
+<td>② real getattr</td>
+<td><code>ovl_getattr()</code></td>
+<td>✔ credentials &#x3D; creator_cred</td>
+</tr>
+</tbody></table>
+<p>但是在某些路径（尤其 adb remount）：</p>
+<ul>
+<li>第一次 getattr 发生在 override_creds 期间</li>
+<li>第二次发生在 revert_creds 之后</li>
+</ul>
+<p>所以你看到：</p>
+<p><strong>stat 调用期间 → LSM（selinux_inode_getattr）被调用两次</strong></p>
+<p>一次 cred &#x3D; creator_cred<br> 一次 cred &#x3D; shell &#x2F; system_server &#x2F; adbd 的实际 cred</p>
+<p>完美符合你的日志。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>overlay中creds切换(chatgpt版)</div>
+      <div>http://example.com/2025/11/17/overlay中creds切换-chatgpt版/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/10/22/scsi%E6%8A%A5%E9%94%99%E6%97%A5%E5%BF%97%E6%9D%82%E8%AE%B0/" title="scsi报错日志杂记">
+                        <span class="hidden-mobile">scsi报错日志杂记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
