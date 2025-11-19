@@ -1,0 +1,738 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="【转载】LSM的前世今生转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;feelabclihu&#x2F;article&#x2F;details&#x2F;121059328 本文主要介绍了Linux Security Module (LSM)的基本原理，应用场景及编程实例。第一部分以Linux Kernel文档为基础，介绍了LSM的定义、诞生与发展，并简述了LSM的实现原理；第二部分以鼎鼎大名SELinux为例，介绍了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LSM的前世今生">
+<meta property="og:url" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="【转载】LSM的前世今生转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;feelabclihu&#x2F;article&#x2F;details&#x2F;121059328 本文主要介绍了Linux Security Module (LSM)的基本原理，应用场景及编程实例。第一部分以Linux Kernel文档为基础，介绍了LSM的定义、诞生与发展，并简述了LSM的实现原理；第二部分以鼎鼎大名SELinux为例，介绍了">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/d20b1f559cd36cf25f220c032b8b1150.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/ccdcd44dfbe6cd712382edd40c6196dc.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/56fcfa3bb99ba156ce60269bf053eaec.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/95f9033439a8430072e237190f111116.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/d63f753cb40ddd8eef611baec9d0ddd0.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/ed02fd878ddd81954a35a2e11b8cfd94.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/14f7d6d7a0878d9e7a33921d2bf2f386.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/c99268e857b42082d309182a941fde27.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/38f506a39e27bb0efe232442c0c702af.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/68bfdd3bbf813814456f7416dc271fe4.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/4f96780e2df170d1af88a8f6ca3cb7f2.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/1d4a41504025e62d0c518f874a2e96cb.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/309c72bc13bba134bb2ea99c96367f82.png">
+<meta property="og:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/3e6181615b81d9bfd27ccd239ad825a7.png">
+<meta property="article:published_time" content="2025-11-19T13:39:08.000Z">
+<meta property="article:modified_time" content="2025-11-19T13:46:05.768Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/d20b1f559cd36cf25f220c032b8b1150.png">
+  
+  
+  
+  <title>LSM的前世今生 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="LSM的前世今生"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-19 21:39" pubdate>
+          2025年11月19日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          41 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">LSM的前世今生</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="【转载】LSM的前世今生"><a href="#【转载】LSM的前世今生" class="headerlink" title="【转载】LSM的前世今生"></a>【转载】LSM的前世今生</h1><p>转载自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/feelabclihu/article/details/121059328">https://blog.csdn.net/feelabclihu/article/details/121059328</a></p>
+<p>本文主要介绍了Linux Security Module (LSM)的基本原理，应用场景及编程实例。第一部分以Linux Kernel文档为基础，介绍了LSM的定义、诞生与发展，并简述了LSM的实现原理；第二部分以鼎鼎大名SELinux为例，介绍了LSM的具体实现。</p>
+<p>本文主要基于Linux Kernel官方文档和源码撰写，如果有疏漏，欢迎指正。</p>
+<h2 id="一、LSM是个啥"><a href="#一、LSM是个啥" class="headerlink" title="一、LSM是个啥"></a>一、LSM是个啥</h2><h3 id="1-LSM的定义"><a href="#1-LSM的定义" class="headerlink" title="1.LSM的定义"></a>1.LSM的定义</h3><p>TheLinux Security Module (LSM) framework provides a mechanism for various securitychecks to be hooked by new kernel extensions. The name “module” is a bit of a misnomer since theseextensions are not actually loadable kernel modules. Instead, they areselectable at build-time via CONFIG_DEFAULT_SECURITY and can be overridden atboot-time via the “security&#x3D;…” kernel command line argument, in thecase where multiple LSMs were built into a given kernel.</p>
+<p>从Linux Kernel官网页面中的介绍中可以大概总结出几个关键点：</p>
+<p>l  LSM框架基于hook机制实现内核功能扩展</p>
+<p>l  虽然名字里带Module，但LSM并不是传统意义上的内核模块</p>
+<p>l  Kernel中可以同时编译进多个不同的LSM</p>
+<p>l  LSM并不是运行时加载，而是编译时引入，在boot阶段通过命令行加载</p>
+<h3 id="2-LSM的诞生与发展"><a href="#2-LSM的诞生与发展" class="headerlink" title="2.LSM的诞生与发展"></a>2.LSM的诞生与发展</h3><p>在2001年的Linux Kernel峰会上，NSA代表建议在Linux Kernel 2.5中加入Security-Enhanced Linux(SELinux)。然而，这一提议遭到了Linus Torvalds的拒绝。一方面，SELinux并不是惟一用于增强 Linux 安全性的安全子系统；另一方面，并不是所有的开发人员都认为SELinux是最佳解决方案。最终SELinux没能加入到Linux Kernel 2.5，取而代之的是Linux Security Module的开发被提上日程。</p>
+<p>LSM子系统自提出后开发了近3年，并终于在Linux Kernel 2.6正式加入到内核中，随之应运而生了大量LSM，比如Ubuntu、OpenSUSE、SUSE、Debian等发行版中默认的AppArmor，以及RHEL、Fedora、CentOS等发行版中默认的SELinux。</p>
+<h3 id="3-LSM的软件架构及实现原理"><a href="#3-LSM的软件架构及实现原理" class="headerlink" title="3.LSM的软件架构及实现原理"></a>3.LSM的软件架构及实现原理</h3><p>从图1中可以看出LSM在Linux安全体系中所处的位置，LSMhook被插入到访问kernel对象与DAC 检查之见，然后LSM调用系统中启用的访问控制模块，检查是否可以访问。若有多个访问控制模块，会根据初始化的优先顺序执行，都允许访问才能进一步访问 kernel 对象。使用LSM Hook框架进行内核安全审计和元数据捕获。安全开发人员只需要按照既定的调用规范编写LSM模块，并加载进Linux内核，而不需要对系统调用表进行任何修改。</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/d20b1f559cd36cf25f220c032b8b1150.png" srcset="/img/loading.gif" lazyload alt="fbb819c3438a557f62d00c367ebe08b7.png" style="zoom: 50%;">
+
+<p>LSM的设计思想是在最少改变内核代码的情况下，提供一个能够成功实现强制访问控制模块需要的结构或者接口。其中，LSM对内核代码的改动如下：</p>
+<p>l  在特定的内核数据结构中加入安全域</p>
+<p>l  在内核源代码中不同的关键点插入对安全钩子函数的调用</p>
+<p>l  加入一个通用的安全系统调用</p>
+<p>l  提供了函数允许内核模块注册为安全模块或者注销</p>
+<p>l  将capabilities逻辑的大部分移植为一个可选的安全模块</p>
+<p>LSM机制之所以简单实用，是因为它的设计者几乎罗列了任何可能出现安全问题的地方，然后在这些地方安插钩子，并且这些钩子的实现定义为回调函数，具体的安全引擎只需要自己实现这些钩子函数即可。</p>
+<h2 id="二、LSM有啥用"><a href="#二、LSM有啥用" class="headerlink" title="二、LSM有啥用"></a>二、LSM有啥用</h2><h3 id="1-大名鼎鼎的SElinux"><a href="#1-大名鼎鼎的SElinux" class="headerlink" title="1 大名鼎鼎的SElinux"></a>1 大名鼎鼎的SElinux</h3><p>作为最知名的LSM之一，哪怕是刚开始接触Linux内核安全的新人，也一定或多或少听说过SELinux的大名。如果你没听说过，可以去翻翻往期内核工匠的文章，在《SELinux介绍》一文中，Tenny大佬对SELinux的基础框架和基本原理都做了介绍，同时对SELinux Policy做了介绍，本节将不再赘述。【<a target="_blank" rel="noopener" href="https://blog.csdn.net/feelabclihu/article/details/117576092%E3%80%91">https://blog.csdn.net/feelabclihu/article/details/117576092】</a></p>
+<h3 id="2-从LSM视角看待SELinux具体实现"><a href="#2-从LSM视角看待SELinux具体实现" class="headerlink" title="2.从LSM视角看待SELinux具体实现"></a>2.<strong>从LSM视角看待SELinux具体实现</strong></h3><p>上一节最后讲到了LSM对内核的改动，下面就以SELinux为例，详细讲解一下LSM在内核中的具体实现。</p>
+<p>（1）在inode结构体中加入安全域</p>
+<p>如图2所示，在inode数据结构中加入安全域字段，i_security字段指向一段安全域，该区域内顺序存放着各个安全模块自己的数据，每个安全模块会记录自己在安全域内的offset。内核通过在文件inode对象中间接引用的i_security对象（void*），实现各种各样的安全模块。</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/ccdcd44dfbe6cd712382edd40c6196dc.png" srcset="/img/loading.gif" lazyload alt="dc488517bbc531ab4cc23e5807367a31.png" style="zoom:90%;">
+
+<p>（2）添加hook函数调用</p>
+<p>在内核代码中埋入的每个安全hook函数都会设立自己的hlist，以便于不同的安全引擎能同时工作（如SELinux与AppArmor共存）。每一个hook点都可以用security_hook_list结构体来描述，同时每个hook点包含一个函数声明和自己hlist的头部，如图3所示：</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/56fcfa3bb99ba156ce60269bf053eaec.png" srcset="/img/loading.gif" lazyload alt="ab525cb65dbe46f76ba309030e8778c1.png" style="zoom:80%;">
+
+<p>在头文件”lsm_hook_defs.h”中，罗列出了各种hook点的名称，SELinux通过复用LSM_HOOK宏对hook函数进行初始化，如图4所示：</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/95f9033439a8430072e237190f111116.png" srcset="/img/loading.gif" lazyload alt="8bc606d47ae00d48b5a0d412ab7a27b0.png" style="zoom:80%;">
+
+<p>selinux_hooks就是SELinux模块实现的hook点结构体数组，通过上面提到的LSM_HOOK_INIT宏对struct security_hook_list结构中的成员head进行初始化，并将SELinux实现的函数selinux_binder_set_context_mgr赋给对应函数指针。</p>
+<p>然而，这个宏仅仅初始化了两个成员，并未将实现的函数插入到hook点下hlist中。Linux提供security_add_hooks函数执行插入哈希链表操作，内核代码中埋入的hook点在被调用时，会遍历自己的hlist，依次调用之前注册的安全函数。如图5所示：</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/d63f753cb40ddd8eef611baec9d0ddd0.png" srcset="/img/loading.gif" lazyload alt="24e9a1776767fff69fa59995b614c91e.png" style="zoom:80%;">
+
+<p>（3）LSM数据结构</p>
+<p>如图6所示，在Linux内核中，通过使用lsm_info结构体对各个安全模块进行描述。在头文件vmlinux.lds.h中，定义了lsm info数据区域，用于存放 lsm_info结构体，并使用DEFINE_LSM宏对其进行初始化。</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/ed02fd878ddd81954a35a2e11b8cfd94.png" srcset="/img/loading.gif" lazyload alt="1825ec60bee831f6774ab54a52674b40.png" style="zoom:80%;">
+
+<p>如图7所示是SELinux中的lsm_info结构体定义，包含模块名称及init函数。</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/14f7d6d7a0878d9e7a33921d2bf2f386.png" srcset="/img/loading.gif" lazyload alt="02b7a59ee1ca99a42bd34d5c80042b5c.png" style="zoom:80%;">
+
+<p>（4）LSM初始化</p>
+<p>如上一节在LSM定义中所提到的，LSM并不是运行时加载，而是编译时引入，在boot阶段通过命令行加载。在start_kernel（系统启动执行完架构相关代码后，通用代码的入口）后，开始调用early_lsm_init命令和security_init命令。</p>
+<p>early_lsm_init命令在Kernel 5.4引入，目的是对在setup_arch()中启动的代码配置安全策略，以实现在引导早期加载LSM策略的安全机制。通过配置CONFIG_SECURITY_LOCKDOWN_LSM_EARLY宏，可以在security_init命令之前启动，目前lockdown是为数不多使用这种配置的模块之一。</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/c99268e857b42082d309182a941fde27.png" srcset="/img/loading.gif" lazyload alt="b90fbae2d384f2e19f11e366be486b08.png" style="zoom:80%;">
+
+<p>如图8所示，early_lsm阶段通过调用early_lsm_init函数完成初始化，在头文件vmlinux.lds.h中定义了__start_early_lsm_inf，由DEFINE_EARLY_LSM(lsm)宏调用初始化函数，如图9所示：</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/38f506a39e27bb0efe232442c0c702af.png" srcset="/img/loading.gif" lazyload alt="96efd33737fb22f3b488332a3ac0146a.png" style="zoom:80%;">
+
+<p>如图10所示是early_lsm阶段的两个核心函数prepare_lsm和initialize_lsm。</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/68bfdd3bbf813814456f7416dc271fe4.png" srcset="/img/loading.gif" lazyload alt="1173130be0699dc187ced4d415ed05a1.png" style="zoom:80%;">
+
+<p>prepare_lsm函数通过调用lsm_allowed函数进行判断，如果有模块的flag中加入了LSM_FLAG_EXCLUSIVE，则注册成独占模块，其他声明了LSM_FLAG_EXCLUSIVE的模块就不会被启用。常见Linux系统中lockdown，yama，loadpin，safesetid，integrity以及capbility均为非独占模块，在内核中可以同时加载；而selinux，apparmor以及smack均是独占模块，不能同时加载。</p>
+<p>initialize_lsm函数实际上就是调用安全模块自己注册的init函数。</p>
+<p>讲完early_lsm阶段，接下来说一下security_init阶段。</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/4f96780e2df170d1af88a8f6ca3cb7f2.png" srcset="/img/loading.gif" lazyload alt="a970893d1b3bc6c181bf7f71f4ced27e.png" style="zoom:80%;">
+
+<p>如图11所示，security_init阶段通过调用security_init函数完成初始化。其中，lsm_names保存内核启动的lsm模块名，本身是一个字符型指针，赋值时需要通过alloc函数申请内存，而early_security_init阶段无法完成这个操作，因此在security_init中，会对模块是否属于early_security_init阶段进行判断。</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/1d4a41504025e62d0c518f874a2e96cb.png" srcset="/img/loading.gif" lazyload alt="853563f2d8cbf8ce60b3407d37d890ad.png" style="zoom:80%;">
+
+<p>如图12所示是security_init阶段的核心函数ordered_lsm_init函数。下面看一下其具体实现。</p>
+<p>ordered_lsms是一个结构体指针数组，用于保存在静态数据区中定义的lsm_info结构体。</p>
+<p>chosen_lsm_order和chosen_major_lsm均保存cmdline传入的lsm相关参数，分别对应cmdline的”lsm&#x3D;”参数和”security&#x3D;”参数，”lsm&#x3D;”表示指定多个安全模块的加载顺序，”security&#x3D;”是指定一个补充加载的安全模块。</p>
+<p>builtin_lsm_order等同于CONFIG_LSM，即在kernel配置时选择的安全模块加载顺序字符串。</p>
+<p>ordered_lsm_parse函数的作用是将.lsm_info.init中无序的静态数据(lsm_info) 地址按照CONFIG中的逗号隔开的顺序放到ordered_lsms指针数组中。</p>
+<p>（1）配置LSM的security_blob_size</p>
+<p>在lsm_info结构体中，使用lsm_blob_sizes结构体来存放LSM的Security blob size 或者offset数据。blob size指的是LSM框架下实现的安全域数据大小。其结构体声明如图13所示：</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/309c72bc13bba134bb2ea99c96367f82.png" srcset="/img/loading.gif" lazyload alt="433a7036c5dcff48e08a88d491dc84ab.png" style="zoom:80%;">
+
+<p>在lsm初始化阶段，Linux Kernel提供了lsm_set_blob_sizes函数用于配置模块的blob_size，一般模块在静态定义lsm_info时会定义blob_size，如图14是SELinux的blob_size定义：</p>
+<img src="/2025/11/19/LSM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/3e6181615b81d9bfd27ccd239ad825a7.png" srcset="/img/loading.gif" lazyload alt="14b40e29732ad5bd0cc6c3ff9966aaf7.png" style="zoom:80%;">
+
+<p>需要注意的是，全局变量blob_sizes是各个使能的模块的blob size的累加值，并会将累加的offset重新赋值给模块的blobs对应字段。</p>
+<h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h2><p>在LSM诞生之前，Linux Kernel安全加固的方案多种多样，随着LSM加入内核，从前的安全性内核补丁如今破坏了内核的完整性，使用LSM框架中的标准预置回调函数进行hook是当前最优雅的解决方案。而Kernel 5.4中加入的lockdown模块（前文提到的early_lsm阶段加载的模块）直接禁止了运行时对内核进行动态修改，使得LSM成为Linux安全模块开发的唯一途径。</p>
+<p>参考文献</p>
+<p>Linux官方文档：<a target="_blank" rel="noopener" href="https://www.kernel.org/doc">https://www.kernel.org/doc</a></p>
+<p>Linux内核源码：<a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/latest/source">https://elixir.bootlin.com/linux/latest/source</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>LSM的前世今生</div>
+      <div>http://example.com/2025/11/19/LSM的前世今生/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/11/19/selinux%E5%86%85%E6%A0%B8%E6%B5%85%E6%9E%90/" title="selinux内核浅析">
+                        <span class="hidden-mobile">selinux内核浅析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

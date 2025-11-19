@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/6e2c2a8f90bfca56a33d4aaf29fadc94.png">
 <meta property="og:image" content="http://example.com/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/2758e61640496dda44c4f8dce07968bd.png">
 <meta property="article:published_time" content="2025-05-07T14:43:10.000Z">
-<meta property="article:modified_time" content="2025-05-07T14:54:16.018Z">
+<meta property="article:modified_time" content="2025-11-19T13:23:20.370Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/ff007fee4689531fb6c5d13637d8eac5.jpeg">
@@ -329,12 +329,12 @@
 <img src="/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/image-20250507225156132.png" srcset="/img/loading.gif" lazyload alt="image-20250507225156132" style="zoom:80%;">
 
 <h2 id="安卓中的应用"><a href="#安卓中的应用" class="headerlink" title="安卓中的应用"></a>安卓中的应用</h2><p>OverlayFS文件系统可以类似达到把只读文件系统改为可写文件系统的效果，这一特性在Android开发的场景下得到应用，userdebug模式下我们adb remount后似乎就可以往&#x2F;system&#x2F;目录下push内容了，查看remount前后的mount信息，可以看到&#x2F;system&#x2F;目录被重新挂载成可读写的OverlayFS文件系统了：</p>
-<p>remount前：<br><img src="/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/7ba2f4112d09717600148d43a43310e4.png" srcset="/img/loading.gif" lazyload alt="1a6e54d6faa6d55a4841bd8da1de4036.png" style="zoom:80%;"></p>
+<p>remount前：<br><img src="/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/7ba2f4112d09717600148d43a43310e4.png" srcset="/img/loading.gif" lazyload style="zoom:80%;"></p>
 <p>remount后：</p>
-<img src="/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/6e2c2a8f90bfca56a33d4aaf29fadc94.png" srcset="/img/loading.gif" lazyload alt="2c273324fcafa8d6fa54317c097994ee.png" style="zoom:80%;">
+<img src="/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/6e2c2a8f90bfca56a33d4aaf29fadc94.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
 
 <p>重启：</p>
-<img src="/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/2758e61640496dda44c4f8dce07968bd.png" srcset="/img/loading.gif" lazyload alt="fd7891f15d9bd76cc2973228dc6db1b4.png" style="zoom:80%;">
+<img src="/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/2758e61640496dda44c4f8dce07968bd.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
 
 <p>system、vendor、product等目录是以ext4文件系统方式挂载的，remount后以OverlayFS挂载，之后重启也会以OverlayFS方式挂载，以使之前的修改生效。</p>
 <p>system和vendor等的upperdir都在&#x2F;cache可写文件系统中，往&#x2F;system目录push东西实际上都存放在&#x2F;cache&#x2F;overlay&#x2F;system&#x2F;upper目录中了。实际的system分区并没有被修改，修改的文件全部存放在cache分区了。</p>
