@@ -219,6 +219,74 @@
       <h1 class="index-header">
         
         
+        <a href="/2024/02/19/SSD%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98Trim%E5%91%BD%E4%BB%A4/" target="_self">
+          SSD固态硬盘Trim命令
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/02/19/SSD%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98Trim%E5%91%BD%E4%BB%A4/" target="_self">
+        <div>
+          SSD固态硬盘Trim命令为啥我们需要Trim？ 在闪存内，数据存储一般是以page（页）为最小单位存储的（典型的为4KB），而128个page组成了一个block（块），数据可以以4KB大小的页来读取和写入，但却只能以512KB(128 page)的块大小来删除。当读取数据或者写入到一个没有被使用过的page上时，固态硬盘的速度是很快的，但是覆写数据的话，就比较复杂了，需要许多步骤来完成。步骤可
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-02-19 21:59" pubdate>
+              2024-02-19
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
+        <a href="/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
+          f2fs文件系统dentry与inode学习笔记
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/02/16/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdentry%E4%B8%8Einode%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
+        <div>
+          f2fs文件系统dentry与inode学习笔记inode相关12345678910111213141516171819202122232425262728293031323334353637383940static int block_operations(struct f2fs_sb_info *sbi)&#123;	struct writeback_control wbc = &#123;
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-02-16 22:06" pubdate>
+              2024-02-16
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
         <a href="/2024/01/19/%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/" target="_self">
           内核文件加密
         </a>
@@ -475,74 +543,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2023-12-20 21:56" pubdate>
               2023-12-20
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/" target="_self">
-          yaffs文件系统布局
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/18/yaffs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/" target="_self">
-        <div>
-          yaffs文件系统布局nand flash结构  nand flash的存储结构为：一个flash由许多个block组成，一个block又是有许多个page组成，一个page又是由有效的数据区和spare area区（即oob区）。  如上图flash有1024个block，一个block有64个page，一个page有2Kbytes的有效数据+64bytes的oob数据。我们通常计算nand f
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-18 22:52" pubdate>
-              2023-12-18
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2023/12/18/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%89%B9%E6%80%A7%E6%A0%87%E5%BF%97%E4%BD%8D/" target="_self">
-          f2fs文件系统特性标志位
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/18/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%89%B9%E6%80%A7%E6%A0%87%E5%BF%97%E4%BD%8D/" target="_self">
-        <div>
-          f2fs文件系统特性标志位在f2fs文件系统挂载的时候会调用parse_options解析挂载选项：   这里有一些检查特性的函数例如：f2fs_sb_has_quota_ino、f2fs_sb_has_casefold等函数死活在f2fs源码里面找不到实现。 其实，这些特性函数校验函数都有一个规律，都是以f2fs_sb_has开头，因此联想到会不是是宏控制的。  确实是这样的，这边用宏去定义了所
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-18 21:34" pubdate>
-              2023-12-18
             </time>
           </div>
         
