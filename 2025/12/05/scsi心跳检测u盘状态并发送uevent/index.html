@@ -25,8 +25,9 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2025/12/05/scsi%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8Bu%E7%9B%98%E7%8A%B6%E6%80%81%E5%B9%B6%E5%8F%91%E9%80%81uevent/image-20251205211146490.png">
 <meta property="og:image" content="http://example.com/2025/12/05/scsi%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8Bu%E7%9B%98%E7%8A%B6%E6%80%81%E5%B9%B6%E5%8F%91%E9%80%81uevent/image-20251205211745214.png">
+<meta property="og:image" content="http://example.com/2025/12/05/scsi%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8Bu%E7%9B%98%E7%8A%B6%E6%80%81%E5%B9%B6%E5%8F%91%E9%80%81uevent/image-20251205213406553.png">
 <meta property="article:published_time" content="2025-12-05T13:08:24.000Z">
-<meta property="article:modified_time" content="2025-12-05T13:25:19.791Z">
+<meta property="article:modified_time" content="2025-12-05T13:35:15.960Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2025/12/05/scsi%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8Bu%E7%9B%98%E7%8A%B6%E6%80%81%E5%B9%B6%E5%8F%91%E9%80%81uevent/image-20251205211146490.png">
@@ -214,7 +215,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.7k 字
+          2.8k 字
         
       </span>
     
@@ -225,7 +226,7 @@
         
         
         
-          15 分钟
+          23 分钟
         
       </span>
     
@@ -298,6 +299,13 @@
 <p>✅<strong>总结：</strong>每隔disk_events_dfl_poll_msecs时间就执行一次disk_check_events【心跳核心原理】</p>
 <h2 id="scsi检测状态"><a href="#scsi检测状态" class="headerlink" title="scsi检测状态"></a>scsi检测状态</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> <span class="hljs-title function_">sd_check_events</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> gendisk *disk, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> clearing)</span><br>&#123;<br>	<span class="hljs-comment">/* 最常遇到的情况 */</span><br>	<span class="hljs-keyword">if</span> (scsi_block_when_processing_errors(sdp)) &#123;<br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">scsi_sense_hdr</span> <span class="hljs-title">sshdr</span> =</span> &#123; <span class="hljs-number">0</span>, &#125;;<br>		retval = scsi_test_unit_ready(sdp, SD_TIMEOUT, sdkp-&gt;max_retries, &amp;sshdr);<br><br>		<span class="hljs-keyword">if</span> (host_byte(retval)) &#123;<br>			set_media_not_present(sdkp);<br>			<span class="hljs-keyword">goto</span> out;<br>		&#125;<br>	&#125;<br><br>out:<br>	retval = sdp-&gt;changed ? DISK_EVENT_MEDIA_CHANGE : <span class="hljs-number">0</span>;<br>	sdp-&gt;changed = <span class="hljs-number">0</span>;<br>	scsi_disk_put(sdkp);<br>	<span class="hljs-keyword">return</span> retval;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<h3 id="发生TEST-UNIT-READY指令"><a href="#发生TEST-UNIT-READY指令" class="headerlink" title="发生TEST_UNIT_READY指令"></a>发生TEST_UNIT_READY指令</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span><br><span class="hljs-title function_">scsi_test_unit_ready</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> scsi_device *sdev, <span class="hljs-type">int</span> timeout, <span class="hljs-type">int</span> retries,</span><br><span class="hljs-params">		     <span class="hljs-keyword">struct</span> scsi_sense_hdr *sshdr)</span><br>&#123;<br>	<span class="hljs-type">char</span> cmd[] = &#123;<br>		TEST_UNIT_READY, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>,<br>	&#125;;<br>	<span class="hljs-type">int</span> result;<br><br>	<span class="hljs-comment">/* try to eat the UNIT_ATTENTION if there are enough retries */</span><br>	<span class="hljs-keyword">do</span> &#123;<br>		result = scsi_execute_req(sdev, cmd, DMA_NONE, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>, sshdr,<br>					  timeout, <span class="hljs-number">1</span>, <span class="hljs-literal">NULL</span>);<br>		<span class="hljs-keyword">if</span> (sdev-&gt;removable &amp;&amp; scsi_sense_valid(sshdr) &amp;&amp;<br>		    sshdr-&gt;sense_key == UNIT_ATTENTION)<br>			sdev-&gt;changed = <span class="hljs-number">1</span>;<br>	&#125; <span class="hljs-keyword">while</span> (scsi_sense_valid(sshdr) &amp;&amp;<br>		 sshdr-&gt;sense_key == UNIT_ATTENTION &amp;&amp; --retries);<br><br>	<span class="hljs-keyword">return</span> result;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="host-byte有问题设备状态变化"><a href="#host-byte有问题设备状态变化" class="headerlink" title="host_byte有问题设备状态变化"></a>host_byte有问题设备状态变化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 经常遇到的一种情况是usb reset，此时执行TEST_UNIT_READY后返回host_byte=0x7, driver_byte=0</span><br><span class="hljs-keyword">if</span> (host_byte(retval)) &#123;<br>    set_media_not_present(sdkp);<br>    <span class="hljs-keyword">goto</span> out;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">set_media_not_present</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> scsi_disk *sdkp)</span><br>&#123;<br>	<span class="hljs-keyword">if</span> (sdkp-&gt;media_present)<br>		sdkp-&gt;device-&gt;changed = <span class="hljs-number">1</span>;<br><br>	<span class="hljs-keyword">if</span> (sdkp-&gt;device-&gt;removable) &#123;<br>		sdkp-&gt;media_present = <span class="hljs-number">0</span>;<br>		sdkp-&gt;capacity = <span class="hljs-number">0</span>;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>设备发生改变后retval返回DISK_EVENT_MEDIA_CHANGE，此时block层就会发送change到用户态</p>
+<img src="/2025/12/05/scsi%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8Bu%E7%9B%98%E7%8A%B6%E6%80%81%E5%B9%B6%E5%8F%91%E9%80%81uevent/image-20251205213406553.png" srcset="/img/loading.gif" lazyload alt="image-20251205213406553" style="zoom:80%;">
+
 
 
 
@@ -361,6 +369,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2025/12/05/scsi%E8%AE%BE%E5%A4%87%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99offline/" title="scsi设备什么时候offline">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">scsi设备什么时候offline</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
