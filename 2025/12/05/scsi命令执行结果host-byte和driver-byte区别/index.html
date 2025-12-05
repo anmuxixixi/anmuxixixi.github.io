@@ -1,0 +1,810 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="scsi命令执行结果host_byte和driver_byte区别在 Linux 内核 SCSI 子系统中，host_byte（主机字节）和 driver_byte（驱动字节，注意你可能笔误为 drivevbyte）是 描述 SCSI 命令执行结果的两个核心字段，均属于 struct scsi_cmnd（SCSI 命令结构体），但二者聚焦的 “层级” 和 “职责” 完全不同：  host_byte">
+<meta property="og:type" content="article">
+<meta property="og:title" content="scsi命令执行结果host_byte和driver_byte区别">
+<meta property="og:url" content="http://example.com/2025/12/05/scsi%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9Chost-byte%E5%92%8Cdriver-byte%E5%8C%BA%E5%88%AB/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="scsi命令执行结果host_byte和driver_byte区别在 Linux 内核 SCSI 子系统中，host_byte（主机字节）和 driver_byte（驱动字节，注意你可能笔误为 drivevbyte）是 描述 SCSI 命令执行结果的两个核心字段，均属于 struct scsi_cmnd（SCSI 命令结构体），但二者聚焦的 “层级” 和 “职责” 完全不同：  host_byte">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/12/05/scsi%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9Chost-byte%E5%92%8Cdriver-byte%E5%8C%BA%E5%88%AB/image-20251205214932822.png">
+<meta property="article:published_time" content="2025-12-05T13:45:23.000Z">
+<meta property="article:modified_time" content="2025-12-05T13:50:05.066Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/12/05/scsi%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9Chost-byte%E5%92%8Cdriver-byte%E5%8C%BA%E5%88%AB/image-20251205214932822.png">
+  
+  
+  
+  <title>scsi命令执行结果host_byte和driver_byte区别 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="scsi命令执行结果host_byte和driver_byte区别"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-12-05 21:45" pubdate>
+          2025年12月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">scsi命令执行结果host_byte和driver_byte区别</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="scsi命令执行结果host-byte和driver-byte区别"><a href="#scsi命令执行结果host-byte和driver-byte区别" class="headerlink" title="scsi命令执行结果host_byte和driver_byte区别"></a>scsi命令执行结果host_byte和driver_byte区别</h1><p>在 Linux 内核 SCSI 子系统中，host_byte（主机字节）和 driver_byte（驱动字节，注意你可能笔误为 drivevbyte）是 描述 SCSI 命令执行结果的两个核心字段，均属于 struct scsi_cmnd（SCSI 命令结构体），但二者聚焦的 “层级” 和 “职责” 完全不同：</p>
+<ul>
+<li>host_byte：反馈 SCSI 主机控制器（硬件层面） 的状态 &#x2F; 错误（如控制器超时、DMA 故障、总线重置）；</li>
+<li>driver_byte：反馈 SCSI 主机驱动（软件层面） 的状态 &#x2F; 错误（如驱动处理失败、资源不足、命令被驱动主动中止）。</li>
+</ul>
+<p>简单说：host_byte 管 “硬件（主机控制器）好不好使”，driver_byte 管 “驱动（软件）处理得对不对”，二者结合才能完整判断 SCSI 命令失败的根源。</p>
+<h2 id="一、核心定义与定位"><a href="#一、核心定义与定位" class="headerlink" title="一、核心定义与定位"></a>一、核心定义与定位</h2><h3 id="1-所属结构体"><a href="#1-所属结构体" class="headerlink" title="1. 所属结构体"></a>1. 所属结构体</h3><p>两者均定义在 <code>struct scsi_cmnd</code> 中（路径：<code>include/scsi/scsi_cmnd.h</code>），与 <code>status</code>（设备状态）、<code>msg_byte</code>（消息层状态）共同构成 SCSI 命令结果的 “四维反馈”：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">scsi_cmnd</span> &#123;</span><br>    <span class="hljs-comment">// ... 其他字段 ...</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> host_byte;  <span class="hljs-comment">// 主机控制器（硬件）状态/错误</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> driver_byte;<span class="hljs-comment">// 主机驱动（软件）状态/错误</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> status;     <span class="hljs-comment">// 设备（目标端）返回的状态</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> msg_byte;   <span class="hljs-comment">// SCSI 消息层状态</span><br>    <span class="hljs-comment">// ... 其他字段 ...</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-核心定位对比"><a href="#2-核心定位对比" class="headerlink" title="2. 核心定位对比"></a>2. 核心定位对比</h3><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>核心定位</th>
+<th>关注层级</th>
+<th>本质含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>host_byte</td>
+<td>主机控制器硬件的执行结果</td>
+<td>硬件层（Host Adapter）</td>
+<td>主机控制器是否成功接收、执行命令？是否发生硬件故障（如超时、DMA 错误）？</td>
+</tr>
+<tr>
+<td>driver_byte</td>
+<td>主机驱动软件的处理结果</td>
+<td>软件层（Driver）</td>
+<td>驱动是否成功调度、处理命令？是否发生软件逻辑错误（如资源不足、参数无效）？</td>
+</tr>
+</tbody></table>
+<h2 id="二、核心取值与典型场景"><a href="#二、核心取值与典型场景" class="headerlink" title="二、核心取值与典型场景"></a>二、核心取值与典型场景</h2><h3 id="1-host-byte：主机控制器硬件的-“状态码”"><a href="#1-host-byte：主机控制器硬件的-“状态码”" class="headerlink" title="1.host_byte：主机控制器硬件的 “状态码”"></a>1.host_byte：主机控制器硬件的 “状态码”</h3><p>host_byte的取值均对应 <strong>硬件层面的事件</strong>，内核通过宏定义标准化（路径：include&#x2F;scsi&#x2F;scsi.h），核心取值如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">宏定义</th>
+<th>数值</th>
+<th align="left">核心含义</th>
+<th align="left">典型场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>DID_OK</code></td>
+<td>0x00</td>
+<td align="left">主机控制器无错误，命令被硬件正常处理（硬件层面成功）</td>
+<td align="left">控制器正常完成命令传输、无超时 &#x2F; 重置等硬件异常</td>
+</tr>
+<tr>
+<td align="left"><code>DID_ABORT</code></td>
+<td>0x01</td>
+<td align="left">主机控制器主动中止命令（硬件触发的中止）</td>
+<td align="left">控制器检测到总线冲突，主动中止命令；用户通过硬件接口强制中止命令</td>
+</tr>
+<tr>
+<td align="left"><code>DID_TIMEOUT</code></td>
+<td>0x02</td>
+<td align="left">主机控制器超时（命令未在规定时间内完成）</td>
+<td align="left">磁盘无响应导致控制器超时；线缆松动导致数据传输超时</td>
+</tr>
+<tr>
+<td align="left"><code>DID_BUS_RESET</code></td>
+<td>0x03</td>
+<td align="left">主机控制器检测到 SCSI 总线重置</td>
+<td align="left">同一总线上的设备故障触发总线重置；控制器主动发起总线重置</td>
+</tr>
+<tr>
+<td align="left"><code>DID_DEVICE_RESET</code></td>
+<td>0x04</td>
+<td align="left">主机控制器检测到设备重置</td>
+<td align="left">目标设备（如磁盘）自身重置；RAID 卡触发下属磁盘重置</td>
+</tr>
+<tr>
+<td align="left"><code>DID_DMA_ERROR</code></td>
+<td>0x05</td>
+<td align="left">DMA 传输错误（控制器 DMA 硬件故障）</td>
+<td align="left">控制器 DMA 通道故障；内存地址非法导致 DMA 传输失败</td>
+</tr>
+<tr>
+<td align="left"><code>DID_OUT_OF_RESOURCES</code></td>
+<td>0x06</td>
+<td align="left">主机控制器资源不足（硬件资源耗尽）</td>
+<td align="left">控制器命令槽已满；DMA 缓冲区不足</td>
+</tr>
+<tr>
+<td align="left"><code>DID_TRANSPORT_ERR</code></td>
+<td>0x08</td>
+<td align="left">传输层错误（如 iSCSI&#x2F;SAS 传输链路故障）</td>
+<td align="left">iSCSI 连接断开；SAS 链路信号衰减导致传输失败</td>
+</tr>
+</tbody></table>
+<p><strong>核心特点</strong>：所有取值均与 “硬件动作” 直接相关，错误根源在主机控制器、总线或传输链路，与驱动软件逻辑无关。</p>
+<h3 id="2-driver-byte：主机驱动软件的-“状态码”"><a href="#2-driver-byte：主机驱动软件的-“状态码”" class="headerlink" title="2. driver_byte：主机驱动软件的 “状态码”"></a>2. driver_byte：主机驱动软件的 “状态码”</h3><p>driver_byte 的取值对应 <strong>软件层面的事件</strong>，同样通过内核宏定义标准化（路径：include&#x2F;scsi&#x2F;scsi.h），核心取值如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">宏定义</th>
+<th>数值</th>
+<th align="left">核心含义</th>
+<th align="left">典型场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>DRIVER_OK</code></td>
+<td>0x00</td>
+<td align="left">驱动无错误，命令被软件正常处理（软件层面成功）</td>
+<td align="left">驱动成功调度命令、处理硬件中断、完成数据拷贝</td>
+</tr>
+<tr>
+<td align="left"><code>DRIVER_ERROR</code></td>
+<td>0x01</td>
+<td align="left">驱动处理错误（软件逻辑故障）</td>
+<td align="left">驱动解析命令参数失败；数据缓冲区申请失败；驱动状态机异常</td>
+</tr>
+<tr>
+<td align="left"><code>DRIVER_SOFT_ABORT</code></td>
+<td>0x02</td>
+<td align="left">驱动主动软中止命令（软件层面的中止）</td>
+<td align="left">命令参数非法，驱动主动拒绝执行；驱动检测到设备状态异常，提前中止命令</td>
+</tr>
+<tr>
+<td align="left"><code>DRIVER_HARD_ABORT</code></td>
+<td>0x04</td>
+<td align="left">驱动触发硬件中止命令（软件请求硬件中止）</td>
+<td align="left">驱动检测到超时风险，请求控制器中止命令；用户通过驱动接口强制中止命令</td>
+</tr>
+<tr>
+<td align="left"><code>DRIVER_TIMEOUT</code></td>
+<td>0x08</td>
+<td align="left">驱动层面超时（软件定时器超时）</td>
+<td align="left">驱动等待硬件中断超时；驱动处理命令的逻辑超时（如等待资源释放超时）</td>
+</tr>
+<tr>
+<td align="left"><code>DRIVER_OUT_OF_RESOURCES</code></td>
+<td>0x10</td>
+<td align="left">驱动资源不足（软件资源耗尽）</td>
+<td align="left">驱动的命令队列满；内核内存分配失败（如 <code>kmalloc</code> 返回 NULL）</td>
+</tr>
+<tr>
+<td align="left"><code>DRIVER_BUSY</code></td>
+<td>0x20</td>
+<td align="left">驱动忙，无法处理当前命令</td>
+<td align="left">驱动正在处理高优先级命令；驱动正在执行设备重置，暂时无法接收新命令</td>
+</tr>
+</tbody></table>
+<p><strong>核心特点</strong>：所有取值均与 “软件逻辑” 直接相关，错误根源在驱动代码、内核资源或命令处理流程，与主机控制器硬件无关。</p>
+<h2 id="三、配合逻辑：如何通过两者定位问题？"><a href="#三、配合逻辑：如何通过两者定位问题？" class="headerlink" title="三、配合逻辑：如何通过两者定位问题？"></a>三、配合逻辑：如何通过两者定位问题？</h2><p>SCSI 命令执行后，内核会按「先硬件（<code>host_byte</code>）、后软件（<code>driver_byte</code>）」的顺序检查，两者组合可精准定位故障根源，以下是典型组合场景：</p>
+<img src="/2025/12/05/scsi%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9Chost-byte%E5%92%8Cdriver-byte%E5%8C%BA%E5%88%AB/image-20251205214932822.png" srcset="/img/loading.gif" lazyload alt="image-20251205214932822" style="zoom:80%;">
+
+
+
+<h2 id="四、用户空间排查示例（dmesg-日志）"><a href="#四、用户空间排查示例（dmesg-日志）" class="headerlink" title="四、用户空间排查示例（dmesg 日志）"></a>四、用户空间排查示例（dmesg 日志）</h2><p>当 SCSI 命令失败时，dmesg 会同时输出 <code>host_byte</code> 和 <code>driver_byte</code>，帮助定位根源：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">[1234.567890] sd 0:0:0:0: [sda] tag#0 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_OUT_OF_RESOURCES<br>[1234.567895] sd 0:0:0:0: [sda] tag#0 CDB: Read(10) 28 00 00 00 00 00 00 00 08 00<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>解读：<code>host_byte=DID_OK</code>（硬件无错），<code>driver_byte=DRIVER_OUT_OF_RESOURCES</code>（驱动资源不足）；</li>
+<li>根源：不是磁盘或控制器故障，而是内核驱动的资源（如命令队列、内存）耗尽；</li>
+<li>解决：优化驱动配置（如调整 IO 队列深度）、释放内核资源（如关闭其他占用内存的进程）。</li>
+</ul>
+<p>另一示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">[5678.901234] sd 1:0:1:0: [sdb] tag#1 FAILED Result: hostbyte=DID_TIMEOUT driverbyte=DRIVER_OK<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>解读：<code>host_byte=DID_TIMEOUT</code>（硬件超时），<code>driver_byte=DRIVER_OK</code>（驱动无错）；</li>
+<li>根源：磁盘 <code>sdb</code> 无响应（如磁盘故障、线缆松动）；</li>
+<li>解决：检查磁盘硬件状态、重新插拔线缆、替换故障磁盘。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>scsi命令执行结果host_byte和driver_byte区别</div>
+      <div>http://example.com/2025/12/05/scsi命令执行结果host-byte和driver-byte区别/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年12月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/12/05/ASC-0x28%E5%92%8CASC-0x3A%E5%8C%BA%E5%88%AB/" title="ASC=0x28和ASC=0x3A区别">
+                        <span class="hidden-mobile">ASC=0x28和ASC=0x3A区别</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
