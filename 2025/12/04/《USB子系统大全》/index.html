@@ -16,15 +16,15 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="《USB子系统大全》SCSI代码 scsi下发命令  scsi报错日志杂记   协议资料 Bulk-Only传输协议：USB Mass Storage Class Bulk-Only Transport Specification SCSI协议文档：[SCSI Commands Reference Manual](https:&#x2F;&#x2F;www.seagate.com&#x2F;staticfiles&#x2F;suppor">
+    <meta name="description" content="《USB子系统大全》SCSI代码 ASC&#x3D;0x28和ASC&#x3D;0x3A区别 scsi命令执行结果host_byte和driver_byte区别 scsi报错日志杂记 scsi下发命令 scsi心跳检测u盘状态并发送uevent  协议资料 Bulk-Only传输协议：USB Mass Storage Class Bulk-Only Transport Specification">
 <meta property="og:type" content="article">
 <meta property="og:title" content="《USB子系统大全》">
 <meta property="og:url" content="http://example.com/2025/12/04/%E3%80%8AUSB%E5%AD%90%E7%B3%BB%E7%BB%9F%E5%A4%A7%E5%85%A8%E3%80%8B/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="《USB子系统大全》SCSI代码 scsi下发命令  scsi报错日志杂记   协议资料 Bulk-Only传输协议：USB Mass Storage Class Bulk-Only Transport Specification SCSI协议文档：[SCSI Commands Reference Manual](https:&#x2F;&#x2F;www.seagate.com&#x2F;staticfiles&#x2F;suppor">
+<meta property="og:description" content="《USB子系统大全》SCSI代码 ASC&#x3D;0x28和ASC&#x3D;0x3A区别 scsi命令执行结果host_byte和driver_byte区别 scsi报错日志杂记 scsi下发命令 scsi心跳检测u盘状态并发送uevent  协议资料 Bulk-Only传输协议：USB Mass Storage Class Bulk-Only Transport Specification">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-12-04T14:32:32.000Z">
-<meta property="article:modified_time" content="2025-12-04T14:46:06.195Z">
+<meta property="article:modified_time" content="2025-12-05T13:55:11.965Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -211,7 +211,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          256 字
+          376 字
         
       </span>
     
@@ -222,7 +222,7 @@
         
         
         
-          3 分钟
+          4 分钟
         
       </span>
     
@@ -274,10 +274,11 @@
               <div class="markdown-body">
                 
                 <h1 id="《USB子系统大全》"><a href="#《USB子系统大全》" class="headerlink" title="《USB子系统大全》"></a>《USB子系统大全》</h1><h2 id="SCSI代码"><a href="#SCSI代码" class="headerlink" title="SCSI代码"></a>SCSI代码</h2><ul>
-<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/07/16/scsi%E4%B8%8B%E5%8F%91%E5%91%BD%E4%BB%A4/">scsi下发命令</a></p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/10/22/scsi%E6%8A%A5%E9%94%99%E6%97%A5%E5%BF%97%E6%9D%82%E8%AE%B0/">scsi报错日志杂记</a></p>
-</li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/12/05/ASC-0x28%E5%92%8CASC-0x3A%E5%8C%BA%E5%88%AB/">ASC&#x3D;0x28和ASC&#x3D;0x3A区别</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/12/05/scsi%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9Chost-byte%E5%92%8Cdriver-byte%E5%8C%BA%E5%88%AB/">scsi命令执行结果host_byte和driver_byte区别</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/10/22/scsi%E6%8A%A5%E9%94%99%E6%97%A5%E5%BF%97%E6%9D%82%E8%AE%B0/">scsi报错日志杂记</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/07/16/scsi%E4%B8%8B%E5%8F%91%E5%91%BD%E4%BB%A4/">scsi下发命令</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/12/05/scsi%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8Bu%E7%9B%98%E7%8A%B6%E6%80%81%E5%B9%B6%E5%8F%91%E9%80%81uevent/">scsi心跳检测u盘状态并发送uevent</a></li>
 </ul>
 <h2 id="协议资料"><a href="#协议资料" class="headerlink" title="协议资料"></a>协议资料</h2><ul>
 <li>Bulk-Only传输协议：<a target="_blank" rel="noopener" href="https://www.usb.org/sites/default/files/usbmassbulk_10.pdf">USB Mass Storage Class Bulk-Only Transport Specification</a></li>
@@ -287,6 +288,9 @@
 <ul>
 <li><a target="_blank" rel="noopener" href="https://gitcode.com/gh_mirrors/ps/Psychson">群联主控</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/hathach/tinyusb/">tinyusb</a></li>
+</ul>
+<h2 id="SD卡购买建议"><a href="#SD卡购买建议" class="headerlink" title="SD卡购买建议"></a>SD卡购买建议</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1G94y1g7Up">【硬件茶谈】如何选择存储卡？SD、TF和CFe卡有哪些区别？</a></li>
 </ul>
 
                 
