@@ -1,0 +1,692 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="USB传输之Bulk-Only整个函数比较庞大，按照CBW-&gt;data-&gt;CSW的顺序拆解   1.拆解usb_stor_Bulk_transport函数1.1 CBW 命令封装1234567891011121314&#x2F;* set up the command wrapper *&#x2F;bcb-&gt;Signature &#x3D; cpu_to_le32(US_BULK_CB_SIGN);  &#x2F;&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="USB传输之Bulk-Only">
+<meta property="og:url" content="http://example.com/2025/12/06/USB%E4%BC%A0%E8%BE%93%E4%B9%8BBulk-Only/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="USB传输之Bulk-Only整个函数比较庞大，按照CBW-&gt;data-&gt;CSW的顺序拆解   1.拆解usb_stor_Bulk_transport函数1.1 CBW 命令封装1234567891011121314&#x2F;* set up the command wrapper *&#x2F;bcb-&gt;Signature &#x3D; cpu_to_le32(US_BULK_CB_SIGN);  &#x2F;&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/12/06/USB%E4%BC%A0%E8%BE%93%E4%B9%8BBulk-Only/image-20251206221106366.png">
+<meta property="article:published_time" content="2025-12-06T14:09:53.000Z">
+<meta property="article:modified_time" content="2025-12-06T14:23:36.853Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/12/06/USB%E4%BC%A0%E8%BE%93%E4%B9%8BBulk-Only/image-20251206221106366.png">
+  
+  
+  
+  <title>USB传输之Bulk-Only - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="USB传输之Bulk-Only"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-12-06 22:09" pubdate>
+          2025年12月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          52 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">USB传输之Bulk-Only</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="USB传输之Bulk-Only"><a href="#USB传输之Bulk-Only" class="headerlink" title="USB传输之Bulk-Only"></a>USB传输之Bulk-Only</h1><p>整个函数比较庞大，按照CBW-&gt;data-&gt;CSW的顺序拆解</p>
+<img src="/2025/12/06/USB%E4%BC%A0%E8%BE%93%E4%B9%8BBulk-Only/image-20251206221106366.png" srcset="/img/loading.gif" lazyload alt="image-20251206221106366" style="zoom:67%;">
+
+<h2 id="1-拆解usb-stor-Bulk-transport函数"><a href="#1-拆解usb-stor-Bulk-transport函数" class="headerlink" title="1.拆解usb_stor_Bulk_transport函数"></a>1.拆解usb_stor_Bulk_transport函数</h2><h3 id="1-1-CBW-命令封装"><a href="#1-1-CBW-命令封装" class="headerlink" title="1.1 CBW 命令封装"></a>1.1 CBW 命令封装</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* set up the command wrapper */</span><br>bcb-&gt;Signature = cpu_to_le32(US_BULK_CB_SIGN);  <span class="hljs-comment">// 1. 签名：固定0x43425355（&quot;USBC&quot;），设备识别CBW包</span><br>bcb-&gt;DataTransferLength = cpu_to_le32(transfer_length);  <span class="hljs-comment">// 2. 数据传输长度（本次要读/写的字节数）</span><br>bcb-&gt;Flags = srb-&gt;sc_data_direction == DMA_FROM_DEVICE ?  <span class="hljs-comment">// 3. 传输方向：0=写（主机→设备），1=读（设备→主机）</span><br>    US_BULK_FLAG_IN : US_BULK_FLAG_OUT;<br>bcb-&gt;Tag = ++us-&gt;tag;  <span class="hljs-comment">// 4. 命令标签：唯一标识（递增），用于匹配 CBW 和 CSW（避免乱序）</span><br>bcb-&gt;Lun = srb-&gt;device-&gt;lun;  <span class="hljs-comment">// 5. LUN号：逻辑单元号（多分区设备用，单分区为0）</span><br><span class="hljs-keyword">if</span> (us-&gt;fflags &amp; US_FL_SCM_MULT_TARG)<br>    bcb-&gt;Lun |= srb-&gt;device-&gt;id &lt;&lt; <span class="hljs-number">4</span>;  <span class="hljs-comment">// 多目标设备：LUN高4位存目标ID</span><br>bcb-&gt;Length = srb-&gt;cmd_len;  <span class="hljs-comment">// 6. CDB长度：SCSI命令的字节数（如6/10/16字节）</span><br><br><span class="hljs-comment">/* copy the command payload */</span><br><span class="hljs-built_in">memset</span>(bcb-&gt;CDB, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(bcb-&gt;CDB));  <span class="hljs-comment">// 清空CDB缓冲区（避免残留旧命令）</span><br><span class="hljs-built_in">memcpy</span>(bcb-&gt;CDB, srb-&gt;cmnd, bcb-&gt;Length);  <span class="hljs-comment">// 拷贝SCSI命令（CDB）到CBW</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2-发送CBW命令"><a href="#1-2-发送CBW命令" class="headerlink" title="1.2 发送CBW命令"></a>1.2 发送CBW命令</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* send it to out endpoint */</span><br>result = usb_stor_bulk_transfer_buf(us, us-&gt;send_bulk_pipe, bcb, cbwlen, <span class="hljs-literal">NULL</span>);<br><br><span class="hljs-keyword">if</span> (result != USB_STOR_XFER_GOOD)<br>    <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-3-数据阶段：读写数据（可选，依命令类型）"><a href="#1-3-数据阶段：读写数据（可选，依命令类型）" class="headerlink" title="1.3 数据阶段：读写数据（可选，依命令类型）"></a>1.3 数据阶段：读写数据（可选，依命令类型）</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (transfer_length) &#123;  <span class="hljs-comment">// 若有数据要传输（如读/写文件，纯命令如TEST_UNIT_READY无此阶段）</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> pipe = srb-&gt;sc_data_direction == DMA_FROM_DEVICE ? <br>            us-&gt;recv_bulk_pipe : us-&gt;send_bulk_pipe;  <span class="hljs-comment">// 选择端点：读=Bulk-In，写=Bulk-Out</span><br>    result = usb_stor_bulk_srb(us, pipe, srb);  <span class="hljs-comment">// 核心数据传输函数</span><br>    usb_stor_dbg(us, <span class="hljs-string">&quot;Bulk data transfer result 0x%x\n&quot;</span>, result);<br>    <span class="hljs-keyword">if</span> (result == USB_STOR_XFER_ERROR)<br>        <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;  <span class="hljs-comment">// 严重错误，直接返回</span><br><br>    <span class="hljs-comment">/* 场景1：设备返回数据超过请求长度（协议违规） */</span><br>    <span class="hljs-keyword">if</span> (result == USB_STOR_XFER_LONG)<br>        fake_sense = <span class="hljs-number">1</span>;  <span class="hljs-comment">// 标记需要返回“无效CDB”的虚假感知数据</span><br><br>    <span class="hljs-comment">/* 场景2：设备跳过数据阶段，直接返回CSW（部分设备bug） */</span><br>    <span class="hljs-keyword">if</span> (result == USB_STOR_XFER_SHORT &amp;&amp;  <span class="hljs-comment">// 接收数据长度小于请求长度</span><br>            srb-&gt;sc_data_direction == DMA_FROM_DEVICE &amp;&amp;  <span class="hljs-comment">// 读数据方向</span><br>            transfer_length - scsi_get_resid(srb) == US_BULK_CS_WRAP_LEN) &#123;  <span class="hljs-comment">// 实际接收13字节（CSW长度）</span><br>        <span class="hljs-comment">// 检查接收的数据是否为合法CSW（签名匹配）</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">scatterlist</span> *<span class="hljs-title">sg</span> =</span> <span class="hljs-literal">NULL</span>;<br>        <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> offset = <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">if</span> (usb_stor_access_xfer_buf((<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *) bcs,<br>                US_BULK_CS_WRAP_LEN, srb, &amp;sg,<br>                &amp;offset, FROM_XFER_BUF) == US_BULK_CS_WRAP_LEN &amp;&amp;<br>                bcs-&gt;Signature == cpu_to_le32(US_BULK_CS_SIGN)) &#123;<br>            <span class="hljs-comment">// 清空srb缓冲区中的CSW数据（避免污染上层数据）</span><br>            <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> buf[US_BULK_CS_WRAP_LEN] = &#123;<span class="hljs-number">0</span>&#125;;<br>            usb_stor_dbg(us, <span class="hljs-string">&quot;Device skipped data phase\n&quot;</span>);<br>            usb_stor_access_xfer_buf(buf, US_BULK_CS_WRAP_LEN, srb, &amp;sg, &amp;offset, TO_XFER_BUF);<br>            scsi_set_resid(srb, transfer_length);  <span class="hljs-comment">// 标记所有数据未传输</span><br>            <span class="hljs-keyword">goto</span> skipped_data_phase;  <span class="hljs-comment">// 跳过后续数据处理，直接进入CSW解析</span><br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>usb_stor_bulk_srb</code>：负责实际数据传输（分块发送 &#x2F; 接收，按端点最大包长拆分），支持 scatter-gather 缓冲区（高效处理大文件）；</li>
+</ul>
+<h3 id="1-4-接收并解析-CSW（设备响应处理）"><a href="#1-4-接收并解析-CSW（设备响应处理）" class="headerlink" title="1.4 接收并解析 CSW（设备响应处理）"></a>1.4 接收并解析 CSW（设备响应处理）</h3><p>CSW 是设备对 CBW 命令的 “执行结果反馈”，代码分 3 步处理：接收 CSW→重试异常→解析状态。</p>
+<p><strong>1. 接收 CSW（Bulk-In 端点）</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* get CSW for device status */</span><br>usb_stor_dbg(us, <span class="hljs-string">&quot;Attempting to get CSW...\n&quot;</span>);<br>result = usb_stor_bulk_transfer_buf(us, us-&gt;recv_bulk_pipe,<br>                bcs, US_BULK_CS_WRAP_LEN, &amp;cswlen);<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 us-&gt;recv_bulk_pipe（Bulk-In 端点）接收 13 字节 CSW（协议规定长度）；</li>
+<li>cswlen：记录实际接收长度（应对设备返回 0 字节等异常）。</li>
+</ul>
+<p><strong>2. 异常重试（兼容设备 bug）</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 场景1：设备返回0字节CSW（添加了多余的零长度包） */</span><br><span class="hljs-keyword">if</span> (result == USB_STOR_XFER_SHORT &amp;&amp; cswlen == <span class="hljs-number">0</span>) &#123;<br>    usb_stor_dbg(us, <span class="hljs-string">&quot;Received 0-length CSW; retrying...\n&quot;</span>);<br>    result = usb_stor_bulk_transfer_buf(us, us-&gt;recv_bulk_pipe,<br>            bcs, US_BULK_CS_WRAP_LEN, &amp;cswlen);<br>&#125;<br><br><span class="hljs-comment">/* 场景2：端点STALL（设备无法处理命令） */</span><br><span class="hljs-keyword">if</span> (result == USB_STOR_XFER_STALLED) &#123;<br>    usb_stor_dbg(us, <span class="hljs-string">&quot;Attempting to get CSW (2nd try)...\n&quot;</span>);<br>    result = usb_stor_bulk_transfer_buf(us, us-&gt;recv_bulk_pipe,<br>            bcs, US_BULK_CS_WRAP_LEN, <span class="hljs-literal">NULL</span>);<br>&#125;<br><br><span class="hljs-comment">/* 最终失败检查 */</span><br><span class="hljs-keyword">if</span> (result != USB_STOR_XFER_GOOD)<br>    <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>场景 1：部分设备会在数据传输后添加多余的零长度包，导致第一次接收 CSW 时返回 0 字节，需重试；</li>
+<li>场景 2：端点 STALL 表示设备无法处理命令（如命令不支持），重试一次接收 CSW（部分设备重试后会恢复）；</li>
+<li>若重试后仍失败，返回传输错误。</li>
+</ul>
+<p><strong>3. CSW 解析（核心：验证 + 状态判断）</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c">skipped_data_phase:  <span class="hljs-comment">// 跳过数据阶段的跳转标签</span><br><span class="hljs-comment">/* check bulk status */</span><br>residue = le32_to_cpu(bcs-&gt;Residue);  <span class="hljs-comment">// 设备报告的残留字节数（未传输的字节数）</span><br>usb_stor_dbg(us, <span class="hljs-string">&quot;Bulk Status S 0x%x T 0x%x R %u Stat 0x%x\n&quot;</span>,<br>             le32_to_cpu(bcs-&gt;Signature), bcs-&gt;Tag,<br>             residue, bcs-&gt;Status);<br><br><span class="hljs-comment">// 校验1：CSW标签与CBW标签一致（避免响应乱序）+ 状态码合法（0=OK，1=FAIL，2=PHASE）</span><br><span class="hljs-keyword">if</span> (!(bcs-&gt;Tag == us-&gt;tag || (us-&gt;fflags &amp; US_FL_BULK_IGNORE_TAG)) ||<br>    bcs-&gt;Status &gt; US_BULK_STAT_PHASE) &#123;<br>    usb_stor_dbg(us, <span class="hljs-string">&quot;Bulk logical error\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;<br>&#125;<br><br><span class="hljs-comment">// 校验2：CSW签名（兼容部分设备的非标准签名）</span><br><span class="hljs-keyword">if</span> (!us-&gt;bcs_signature) &#123;  <span class="hljs-comment">// 首次接收CSW，记录设备的签名（部分设备签名非标准）</span><br>    us-&gt;bcs_signature = bcs-&gt;Signature;<br>    <span class="hljs-keyword">if</span> (us-&gt;bcs_signature != cpu_to_le32(US_BULK_CS_SIGN))<br>        usb_stor_dbg(us, <span class="hljs-string">&quot;Learnt BCS signature 0x%08X\n&quot;</span>,<br>                     le32_to_cpu(us-&gt;bcs_signature));<br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (bcs-&gt;Signature != us-&gt;bcs_signature) &#123;  <span class="hljs-comment">// 后续签名不匹配，判定错误</span><br>    usb_stor_dbg(us, <span class="hljs-string">&quot;Signature mismatch: got %08X, expecting %08X\n&quot;</span>,<br>                 le32_to_cpu(bcs-&gt;Signature),<br>                 le32_to_cpu(us-&gt;bcs_signature));<br>    <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>关键校验逻辑：</p>
+<ul>
+<li>标签校验：bcs-&gt;Tag &#x3D;&#x3D; us-&gt;tag 确保 CSW 是当前 CBW 的响应（避免多命令并发时乱序）；</li>
+<li>签名校验：兼容部分设备的非标准签名（协议规定 CSW 签名为 0x53425355，部分设备用自定义签名）；</li>
+<li>状态码校验：bcs-&gt;Status 只能是 0&#x2F;1&#x2F;2（超出则为无效响应）。</li>
+</ul>
+<p><strong>4. 残留字节数处理（修正数据传输状态）</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 计算实际残留字节数（设备报告 + 实际传输差异） */</span><br><span class="hljs-keyword">if</span> (residue &amp;&amp; !(us-&gt;fflags &amp; US_FL_IGNORE_RESIDUE)) &#123;<br>    <span class="hljs-comment">// 启发式检测：若INQUIRY/READ_CAPACITY命令成功但有残留，标记设备为“忽略残留”（设备bug）</span><br>    <span class="hljs-keyword">if</span> (bcs-&gt;Status == US_BULK_STAT_OK &amp;&amp;<br>            scsi_get_resid(srb) == <span class="hljs-number">0</span> &amp;&amp;<br>                ((srb-&gt;cmnd[<span class="hljs-number">0</span>] == INQUIRY &amp;&amp; transfer_length == <span class="hljs-number">36</span>) ||<br>                 (srb-&gt;cmnd[<span class="hljs-number">0</span>] == READ_CAPACITY &amp;&amp; transfer_length == <span class="hljs-number">8</span>))) &#123;<br>        us-&gt;fflags |= US_FL_IGNORE_RESIDUE;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        residue = min(residue, transfer_length);  <span class="hljs-comment">// 残留字节数不能超过请求长度</span><br>        scsi_set_resid(srb, max(scsi_get_resid(srb), residue));  <span class="hljs-comment">// 更新SCSI命令的残留字节数</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>背景：部分设备会报告虚假残留字节数（如命令成功但残留非 0），代码通过 “启发式检测” 标记这类设备，后续忽略残留值；</li>
+<li>scsi_set_resid(srb, …)：向上层 SCSI 层反馈实际未传输的字节数（如读 1024 字节，残留 512 字节表示仅成功读 512 字节）。</li>
+</ul>
+<h3 id="1-5-最终状态返回（按-CSW-状态码分类）"><a href="#1-5-最终状态返回（按-CSW-状态码分类）" class="headerlink" title="1.5 最终状态返回（按 CSW 状态码分类）"></a>1.5 最终状态返回（按 CSW 状态码分类）</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">switch</span> (bcs-&gt;Status) &#123;<br>    <span class="hljs-keyword">case</span> US_BULK_STAT_OK:  <span class="hljs-comment">// 命令执行成功</span><br>        <span class="hljs-comment">/* 设备返回数据超量（之前标记的fake_sense），返回虚假感知数据 */</span><br>        <span class="hljs-keyword">if</span> (fake_sense) &#123;<br>            <span class="hljs-built_in">memcpy</span>(srb-&gt;sense_buffer, <br>                   usb_stor_sense_invalidCDB, <br>                   <span class="hljs-keyword">sizeof</span>(usb_stor_sense_invalidCDB));<br>            <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_NO_SENSE;  <span class="hljs-comment">// 无感知（但实际是协议违规）</span><br>        &#125;<br>        <span class="hljs-comment">/* 命令成功（可能是短包，残留字节数已处理） */</span><br>        <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_GOOD;<br><br>    <span class="hljs-keyword">case</span> US_BULK_STAT_FAIL:  <span class="hljs-comment">// 命令执行失败（如设备忙、坏块）</span><br>        <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_FAILED;  <span class="hljs-comment">// 上层会发起REQUEST_SENSE命令查询具体错误</span><br><br>    <span class="hljs-keyword">case</span> US_BULK_STAT_PHASE:  <span class="hljs-comment">// 阶段错误（如命令/数据/状态阶段顺序错乱）</span><br>        <span class="hljs-comment">/* 上层invoke_transport()会触发传输层复位（usb_stor_reset_transport） */</span><br>        <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;<br>&#125;<br><br><span class="hljs-comment">/* 异常分支：理论上不会到达，返回错误 */</span><br><span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>USB传输之Bulk-Only</div>
+      <div>http://example.com/2025/12/06/USB传输之Bulk-Only/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年12月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/12/05/scsi%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9Chost-byte%E5%92%8Cdriver-byte%E5%8C%BA%E5%88%AB/" title="scsi命令执行结果host_byte和driver_byte区别">
+                        <span class="hidden-mobile">scsi命令执行结果host_byte和driver_byte区别</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
