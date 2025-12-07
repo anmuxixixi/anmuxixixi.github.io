@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2025/12/06/USB%E4%BC%A0%E8%BE%93%E4%B9%8BBulk-Only/image-20251206221106366.png">
 <meta property="article:published_time" content="2025-12-06T14:09:53.000Z">
-<meta property="article:modified_time" content="2025-12-07T13:00:25.493Z">
+<meta property="article:modified_time" content="2025-12-07T14:41:26.215Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2025/12/06/USB%E4%BC%A0%E8%BE%93%E4%B9%8BBulk-Only/image-20251206221106366.png">
@@ -213,7 +213,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.1k 字
+          9.8k 字
         
       </span>
     
@@ -224,7 +224,7 @@
         
         
         
-          52 分钟
+          82 分钟
         
       </span>
     
@@ -323,7 +323,51 @@
 </ul>
 <h3 id="1-5-最终状态返回（按-CSW-状态码分类）"><a href="#1-5-最终状态返回（按-CSW-状态码分类）" class="headerlink" title="1.5 最终状态返回（按 CSW 状态码分类）"></a>1.5 最终状态返回（按 CSW 状态码分类）</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">switch</span> (bcs-&gt;Status) &#123;<br>    <span class="hljs-keyword">case</span> US_BULK_STAT_OK:  <span class="hljs-comment">// 命令执行成功</span><br>        <span class="hljs-comment">/* 设备返回数据超量（之前标记的fake_sense），返回虚假感知数据 */</span><br>        <span class="hljs-keyword">if</span> (fake_sense) &#123;<br>            <span class="hljs-built_in">memcpy</span>(srb-&gt;sense_buffer, <br>                   usb_stor_sense_invalidCDB, <br>                   <span class="hljs-keyword">sizeof</span>(usb_stor_sense_invalidCDB));<br>            <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_NO_SENSE;  <span class="hljs-comment">// 无感知（但实际是协议违规）</span><br>        &#125;<br>        <span class="hljs-comment">/* 命令成功（可能是短包，残留字节数已处理） */</span><br>        <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_GOOD;<br><br>    <span class="hljs-keyword">case</span> US_BULK_STAT_FAIL:  <span class="hljs-comment">// 命令执行失败（如设备忙、坏块）</span><br>        <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_FAILED;  <span class="hljs-comment">// 上层会发起REQUEST_SENSE命令查询具体错误</span><br><br>    <span class="hljs-keyword">case</span> US_BULK_STAT_PHASE:  <span class="hljs-comment">// 阶段错误（如命令/数据/状态阶段顺序错乱）</span><br>        <span class="hljs-comment">/* 上层invoke_transport()会触发传输层复位（usb_stor_reset_transport） */</span><br>        <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;<br>&#125;<br><br><span class="hljs-comment">/* 异常分支：理论上不会到达，返回错误 */</span><br><span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;<br></code></pre></td></tr></table></figure>
 
-<p>…</p>
+<h2 id="2-拆解usb-stor-invoke-transport函数"><a href="#2-拆解usb-stor-invoke-transport函数" class="headerlink" title="2.拆解usb_stor_invoke_transport函数"></a>2.拆解usb_stor_invoke_transport函数</h2><p><code>usb_stor_invoke_transport</code> 是 Linux 内核 USB 存储驱动（<code>usb-storage</code>）的 <strong>核心调度与错误恢复入口</strong>—— 它不直接处理 USB 传输，而是负责 “调用传输层函数、判断传输结果、触发自动感知（auto-sense）、执行故障复位”，是连接 SCSI 核心层与 USB 传输层的 “中间调度器”，核心目标是确保 SCSI 命令可靠执行，同时处理各类通信异常。</p>
+<h3 id="2-1-发送scsi命令到传输层"><a href="#2-1-发送scsi命令到传输层" class="headerlink" title="2.1 发送scsi命令到传输层"></a>2.1 发送scsi命令到传输层</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* send the command to the transport layer */</span><br>scsi_set_resid(srb, <span class="hljs-number">0</span>);  <span class="hljs-comment">// 初始化残留字节数为0（表示无未传输数据）</span><br>result = us-&gt;transport(srb, us);  <span class="hljs-comment">// 调用传输层函数（如usb_stor_Bulk_transport）</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>核心动作：将 SCSI 命令交给传输层，由传输层完成 “CBW 封装→USB 传输→CSW 解析” 的完整流程；</li>
+</ul>
+<p>这边就是第一章《拆解usb_stor_Bulk_transport函数》的内容</p>
+<h3 id="2-2-传输结果判断"><a href="#2-2-传输结果判断" class="headerlink" title="2.2 传输结果判断"></a>2.2 传输结果判断</h3><p><strong>（1）处理命令被中止（超时 &#x2F; 上层取消）</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (test_bit(US_FLIDX_TIMED_OUT, &amp;us-&gt;dflags)) &#123;  <span class="hljs-comment">// 检测是否被标记为“超时中止”</span><br>    usb_stor_dbg(us, <span class="hljs-string">&quot;-- command was aborted\n&quot;</span>);<br>    srb-&gt;result = DID_ABORT &lt;&lt; <span class="hljs-number">16</span>;  <span class="hljs-comment">// 向上层返回“命令被中止”状态</span><br>    <span class="hljs-keyword">goto</span> Handle_Errors;  <span class="hljs-comment">// 跳转到错误处理（执行复位）</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>🔔🥇🥈🥉🏅🏆触发场景：<strong>只有一种场景：</strong>上层 SCSI 核心层主动取消命令；</li>
+<li>处理逻辑：直接标记为 “中止”，触发后续复位恢复。</li>
+</ul>
+<p><strong>（2）处理传输层错误（协议 &#x2F; 链路异常）</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (result == USB_STOR_TRANSPORT_ERROR) &#123;  <span class="hljs-comment">// 传输层返回“传输错误”</span><br>    usb_stor_dbg(us, <span class="hljs-string">&quot;-- transport indicates error, resetting\n&quot;</span>);<br>    srb-&gt;result = DID_ERROR &lt;&lt; <span class="hljs-number">16</span>;  <span class="hljs-comment">// 向上层返回“设备错误”状态</span><br>    <span class="hljs-keyword">goto</span> Handle_Errors;  <span class="hljs-comment">// 跳转到错误处理（执行复位）</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>触发场景：传输层遇到协议阶段错误（<code>US_BULK_STAT_PHASE</code>）、USB 总线错误、端点 STALL 重试失败等；</li>
+<li>核心逻辑：这类错误属于 “通信链路异常”，需通过端口复位（<code>usb_stor_port_reset</code>）重置链路状态，因此直接跳转到错误处理。</li>
+</ul>
+<p><strong>（3）处理传输层已提供感知数据</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (result == USB_STOR_TRANSPORT_NO_SENSE) &#123;  <span class="hljs-comment">// 传输层已填充感知数据</span><br>    srb-&gt;result = SAM_STAT_CHECK_CONDITION;  <span class="hljs-comment">// 向上层返回“需要检查感知数据”</span><br>    last_sector_hacks(us, srb);  <span class="hljs-comment">// 兼容部分设备的“最后扇区”处理bug</span><br>    <span class="hljs-keyword">return</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>触发场景：如 <code>usb_stor_Bulk_transport</code> 中 “设备返回超量数据”（<code>fake_sense=1</code>），已填充 “无效 CDB” 感知数据；</li>
+<li>处理逻辑：无需后续处理，直接向上层反馈 “需要检查感知数据”，函数结束。</li>
+</ul>
+<p><strong>（4）初始化默认成功状态</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">srb-&gt;result = SAM_STAT_GOOD;  <span class="hljs-comment">// 若未触发上述异常，默认标记为“命令成功”</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-是否需要Auto-Sense"><a href="#2-3-是否需要Auto-Sense" class="headerlink" title="2.3 是否需要Auto-Sense"></a>2.3 是否需要Auto-Sense</h3><p>“自动感知”（auto-sense）是 SCSI 协议的标准机制：当设备执行命令失败时，主机通过发送 <code>REQUEST_SENSE</code> 命令，获取设备侧的详细错误原因（如 “坏块”“介质未就绪”），这里由驱动自动触发该流程。</p>
+<p><strong>（1）触发自动感知的 3 种场景</strong></p>
+<p>✅<strong>我平时只会遇到一种场景：<u>场景 2 –&gt;USB_STOR_TRANSPORT_FAILED</u></strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">need_auto_sense = <span class="hljs-number">0</span>;  <span class="hljs-comment">// 初始化“是否需要自动感知”标志</span><br><br><span class="hljs-comment">// 场景1：CB 传输协议（无自带状态判断能力）+ 非读数据方向</span><br><span class="hljs-keyword">if</span> ((us-&gt;protocol == USB_PR_CB || us-&gt;protocol == USB_PR_DPCM_USB) &amp;&amp;<br>        srb-&gt;sc_data_direction != DMA_FROM_DEVICE) &#123;<br>    need_auto_sense = <span class="hljs-number">1</span>;<br>&#125;<br><br><span class="hljs-comment">// 场景2：传输层返回“命令失败”（设备侧执行失败）</span><br><span class="hljs-keyword">if</span> (result == USB_STOR_TRANSPORT_FAILED) &#123;<br>    need_auto_sense = <span class="hljs-number">1</span>;<br>&#125;<br><br><span class="hljs-comment">// 场景3：SAT 设备检测（ATA 透传命令成功，标记设备支持 SANE_SENSE）</span><br><span class="hljs-keyword">if</span> (unlikely((srb-&gt;cmnd[<span class="hljs-number">0</span>] == ATA_16 || srb-&gt;cmnd[<span class="hljs-number">0</span>] == ATA_12) &amp;&amp;<br>    result == USB_STOR_TRANSPORT_GOOD &amp;&amp; ...)) &#123;<br>    us-&gt;fflags |= US_FL_SANE_SENSE;  <span class="hljs-comment">// 标记设备支持“标准感知数据”</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>（2） 执行自动感知（发送 REQUEST_SENSE 命令）</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (need_auto_sense) &#123;<br>    <span class="hljs-comment">// 1. 准备感知命令：设置命令长度（6字节/12字节，适配不同设备子类）</span><br>    scsi_eh_prep_cmnd(srb, &amp;ses, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>, sense_size);  <span class="hljs-comment">// 保存原命令状态，准备感知命令</span><br>    srb-&gt;cmd_len = (us-&gt;subclass == USB_SC_SCSI) ? <span class="hljs-number">6</span> : <span class="hljs-number">12</span>;<br><br>    <span class="hljs-comment">// 2. 调用传输层执行 REQUEST_SENSE 命令</span><br>    temp_result = us-&gt;transport(us-&gt;srb, us);<br><br>    <span class="hljs-comment">// 3. 恢复原命令状态</span><br>    scsi_eh_restore_cmnd(srb, &amp;ses);<br><br>    <span class="hljs-comment">// 4. 处理感知命令的异常（如超时、失败）</span><br>    <span class="hljs-keyword">if</span> (test_bit(US_FLIDX_TIMED_OUT, &amp;us-&gt;dflags)) &#123; ... &#125;  <span class="hljs-comment">// 感知命令被中止</span><br>    <span class="hljs-keyword">if</span> (temp_result == USB_STOR_TRANSPORT_FAILED &amp;&amp; sense_size != US_SENSE_SIZE) &#123;<br>        <span class="hljs-keyword">goto</span> Retry_Sense;  <span class="hljs-comment">// 感知失败，重试（使用标准长度感知缓冲区）</span><br>    &#125;<br><br>    <span class="hljs-comment">// 5. 解析感知数据，填充到 srb-&gt;sense_buffer</span><br>    scsi_normalize_sense(srb-&gt;sense_buffer, ..., &amp;sshdr);  <span class="hljs-comment">// 标准化感知数据格式</span><br>    srb-&gt;result = SAM_STAT_CHECK_CONDITION;  <span class="hljs-comment">// 向上层返回“需要检查感知数据”</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>核心目的：获取设备侧的详细错误信息，让上层（如文件系统）知道 “命令失败的具体原因”，而非仅返回 “失败”。</li>
+</ul>
+<h3 id="2-4-错误处理（执行端口复位，恢复通信）"><a href="#2-4-错误处理（执行端口复位，恢复通信）" class="headerlink" title="2.4 错误处理（执行端口复位，恢复通信）"></a>2.4 错误处理（执行端口复位，恢复通信）</h3><p>当触发 “命令中止”“传输层错误” 时，跳转到 <code>Handle_Errors</code> 标签，执行复位恢复：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">Handle_Errors:<br><span class="hljs-comment">// 1. 设置“复位中”标志，清除“中止中”标志</span><br>scsi_lock(us_to_host(us));<br>set_bit(US_FLIDX_RESETTING, &amp;us-&gt;dflags);<br>clear_bit(US_FLIDX_ABORTING, &amp;us-&gt;dflags);<br>scsi_unlock(us_to_host(us));<br><br><span class="hljs-comment">// 2. 释放设备锁（复位函数需要重新获取），执行端口复位</span><br>mutex_unlock(&amp;us-&gt;dev_mutex);<br>result = usb_stor_port_reset(us);  <span class="hljs-comment">// 调用端口复位函数</span><br>mutex_lock(&amp;us-&gt;dev_mutex);<br><br><span class="hljs-comment">// 3. 复位失败处理（如设备离线）</span><br><span class="hljs-keyword">if</span> (result &lt; <span class="hljs-number">0</span>) &#123;<br>    scsi_lock(us_to_host(us));<br>    usb_stor_report_device_reset(us);  <span class="hljs-comment">// 向上层报告设备复位失败</span><br>    scsi_unlock(us_to_host(us));<br>    us-&gt;transport_reset(us);  <span class="hljs-comment">// 执行传输层复位（重置传输状态机）</span><br>&#125;<br>clear_bit(US_FLIDX_RESETTING, &amp;us-&gt;dflags);  <span class="hljs-comment">// 清除“复位中”标志</span><br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
