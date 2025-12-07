@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2025/12/06/USB%E4%BC%A0%E8%BE%93%E4%B9%8BBulk-Only/image-20251206221106366.png">
 <meta property="article:published_time" content="2025-12-06T14:09:53.000Z">
-<meta property="article:modified_time" content="2025-12-06T14:23:36.853Z">
+<meta property="article:modified_time" content="2025-12-07T13:00:25.493Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2025/12/06/USB%E4%BC%A0%E8%BE%93%E4%B9%8BBulk-Only/image-20251206221106366.png">
@@ -323,6 +323,7 @@
 </ul>
 <h3 id="1-5-最终状态返回（按-CSW-状态码分类）"><a href="#1-5-最终状态返回（按-CSW-状态码分类）" class="headerlink" title="1.5 最终状态返回（按 CSW 状态码分类）"></a>1.5 最终状态返回（按 CSW 状态码分类）</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">switch</span> (bcs-&gt;Status) &#123;<br>    <span class="hljs-keyword">case</span> US_BULK_STAT_OK:  <span class="hljs-comment">// 命令执行成功</span><br>        <span class="hljs-comment">/* 设备返回数据超量（之前标记的fake_sense），返回虚假感知数据 */</span><br>        <span class="hljs-keyword">if</span> (fake_sense) &#123;<br>            <span class="hljs-built_in">memcpy</span>(srb-&gt;sense_buffer, <br>                   usb_stor_sense_invalidCDB, <br>                   <span class="hljs-keyword">sizeof</span>(usb_stor_sense_invalidCDB));<br>            <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_NO_SENSE;  <span class="hljs-comment">// 无感知（但实际是协议违规）</span><br>        &#125;<br>        <span class="hljs-comment">/* 命令成功（可能是短包，残留字节数已处理） */</span><br>        <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_GOOD;<br><br>    <span class="hljs-keyword">case</span> US_BULK_STAT_FAIL:  <span class="hljs-comment">// 命令执行失败（如设备忙、坏块）</span><br>        <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_FAILED;  <span class="hljs-comment">// 上层会发起REQUEST_SENSE命令查询具体错误</span><br><br>    <span class="hljs-keyword">case</span> US_BULK_STAT_PHASE:  <span class="hljs-comment">// 阶段错误（如命令/数据/状态阶段顺序错乱）</span><br>        <span class="hljs-comment">/* 上层invoke_transport()会触发传输层复位（usb_stor_reset_transport） */</span><br>        <span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;<br>&#125;<br><br><span class="hljs-comment">/* 异常分支：理论上不会到达，返回错误 */</span><br><span class="hljs-keyword">return</span> USB_STOR_TRANSPORT_ERROR;<br></code></pre></td></tr></table></figure>
 
+<p>…</p>
 
                 
               </div>
