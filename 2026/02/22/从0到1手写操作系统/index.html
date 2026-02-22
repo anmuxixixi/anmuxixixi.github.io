@@ -16,17 +16,18 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一个操作系统的实现前言 环境配置试验机环境 vmware虚拟机 deepin操作系统 Linux 5.4.50    安装依赖 安装qemu:  1sudo apt install qemu qemu-kvm libvirt-daemon libvirt-clients bridge-utils virt-manager   安卓nasm:  12sudo apt-get install nasm">
+    <meta name="description" content="一个操作系统的实现[toc] 前言 前置依赖试验机环境 vmware虚拟机 deepin操作系统 Linux 5.4.50    安装依赖 安装qemu:  1sudo apt install qemu qemu-kvm libvirt-daemon libvirt-clients bridge-utils virt-manager   安卓nasm:  12sudo apt-get instal">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从0到1手写操作系统">
 <meta property="og:url" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="一个操作系统的实现前言 环境配置试验机环境 vmware虚拟机 deepin操作系统 Linux 5.4.50    安装依赖 安装qemu:  1sudo apt install qemu qemu-kvm libvirt-daemon libvirt-clients bridge-utils virt-manager   安卓nasm:  12sudo apt-get install nasm">
+<meta property="og:description" content="一个操作系统的实现[toc] 前言 前置依赖试验机环境 vmware虚拟机 deepin操作系统 Linux 5.4.50    安装依赖 安装qemu:  1sudo apt install qemu qemu-kvm libvirt-daemon libvirt-clients bridge-utils virt-manager   安卓nasm:  12sudo apt-get instal">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161822504-1771758937840-2.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222195350120.png">
 <meta property="article:published_time" content="2026-02-22T11:14:46.000Z">
-<meta property="article:modified_time" content="2026-02-22T11:15:56.438Z">
+<meta property="article:modified_time" content="2026-02-22T12:04:44.319Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png">
@@ -214,7 +215,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.2k 字
+          4.6k 字
         
       </span>
     
@@ -225,7 +226,7 @@
         
         
         
-          27 分钟
+          39 分钟
         
       </span>
     
@@ -276,7 +277,8 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一个操作系统的实现"><a href="#一个操作系统的实现" class="headerlink" title="一个操作系统的实现"></a>一个操作系统的实现</h1><h2 id="前言-环境配置"><a href="#前言-环境配置" class="headerlink" title="前言 环境配置"></a>前言 环境配置</h2><h3 id="试验机环境"><a href="#试验机环境" class="headerlink" title="试验机环境"></a>试验机环境</h3><ul>
+                <h1 id="一个操作系统的实现"><a href="#一个操作系统的实现" class="headerlink" title="一个操作系统的实现"></a>一个操作系统的实现</h1><p>[toc]</p>
+<h2 id="前言-前置依赖"><a href="#前言-前置依赖" class="headerlink" title="前言 前置依赖"></a>前言 前置依赖</h2><h3 id="试验机环境"><a href="#试验机环境" class="headerlink" title="试验机环境"></a>试验机环境</h3><ul>
 <li>vmware虚拟机</li>
 <li>deepin操作系统</li>
 <li>Linux 5.4.50</li>
@@ -341,10 +343,11 @@
 <td>使用虚拟地址，有特权级别 0~3</td>
 </tr>
 </tbody></table>
+<h3 id="8086汇编语言基础"><a href="#8086汇编语言基础" class="headerlink" title="8086汇编语言基础"></a>8086汇编语言基础</h3><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0">贺利坚汇编原理学习笔记</a></p>
 <h2 id="第一章-马上动手写一个最小的”操作系统”"><a href="#第一章-马上动手写一个最小的”操作系统”" class="headerlink" title="第一章 马上动手写一个最小的”操作系统”"></a>第一章 马上动手写一个最小的”操作系统”</h2><h3 id="1-1-10分钟完成的操作系统"><a href="#1-1-10分钟完成的操作系统" class="headerlink" title="1.1 10分钟完成的操作系统"></a>1.1 10分钟完成的操作系统</h3><ul>
 <li>编写boot.asm</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs asm">[org 0x7c00]<br><br>; 设置屏幕模式为文本模式，清除屏幕<br>mov ax, 3<br>int 0x10<br><br>; 初始化段寄存器<br>mov ax, 0<br>mov ds, ax<br>mov es, ax<br>mov ss, ax<br>mov sp, 0x7c00<br><br>; 0xb8000 文本显示器的内存区域<br>mov ax, 0xb800<br>mov ds, ax<br>mov byte [0], &#x27;H&#x27;<br>mov byte [2], &#x27;e&#x27;<br>mov byte [4], &#x27;l&#x27;<br>mov byte [6], &#x27;l&#x27;<br>mov byte [8], &#x27;o&#x27;<br>mov byte [10], &#x27; &#x27;<br>mov byte [12], &#x27;a&#x27;<br>mov byte [14], &#x27;m&#x27;<br>mov byte [16], &#x27;x&#x27;<br><br>; 阻塞<br>jmp $<br><br>; 填充 0<br>times 510 - ($ - $$) db 0<br><br>; 主引导扇区的最后两个字节必须是 0x55 0xaa<br>; dw 0xaa55<br>db 0x55, 0xaa<br></code></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs asm">[org 0x7c00]<br><br>; 设置屏幕模式为文本模式，清除屏幕<br>mov ax, 3<br>int 0x10; BIOS 系统调用，显示器相关的功能<br><br>; 初始化段寄存器<br>mov ax, 0<br>mov ds, ax<br>mov es, ax<br>mov ss, ax<br>mov sp, 0x7c00<br><br>; 0xb8000 文本显示器的内存区域<br>mov ax, 0xb800<br>mov ds, ax<br>mov byte [0], &#x27;H&#x27;<br>mov byte [2], &#x27;e&#x27;<br>mov byte [4], &#x27;l&#x27;<br>mov byte [6], &#x27;l&#x27;<br>mov byte [8], &#x27;o&#x27;<br>mov byte [10], &#x27; &#x27;<br>mov byte [12], &#x27;a&#x27;<br>mov byte [14], &#x27;m&#x27;<br>mov byte [16], &#x27;x&#x27;<br><br>; 阻塞<br>jmp $<br><br>; 填充 0<br>times 510 - ($ - $$) db 0<br><br>; 主引导扇区的最后两个字节必须是 0x55 0xaa<br>; dw 0xaa55<br>db 0x55, 0xaa<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>编写Makefile</li>
@@ -370,6 +373,46 @@
 <blockquote>
 <p>主引导扇区的作用：读取内核加载器并执行</p>
 </blockquote>
+<h3 id="1-4-实模式print"><a href="#1-4-实模式print" class="headerlink" title="1.4 实模式print"></a>1.4 实模式print</h3><p>我们发现开头使用的mov ax</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222195350120.png" srcset="/img/loading.gif" lazyload alt="image-20260222195350120" style="zoom:80%;">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs assembly">[org 0x7c00]<br><br>; 设置屏幕模式为文本模式，清除屏幕<br>mov ax, 3<br>int 0x10<br><br>; 初始化段寄存器<br>mov ax, 0<br>mov ds, ax<br>mov es, ax<br>mov ss, ax<br>mov sp, 0x7c00<br><br>; -------------------------------------------- 新增start --------------------------------------------<br>mov si, booting<br>call print<br><br>; 阻塞<br>jmp $<br><br>print:<br>    mov ah, 0x0e<br>.next:<br>    mov al, [si]<br>    cmp al, 0<br>    jz .done<br>    int 0x10<br>    inc si<br>    jmp .next<br>.done:<br>    ret<br><br>booting:<br>    db &quot;Boot Ainux...&quot;, 10, 13, 0<br>; -------------------------------------------- 新增end --------------------------------------------<br><br>; 填充 0<br>times 510 - ($ - $$) db 0<br><br>; 主引导扇区的最后两个字节必须是 0x55 0xaa<br>; dw 0xaa55<br>db 0x55, 0xaa<br></code></pre></td></tr></table></figure>
+
+<p>这段代码是一个<strong>x86 实模式下的引导扇区字符串打印程序</strong>，用 NASM 语法编写，核心是通过 BIOS 中断 <code>int 0x10</code> 实现字符输出。下面逐行拆解：</p>
+<ol>
+<li>主程序部分</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs assembly">mov si, booting<br>call print<br><br>; 阻塞<br>jmp $<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>mov si, booting</code>：将字符串 <code>booting</code> 的<strong>内存地址</strong>加载到源变址寄存器 <code>si</code> 中。<code>si</code> 是字符串遍历的指针。</li>
+</ul>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#4-3-SI%E5%92%8CDI%E5%AF%84%E5%AD%98%E5%99%A8">si寄存器</a></p>
+</blockquote>
+<ul>
+<li><code>call print</code>：调用 <code>print</code> 子程序，开始打印字符串。</li>
+<li><code>jmp $</code>：无限跳转到当前指令地址，让程序阻塞在这里，防止执行后续未定义的内存区域。<code>$</code> 代表当前指令地址。</li>
+</ul>
+<ol start="2">
+<li><code>print</code> 子程序（核心打印逻辑）</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs assembly">print:<br>    mov ah, 0x0e    ; 设置BIOS中断功能号：0x0E表示Teletype输出（逐字符打印）<br>.next:<br>    mov al, [si]    ; 从si指向的内存地址读取一个字符到al寄存器<br>    cmp al, 0       ; 比较al中的值是否为0（字符串结束符）<br>    jz .done        ; 如果是0（ZF=1），跳转到.done结束打印<br>    int 0x10        ; 调用BIOS视频中断，打印al中的字符<br>    inc si          ; si自增，指向下一个字符<br>    jmp .next       ; 循环处理下一个字符<br>.done:<br>    ret             ; 子程序返回，回到call指令的下一条指令<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>ah = 0x0e</code>：配置 <code>int 0x10</code> 中断为 Teletype 模式，自动处理字符显示和光标移动。</li>
+<li>循环逻辑：通过 <code>si</code> 逐个读取字符，遇到 <code>0</code> 终止，否则调用中断打印。</li>
+</ul>
+<ol start="3">
+<li>字符串定义</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs assembly">booting:<br>    db &quot;Booting ainux...&quot;, 10, 13, 0 ; \n\r<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>db</code>：定义字节序列，字符串 <code>&quot;Booting ainux...&quot;</code> 会被转换为对应的 ASCII 码。</li>
+<li><code>10, 13</code>：分别是换行符（<code>\n</code>）和回车符（<code>\r</code>）的 ASCII 码，用于换行。</li>
+<li><code>0</code>：字符串结束符（C 风格的 <code>\0</code>），告诉 <code>print</code> 子程序何时停止。</li>
+</ul>
 
                 
               </div>
