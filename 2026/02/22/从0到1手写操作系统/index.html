@@ -26,8 +26,10 @@
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161822504-1771758937840-2.png">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222195350120.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222211755724.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222220359991.png">
 <meta property="article:published_time" content="2026-02-22T11:14:46.000Z">
-<meta property="article:modified_time" content="2026-02-22T12:04:44.319Z">
+<meta property="article:modified_time" content="2026-02-22T14:40:31.362Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png">
@@ -215,7 +217,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.6k 字
+          7.9k 字
         
       </span>
     
@@ -226,7 +228,7 @@
         
         
         
-          39 分钟
+          67 分钟
         
       </span>
     
@@ -366,7 +368,7 @@
 <p><a target="_blank" rel="noopener" href="https://learningos.cn/ucore_os_webdocs/lab1/lab1_3_1_bios_booting.html">https://learningos.cn/ucore_os_webdocs/lab1/lab1_3_1_bios_booting.html</a></p>
 </blockquote>
 <p>当计算机加电后，一般不直接执行操作系统，而是执行系统初始化软件完成基本 IO 初始化和引导加载功能。简单地说，系统初始化软件就是在操作系统内核运行之前运行的一段小软件。通过这段小软件，我们可以初始化硬件设备、建立系统的内存空间映射图，从而将系统的软硬件环境带到一个合适的状态，以便为最终调用操作系统内核准备好正确的环境。最终引导加载程序把操作系统内核映像加载到 RAM 中，并将系统控制权传递给它。</p>
-<p>对于绝大多数计算机系统而言，操作系统和应用软件是存放在磁盘（硬盘&#x2F;软盘）、光盘、EPROM、ROM、Flash 等可在掉电后继续保存数据的存储介质上。计算机启动后，CPU 一开始会到一个特定的地址开始执行指令，这个特定的地址存放了系统初始化软件，负责完成计算机基本的 IO 初始化，这是系统加电后运行的第一段软件代码。对于 Intel 80386 的体系结构而言，PC 机中的系统初始化软件由 <u>**BIOS (Basic Input Output System，即基本输入&#x2F;输出系统，其本质是一个固化在主板 Flash&#x2F;CMOS 上的软件) **</u>和位于软盘&#x2F;硬盘引导扇区中的 OS Boot Loader（本文实验中的 bootasm.S 和 bootmain.c）【TODO】 一起组成。BIOS 实际上是被固化在计算机 ROM（只读存储器）芯片上的一个特殊的软件，为上层软件提供最底层的、最直接的硬件控制与支持。更形象地说，BIOS 就是 PC 计算机硬件与上层软件程序之间的一个”桥梁”，负责访问和控制硬件。</p>
+<p>对于绝大多数计算机系统而言，操作系统和应用软件是存放在磁盘（硬盘&#x2F;软盘）、光盘、EPROM、ROM、Flash 等可在掉电后继续保存数据的存储介质上。计算机启动后，CPU 一开始会到一个特定的地址开始执行指令，这个特定的地址存放了系统初始化软件，负责完成计算机基本的 IO 初始化，这是系统加电后运行的第一段软件代码。对于 Intel 80386 的体系结构而言，PC 机中的系统初始化软件由 <u><strong>BIOS (Basic Input Output System，即基本输入&#x2F;输出系统，其本质是一个固化在主板 Flash&#x2F;CMOS 上的软件)</strong></u> 和位于软盘&#x2F;硬盘引导扇区中的 OS Boot Loader（本文实验中的 bootasm.S 和 bootmain.c）【TODO】 一起组成。BIOS 实际上是被固化在计算机 ROM（只读存储器）芯片上的一个特殊的软件，为上层软件提供最底层的、最直接的硬件控制与支持。更形象地说，BIOS 就是 PC 计算机硬件与上层软件程序之间的一个”桥梁”，负责访问和控制硬件。</p>
 <p>以 Intel 80386 为例，计算机加电后，CPU 从物理地址 0xFFFFFFF0（由初始化的 CS：EIP 确定，此时 CS 和 IP 的值分别是 0xF000 和 0xFFF0)）开始执行。在 0xFFFFFFF0 这里只是存放了一条跳转指令，通过跳转指令跳到 BIOS 例行程序起始点。<u>BIOS 做完计算机硬件自检和初始化后，会选择一个启动设备（例如软盘、硬盘、光盘等），并且读取该设备的第一扇区(即主引导扇区或启动扇区)到内存一个特定的地址 0x7c00 处，然后 CPU 控制权会转移到那个地址继续执行</u>。至此 BIOS 的初始化工作做完了，进一步的工作交给了内核加载器bootloader。</p>
 <h3 id="1-3-引导扇区"><a href="#1-3-引导扇区" class="headerlink" title="1.3 引导扇区"></a>1.3 引导扇区</h3><p>我们知道，当计算机电源被打开时，它会进行<u><strong>加电自检</strong></u>(POST)，然后寻找启动盘，如果选择从软盘启动，计算机就会检查软盘的0面0磁道1扇区，如果发现它以0xAA55结束，则BIOS认为它是一个引导扇区。淡然，一个正确的引导扇区除了以0xAA55结束之外，还应该包含一段少于512字节的执行码。</p>
 <p>一旦BIOS发现了引导扇区，就会将这512字节的内容装载到内存地址0000:7c00处，然后跳转到0000:7c00处将控制权彻底交给这段引导代码。到此为止，计算机不再由BIOS中固有的程序来控制，而变成由操作系统来控制。</p>
@@ -413,7 +415,115 @@
 <li><code>10, 13</code>：分别是换行符（<code>\n</code>）和回车符（<code>\r</code>）的 ASCII 码，用于换行。</li>
 <li><code>0</code>：字符串结束符（C 风格的 <code>\0</code>），告诉 <code>print</code> 子程序何时停止。</li>
 </ul>
+<h3 id="1-5-磁盘读写"><a href="#1-5-磁盘读写" class="headerlink" title="1.5 磁盘读写"></a>1.5 磁盘读写</h3><p>bootloader 让 CPU 进入保护模式后，下一步的工作就是从硬盘上加载并运行 OS。考虑到实现的简单性，bootloader 的访问硬盘都是 LBA 模式的 PIO（Program IO）方式，即所有的 IO 操作是通过 CPU 访问硬盘的 IO 地址寄存器完成。</p>
+<p>一般主板有 2 个 IDE 通道，每个通道可以接 2 个 IDE 硬盘。访问第一个硬盘的扇区可设置 IO 地址寄存器 0x1f0-0x1f7 实现的，具体参数见下表。一般第一个 IDE 通道通过访问 IO 地址 0x1f0-0x1f7 来实现，第二个 IDE 通道通过访问 0x170-0x17f 实现。每个通道的主从盘的选择通过第 6 个 IO 偏移地址寄存器来设置。</p>
+<table>
+<thead>
+<tr>
+<th>Primary 通道</th>
+<th>Secondary 通道</th>
+<th>in 操作</th>
+<th>out 操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0x1F0</td>
+<td>0x170</td>
+<td>Data</td>
+<td>Data</td>
+</tr>
+<tr>
+<td>0x1F1</td>
+<td>0x171</td>
+<td>Error</td>
+<td>Features</td>
+</tr>
+<tr>
+<td>0x1F2</td>
+<td>0x172</td>
+<td>Sector count</td>
+<td>Sector count</td>
+</tr>
+<tr>
+<td>0x1F3</td>
+<td>0x173</td>
+<td>LBA low</td>
+<td>LBA low</td>
+</tr>
+<tr>
+<td>0x1F4</td>
+<td>0x174</td>
+<td>LBA mid</td>
+<td>LBA mid</td>
+</tr>
+<tr>
+<td>0x1F5</td>
+<td>0x175</td>
+<td>LBA high</td>
+<td>LBA high</td>
+</tr>
+<tr>
+<td>0x1F6</td>
+<td>0x176</td>
+<td>Device</td>
+<td>Device</td>
+</tr>
+<tr>
+<td>0x1F7</td>
+<td>0x177</td>
+<td>Status</td>
+<td>Command</td>
+</tr>
+</tbody></table>
+<ul>
+<li>0x1F0：16bit 端口，用于读写数据</li>
+<li>0x1F1：检测前一个指令的错误</li>
+<li>0x1F2：读写扇区的数量</li>
+<li>0x1F3：起始扇区的 0 ~ 7 位</li>
+<li>0x1F4：起始扇区的 8 ~ 15 位</li>
+<li>0x1F5：起始扇区的 16 ~ 23 位</li>
+<li>0x1F6:<ul>
+<li>0 ~ 3：起始扇区的 24 ~ 27 位</li>
+<li>4: 0 主盘, 1 从片</li>
+<li>6: 0 CHS, 1 LBA</li>
+<li>5 ~ 7：固定为1</li>
+</ul>
+</li>
+<li>0x1F7: out<ul>
+<li>0xEC: 识别硬盘</li>
+<li>0x20: 读硬盘</li>
+<li>0x30: 写硬盘</li>
+</ul>
+</li>
+<li>0x1F7: in &#x2F; 8bit<ul>
+<li>0 ERR</li>
+<li>3 DRQ 数据准备完毕</li>
+<li>7 BSY 硬盘繁忙</li>
+</ul>
+</li>
+</ul>
+<p>当前 硬盘数据是储存到硬盘扇区中，一个扇区大小为 512 字节。读一个扇区的流程大致如下：</p>
+<ol>
+<li>等待磁盘准备好</li>
+<li>发出读取扇区的命令</li>
+<li>等待磁盘准备好</li>
+<li>把磁盘扇区数据读到指定内存</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs assembly">; -------------------------- 初始化参数 --------------------------<br>mov edi, 0x1000    ; ① 数据存储的目标内存地址：读取的硬盘数据会放到0x1000开始的位置<br>mov ecx, 0         ; ② 要读取的起始扇区号：从第0个扇区（硬盘MBR所在扇区）开始读<br>mov bl, 1          ; ③ 要读取的扇区数量<br><br>; -------------------------- 硬盘读取核心函数 --------------------------<br>read_disk:<br>    ; ===== 第一步：向硬盘控制器端口写入「读取参数」（扇区数+起始扇区LBA地址）=====<br>    ; 1. 设置要读取的扇区数量（写入0x1F2端口）<br>    mov dx, 0x1f2   ; dx = 硬盘「扇区计数端口」地址<br>    mov al, bl      ; al = 要读取的扇区数量（bl里存的是扇区数）<br>    out dx, al      ; 将扇区数写入0x1F2端口，硬盘知道要读多少个扇区<br><br>    ; 2. 写入起始扇区LBA地址的低8位（0x1F3端口）<br>    inc dx          ; dx自增1 → 0x1F3（LBA低8位端口）<br>    mov al, cl      ; al = ecx的低8位（起始扇区号的0-7位）<br>    out dx, al      ; 写入LBA低8位<br><br>    ; 3. 写入起始扇区LBA地址的中8位（0x1F4端口）<br>    inc dx          ; dx → 0x1F4（LBA中8位端口）<br>    shr ecx, 8      ; ecx右移8位，原LBA[8-15]变为低8位<br>    mov al, cl      ; al = 新的ecx低8位（LBA[8-15]）<br>    out dx, al      ; 写入LBA中8位<br><br>    ; 4. 写入起始扇区LBA地址的高8位（0x1F5端口）<br>    inc dx          ; dx → 0x1F5（LBA高8位端口）<br>    shr ecx, 8      ; ecx再右移8位，原LBA[16-23]变为低8位<br>    mov al, cl      ; al = 新的ecx低8位（LBA[16-23]）<br>    out dx, al      ; 写入LBA高8位<br><br>    ; 5. 写入LBA最高4位 + 硬盘模式（0x1F6端口）<br>    inc dx          ; dx → 0x1F6（设备/头寄存器端口）<br>    shr ecx, 8      ; ecx再右移8位，原LBA[24-27]变为低8位<br>    and cl, 0b1111  ; 只保留cl的低4位（LBA[24-27]，高4位清零）<br>    mov al, 0b1110_0000  ; 固定配置：1110=LBA模式 + 主硬盘（0000）<br>    or al, cl       ; 把LBA[24-27]合并到al的低4位<br>    out dx, al      ; 告诉硬盘：用LBA模式读主硬盘的这个扇区<br><br>    ; 6. 发送「读扇区」命令（0x1F7端口）<br>    inc dx          ; dx → 0x1F7（命令/状态端口）<br>    mov al, 0x20    ; al = 0x20（ATA PIO读扇区命令）<br>    out dx, al      ; 发送命令，硬盘开始准备数据<br><br>    ; ===== 第二步：循环读取指定数量的扇区 =====<br>    xor ecx, ecx    ; 清空ecx（避免残留值干扰）<br>    mov cl, bl      ; cl = 要读取的扇区数量（循环次数）<br>.read:<br>    push cx         ; 保存循环次数（因为下面的子函数会修改cx，防止丢失）<br>    call .waits     ; 调用等待函数：等硬盘数据准备好<br>    call .reads     ; 调用读取函数：读取1个扇区（512字节）到内存<br>    pop cx          ; 恢复循环次数<br>    loop .read      ; cx--，如果cx≠0则跳回.read继续读下一个扇区<br>    ret             ; 函数返回<br><br>    ; ===== 子函数1：等待硬盘数据就绪 =====<br>.waits:<br>    mov dx, 0x1f7   ; dx = 0x1F7（硬盘状态端口）<br>.check:<br>    in al, dx       ; 读取硬盘状态到al<br>    ; 下面3个jmp是「空指令」：消耗CPU时钟周期，给硬盘留响应时间<br>    jmp $+2         ; $表示当前指令地址，$+2跳转到下一条指令，无实际逻辑<br>    jmp $+2<br>    jmp $+2<br>    and al, 0b1000_1000  ; 只保留2个关键状态位：bit7（忙）、bit3（数据就绪）<br>    cmp al, 0b0000_1000  ; 判断：bit7=0（不忙）且bit3=1（数据就绪）<br>    jnz .check      ; 如果不满足，跳回.check继续等<br>    ret             ; 满足条件，返回<br><br>    ; ===== 子函数2：读取1个扇区（512字节）到内存 =====<br>.reads:<br>    mov dx, 0x1f0   ; dx = 0x1F0（硬盘数据端口，16位）<br>    mov cx, 256     ; cx = 256（因为1个扇区=512字节=256个16位字）<br>.readw:<br>    in ax, dx       ; 从0x1F0端口读取16位数据到ax<br>    ; 空指令：等待硬盘数据稳定<br>    jmp $+2<br>    jmp $+2<br>    jmp $+2<br>    mov [edi], ax   ; 将ax中的数据写入edi指向的内存地址<br>    add edi, 2      ; edi += 2（指向下一个16位内存位置）<br>    loop .readw     ; cx--，读满256次（512字节）为止<br>    ret             ; 1个扇区读取完成，返回<br></code></pre></td></tr></table></figure>
 
+<p>可以看到第0号扇区确实被加载到了0x1000的位置</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222211755724.png" srcset="/img/loading.gif" lazyload alt="image-20260222211755724" style="zoom:67%;">
+
+<p>✅<strong>这里顺便补一下qemu断点调试</strong></p>
+<blockquote>
+<p>需要改一下Makefile文件：添加<code>-s -S</code></p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222220359991.png" srcset="/img/loading.gif" lazyload alt="image-20260222220359991" style="zoom:80%;">
+
+<p>编译运行后开始gdb调试</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">1. 连接 QEMU</span><br>(gdb) target remote localhost:1234<br>Remote debugging using localhost:1234<br>warning: No executable has been specified and target does not support<br>determining executable automatically.  Try using the &quot;file&quot; command.<br>0x0000fff0 in ?? ()<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">2. 切换到16位实模式</span><br>(gdb) set architecture i8086<br>The target architecture is assumed to be i8086<br><br><br>(gdb) c<br>Continuing.<br>^C<br>Program received signal SIGINT, Interrupt.<br>0x00007c35 in ?? ()<br>(gdb) x/512bx 0x1000<br>.....<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-6-内核加载器bootloader"><a href="#1-6-内核加载器bootloader" class="headerlink" title="1.6 内核加载器bootloader"></a>1.6 内核加载器bootloader</h3>
                 
               </div>
             
