@@ -28,8 +28,10 @@
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222195350120.png">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222211755724.png">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222220359991.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223173851243.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223174317199.png">
 <meta property="article:published_time" content="2026-02-22T11:14:46.000Z">
-<meta property="article:modified_time" content="2026-02-22T14:40:31.362Z">
+<meta property="article:modified_time" content="2026-02-23T09:46:19.881Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png">
@@ -217,7 +219,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.9k 字
+          9.3k 字
         
       </span>
     
@@ -228,7 +230,7 @@
         
         
         
-          67 分钟
+          78 分钟
         
       </span>
     
@@ -346,6 +348,7 @@
 </tr>
 </tbody></table>
 <h3 id="8086汇编语言基础"><a href="#8086汇编语言基础" class="headerlink" title="8086汇编语言基础"></a>8086汇编语言基础</h3><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0">贺利坚汇编原理学习笔记</a></p>
+<h3 id="□-本文咱将这个操作系统叫做Ainux"><a href="#□-本文咱将这个操作系统叫做Ainux" class="headerlink" title="□ 本文咱将这个操作系统叫做Ainux"></a>□ 本文咱将这个操作系统叫做Ainux</h3><p>文章有些地方看到Ainux不要奇怪，只是随便给这个0到1的操作系统取了一个随意的名字。</p>
 <h2 id="第一章-马上动手写一个最小的”操作系统”"><a href="#第一章-马上动手写一个最小的”操作系统”" class="headerlink" title="第一章 马上动手写一个最小的”操作系统”"></a>第一章 马上动手写一个最小的”操作系统”</h2><h3 id="1-1-10分钟完成的操作系统"><a href="#1-1-10分钟完成的操作系统" class="headerlink" title="1.1 10分钟完成的操作系统"></a>1.1 10分钟完成的操作系统</h3><ul>
 <li>编写boot.asm</li>
 </ul>
@@ -523,7 +526,26 @@
 </blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">1. 连接 QEMU</span><br>(gdb) target remote localhost:1234<br>Remote debugging using localhost:1234<br>warning: No executable has been specified and target does not support<br>determining executable automatically.  Try using the &quot;file&quot; command.<br>0x0000fff0 in ?? ()<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">2. 切换到16位实模式</span><br>(gdb) set architecture i8086<br>The target architecture is assumed to be i8086<br><br><br>(gdb) c<br>Continuing.<br>^C<br>Program received signal SIGINT, Interrupt.<br>0x00007c35 in ?? ()<br>(gdb) x/512bx 0x1000<br>.....<br></code></pre></td></tr></table></figure>
 
-<h3 id="1-6-内核加载器bootloader"><a href="#1-6-内核加载器bootloader" class="headerlink" title="1.6 内核加载器bootloader"></a>1.6 内核加载器bootloader</h3>
+<h3 id="1-6-内核加载器bootloader"><a href="#1-6-内核加载器bootloader" class="headerlink" title="1.6 内核加载器bootloader"></a>1.6 内核加载器bootloader</h3><p>BIOS 将通过读取硬盘主引导扇区到内存，并转跳到对应内存中的位置执行 bootloader。bootloader 完成的工作包括：</p>
+<ul>
+<li>切换到保护模式，启用分段机制</li>
+<li>读磁盘中 ELF 执行文件格式的 Ainux 操作系统到内存</li>
+<li>显示字符串信息</li>
+<li>把控制权交给 Ainux 操作系统</li>
+</ul>
+<hr>
+<p>编写loader.asm</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs assembly">[org 0x1000]<br><br>dw 0x55aa; 魔数, 用于判断读取是否正常<br><br>mov si, loading<br>call print<br><br>jmp $<br><br>print:<br>    mov ah, 0x0e<br>.next:<br>    mov al, [si]<br>    cmp al, 0<br>    jz .done<br>    int 0x10<br>    inc si<br>    jmp .next<br>.done:<br>    ret<br><br>loading:<br>    db &quot;Loading loader...&quot;, 10, 13, 0<br><br></code></pre></td></tr></table></figure>
+
+<p>修改Makefile，编译loader.bin，并加载到master.img的第2个扇区里面</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223173851243.png" srcset="/img/loading.gif" lazyload alt="image-20260223173851243" style="zoom: 67%;">
+
+<p>修改boot.asm，需要读取第2个扇区的内容，也就读取内核加载器的代码段，开始拉起内核【当然现在写的内核加载器非常简单，就打印了一句话Loading loader…】</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs assembly">[org 0x7c00]<br><br>; 设置屏幕模式为文本模式，清除屏幕<br>mov ax, 3<br>int 0x10<br><br>; 初始化段寄存器<br>mov ax, 0<br>mov ds, ax<br>mov es, ax<br>mov ss, ax<br>mov sp, 0x7c00<br><br>mov si, booting<br>call print<br><br>; ---------------------------------------- 本节重点START:将内核加载器的镜像内容读取到0x1000位置  ----------------------------------------<br>mov edi, 0x1000; 将数据读取到0x1000<br>mov ecx, 2; 起始扇区<br>mov bl, 4; 扇区数量<br>call read_disk<br><br>cmp word [0x1000], 0x55aa<br>jnz error<br><br>jmp 0:0x1002; 打印master.img第2个扇区的内容，也就是开始执行loader的代码段<br><br>; ---------------------------------------- 本节重点END: 将内核加载器的镜像内容读取到0x1000位置  ----------------------------------------<br><br>; 阻塞<br>jmp $<br><br><br>read_disk:<br>    ; 1.5节的内容，不重复<br>    ret<br><br>print:<br>	; 1.4节的内容，不重复<br><br>booting:<br>    db &quot;BIOS load MBR SUCC&quot;, 10, 13, 0<br><br>error:<br>    mov si, .msg<br>    call print<br>    hlt; 让CPU停止<br>    jmp $<br>    .msg db &quot;Booting Error..&quot;, 10, 13, 0<br><br>; 填充 0<br>times 510 - ($ - $$) db 0<br><br>; 主引导扇区的最后两个字节必须是 0x55 0xaa<br>; dw 0xaa55<br>db 0x55, 0xaa<br></code></pre></td></tr></table></figure>
+
+<p>运行成功</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223174317199.png" srcset="/img/loading.gif" lazyload alt="image-20260223174317199" style="zoom:80%;">
+
                 
               </div>
             
