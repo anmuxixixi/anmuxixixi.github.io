@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223173851243.png">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223174317199.png">
 <meta property="article:published_time" content="2026-02-22T11:14:46.000Z">
-<meta property="article:modified_time" content="2026-02-23T09:46:19.881Z">
+<meta property="article:modified_time" content="2026-02-23T13:52:44.637Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png">
@@ -219,7 +219,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.3k 字
+          12k 字
         
       </span>
     
@@ -230,7 +230,7 @@
         
         
         
-          78 分钟
+          98 分钟
         
       </span>
     
@@ -306,6 +306,88 @@
 <blockquote>
 <p>在 Linux 和编译环境中，<strong>i386 通常代表 32 位 x86 架构的统称</strong>，而不仅仅是 80386 这颗 CPU。</p>
 </blockquote>
+<h3 id="BIOS与UEFI对比"><a href="#BIOS与UEFI对比" class="headerlink" title="BIOS与UEFI对比"></a>BIOS与UEFI对比</h3><p>BIOS 和 UEFI 本质上都是 <strong>主板固件（Firmware）</strong>，负责在操作系统启动前初始化硬件并加载引导程序。但它们的架构设计、能力和时代背景完全不同。</p>
+<hr>
+<p><strong>一句话区别</strong></p>
+<blockquote>
+<p><strong>BIOS 是传统 16 位实模式固件，UEFI 是现代 32&#x2F;64 位模块化固件系统。</strong></p>
+</blockquote>
+<hr>
+<p>一、架构层面的核心区别</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>BIOS</th>
+<th>UEFI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>诞生年代</td>
+<td>1980s</td>
+<td>2000s（Intel 主导）</td>
+</tr>
+<tr>
+<td>CPU 模式</td>
+<td>16 位实模式</td>
+<td>32 &#x2F; 64 位</td>
+</tr>
+<tr>
+<td>最大可寻址内存</td>
+<td>1MB（早期限制）</td>
+<td>理论上无限制</td>
+</tr>
+<tr>
+<td>启动方式</td>
+<td>读取 MBR 第 0 扇区</td>
+<td>读取 EFI 文件</td>
+</tr>
+<tr>
+<td>分区表支持</td>
+<td>MBR</td>
+<td>GPT</td>
+</tr>
+<tr>
+<td>界面</td>
+<td>纯文本</td>
+<td>图形界面 + 鼠标</td>
+</tr>
+<tr>
+<td>可扩展性</td>
+<td>几乎没有</td>
+<td>模块化驱动体系</td>
+</tr>
+<tr>
+<td>安全机制</td>
+<td>无</td>
+<td>Secure Boot</td>
+</tr>
+</tbody></table>
+<p>二、启动流程差异</p>
+<p>1️⃣ BIOS 启动流程（传统方式）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">上电<br>↓<br>BIOS 初始化硬件<br>↓<br>读取磁盘第 0 扇区 (MBR)<br>↓<br>执行 bootloader<br>↓<br>加载内核<br></code></pre></td></tr></table></figure>
+
+<p>特点：</p>
+<ul>
+<li>只能从 MBR 启动</li>
+<li>只能识别 2TB 以下磁盘</li>
+<li>只能有 4 个主分区</li>
+</ul>
+<p>MBR &#x3D; Master Boot Record</p>
+<hr>
+<p>2️⃣ UEFI 启动流程（现代方式）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell">上电<br>↓<br>UEFI 初始化硬件<br>↓<br>读取 GPT 分区<br>↓<br>查找 EFI System Partition (ESP)<br>↓<br>加载 .efi 文件<br>↓<br>启动操作系统<br></code></pre></td></tr></table></figure>
+
+<p>UEFI 直接加载：</p>
+<ul>
+<li><code>/EFI/BOOT/BOOTX64.EFI</code></li>
+<li>或系统指定的 EFI 引导文件</li>
+</ul>
+<p>例如 Linux 的：</p>
+<ul>
+<li><code>grubx64.efi</code></li>
+<li><code>systemd-bootx64.efi</code></li>
+</ul>
 <h3 id="实模式和保护模式"><a href="#实模式和保护模式" class="headerlink" title="实模式和保护模式"></a>实模式和保护模式</h3><p>在 x86 架构诞生之初，其实是没有虚拟内存的概念的。1978 年发行的 8086 芯片是 x86 架构的首款芯片，<u>它在内存管理上使用的是直接访问物理内存的方式，这种工作方式，有一个专门的名称，那就是实模式（Real Mode）</u>。上节课我们也曾简单提到过，直接访问物理内存的工作方式让程序员必须要关心自己使用的内存会不会与其他进程产生冲突，为程序员带来极大的心智负担。</p>
 <p>后来，CPU 上就出现虚拟内存的概念，它可以将每个进程的地址空间都隔离开，极大地减轻了程序员的负担，同时由于页表项中有多种权限保护标志，极大地提高了应用程序的数据安全。所以人们把 CPU 的这种工作模式称为保护模式（Protection Mode）。</p>
 <table>
@@ -545,6 +627,130 @@
 
 <p>运行成功</p>
 <img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223174317199.png" srcset="/img/loading.gif" lazyload alt="image-20260223174317199" style="zoom:80%;">
+
+<h3 id="1-7-内存检测"><a href="#1-7-内存检测" class="headerlink" title="1.7 内存检测"></a>1.7 内存检测</h3><p>TODO:  目的是什么</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.ghxi.com/jsjc2023080401.html">从0到-1写一个操作系统-0x05-检查内存容量</a></p>
+<p>BIOS中断0x15有3个子功能，子功能号需要存放到寄存器EAX或AX中，以下是这三种模式的介绍：</p>
+<p>EAX&#x3D;0xE820：遍历主机上全部内存<br>AX&#x3D;0xE801：分别检测低15MB和16MB～4GB内存，最大支持4GB<br>AH&#x3D;0x88：最多检测64MB内存，实际内存超过此容量也按照64MB返回</p>
+</blockquote>
+<p>本文使用BIOS 0x15中断 0xe820功能获取内存</p>
+<hr>
+<p><strong>输入（调用前设置）</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">寄存器</th>
+<th align="center">作用</th>
+<th align="center">取值要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>EAX</strong></td>
+<td align="center">功能号</td>
+<td align="center"><strong>0x0000E820</strong>（必须，高 16 位清 0）</td>
+</tr>
+<tr>
+<td align="center"><strong>EBX</strong></td>
+<td align="center">继续值（Continuation）</td>
+<td align="center"><strong>首次调用必须设为 0</strong>；后续调用使用 BIOS 返回的 EBX</td>
+</tr>
+<tr>
+<td align="center"><strong>ES:DI</strong></td>
+<td align="center">结果缓冲区指针</td>
+<td align="center">指向一段可写内存，用于存放返回的 ARDS 结构</td>
+</tr>
+<tr>
+<td align="center"><strong>ECX</strong></td>
+<td align="center">缓冲区大小</td>
+<td align="center"><strong>≥20</strong>（标准 ARDS 为 20 字节；ACPI 3.0 扩展为 24 字节）</td>
+</tr>
+<tr>
+<td align="center"><strong>EDX</strong></td>
+<td align="center">签名</td>
+<td align="center"><strong>0x534D4150</strong>（<code>SMAP</code>），用于标识调用意图</td>
+</tr>
+</tbody></table>
+<p><strong>输出（调用后返回）</strong></p>
+<table>
+<thead>
+<tr>
+<th>寄存器</th>
+<th>含义</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CF</strong></td>
+<td>状态位</td>
+<td><strong>CF&#x3D;0</strong> 成功；<strong>CF&#x3D;1</strong> 失败（AH &#x3D; 错误码）</td>
+</tr>
+<tr>
+<td><strong>EAX</strong></td>
+<td>签名</td>
+<td>成功时固定为 <strong>0x534D4150（SMAP）</strong>，用于校验</td>
+</tr>
+<tr>
+<td><strong>EBX</strong></td>
+<td>下一个继续值</td>
+<td>非 0：还有更多区域；<strong>0</strong>：已遍历完成</td>
+</tr>
+<tr>
+<td><strong>ECX</strong></td>
+<td>实际写入字节数</td>
+<td>通常为 <strong>20</strong>（标准 ARDS）</td>
+</tr>
+<tr>
+<td><strong>ES:DI</strong></td>
+<td><strong>ARDS 结构</strong></td>
+<td><strong>填充本次返回的内存区域描述</strong></td>
+</tr>
+<tr>
+<td><strong>AH</strong></td>
+<td>错误码</td>
+<td>失败时有效（如 0x86 &#x3D; 不支持该功能）</td>
+</tr>
+</tbody></table>
+<p><strong>ARDS 结构（Address Range Descriptor Structure）</strong></p>
+<p>标准 20 字节格式（ACPI 3.0 扩展为 24 字节，增加<code>Extended Attributes</code>）：</p>
+<table>
+<thead>
+<tr>
+<th align="center">偏移</th>
+<th align="center">长度</th>
+<th align="center">字段</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0x00</td>
+<td align="center">8 字节</td>
+<td align="center"><strong>BaseAddr</strong></td>
+<td align="center">内存区域的<strong>64 位起始物理地址</strong></td>
+</tr>
+<tr>
+<td align="center">0x08</td>
+<td align="center">8 字节</td>
+<td align="center"><strong>Length</strong></td>
+<td align="center">区域长度（字节数，64 位）</td>
+</tr>
+<tr>
+<td align="center">0x10</td>
+<td align="center">4 字节</td>
+<td align="center"><strong>Type</strong></td>
+<td align="center">内存类型（决定是否可用）</td>
+</tr>
+</tbody></table>
+<p>关键 Type 值（内存类型）</p>
+<ul>
+<li><strong>0x01</strong>：<strong>可用内存</strong>（OS 可自由使用）</li>
+<li><strong>0x02</strong>：<strong>保留内存</strong>（不可用，如 ROM、MMIO、BIOS 数据区）</li>
+<li><strong>0x03</strong>：<strong>存储ACPI表 可回收内存</strong>（OS 读取 ACPI 表后可回收）</li>
+<li><strong>0x04：操作系统不可使用这段内存</strong></li>
+<li><strong>0x05：已经损坏的内存区域，不可使用</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs assembly">detect_memory:<br>    ; 初始化E820调用参数<br>    xor ebx, ebx                 ; ebx=0表示开始新的检测<br>    mov ax, 0<br>    mov es, ax                   ; es=0（结构体存储在es:edi）<br>    mov edi, ards_buffer         ; edi指向缓冲区起始位置<br>    mov edx, 0x534d4150          ; E820固定签名（&#x27;SMAP&#x27;）<br><br>.next:<br>    ; 调用int 0x15的E820子功能检测内存<br>    mov eax, 0xe820              ; 子功能号：E820内存检测<br>    mov ecx, 20                  ; ARDS结构体大小（20字节）<br>    mov [es:edi + 16], dword 1   ; 版本号（必须设置为1）<br>    int 0x15                     ; 执行BIOS中断<br><br>    ; 检查调用结果<br>    jc error                     ; CF=1表示调用失败，跳转到错误处理<br><br>    ; 处理返回的结构体<br>    add di, cx                   ; 缓冲区指针后移（指向下一个结构体位置）<br>    inc word [ards_count]        ; 区块数量+1<br><br>    ; 判断是否还有更多区块（ebx=0表示检测完成）<br>    cmp ebx, 0<br>    jnz .next                    ; ebx≠0，继续检测下一个区块<br><br>    ; 内存检测完成，打印成功提示<br>    mov si, detecting<br>    call print<br><br>    ; （可选）遍历打印所有内存区块信息（示例：仅读取不打印）<br>    mov cx, [ards_count]         ; cx=区块数量<br>    mov si, 0                    ; si=缓冲区偏移量<br>.show:<br>    ; 读取ARTS结构体关键字段（示例：仅读取，可扩展打印逻辑）<br>    ; [ards_buffer+si]     = 基地址低32位<br>    ; [ards_buffer+si+8]   = 长度低32位<br>    ; [ards_buffer+si+16]  = 类型（1=可用内存，2=保留内存）<br>    mov eax, [ards_buffer + si]  ; 读取基地址低32位<br>    mov ebx, [ards_buffer + si + 8] ; 读取长度低32位<br>    mov ecx, [ards_buffer + si + 16] ; 读取内存类型<br>    add si, 20                   ; 偏移量+20（下一个结构体）<br>    loop .show                   ; cx--，直到cx=0<br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
