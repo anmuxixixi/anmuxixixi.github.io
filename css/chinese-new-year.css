@@ -1,11 +1,15 @@
+/* ============================= */
+/*        新春灯笼效果 🎊        */
+/* ============================= */
+
 /* ====== 左右灯笼容器 ====== */
 .deng-container {
     position: fixed;
-    top: 40px;
+    top: 60px;
     z-index: 9999;
     display: flex;
     flex-direction: column;
-    gap: 80px;        /* 上下间距 */
+    gap: 80px;              /* 上下间距 */
     pointer-events: none;
 }
 
@@ -19,4 +23,155 @@
 
 .deng-box {
     position: relative;
+}
+
+
+/* ====== 灯笼主体 ====== */
+.deng {
+    position: relative;
+    width: 120px;
+    height: 90px;
+    margin: 0 auto;
+    background: rgba(216, 0, 15, .85);
+    border-radius: 50% 50%;
+    transform-origin: 50% -100px;
+    animation: swing 4s infinite ease-in-out;
+    box-shadow: -5px 5px 40px 6px rgba(255, 120, 0, 0.6);
+}
+
+/* 左右摆动速度不同（更自然） */
+.deng-container.right .deng {
+    animation-duration: 5s;
+}
+
+
+/* ====== 灯笼内部结构 ====== */
+.deng-a {
+    width: 100px;
+    height: 90px;
+    background: rgba(216, 0, 15, .15);
+    margin: 12px 8px 8px 8px;
+    border-radius: 50% 50%;
+    border: 2px solid #dc8f03;
+}
+
+.deng-b {
+    width: 45px;
+    height: 90px;
+    background: rgba(216, 0, 15, .15);
+    margin: -4px 8px 8px 26px;
+    border-radius: 50% 50%;
+    border: 2px solid #dc8f03;
+}
+
+/* 顶部绳子 */
+.xian {
+    position: absolute;
+    top: -25px;
+    left: 60px;
+    width: 2px;
+    height: 25px;
+    background: #dc8f03;
+}
+
+/* 底部流苏 */
+.shui-a {
+    position: relative;
+    width: 6px;
+    height: 20px;
+    margin: -5px 0 0 57px;
+    transform-origin: 50% -45px;
+    background: orange;
+    border-radius: 0 0 5px 5px;
+}
+
+.shui-b {
+    position: absolute;
+    top: 14px;
+    left: -2px;
+    width: 10px;
+    height: 10px;
+    background: #dc8f03;
+    border-radius: 50%;
+}
+
+.shui-c {
+    position: absolute;
+    top: 18px;
+    left: -2px;
+    width: 10px;
+    height: 35px;
+    background: orange;
+    border-radius: 0 0 0 5px;
+}
+
+/* 灯笼顶部横条 */
+.deng:before {
+    position: absolute;
+    top: -7px;
+    left: 29px;
+    height: 12px;
+    width: 60px;
+    content: "";
+    display: block;
+    border-radius: 5px 5px 0 0;
+    border: solid 1px #dc8f03;
+    background: linear-gradient(to right, #dc8f03, orange, #dc8f03);
+}
+
+/* 灯笼底部横条 */
+.deng:after {
+    position: absolute;
+    bottom: -7px;
+    left: 10px;
+    height: 12px;
+    width: 60px;
+    content: "";
+    display: block;
+    margin-left: 20px;
+    border-radius: 0 0 5px 5px;
+    border: solid 1px #dc8f03;
+    background: linear-gradient(to right, #dc8f03, orange, #dc8f03);
+}
+
+/* 灯笼文字 */
+.deng-t {
+    font-family: 华文行楷, STXingkai, "Microsoft YaHei", sans-serif;
+    font-size: 4.2rem;
+    color: #dc8f03;
+    font-weight: 500;
+    line-height: 85px;
+    text-align: center;
+    margin-left: -16px;
+}
+
+
+/* ====== 摆动动画 ====== */
+@keyframes swing {
+    0%   { transform: rotate(-8deg); }
+    50%  { transform: rotate(8deg); }
+    100% { transform: rotate(-8deg); }
+}
+
+
+/* ====== 夜间模式适配（Fluid） ====== */
+[data-user-color-scheme='dark'] .deng {
+    box-shadow: -5px 5px 40px 6px rgba(255, 150, 50, 0.4);
+}
+
+
+/* ====== 移动端适配 ====== */
+@media (max-width: 768px) {
+    .deng-container {
+        transform: scale(0.6);
+        top: 20px;
+    }
+
+    .deng-container.left {
+        left: 5px;
+    }
+
+    .deng-container.right {
+        right: 5px;
+    }
 }
