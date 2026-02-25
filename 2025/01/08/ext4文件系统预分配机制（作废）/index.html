@@ -1,0 +1,746 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="ext4文件系统预分配机制【作废】 http:&#x2F;&#x2F;nyx.skku.ac.kr&#x2F;wp-content&#x2F;uploads&#x2F;2019&#x2F;11&#x2F;12-EXT4-1.pdf      ext4对于大文件采用的是per inode预留分配空间的方式分配，对于小文件采用的是per_cpu locality group的方式，那么怎么定义文件是大文件还是小文件呢？在sys文件系统的“&#x2F;sys&#x2F;f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ext4文件系统预分配机制【作废】">
+<meta property="og:url" content="http://example.com/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="ext4文件系统预分配机制【作废】 http:&#x2F;&#x2F;nyx.skku.ac.kr&#x2F;wp-content&#x2F;uploads&#x2F;2019&#x2F;11&#x2F;12-EXT4-1.pdf      ext4对于大文件采用的是per inode预留分配空间的方式分配，对于小文件采用的是per_cpu locality group的方式，那么怎么定义文件是大文件还是小文件呢？在sys文件系统的“&#x2F;sys&#x2F;f">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/image-20250108221606425.png">
+<meta property="og:image" content="http://example.com/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/image-20250108221630611.png">
+<meta property="og:image" content="http://example.com/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/image-20250108232139215.png">
+<meta property="article:published_time" content="2025-01-08T13:18:27.000Z">
+<meta property="article:modified_time" content="2025-01-26T12:02:05.945Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/image-20250108221606425.png">
+  
+  
+  
+  <title>ext4文件系统预分配机制【作废】 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ext4文件系统预分配机制【作废】"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-08 21:18" pubdate>
+          2025年1月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          42 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">ext4文件系统预分配机制【作废】</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="ext4文件系统预分配机制【作废】"><a href="#ext4文件系统预分配机制【作废】" class="headerlink" title="ext4文件系统预分配机制【作废】"></a>ext4文件系统预分配机制【作废】</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="http://nyx.skku.ac.kr/wp-content/uploads/2019/11/12-EXT4-1.pdf">http://nyx.skku.ac.kr/wp-content/uploads/2019/11/12-EXT4-1.pdf</a></p>
+</blockquote>
+<img src="/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/image-20250108221606425.png" srcset="/img/loading.gif" lazyload alt="image-20250108221606425" style="zoom: 60%;">
+
+<img src="/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/image-20250108221630611.png" srcset="/img/loading.gif" lazyload alt="image-20250108221630611" style="zoom:60%;">
+
+<p>ext4对于大文件采用的是per inode预留分配空间的方式分配，对于小文件采用的是per_cpu locality group的方式，那么怎么定义文件是大文件还是小文件呢？在sys文件系统的“&#x2F;sys&#x2F;fs&#x2F;ext4&#x2F;&lt;part&gt;&#x2F;mb_stream_req”的值，如果文件大小超过了这个值就是“大文件”，小于等于则是“小文件”，mb_stream_req默认为16个文件块，按照每个文件块4k计算为64k。</p>
+<p>ext4在ext4_mb_group_or_file()函数决定是使用per inode预分配还是per_cpu locality group预分配，此时函数被ext4_mb_initialize_context()函数调用。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">ext4_fsblk_t</span> <span class="hljs-title function_">ext4_mb_new_blocks</span><span class="hljs-params">(<span class="hljs-type">handle_t</span> *handle,</span><br><span class="hljs-params">				<span class="hljs-keyword">struct</span> ext4_allocation_request *ar, <span class="hljs-type">int</span> *errp)</span><br>&#123;<br>	<span class="hljs-type">int</span> freed;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ext4_allocation_context</span> *<span class="hljs-title">ac</span> =</span> <span class="hljs-literal">NULL</span>;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ext4_sb_info</span> *<span class="hljs-title">sbi</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">super_block</span> *<span class="hljs-title">sb</span>;</span><br>	<span class="hljs-type">ext4_fsblk_t</span> block = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> inquota = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> reserv_clstrs = <span class="hljs-number">0</span>;<br><br>	might_sleep();<br>	sb = ar-&gt;inode-&gt;i_sb;<br>	sbi = EXT4_SB(sb);<br><br>	<span class="hljs-comment">// 从事先预留好的内存里分配一个ext4_allocation_context</span><br>	ac = kmem_cache_zalloc(ext4_ac_cachep, GFP_NOFS);<br><br>	*errp = ext4_mb_initialize_context(ac, ar); <span class="hljs-comment">// 初始化allocation_context</span><br><br>	ac-&gt;ac_op = EXT4_MB_HISTORY_PREALLOC;<br>	<span class="hljs-comment">// 非文件不用预分配</span><br>	<span class="hljs-keyword">if</span> (!ext4_mb_use_preallocated(ac)) &#123; <span class="hljs-comment">// 预分配失败</span><br>		ac-&gt;ac_op = EXT4_MB_HISTORY_ALLOC;<br>		ext4_mb_normalize_request(ac, ar); <span class="hljs-comment">// 对文件大小进行预估，预估后的大小比原来大一些</span><br>repeat:<br>		<span class="hljs-comment">// 常规分配</span><br>		*errp = ext4_mb_regular_allocator(ac);<br>		<span class="hljs-keyword">if</span> (*errp)<br>			<span class="hljs-keyword">goto</span> discard_and_exit;<br><br>		<span class="hljs-keyword">if</span> (ac-&gt;ac_status == AC_STATUS_FOUND &amp;&amp;<br>		    ac-&gt;ac_o_ex.fe_len &lt; ac-&gt;ac_b_ex.fe_len)<br>			*errp = ext4_mb_new_preallocation(ac); <span class="hljs-comment">// 将分配的多余的空间放到预分配空间里</span><br>	&#125;<br>	<span class="hljs-keyword">if</span> (likely(ac-&gt;ac_status == AC_STATUS_FOUND)) &#123;<br>		*errp = ext4_mb_mark_diskspace_used(ac, handle, reserv_clstrs);<br>		<span class="hljs-keyword">if</span> (*errp) &#123;<br>			ext4_discard_allocated_blocks(ac);<br>			<span class="hljs-keyword">goto</span> errout;<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			block = ext4_grp_offs_to_block(sb, &amp;ac-&gt;ac_b_ex);<br>			ar-&gt;len = ac-&gt;ac_b_ex.fe_len;<br>		&#125;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		freed = ext4_mb_discard_preallocations(sb, ac-&gt;ac_o_ex.fe_len);<br>		<span class="hljs-keyword">if</span> (freed)<br>			<span class="hljs-keyword">goto</span> repeat;<br>		*errp = -ENOSPC;<br>	&#125;<br><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">		......</span><br><span class="hljs-comment">		分配失败的处理</span><br><span class="hljs-comment">	*/</span><br><br>	<span class="hljs-keyword">return</span> block;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> noinline_for_stack <span class="hljs-type">int</span><br><span class="hljs-title function_">ext4_mb_use_preallocated</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> ext4_allocation_context *ac)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ext4_sb_info</span> *<span class="hljs-title">sbi</span> =</span> EXT4_SB(ac-&gt;ac_sb);<br>	<span class="hljs-type">int</span> order, i;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ext4_inode_info</span> *<span class="hljs-title">ei</span> =</span> EXT4_I(ac-&gt;ac_inode);<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ext4_locality_group</span> *<span class="hljs-title">lg</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ext4_prealloc_space</span> *<span class="hljs-title">pa</span>, *<span class="hljs-title">cpa</span> =</span> <span class="hljs-literal">NULL</span>;<br>	<span class="hljs-type">ext4_fsblk_t</span> goal_block;<br><br>	<span class="hljs-comment">/* only data can be preallocated */</span><br>	<span class="hljs-keyword">if</span> (!(ac-&gt;ac_flags &amp; EXT4_MB_HINT_DATA))<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br>	<span class="hljs-comment">// 先尝试per inode的预分配，遍历预分配空间链表</span><br>	rcu_read_lock();<br>	list_for_each_entry_rcu(pa, &amp;ei-&gt;i_prealloc_list, pa_inode_list) &#123;<br>		 <span class="hljs-comment">// 不在这个预分配空间范围内，跳到下一个预分配空间</span><br>		<span class="hljs-keyword">if</span> (ac-&gt;ac_o_ex.fe_logical &lt; pa-&gt;pa_lstart ||<br>		    ac-&gt;ac_o_ex.fe_logical &gt;= (pa-&gt;pa_lstart +<br>					       EXT4_C2B(sbi, pa-&gt;pa_len)))<br>			<span class="hljs-keyword">continue</span>;<br><br>		<span class="hljs-comment">// 找到了合适的预分配空间，则分配之</span><br>		spin_lock(&amp;pa-&gt;pa_lock);<br>		<span class="hljs-keyword">if</span> (pa-&gt;pa_deleted == <span class="hljs-number">0</span> &amp;&amp; pa-&gt;pa_free) &#123;<br>			<span class="hljs-type">atomic_inc</span>(&amp;pa-&gt;pa_count);<br>            <span class="hljs-comment">// 往ext4_allocation_context记录分配的最终结果</span><br>			ext4_mb_use_inode_pa(ac, pa);<br>			spin_unlock(&amp;pa-&gt;pa_lock);<br>			ac-&gt;ac_criteria = <span class="hljs-number">10</span>;<br>			rcu_read_unlock();<br>			<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>		&#125;<br>		spin_unlock(&amp;pa-&gt;pa_lock);<br>	&#125;<br>	rcu_read_unlock();<br>	<span class="hljs-comment">// 进行per_cpu locality group的预分配</span><br>	<span class="hljs-comment">/* can we use group allocation? */</span><br>	<span class="hljs-keyword">if</span> (!(ac-&gt;ac_flags &amp; EXT4_MB_HINT_GROUP_ALLOC))<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br>	<span class="hljs-comment">/* inode may have no locality group for some reason */</span><br>	lg = ac-&gt;ac_lg;<br>	<span class="hljs-keyword">if</span> (lg == <span class="hljs-literal">NULL</span>)<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-comment">// fls的意思是找到fe_len从右往左的最后一个1的位置，即为len的阶</span><br>	order  = fls(ac-&gt;ac_o_ex.fe_len) - <span class="hljs-number">1</span>;<br>	<span class="hljs-keyword">if</span> (order &gt; PREALLOC_TB_SIZE - <span class="hljs-number">1</span>)<br>		<span class="hljs-comment">/* The max size of hash table is PREALLOC_TB_SIZE */</span><br>		order = PREALLOC_TB_SIZE - <span class="hljs-number">1</span>;<br>	<span class="hljs-comment">// goal_block为goal在block group中的偏移</span><br>	goal_block = ext4_grp_offs_to_block(ac-&gt;ac_sb, &amp;ac-&gt;ac_g_ex);<br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * search for the prealloc space that is having</span><br><span class="hljs-comment">	 * minimal distance from the goal block.</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-keyword">for</span> (i = order; i &lt; PREALLOC_TB_SIZE; i++) &#123;<br>		rcu_read_lock();<br>        <span class="hljs-comment">// 遍历当前CPU的预分配空间链表</span><br>		list_for_each_entry_rcu(pa, &amp;lg-&gt;lg_prealloc_list[i],<br>					pa_inode_list) &#123;<br>			spin_lock(&amp;pa-&gt;pa_lock);<br>            <span class="hljs-comment">// 预分配空间没有被删除，且有足够的可用空间进行分配</span><br>			<span class="hljs-keyword">if</span> (pa-&gt;pa_deleted == <span class="hljs-number">0</span> &amp;&amp;<br>					pa-&gt;pa_free &gt;= ac-&gt;ac_o_ex.fe_len) &#123;<br>				<span class="hljs-comment">// 进一步检查，以找到最合适的</span><br>				cpa = ext4_mb_check_group_pa(goal_block, pa, cpa);<br>			&#125;<br>			spin_unlock(&amp;pa-&gt;pa_lock);<br>		&#125;<br>		rcu_read_unlock();<br>	&#125;<br>	<span class="hljs-keyword">if</span> (cpa) &#123;<br>		ext4_mb_use_group_pa(ac, cpa);<br>		ac-&gt;ac_criteria = <span class="hljs-number">20</span>;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="预分配空间的来源"><a href="#预分配空间的来源" class="headerlink" title="预分配空间的来源"></a>预分配空间的来源</h3><p>如果所分得的长度大于最初要求分配的长度，那么多余出来的这部分空间就可以用来预分配：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">ext4_mb_use_best_found</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> ext4_allocation_context *ac,</span><br><span class="hljs-params">					<span class="hljs-keyword">struct</span> ext4_buddy *e4b)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ext4_sb_info</span> *<span class="hljs-title">sbi</span> =</span> EXT4_SB(ac-&gt;ac_sb);<br><br>	ac-&gt;ac_b_ex.fe_len = min(ac-&gt;ac_b_ex.fe_len, ac-&gt;ac_g_ex.fe_len);<br>	ac-&gt;ac_b_ex.fe_logical = ac-&gt;ac_g_ex.fe_logical;<br>	ret = mb_mark_used(e4b, &amp;ac-&gt;ac_b_ex);<br>	<span class="hljs-comment">// ...</span><br>	<span class="hljs-keyword">if</span> (ac-&gt;ac_o_ex.fe_len &lt; ac-&gt;ac_b_ex.fe_len)<br>		ext4_mb_new_preallocation(ac);  <span class="hljs-comment">// 有多余的分配的空间作为预分配空间</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">ext4_mb_new_preallocation</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> ext4_allocation_context *ac)</span><br>&#123;<br>	<span class="hljs-type">int</span> err;<br><br>    <span class="hljs-comment">// 如果该文件是小文件则将多余空间加入到per_cpu locality group预分配空间，如果是大文件则将多余空间加入到per inode预分配空间</span><br>    <span class="hljs-comment">// 这个标记是在ext4_mb_group_or_file()函数根据配置的判别文件是大文件还是小文件的配置项来置上的</span><br>	<span class="hljs-keyword">if</span> (ac-&gt;ac_flags &amp; EXT4_MB_HINT_GROUP_ALLOC)<br>		err = ext4_mb_new_group_pa(ac);<br>	<span class="hljs-keyword">else</span><br>		err = ext4_mb_new_inode_pa(ac);<br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shel">ext4_mb_new_blocks<br>ext4_mb_initialize_context<br>ext4_mb_group_or_file<br><br></code></pre></td></tr></table></figure>
+
+<img src="/2025/01/08/ext4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%A2%84%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6%EF%BC%88%E4%BD%9C%E5%BA%9F%EF%BC%89/image-20250108232139215.png" srcset="/img/loading.gif" lazyload alt="image-20250108232139215" style="zoom: 80%;">
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ext4文件系统预分配机制【作废】</div>
+      <div>http://example.com/2025/01/08/ext4文件系统预分配机制（作废）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年1月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/12/%E5%B4%A9%E6%BA%83%E4%BF%A1%E5%8F%B7%E8%AF%B4%E6%98%8E/" title="崩溃信号说明">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">崩溃信号说明</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/07/github%E6%8F%90%E4%BA%A4%E4%BB%A3%E7%A0%81%E6%85%A2%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E8%AE%B0%E5%BD%95/" title="github提交代码慢问题解决记录">
+                        <span class="hidden-mobile">github提交代码慢问题解决记录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

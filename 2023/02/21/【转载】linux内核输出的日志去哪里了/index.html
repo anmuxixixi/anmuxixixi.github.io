@@ -1,0 +1,829 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="linux内核输出的日志去哪里了 🍕转载自：https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s&#x2F;mdDLw6AIp9ws9LTaHg64pg 🥯感谢大佬精彩的文章！！！  我们可以根据这张图，来理解printk的整体架构。 1.printk实现简述1.1 内核态printk在内核编码时，如果想要输出一些信息，通常并不会直接使用printk，而是会使用其衍生函数，比如 pr_err &amp;#x2F">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【转载】linux内核输出的日志去哪里了">
+<meta property="og:url" content="http://example.com/2023/02/21/%E3%80%90%E8%BD%AC%E8%BD%BD%E3%80%91linux%E5%86%85%E6%A0%B8%E8%BE%93%E5%87%BA%E7%9A%84%E6%97%A5%E5%BF%97%E5%8E%BB%E5%93%AA%E9%87%8C%E4%BA%86/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="linux内核输出的日志去哪里了 🍕转载自：https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s&#x2F;mdDLw6AIp9ws9LTaHg64pg 🥯感谢大佬精彩的文章！！！  我们可以根据这张图，来理解printk的整体架构。 1.printk实现简述1.1 内核态printk在内核编码时，如果想要输出一些信息，通常并不会直接使用printk，而是会使用其衍生函数，比如 pr_err &amp;#x2F">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/02/21/%E3%80%90%E8%BD%AC%E8%BD%BD%E3%80%91linux%E5%86%85%E6%A0%B8%E8%BE%93%E5%87%BA%E7%9A%84%E6%97%A5%E5%BF%97%E5%8E%BB%E5%93%AA%E9%87%8C%E4%BA%86/image-20230221230542976.png">
+<meta property="article:published_time" content="2023-02-21T15:04:10.000Z">
+<meta property="article:modified_time" content="2023-02-21T15:35:06.784Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Kernel">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/02/21/%E3%80%90%E8%BD%AC%E8%BD%BD%E3%80%91linux%E5%86%85%E6%A0%B8%E8%BE%93%E5%87%BA%E7%9A%84%E6%97%A5%E5%BF%97%E5%8E%BB%E5%93%AA%E9%87%8C%E4%BA%86/image-20230221230542976.png">
+  
+  
+  
+  <title>【转载】linux内核输出的日志去哪里了 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【转载】linux内核输出的日志去哪里了"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-02-21 23:04" pubdate>
+          2023年2月21日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          38 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【转载】linux内核输出的日志去哪里了</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="linux内核输出的日志去哪里了"><a href="#linux内核输出的日志去哪里了" class="headerlink" title="linux内核输出的日志去哪里了"></a>linux内核输出的日志去哪里了</h1><blockquote>
+<p>🍕转载自：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/mdDLw6AIp9ws9LTaHg64pg">https://mp.weixin.qq.com/s/mdDLw6AIp9ws9LTaHg64pg</a></p>
+<p>🥯感谢大佬精彩的文章！！！</p>
+</blockquote>
+<p><img src="/2023/02/21/%E3%80%90%E8%BD%AC%E8%BD%BD%E3%80%91linux%E5%86%85%E6%A0%B8%E8%BE%93%E5%87%BA%E7%9A%84%E6%97%A5%E5%BF%97%E5%8E%BB%E5%93%AA%E9%87%8C%E4%BA%86/image-20230221230542976.png" srcset="/img/loading.gif" lazyload alt="image-20230221230542976">我们可以根据这张图，来理解printk的整体架构。</p>
+<h2 id="1-printk实现简述"><a href="#1-printk实现简述" class="headerlink" title="1.printk实现简述"></a>1.printk实现简述</h2><h3 id="1-1-内核态printk"><a href="#1-1-内核态printk" class="headerlink" title="1.1 内核态printk"></a>1.1 内核态printk</h3><p>在内核编码时，如果想要输出一些信息，通常并不会直接使用printk，而是会使用其衍生函数，比如 pr_err &#x2F; pr_info &#x2F; pr_debug 等，这些衍生函数附带了日志级别、所属模块等其他信息，比较友好，但其最终还是调用了printk。</p>
+<p>printk函数会将每次输出的日志，放到内核为其专门分配的名为<strong>ring buffer</strong>的一个槽位里。</p>
+<ul>
+<li><p>ring buffer其实就是一个用数组实现的环形队列，不过既然是环形队列，就会有一个问题，即当ring buffer满了的时候，下一条新的日志，会覆盖最开始的旧的日志。</p>
+</li>
+<li><p>ring buffer的大小，可以通过内核参数来修改。</p>
+</li>
+<li><p>printk在将日志放到ring buffer后，会再调用系统console的相关方法，将还未输出到系统控制台的消息，继续输出到控制台，这个后面会详细说，这里就暂不赘述。</p>
+</li>
+</ul>
+<p>以上就是printk在内核态的实现。</p>
+<h3 id="1-2-用户态printk"><a href="#1-2-用户态printk" class="headerlink" title="1.2 用户态printk"></a>1.2 用户态printk</h3><p>在用户态，我们有几个方式，可以查看printk输出的内核日志，比如使用dmesg命令，cat &#x2F;proc&#x2F;kmsg文件，或者是使用klogctl函数等，这些方式分别对应于全景图中用户态的橙色、绿色、和蓝色的部分。</p>
+<p><strong>（1）dmesg命令</strong></p>
+<p><strong>dmesg命令，在默认情况下，是通过读取&#x2F;dev&#x2F;kmsg文件</strong>，来实现查看内核日志的。</p>
+<p>当该命令运行时，dmesg会先调用open函数，打开&#x2F;dev&#x2F;kmsg文件，该打开操作在内核中的逻辑，会为dmesg分配一个file实例，在这个file实例里，会有一个seq变量，该变量记录着下一条要读取的内核日志在ring buffer中的位置。</p>
+<p>刚打开&#x2F;dev&#x2F;kmsg文件时，这个seq指向的就是ring buffer中最开始的那条日志。</p>
+<p>之后，dmesg会以打开的&#x2F;dev&#x2F;kmsg文件为媒介，不断的调用read函数，从内核中读取日志消息，每读取出一条，seq的值都会加一，即指向下一条日志的位置，依次往复，直到所有的内核日志读取完毕，dmesg退出。</p>
+<p>以上就是dmesg的主体实现。</p>
+<p><strong>（2）cat &#x2F;proc&#x2F;kmsg 命令</strong></p>
+<p>第二种查看内核日志的方式，是通过 cat &#x2F;proc&#x2F;kmsg 命令。</p>
+<p>该命令和dmesg命令的实现机制基本类似，都是通过读文件，只不过cat读取的是&#x2F;proc&#x2F;kmsg文件，而dmesg读取的是&#x2F;dev&#x2F;kmsg文件。</p>
+<p>读取这两个文件最大的区别是，&#x2F;dev&#x2F;kmsg文件每次打开时，内核都会为其分配一个单独的seq变量，而&#x2F;proc&#x2F;kmsg文件每次打开时，用的都是同一个全局的静态seq变量，叫做syslog_seq。</p>
+<p>syslog_seq指向的也是下一条要读取的内核日志在ring buffer中的位置，但因为它是一个全局的静态变量，当有多个进程要读取&#x2F;proc&#x2F;kmsg文件时，就会有一个比较严重的问题，即内核日志会被这几个进程随机抢占读取，也就是说，每个进程读到的都是整个内核日志的一部分，是不完整的，这也是dmesg命令默认不使用&#x2F;proc&#x2F;kmsg文件的原因。</p>
+<p><strong>（3）klogctl函数</strong></p>
+<p>第三种查看内核日志的方式，是通过klogctl函数。</p>
+<p>该函数是glibc对syslog系统调用的一个简单封装，其具体使用方式，可以参考全景图中用户态的蓝色部分。</p>
+<p>klogctl函数可以指定很多命令，在上图的示例中，我们使用的是SYSLOG_ACTION_READ命令，以此来模拟 cat &#x2F;proc&#x2F;kmsg 行为。</p>
+<p>其实在内核层面，cat &#x2F;proc&#x2F;kmsg命令，使用的就是klogctl对应的syslog系统调用的SYSLOG_ACTION_READ命令的处理逻辑，所以示例中的klogctl函数相关代码，和 cat &#x2F;proc&#x2F;kmsg 命令其实是等价的。</p>
+<p>也就是说，klogctl函数在内核里使用的也是syslog_seq变量，它也有和&#x2F;proc&#x2F;kmsg文件同样的问题。</p>
+<p><strong>（4）系统控制台</strong></p>
+<p>其实还有一种方式可以查看内核日志，就是通过系统控制台。</p>
+<p>但这种方式和前面讲的三种方式都不一样，它是完全被动的，是内核在调用printk函数，将日志信息放到ring buffer后，再去通知系统控制台，告知其可以输出这些日志。</p>
+<p>系统控制台也是通过一个console_seq变量，记录下一条要输出内核日志的所在位置。</p>
+<p>系统控制台输出的内容，是被日志级别过滤过的，内核默认的日志过滤级别是7，即debug级别以上的日志，比如info &#x2F; err 等，这些都会输出，但debug级别不会输出。</p>
+<p>该日志过滤级别，可以通过很多方式改变，比如说，可以通过内核参数 loglevel，所以，如果发现系统控制台没有输出想要的日志信息，先看下其是否被过滤掉了。</p>
+<h2 id="2-kernel日志调试设置"><a href="#2-kernel日志调试设置" class="headerlink" title="2.kernel日志调试设置"></a>2.kernel日志调试设置</h2><h3 id="2-1-查看日志级别"><a href="#2-1-查看日志级别" class="headerlink" title="2.1 查看日志级别"></a>2.1 查看日志级别</h3><p>输入<code>cat proc/sys/kernel/printk</code></p>
+<p>这四个数字依次对应 console_loglevel，default_message_loglevel，minimum_console_loglevel，default_console_loglevel。</p>
+<ul>
+<li><p><strong>console_loglevel：</strong>控制台使用的日志级别；</p>
+</li>
+<li><p><strong>default_message_loglevel：</strong>调用 printk() 未指定日志级别时使用的日志级别；</p>
+</li>
+<li><p><strong>minimum_console_loglevel：</strong>允许设置的控制台日志级别（console_loglevel）最小值；</p>
+</li>
+<li><p><strong>default_console_loglevel：</strong>系统启动时使用的日志级别。</p>
+</li>
+</ul>
+<h3 id="2-2-修改kernel日志级别"><a href="#2-2-修改kernel日志级别" class="headerlink" title="2.2 修改kernel日志级别"></a>2.2 修改kernel日志级别</h3><p>（1）最直接的方法就是：<code>echo xxx &gt; proc/sys/kernel/printk</code>，其余方式参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_34597963/article/details/128669281">https://blog.csdn.net/qq_34597963/article/details/128669281</a></p>
+<p>日志级别如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">define KERN_EMERG      KERN_SOH <span class="hljs-string">&quot;0&quot;</span>    /* system is unusable */</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">define KERN_ALERT      KERN_SOH <span class="hljs-string">&quot;1&quot;</span>    /* action must be taken immediately */</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">define KERN_CRIT       KERN_SOH <span class="hljs-string">&quot;2&quot;</span>    /* critical conditions */</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">define KERN_ERR        KERN_SOH <span class="hljs-string">&quot;3&quot;</span>    /* error conditions */</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">define KERN_WARNING    KERN_SOH <span class="hljs-string">&quot;4&quot;</span>    /* warning conditions */</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">define KERN_NOTICE     KERN_SOH <span class="hljs-string">&quot;5&quot;</span>    /* normal but significant condition */</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">define KERN_INFO       KERN_SOH <span class="hljs-string">&quot;6&quot;</span>    /* informational */</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">define KERN_DEBUG      KERN_SOH <span class="hljs-string">&quot;7&quot;</span>    /* debug-level messages */</span><br><br>-----------------<br><br>致命级(KERN_EMESG),<br>警戒级(KERN_ALERT),<br>临界级(KERN_CRIT),<br>错误级(KERN_ERR),<br>告警级(KERN_WARN)<br>注意级(KERN_NOTICE),<br>通知级(KERN_INFO),<br>调试级(KERN_DEBUG).<br></code></pre></td></tr></table></figure>
+
+<p>（2）在kernel中修改log默认等级</p>
+<p>找到<code>/include/linux/printk.h</code>，在下面这个函数中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">console_verbose</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br></code></pre></td></tr></table></figure>
+
+<p>修改</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">console_loglevel = CONSOLE_LOGLEVEL_MIN; <span class="hljs-comment">//CONSOLE_LOGLEVEL_MOTORMOUTH;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-3-Android-Init进程日志打印不全"><a href="#2-3-Android-Init进程日志打印不全" class="headerlink" title="2.3 Android Init进程日志打印不全"></a>2.3 Android Init进程日志打印不全</h3><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/superlee1125/article/details/114099144?spm=1001.2014.3001.5506">https://blog.csdn.net/superlee1125/article/details/114099144?spm=1001.2014.3001.5506</a></p>
+</blockquote>
+<p>在抓Android内核的log时，init进程的log往往打印不全，这是因为内核限制了log的输出，在内核代码中找到下面的文件，并按照下面的提示把代码注释掉，然后重新编译内核，再刷到设备中，init进程的打印就完整了。</p>
+<p>内核代码中找到这个文件 <code>kernel/printk/printk.c</code>，在下面这个函数中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">devkmsg_write</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> kiocb *iocb, <span class="hljs-keyword">struct</span> iov_iter *from)</span><br></code></pre></td></tr></table></figure>
+
+<p>注释掉下面这两句话：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">    <span class="hljs-comment">/* Ratelimit when not explicitly enabled. */</span><br>    <span class="hljs-keyword">if</span> (!(devkmsg_log &amp; DEVKMSG_LOG_MASK_ON)) &#123;<br>-       <span class="hljs-keyword">if</span> (!___ratelimit(&amp;user-&gt;rs, current-&gt;comm))<br>-           <span class="hljs-keyword">return</span> ret;<br>+       <span class="hljs-comment">//if (!___ratelimit(&amp;user-&gt;rs, current-&gt;comm))</span><br>+           <span class="hljs-comment">//return ret;</span><br>    &#125;<br>    buf = kmalloc(len+<span class="hljs-number">1</span>, GFP_KERNEL);<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-4-Android修改日志级别"><a href="#2-4-Android修改日志级别" class="headerlink" title="2.4 Android修改日志级别"></a>2.4 Android修改日志级别</h3><p>以Android 10.0 qcom平台为例，修改如下：<code>device/qcom/common/rootdir/etc/init.qcom.sh</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">case &quot;$buildvariant&quot; in<br>    &quot;userdebug&quot; | &quot;eng&quot;)<br>        #set default loglevel to KERN_INFO<br>        echo &quot;6 6 1 7&quot; &gt; /proc/sys/kernel/printk  ##### 根据需要进行修改<br><br>        ;;<br>    *)<br>        #set default loglevel to KERN_WARNING<br>        echo &quot;4 4 1 4&quot; &gt; /proc/sys/kernel/printk<br>        ;;<br>esac<br><br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Linux学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Kernel/">#Kernel</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【转载】linux内核输出的日志去哪里了</div>
+      <div>http://example.com/2023/02/21/【转载】linux内核输出的日志去哪里了/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年2月21日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/02/25/kernel%E4%B8%8B%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BAconsole%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0/" title="kernel下输入输出console如何实现">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">kernel下输入输出console如何实现</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/02/19/Android%E9%80%9A%E7%94%A8%E5%86%85%E6%A0%B8GKI/" title="Android通用内核GKI">
+                        <span class="hidden-mobile">Android通用内核GKI</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

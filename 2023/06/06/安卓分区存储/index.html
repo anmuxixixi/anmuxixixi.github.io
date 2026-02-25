@@ -1,0 +1,826 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="安卓分区存储 版权声明：本文为CSDN博主「guolin」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。原文链接：https:&#x2F;&#x2F;blog.csdn.net&#x2F;guolin_blog&#x2F;article&#x2F;details&#x2F;105419420&#x2F;  ⭐分区存储的前提是解决SD卡存储的问题，也就是外部存储的问题，所以不涉及原本的安卓内部存储。 1.理解分区存储Android长">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安卓分区存储">
+<meta property="og:url" content="http://example.com/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="安卓分区存储 版权声明：本文为CSDN博主「guolin」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。原文链接：https:&#x2F;&#x2F;blog.csdn.net&#x2F;guolin_blog&#x2F;article&#x2F;details&#x2F;105419420&#x2F;  ⭐分区存储的前提是解决SD卡存储的问题，也就是外部存储的问题，所以不涉及原本的安卓内部存储。 1.理解分区存储Android长">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/image-20230606225153789.png">
+<meta property="og:image" content="http://example.com/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/20200409205348955.gif">
+<meta property="og:image" content="http://example.com/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/20200409205454790.gif">
+<meta property="og:image" content="http://example.com/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/20200409205714266.gif">
+<meta property="og:image" content="http://example.com/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/20200409205805627.gif">
+<meta property="article:published_time" content="2023-06-06T13:58:28.000Z">
+<meta property="article:modified_time" content="2023-06-06T14:59:46.036Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/image-20230606225153789.png">
+  
+  
+  
+  <title>安卓分区存储 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="安卓分区存储"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-06 21:58" pubdate>
+          2023年6月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          77 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">安卓分区存储</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="安卓分区存储"><a href="#安卓分区存储" class="headerlink" title="安卓分区存储"></a>安卓分区存储</h1><blockquote>
+<p>版权声明：本文为CSDN博主「guolin」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/guolin_blog/article/details/105419420/">https://blog.csdn.net/guolin_blog/article/details/105419420/</a></p>
+</blockquote>
+<p>⭐<strong>分区存储的前提是解决SD卡存储的问题，也就是外部存储的问题，所以不涉及原本的安卓内部存储。</strong></p>
+<h2 id="1-理解分区存储"><a href="#1-理解分区存储" class="headerlink" title="1.理解分区存储"></a>1.理解分区存储</h2><p>Android长久以来都支持外置存储空间这个功能，也就是我们常说的SD卡存储。这个功能使用得极其广泛，几乎所有的App都喜欢在SD卡的根目录下建立一个自己专属的目录，用来存放各类文件和数据。</p>
+<p>那么这么做有什么好处吗？我想了一下，大概有两点吧。第一，存储在SD卡的文件不会计入到应用程序的占用空间当中，也就是说即使你在SD卡存放了1G的文件，你的应用程序在设置中显示的占用空间仍然可能只有几十K。第二，存储在SD卡的文件，即使应用程序被卸载了，这些文件仍然会被保留下来，这有助于实现一些需要数据被永久保留的功能。</p>
+<p>然而，这些“好处”真的是好处吗？或 许对于开发者而言这算是好处吧，但对于用户而言，上述好处无异于一些流氓行为。因为这会将用户的SD卡空间搞得乱糟糟的，而且即使我卸载了一个完全不再使用的程序，它所产生的垃圾文件却可能会一直保留在我的手机上。</p>
+<p>另外，存储在SD卡上的文件属于公有文件，所有的应用程序都有权随意访问，这也对数据的安全性带来了很大的挑战。</p>
+<p>为了解决上述问题，Google在Android 10当中加入了作用域存储功能。</p>
+<p>那么到底什么是作用域存储呢？简单来讲，就是Android系统对SD卡的使用做了很大的限制。**从Android 10开始，每个应用程序只能有权在自己的外置存储空间关联目录下读取和创建文件，获取该关联目录的代码是：context.getExternalFilesDir()**。关联目录对应的路径大致如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">/storage/emulated/<span class="hljs-number">0</span>/Android/data/&lt;包名&gt;/files<br></code></pre></td></tr></table></figure>
+
+<p>将数据存放到这个目录下，你将可以完全使用之前的写法来对文件进行读写，不需要做任何变更和适配。但同时，刚才提到的那两个“好处”也就不存在了。这个目录中的文件会被计入到应用程序的占用空间当中，同时也会随着应用程序的卸载而被删除。</p>
+<p>那么有些朋友可能会问了，我就是需要访问其他目录该怎么办呢？比如读取手机相册中的图片，或者向手机相册中添加一张图片。为此，Android系统针对文件类型进行了分类，图片、音频、视频这三类文件将可以通过MediaStore API来进行访问，而其他类型的文件则需要使用系统的文件选择器来进行访问。</p>
+<p>另外，<strong>我们的应用程序向媒体库贡献的图片、音频或视频，将会自动拥有其读写权限</strong>，不需要额外申请READ_EXTERNAL_STORAGE和WRITE_EXTERNAL_STORAGE权限。<strong>而如果你要读取其他应用程序向媒体库贡献的图片、音频或视频，则必须要申请READ_EXTERNAL_STORAGE权限才行</strong>。WRITE_EXTERNAL_STORAGE权限将会在未来的Android版本中废弃。</p>
+<p>好了，关于作用域存储的理论知识就先讲到这里，相信你已经对它有了一个基本的了解了，那么接下来我们就开始上手操作吧。</p>
+<hr>
+<p>还有一部分帖子也有这种说法，<strong>外卡（外部存储卷）， 只能访问所谓的共享文件夹，或者说公共目录。而且只能访问这些目录的多媒体文件(图片，视频，音频)。非多媒体文件只能通过系统文件选择器访问，无法像MediaStore一样列举了。</strong></p>
+<img src="/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/image-20230606225153789.png" srcset="/img/loading.gif" lazyload alt="image-20230606225153789" style="zoom:67%;">
+
+<h2 id="2-我一定要升级吗"><a href="#2-我一定要升级吗" class="headerlink" title="2.我一定要升级吗"></a>2.我一定要升级吗</h2><p>一定会有很多朋友关心这个问题，因为每当适配升级面临着需要更改大量代码的时候，大多数人的第一想法都是能不升就不升，或者能晚升就晚升。而在作用域存储这个功能上面，恭喜大家，暂时确实是可以不用升级的。</p>
+<p>目前Android 10系统对于作用域存储适配的要求还不是那么严格，毕竟之前传统外置存储空间的用法实在是太广泛了。如果你的项目指定的targetSdkVersion低于29，那么即使不做任何作用域存储方面的适配，你的项目也可以成功运行到Android 10手机上。</p>
+<p>而如果你的targetSdkVersion已经指定成了29，也没有关系，假如你还不想进行作用域存储的适配，只需要在AndroidManifest.xml中加入如下配置即可：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">manifest</span> <span class="hljs-attr">...</span> &gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">application</span> <span class="hljs-attr">android:requestLegacyExternalStorage</span>=<span class="hljs-string">&quot;true&quot;</span> <span class="hljs-attr">...</span>&gt;</span><br>    ...<br>  <span class="hljs-tag">&lt;/<span class="hljs-name">application</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">manifest</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>这段配置表示，即使在Android 10系统上，仍然允许使用之前遗留的外置存储空间的用法来运行程序，这样就不用对代码进行任何修改了。当然，这只是一种权宜之计，在未来的Android系统版本中，这段配置随时都可能会失效（Android 11中已强制启用作用域存储，这段配置在Android 11当中已不再有效）。因此，我们还是非常有必要现在就来学习一下，到底该如何对作用域存储进行适配。</p>
+<p>另外，本篇文章中演示的所有示例，都可以到ScopedStorageDemo这个开源库中找到其对应的源码。</p>
+<p>开源库地址是：<a target="_blank" rel="noopener" href="https://github.com/guolindev/ScopedStorageDemo">https://github.com/guolindev/ScopedStorageDemo</a></p>
+<h2 id="3-获取相册中的图片"><a href="#3-获取相册中的图片" class="headerlink" title="3.获取相册中的图片"></a>3.获取相册中的图片</h2><p>首先来学习一下如何在作用域存储当中获取手机相册里的图片。注意，虽然本篇文章中我是以图片来举例的，但是获取音频、视频的用法也是基本相同的。</p>
+<p>不同于过去可以直接获取到相册中图片的绝对路径，在作用域存储当中，我们只能借助MediaStore API获取到图片的Uri，示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">val</span> <span class="hljs-variable">cursor</span> <span class="hljs-operator">=</span> contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;$&#123;MediaStore.MediaColumns.DATE_ADDED&#125; desc&quot;</span>)<br><span class="hljs-keyword">if</span> (cursor != <span class="hljs-literal">null</span>) &#123;<br>    <span class="hljs-keyword">while</span> (cursor.moveToNext()) &#123;<br>        <span class="hljs-type">val</span> <span class="hljs-variable">id</span> <span class="hljs-operator">=</span> cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID))<br>        <span class="hljs-type">val</span> <span class="hljs-variable">uri</span> <span class="hljs-operator">=</span> ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)<br>        println(<span class="hljs-string">&quot;image uri is $uri&quot;</span>)<br>    &#125;<br>	cursor.close()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上述代码中，我们先是通过ContentResolver获取到了相册中所有图片的id，然后再借助ContentUris将id拼装成一个完整的Uri对象。一张图片的Uri格式大致如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">content:<span class="hljs-comment">//media/external/images/media/321</span><br></code></pre></td></tr></table></figure>
+
+<p>那么有些朋友可能会问了，获取到了Uri之后，我又该怎样将这张图片显示出来呢？这就有很多种办法了，比如使用Glide来加载图片，它本身就支持传入Uri对象来作为图片路径：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">Glide.with(context).load(uri).into(imageView)<br></code></pre></td></tr></table></figure>
+
+<p>而如果你没有使用Glide或其他图片加载框架，想在不借助第三方库的情况下直接将一个Uri对象解析成图片，可以使用如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">val</span> <span class="hljs-variable">fd</span> <span class="hljs-operator">=</span> contentResolver.openFileDescriptor(uri, <span class="hljs-string">&quot;r&quot;</span>)<br><span class="hljs-keyword">if</span> (fd != <span class="hljs-literal">null</span>) &#123;<br>    <span class="hljs-type">val</span> <span class="hljs-variable">bitmap</span> <span class="hljs-operator">=</span> BitmapFactory.decodeFileDescriptor(fd.fileDescriptor)<br>	fd.close()<br>    imageView.setImageBitmap(bitmap)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上述代码中，我们调用了ContentResolver的openFileDescriptor()方法，并传入Uri对象来打开文件句柄，然后再调用BitmapFactory的decodeFileDescriptor()方法将文件句柄解析成Bitmap对象即可。</p>
+<img src="/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/20200409205348955.gif" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 80%;">
+
+<h2 id="4-将图片添加到相册"><a href="#4-将图片添加到相册" class="headerlink" title="4.将图片添加到相册"></a>4.将图片添加到相册</h2><p>将一张图片添加到手机相册要相对稍微复杂一点，因为不同系统版本之间的处理方式是不太一样的。</p>
+<p>我们还是通过一段代码示例来直观地学习一下，代码如下所示：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">addBitmapToAlbum</span><span class="hljs-params">(bitmap: <span class="hljs-type">Bitmap</span>, displayName: <span class="hljs-type">String</span>, mimeType: <span class="hljs-type">String</span>, compressFormat: <span class="hljs-type">Bitmap</span>.<span class="hljs-type">CompressFormat</span>)</span></span> &#123;<br>    <span class="hljs-keyword">val</span> values = ContentValues()<br>    values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)<br>    values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType)<br>    <span class="hljs-keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.Q) &#123;<br>        values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM)<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        values.put(MediaStore.MediaColumns.DATA, <span class="hljs-string">&quot;<span class="hljs-subst">$&#123;Environment.getExternalStorageDirectory().path&#125;</span>/<span class="hljs-subst">$&#123;Environment.DIRECTORY_DCIM&#125;</span>/<span class="hljs-variable">$displayName</span>&quot;</span>)<br>    &#125;<br>    <span class="hljs-keyword">val</span> uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)<br>    <span class="hljs-keyword">if</span> (uri != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">val</span> outputStream = contentResolver.openOutputStream(uri)<br>        <span class="hljs-keyword">if</span> (outputStream != <span class="hljs-literal">null</span>) &#123;<br>            bitmap.compress(compressFormat, <span class="hljs-number">100</span>, outputStream)<br>			outputStream.close()<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这段代码演示了如何将一个Bitmap对象添加到手机相册当中，我来简单解释一下。</p>
+<p>想要将一张图片添加到手机相册，我们需要构建一个ContentValues对象，然后向这个对象中添加三个重要的数据。一个是DISPLAY_NAME，也就是图片显示的名称，一个是MIME_TYPE，也就是图片的mime类型。还有一个是图片存储的路径，不过这个值在Android 10和之前的系统版本中的处理方式不一样。Android 10中新增了一个RELATIVE_PATH常量，表示文件存储的相对路径，可选值有DIRECTORY_DCIM、DIRECTORY_PICTURES、DIRECTORY_MOVIES、DIRECTORY_MUSIC等，分别表示相册、图片、电影、音乐等目录。而在之前的系统版本中并没有RELATIVE_PATH，所以我们要使用DATA常量（已在Android 10中废弃），并拼装出一个文件存储的绝对路径才行。</p>
+<p>有了ContentValues对象之后，接下来调用ContentResolver的insert()方法即可获得插入图片的Uri。但仅仅获得Uri仍然是不够的，我们还需要向该Uri所对应的图片写入数据才行。调用ContentResolver的openOutputStream()方法获得文件的输出流，然后将Bitmap对象写入到该输出流当中即可。</p>
+<p>以上代码即可实现将Bitmap对象存储到手机相册当中，那么有些朋友可能会问了，如果我要存储的图片并不是Bitmap对象，而是一张网络上的图片，或者是当前应用关联目录下的图片该怎么办呢？</p>
+<p>其实方法都是相似的，因为不管是网络上的图片还是关联目录下的图片，我们都能获取到它的输入流，只要不断读取输入流中的数据，然后写入到相册图片所对应的输出流当中就可以了，示例代码如下：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">writeInputStreamToAlbum</span><span class="hljs-params">(inputStream: <span class="hljs-type">InputStream</span>, displayName: <span class="hljs-type">String</span>, mimeType: <span class="hljs-type">String</span>)</span></span> &#123;<br>    <span class="hljs-keyword">val</span> values = ContentValues()<br>    values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)<br>    values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType)<br>    <span class="hljs-keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.Q) &#123;<br>        values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM)<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        values.put(MediaStore.MediaColumns.DATA, <span class="hljs-string">&quot;<span class="hljs-subst">$&#123;Environment.getExternalStorageDirectory().path&#125;</span>/<span class="hljs-subst">$&#123;Environment.DIRECTORY_DCIM&#125;</span>/<span class="hljs-variable">$displayName</span>&quot;</span>)<br>    &#125;<br>    <span class="hljs-keyword">val</span> bis = BufferedInputStream(inputStream)<br>    <span class="hljs-keyword">val</span> uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)<br>    <span class="hljs-keyword">if</span> (uri != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">val</span> outputStream = contentResolver.openOutputStream(uri)<br>        <span class="hljs-keyword">if</span> (outputStream != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">val</span> bos = BufferedOutputStream(outputStream)<br>            <span class="hljs-keyword">val</span> buffer = ByteArray(<span class="hljs-number">1024</span>)<br>            <span class="hljs-keyword">var</span> bytes = bis.read(buffer)<br>            <span class="hljs-keyword">while</span> (bytes &gt;= <span class="hljs-number">0</span>) &#123;<br>                bos.write(buffer, <span class="hljs-number">0</span> , bytes)<br>                bos.flush()<br>                bytes = bis.read(buffer)<br>            &#125;<br>            bos.close()<br>        &#125;<br>    &#125;<br>    bis.close()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这段代码中只是将输入流和输出流的部分重新编写了一下，其他部分和之前存储Bitmap的代码是完全一致的，相信很好理解。</p>
+<img src="/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/20200409205454790.gif" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<h2 id="5-下载文件到Download目录"><a href="#5-下载文件到Download目录" class="headerlink" title="5.下载文件到Download目录"></a>5.下载文件到Download目录</h2><p>执行文件下载操作是一个很常见的场景，比如说下载pdf、doc文件，或者下载APK安装包等等。在过去，这些文件我们通常都会下载到Download目录，这是一个专门用于存放下载文件的目录。而从Android 10开始，我们已经不能以绝对路径的方式访问外置存储空间了，所以文件下载功能也会受到影响。</p>
+<p>那么该如何解决呢？主要有以下两种方式。</p>
+<p>第一种同时也是最简单的一种方式，就是更改文件的下载目录。将文件下载到应用程序的关联目录下，这样不用修改任何代码就可以让程序在Android 10系统上正常工作。但使用这种方式，你需要知道，下载的文件会被计入到应用程序的占用空间当中，同时如果应用程序被卸载了，该文件也会一同被删除。另外，存放在关联目录下的文件只能被当前的应用程序所访问，其他程序是没有读取权限的。</p>
+<p>以上几个限制条件如果不能满足你的需求，那么就只能使用第二种方式，对Android 10系统进行代码适配，仍然将文件下载到Download目录下。</p>
+<p>其实将文件下载到Download目录，和向相册中添加一张图片的过程是差不多的，Android 10在MediaStore中新增了一种Downloads集合，专门用于执行文件下载操作。但由于每个项目下载功能的实现都各不相同，有些项目的下载实现还十分复杂，因此怎么将以下的示例代码融合到你的项目当中是你自己需要思考的问题。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">downloadFile</span><span class="hljs-params">(fileUrl: <span class="hljs-type">String</span>, fileName: <span class="hljs-type">String</span>)</span></span> &#123;<br>    <span class="hljs-keyword">if</span> (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.Q) &#123;<br>        Toast.makeText(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;You must use device running Android 10 or higher&quot;</span>, Toast.LENGTH_SHORT).show()<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    thread &#123;<br>		<span class="hljs-keyword">try</span> &#123;<br>			<span class="hljs-keyword">val</span> url = URL(fileUrl)<br>			<span class="hljs-keyword">val</span> connection = url.openConnection() <span class="hljs-keyword">as</span> HttpURLConnection<br>			connection.requestMethod = <span class="hljs-string">&quot;GET&quot;</span><br>			connection.connectTimeout = <span class="hljs-number">8000</span><br>			connection.readTimeout = <span class="hljs-number">8000</span><br>			<span class="hljs-keyword">val</span> inputStream = connection.inputStream<br>			<span class="hljs-keyword">val</span> bis = BufferedInputStream(inputStream)<br>			<span class="hljs-keyword">val</span> values = ContentValues()<br>			values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)<br>			values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)<br>			<span class="hljs-keyword">val</span> uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)<br>			<span class="hljs-keyword">if</span> (uri != <span class="hljs-literal">null</span>) &#123;<br>				<span class="hljs-keyword">val</span> outputStream = contentResolver.openOutputStream(uri)<br>				<span class="hljs-keyword">if</span> (outputStream != <span class="hljs-literal">null</span>) &#123;<br>					<span class="hljs-keyword">val</span> bos = BufferedOutputStream(outputStream)<br>					<span class="hljs-keyword">val</span> buffer = ByteArray(<span class="hljs-number">1024</span>)<br>					<span class="hljs-keyword">var</span> bytes = bis.read(buffer)<br>					<span class="hljs-keyword">while</span> (bytes &gt;= <span class="hljs-number">0</span>) &#123;<br>						bos.write(buffer, <span class="hljs-number">0</span> , bytes)<br>						bos.flush()<br>						bytes = bis.read(buffer)<br>					&#125;<br>					bos.close()<br>				&#125;<br>			&#125;<br>			bis.close()<br>		&#125; <span class="hljs-keyword">catch</span>(e: Exception) &#123;<br>			e.printStackTrace()<br>		&#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这段代码总体来讲还是比较好理解的，主要就是添加了一些Http请求的代码，并将MediaStore.Images.Media改成了MediaStore.Downloads，其他部分几乎是没有变化的，我就不再多加解释了。</p>
+<p>注意，上述代码只能在Android 10或更高的系统版本上运行，因为MediaStore.Downloads是Android 10中新增的API。至于Android 9及以下的系统版本，请你仍然使用之前的代码来进行文件下载。</p>
+<img src="/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/20200409205714266.gif" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<h2 id="6-使用文件选择器"><a href="#6-使用文件选择器" class="headerlink" title="6.使用文件选择器"></a>6.使用文件选择器</h2><p>如果我们要读取SD卡上非图片、音频、视频类的文件，比如说打开一个PDF文件，这个时候就不能再使用MediaStore API了，而是要使用文件选择器。</p>
+<p>但是，我们不能再像之前的写法那样，自己写一个文件浏览器，然后从中选取文件，而是必须要使用手机系统中内置的文件选择器。示例代码如下：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-keyword">const</span> <span class="hljs-keyword">val</span> PICK_FILE = <span class="hljs-number">1</span><br><br><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">pickFile</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">val</span> intent = Intent(Intent.ACTION_OPEN_DOCUMENT)<br>    intent.addCategory(Intent.CATEGORY_OPENABLE)<br>    intent.type = <span class="hljs-string">&quot;*/*&quot;</span><br>    startActivityForResult(intent, PICK_FILE)<br>&#125;<br><br><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">onActivityResult</span><span class="hljs-params">(requestCode: <span class="hljs-type">Int</span>, resultCode: <span class="hljs-type">Int</span>, <span class="hljs-keyword">data</span>: <span class="hljs-type">Intent</span>?)</span></span> &#123;<br>    <span class="hljs-keyword">super</span>.onActivityResult(requestCode, resultCode, <span class="hljs-keyword">data</span>)<br>    <span class="hljs-keyword">when</span> (requestCode) &#123;<br>        PICK_FILE -&gt; &#123;<br>            <span class="hljs-keyword">if</span> (resultCode == Activity.RESULT_OK &amp;&amp; <span class="hljs-keyword">data</span> != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-keyword">val</span> uri = <span class="hljs-keyword">data</span>.<span class="hljs-keyword">data</span><br>                <span class="hljs-keyword">if</span> (uri != <span class="hljs-literal">null</span>) &#123;<br>                    <span class="hljs-keyword">val</span> inputStream = contentResolver.openInputStream(uri)<br>					<span class="hljs-comment">// 执行文件读取操作</span><br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里在pickFile()方法当中通过Intent去启动系统的文件选择器，注意Intent的action和category都是固定不变的。而type属性可以用于对文件类型进行过滤，比如指定成image&#x2F;就可以只显示图片类型的文件，这里写成&#x2F;*表示显示所有类型的文件。注意type属性必须要指定，否则会产生崩溃。</p>
+<p>然后在onActivityResult()方法当中，我们就可以获取到用户选中文件的Uri，之后通过ContentResolver打开文件输入流来进行读取就可以了。</p>
+<img src="/2023/06/06/%E5%AE%89%E5%8D%93%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8/20200409205805627.gif" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Android学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>安卓分区存储</div>
+      <div>http://example.com/2023/06/06/安卓分区存储/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/06/06/Android-12%E5%A4%9A%E7%94%A8%E6%88%B7%E6%9C%BA%E5%88%B6%E4%B8%AD%E7%9A%84%E8%BF%9E%E6%8E%A5%E4%B8%8E%E4%BC%9A%E8%AF%9D/" title="Android 12多用户机制中的连接与会话">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android 12多用户机制中的连接与会话</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/04/Android%E5%8A%A0%E5%AF%86%E4%B9%8B%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86/" title="Android加密之文件级加密">
+                        <span class="hidden-mobile">Android加密之文件级加密</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

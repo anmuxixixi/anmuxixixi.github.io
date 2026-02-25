@@ -1,0 +1,853 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文件系统mount过程 🍒 环境：内核版本4.5 🍉 说明：参考https:&#x2F;&#x2F;blog.csdn.net&#x2F;zr_lang&#x2F;article&#x2F;details&#x2F;39963253，非常感谢，收获颇丰  从用户下发mount指令到具体的文件系统进行挂载，大致经历了下面的步骤【以f2fs文件系统为例】。   1.每个人该有的样子file_system_type每个人在冲浪的都有自己的昵称，自己的个性标签">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文件系统mount过程">
+<meta property="og:url" content="http://example.com/2023/03/09/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fmount%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="文件系统mount过程 🍒 环境：内核版本4.5 🍉 说明：参考https:&#x2F;&#x2F;blog.csdn.net&#x2F;zr_lang&#x2F;article&#x2F;details&#x2F;39963253，非常感谢，收获颇丰  从用户下发mount指令到具体的文件系统进行挂载，大致经历了下面的步骤【以f2fs文件系统为例】。   1.每个人该有的样子file_system_type每个人在冲浪的都有自己的昵称，自己的个性标签">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/03/09/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fmount%E8%BF%87%E7%A8%8B/image-20230309225903725.png">
+<meta property="og:image" content="http://example.com/2023/03/09/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fmount%E8%BF%87%E7%A8%8B/image-20230309230859994.png">
+<meta property="article:published_time" content="2023-03-09T14:46:40.000Z">
+<meta property="article:modified_time" content="2023-03-12T15:56:07.196Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/03/09/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fmount%E8%BF%87%E7%A8%8B/image-20230309225903725.png">
+  
+  
+  
+  <title>文件系统mount过程 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="文件系统mount过程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-09 22:46" pubdate>
+          2023年3月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          105 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">文件系统mount过程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="文件系统mount过程"><a href="#文件系统mount过程" class="headerlink" title="文件系统mount过程"></a>文件系统mount过程</h1><blockquote>
+<p>🍒 <strong>环境</strong>：内核版本4.5</p>
+<p>🍉 <strong>说明</strong>：参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/zr_lang/article/details/39963253%EF%BC%8C%E9%9D%9E%E5%B8%B8%E6%84%9F%E8%B0%A2%EF%BC%8C%E6%94%B6%E8%8E%B7%E9%A2%87%E4%B8%B0">https://blog.csdn.net/zr_lang/article/details/39963253，非常感谢，收获颇丰</a></p>
+</blockquote>
+<p>从用户下发mount指令到具体的文件系统进行挂载，大致经历了下面的步骤【以<code>f2fs</code>文件系统为例】。</p>
+<img src="/2023/03/09/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fmount%E8%BF%87%E7%A8%8B/image-20230309225903725.png" srcset="/img/loading.gif" lazyload alt="image-20230309225903725" style="zoom: 67%;">
+
+<h2 id="1-每个人该有的样子file-system-type"><a href="#1-每个人该有的样子file-system-type" class="headerlink" title="1.每个人该有的样子file_system_type"></a>1.每个人该有的样子file_system_type</h2><p>每个人在冲浪的都有自己的昵称，自己的个性标签，这仿佛是每个人共同的样子，不妨将所有的文件系统也抽象成同一个样子表示<code>file_system_type</code>，每一个文件系统肯定有</p>
+<ul>
+<li>name: 文件系统的名字，如xfs, ext2等</li>
+<li>fs_flags: 说明文件系统的类型</li>
+<li>mount: 代替早期的get_sb()，用户挂载此文件系统时使用的回调函数。</li>
+<li>kill_sb: 删除内存中的super block，在卸载文件系统时使用。</li>
+<li>owner: 指向实现这个文件系统的模块，通常为THIS_MODULE宏。</li>
+<li>next: 指向文件系统类型链表的下一个文件系统类型。</li>
+<li>fs_supers: 具有同样此文件系统类型的超级块结构，都串连在这个表头下。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include\linux\fs.h</span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_system_type</span> &#123;</span><br>        <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name;<br>        <span class="hljs-type">int</span> fs_flags;<br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FS_REQUIRES_DEV         1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FS_BINARY_MOUNTDATA     2</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FS_HAS_SUBTYPE          4</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FS_USERNS_MOUNT         8       <span class="hljs-comment">/* Can be mounted by userns root */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FS_USERNS_DEV_MOUNT     16 <span class="hljs-comment">/* A userns mount does not imply MNT_NODEV */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FS_RENAME_DOES_D_MOVE   32768   <span class="hljs-comment">/* FS will handle d_move() during rename() internally. */</span></span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dentry</span> *(*<span class="hljs-title">mount</span>) (<span class="hljs-keyword">struct</span> <span class="hljs-title">file_system_type</span> *, <span class="hljs-title">int</span>, <span class="hljs-title">const</span> <span class="hljs-title">char</span> *, <span class="hljs-title">void</span> *);</span><br>        <span class="hljs-type">void</span> (*kill_sb) (<span class="hljs-keyword">struct</span> super_block *);<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">module</span> *<span class="hljs-title">owner</span>;</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_system_type</span> * <span class="hljs-title">next</span>;</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">hlist_head</span> <span class="hljs-title">fs_supers</span>;</span><br>       <span class="hljs-comment">// ....</span><br>        <span class="hljs-comment">//为了说明方便，此处省略若干锁相关变量。</span><br>        <span class="hljs-comment">//....</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在kernel的<code>/fs</code>有各种各样的文件系统，file_system_type结构一般被定义在super.c。下面以<strong>f2fs</strong>文件系统为例介绍一下他的<code>file_system_type</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// fs\f2fs\super.c</span><br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_system_type</span> <span class="hljs-title">f2fs_fs_type</span> =</span> &#123;<br>	.owner		= THIS_MODULE,<br>	.name		= <span class="hljs-string">&quot;f2fs&quot;</span>,<br>	.mount		= f2fs_mount,<br>	.kill_sb	= kill_f2fs_super,<br>	.fs_flags	= FS_REQUIRES_DEV,<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>owner说明f2fs模块本身拥有这个file_system_type。</p>
+</li>
+<li><p>name是f2fs。</p>
+</li>
+<li><p>fs_flags是FS_REQUIRES_DEV，表明f2fs一定要被使用在物理设备上。</p>
+</li>
+<li><p>mount是f2fs_mount，说明 f2fs_mount这个函数实现了f2fs的具体mount操作。在第3节阐述</p>
+</li>
+</ul>
+<h2 id="2-注册账号register-filesystem"><a href="#2-注册账号register-filesystem" class="headerlink" title="2.注册账号register_filesystem"></a>2.注册账号register_filesystem</h2><p>当然，你自己想象好了自己的昵称，自己的个性表型，自己的能力，还有自己的一份简历【superblock】，不注册账号怎么冲浪嘛🏄</p>
+<p>同理当初始化好了一个具体的文件系统，我们也要向内核进行注册<code>register_filesystem</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">register_filesystem</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file_system_type * fs)</span><br>&#123;<br>        <span class="hljs-type">int</span> res = <span class="hljs-number">0</span>;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_system_type</span> ** <span class="hljs-title">p</span>;</span><br> <br>        BUG_ON(<span class="hljs-built_in">strchr</span>(fs-&gt;name, <span class="hljs-string">&#x27;.&#x27;</span>));<br>        <span class="hljs-keyword">if</span> (fs-&gt;next)<br>                <span class="hljs-keyword">return</span> -EBUSY;<br>        write_lock(&amp;file_systems_lock);<br>       <br>        <span class="hljs-comment">// 遍历全局file_systems链表，尝试查找本次要注册文件系统名。</span><br>        p = find_filesystem(fs-&gt;name, <span class="hljs-built_in">strlen</span>(fs-&gt;name));<br>        <span class="hljs-keyword">if</span> (*p) <span class="hljs-comment">// 如果不为NULL，则说明找到了重名的文件系统。注册失败。</span><br>                res = -EBUSY;<br>        <span class="hljs-keyword">else</span> <span class="hljs-comment">// 如果返回NULL，说明已经到链表结尾，可以注册此文件系统。</span><br>                *p = fs; <span class="hljs-comment">// 将此文件系统链接到链表结尾。</span><br>        write_unlock(&amp;file_systems_lock);<br>        <span class="hljs-keyword">return</span> res;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>file_system_type的基本操作都在fs&#x2F;filesystems.c文件里，文件不长，可以简短的浏览一下都有那些操作函数。最主要的变量莫过于此文件内的全局变量：</p>
+<p>&#x2F;&#x2F; 此变量是文件系统类型单链表的头指针<code>static struct file_system_type *file_systems</code></p>
+</blockquote>
+<p>那么f2fs在哪里注册的呢？</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">init_f2fs_fs</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    err = register_filesystem(&amp;f2fs_fs_type);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-开始属于f2fs的mount"><a href="#3-开始属于f2fs的mount" class="headerlink" title="3.开始属于f2fs的mount"></a>3.开始属于f2fs的mount</h2><p>在文章的开头我们可以看到，如果在用户空间执行<code>mount -t f2fs /dev/xxx /mntdir/xxx</code>，那么最终会去调用f2fs的mount函数，在第1节的f2fs_fs_type指明了f2fs文件系统的mount函数为<code>f2fs_mount</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> dentry *<span class="hljs-title function_">f2fs_mount</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file_system_type *fs_type, <span class="hljs-type">int</span> flags,</span><br><span class="hljs-params">			<span class="hljs-type">const</span> <span class="hljs-type">char</span> *dev_name, <span class="hljs-type">void</span> *data)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> mount_bdev(fs_type, flags, dev_name, data, f2fs_fill_super);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>看起来就是一个mount_bdev()函数，但是看参数可以看到一些重要的东西</p>
+<ul>
+<li>fs_type不用多说，携带file_system_type的信息，这里传递它主要是因为它携带了super block的链表和很多锁变量。</li>
+<li>flags文件系统的通用挂载选项。</li>
+<li>dev_name是mount操作时的设备名，如&#x2F;dev&#x2F;sda1。后面会用到这个设备名找到对应的设备信息，从而从中获得super block。</li>
+<li>data是挂载时指定的挂载选项信息。</li>
+<li>f2fs_fill_super是一个由f2fs特定实现的fill_super方法，用来根据f2fs文件系统的特性解析mount data并继续填充super block的字段，并且初始化挂载点的根索引节点对象和目录项对象。</li>
+</ul>
+<h2 id="4-挂载选项flag和data"><a href="#4-挂载选项flag和data" class="headerlink" title="4.挂载选项flag和data"></a>4.挂载选项flag和data</h2><p>在第3节中我们可以看到f2fs挂载的时候有flags和data，但是我们平常挂载的只有一个<code>- o</code>参数啊，例如<code>mount -t f2fs -o ro /dev/xxx /mntdir/xxx</code>。那么我们如何区分具体的flag和data呢？</p>
+<p>先来看一下flags都有哪些可选值(取自<code>include/uapi/linux/fs.h</code>)，我们来尽量把它们和mount命令里的选项对应一下(man 2 mount)：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * These are the fs-independent mount-flags: up to 32 flags are supported</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_RDONLY        1         <span class="hljs-comment">/* 对应-o ro/rw */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_NOSUID        2         <span class="hljs-comment">/* 对应-o suid/nosuid */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_NODEV         4         <span class="hljs-comment">/*  对应-o suid/nosuid */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_NOEXEC        8         <span class="hljs-comment">/* 对应-o exec/noexec */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_SYNCHRONOUS  16         <span class="hljs-comment">/* 对应-o sync/async */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_REMOUNT      32         <span class="hljs-comment">/* 对应-o remount，告诉mount这是一次remount操作 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_MANDLOCK     64         <span class="hljs-comment">/* 对应-o mand/nomand */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_DIRSYNC      128        <span class="hljs-comment">/* 对应-o dirsync */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_NOATIME      1024       <span class="hljs-comment">/* 对应-o atime/noatime */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_NODIRATIME   2048       <span class="hljs-comment">/* 对应-o diratime/nodiratime */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_BIND         4096       <span class="hljs-comment">/* 对应-B/--bind选项，告诉mount这是一次bind操作 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_MOVE         8192       <span class="hljs-comment">/* 对应-M/--move，告诉mount这是一次move操作 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_REC          16384      <span class="hljs-comment">/* rec是recursive的意思，这个flag一般不单独出现，都是伴随这其它flag，表示递归的进行操作 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_VERBOSE      32768      <span class="hljs-comment">/* 对应-v/--verbose */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_SILENT       32768      <span class="hljs-comment">/* 对应-o silent/loud */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_POSIXACL     (1&lt;&lt;16)    <span class="hljs-comment">/* 让VFS不应用umask，如NFS */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_UNBINDABLE   (1&lt;&lt;17)    <span class="hljs-comment">/* 对应--make-unbindable */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_PRIVATE      (1&lt;&lt;18)    <span class="hljs-comment">/* 对应--make-private */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_SLAVE        (1&lt;&lt;19)    <span class="hljs-comment">/* 对应--make-slave */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_SHARED       (1&lt;&lt;20)    <span class="hljs-comment">/* 对应--make-shared */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_RELATIME     (1&lt;&lt;21)    <span class="hljs-comment">/* 对应-o relatime/norelatime */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_KERNMOUNT    (1&lt;&lt;22)    <span class="hljs-comment">/* 这个一般不在应用层使用，一般内核挂载的文件系统如sysfs使用，表示使用kern_mount()进行挂载 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_I_VERSION    (1&lt;&lt;23)    <span class="hljs-comment">/* 对应-o iversion/noiversion */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_STRICTATIME  (1&lt;&lt;24)    <span class="hljs-comment">/* 对应-o strictatime/nostrictatime */</span></span><br> <br><span class="hljs-comment">/* 下面这几个flags都是内核内部使用的，它们的含义我只是通过简单的查看代码逻辑暂时猜测的 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_NOSEC        (1&lt;&lt;28)    <span class="hljs-comment">/* 有些文件系统不支持suid，security xattr等安全标记 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_BORN         (1&lt;&lt;29)    <span class="hljs-comment">/* 表示内存superblock已经创建完成 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_ACTIVE       (1&lt;&lt;30)    <span class="hljs-comment">/* 表示内存superblock正处于活动状态 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_NOUSER       (1&lt;&lt;31)    <span class="hljs-comment">/* 表示文件系统不能被应用层挂载使用，只能被内核使用，如rootfs */</span></span><br> <br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * Superblock flags that can be altered by MS_REMOUNT</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_RMT_MASK     (MS_RDONLY|MS_SYNCHRONOUS|MS_MANDLOCK|MS_I_VERSION)  <span class="hljs-comment">// 可以在remount是改变的flags</span></span><br> <br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * Old magic mount flag and mask</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_MGC_VAL 0xC0ED0000      <span class="hljs-comment">/* 过去使用的magic，现在基本被忽略了 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MS_MGC_MSK 0xffff0000      <span class="hljs-comment">/* 过去使用的flag的的mask */</span></span><br></code></pre></td></tr></table></figure>
+
+<p>从上面可以看出，flags基本上是options中通用的那些，也就是说基本是<strong>面向所有文件系统通用的</strong>，当然还有一些是内核使用的。这些flags大部分都在VFS层被解析使用。</p>
+<p>而data呢，把options中通用的去掉，<strong>剩下的就是每个文件系统各自支持的挂载选项</strong>。</p>
+<p>🎈让我们来看个例子：我们选取一个与flags对应的option，如nodev。在从xfs【也是一种文件系统】中选取一个特定的option，如noquota。然后用strace跟踪一下mount的过程，执行</p>
+<p><code>strace mount /dev/loop0 /mnt/test -o noquota,nodev</code></p>
+<p>在接近最后的位置我们可以看到mount系统调用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">mount(<span class="hljs-string">&quot;/dev/loop0&quot;</span>, <span class="hljs-string">&quot;/mnt/test&quot;</span>, <span class="hljs-string">&quot;xfs&quot;</span>, MS_MGC_VAL|MS_NODEV, <span class="hljs-string">&quot;noquota&quot;</span>) = <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>果然，nodev被解释为flag，noquota被当作了mount data。</p>
+<h2 id="5-mount系统调用的实现（sys-mount）"><a href="#5-mount系统调用的实现（sys-mount）" class="headerlink" title="5.mount系统调用的实现（sys_mount）"></a>5.mount系统调用的实现（sys_mount）</h2><p>如果要研究mount的执行过程先要找到mount的发起位置，有些mount是内核发起的，由内核自主挂载。而绝大部分的mount都是用户通过mount系统调用发起的，我们就以后者为起点开始分析。<strong>mount系统调用</strong>（sys_mount）定义在fs&#x2F;namespace.c中，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// fs\namespace.c</span><br><br>SYSCALL_DEFINE5(mount, <span class="hljs-type">char</span> __user *, dev_name, <span class="hljs-type">char</span> __user *, dir_name,<br>                <span class="hljs-type">char</span> __user *, type, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>, flags, <span class="hljs-type">void</span> __user *, data)<br>&#123;<br>        <span class="hljs-type">int</span> ret;<br>        <span class="hljs-type">char</span> *kernel_type;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">filename</span> *<span class="hljs-title">kernel_dir</span>;</span><br>        <span class="hljs-type">char</span> *kernel_dev;<br>        <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> data_page;<br> <br>        <span class="hljs-comment">/* 拷贝得到文件系统类型名 */</span><br>        ret = copy_mount_string(type, &amp;kernel_type);<br>        <span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>)<br>                <span class="hljs-keyword">goto</span> out_type;<br> <br>        <span class="hljs-comment">/* 得到文件系统挂载点名 */</span><br>        kernel_dir = getname(dir_name);<br>        <span class="hljs-keyword">if</span> (IS_ERR(kernel_dir)) &#123;<br>                ret = PTR_ERR(kernel_dir);<br>                <span class="hljs-keyword">goto</span> out_dir;<br>        &#125;<br> <br>        <span class="hljs-comment">/* 拷贝得到文件系统所在的设备名 */</span><br>        ret = copy_mount_string(dev_name, &amp;kernel_dev);<br>        <span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>)<br>                <span class="hljs-keyword">goto</span> out_dev;<br> <br>        <span class="hljs-comment">/* 拷贝得到文件系统定制的mount data */</span><br>        ret = copy_mount_options(data, &amp;data_page);<br>        <span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>)<br>                <span class="hljs-keyword">goto</span> out_data;<br> <br>        <span class="hljs-comment">/* 到此mount所需要的fstype, dev_name, mountpoint, flags和data这几个参数都拷贝到内核空间了 */</span><br>        <span class="hljs-comment">/* 调用do_mount函数继续下面的操作 */</span><br>        ret = do_mount(kernel_dev, kernel_dir-&gt;name, kernel_type, flags,<br>                (<span class="hljs-type">void</span> *) data_page);<br> <br>        free_page(data_page);<br>out_data:<br>        kfree(kernel_dev);<br>out_dev:<br>        putname(kernel_dir);<br>out_dir:<br>        kfree(kernel_type);<br>out_type:<br>        <span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="6-do-mount调用"><a href="#6-do-mount调用" class="headerlink" title="6.do_mount调用"></a>6.do_mount调用</h2><p>系统调用sys_mount后，会继续执行do_mount函数，该函数在VFS层。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">long</span> <span class="hljs-title function_">do_mount</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *dev_name, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *dir_name,</span><br><span class="hljs-params">                <span class="hljs-type">const</span> <span class="hljs-type">char</span> *type_page, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> flags, <span class="hljs-type">void</span> *data_page)</span><br>&#123;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">path</span> <span class="hljs-title">path</span>;</span><br>        <span class="hljs-type">int</span> retval = <span class="hljs-number">0</span>;<br>        <span class="hljs-type">int</span> mnt_flags = <span class="hljs-number">0</span>;<br>        <span class="hljs-comment">/* Discard magic */</span><br>        <span class="hljs-keyword">if</span> ((flags &amp; MS_MGC_MSK) == MS_MGC_VAL)<br>                flags &amp;= ~MS_MGC_MSK;<br>        <span class="hljs-comment">/* Basic sanity checks */</span><br>        <span class="hljs-keyword">if</span> (!dir_name || !*dir_name || !<span class="hljs-built_in">memchr</span>(dir_name, <span class="hljs-number">0</span>, PAGE_SIZE))<br>                <span class="hljs-keyword">return</span> -EINVAL;<br>        <span class="hljs-keyword">if</span> (data_page)<br>                ((<span class="hljs-type">char</span> *)data_page)[PAGE_SIZE - <span class="hljs-number">1</span>] = <span class="hljs-number">0</span>;<br>        <span class="hljs-comment">// 把mountpoint解释成path内核结构，这里是路径名解析的过程</span><br>        <span class="hljs-comment">// 调用do_path_lookup。关于路径名解析我们后面再说</span><br>        <span class="hljs-comment">/* ... and get the mountpoint */</span><br>        retval = kern_path(dir_name, LOOKUP_FOLLOW, &amp;path);<br>        <span class="hljs-keyword">if</span> (retval)<br>                <span class="hljs-keyword">return</span> retval;<br>        retval = security_sb_mount(dev_name, &amp;path,<br>                                   type_page, flags, data_page);<br>        <span class="hljs-keyword">if</span> (!retval &amp;&amp; !may_mount())<br>                retval = -EPERM;<br>        <span class="hljs-keyword">if</span> (retval)<br>                <span class="hljs-keyword">goto</span> dput_out;<br>        <span class="hljs-comment">// 从这里开始就是一系列的对flags的解析，把通用option提出来</span><br>        <span class="hljs-comment">// 并且找出我们要mount做哪种操作，如bind, remount, newmount等</span><br>        <span class="hljs-comment">/* Default to relatime unless overriden */</span><br>        <span class="hljs-keyword">if</span> (!(flags &amp; MS_NOATIME))<br>                mnt_flags |= MNT_RELATIME;<br>        <span class="hljs-comment">/* Separate the per-mountpoint flags */</span><br>        <span class="hljs-keyword">if</span> (flags &amp; MS_NOSUID)<br>                mnt_flags |= MNT_NOSUID;<br>        <span class="hljs-keyword">if</span> (flags &amp; MS_NODEV)<br>                mnt_flags |= MNT_NODEV;<br>        <span class="hljs-keyword">if</span> (flags &amp; MS_NOEXEC)<br>                mnt_flags |= MNT_NOEXEC;<br>        <span class="hljs-keyword">if</span> (flags &amp; MS_NOATIME)<br>                mnt_flags |= MNT_NOATIME;<br>        <span class="hljs-keyword">if</span> (flags &amp; MS_NODIRATIME)<br>                mnt_flags |= MNT_NODIRATIME;<br>        <span class="hljs-keyword">if</span> (flags &amp; MS_STRICTATIME)<br>                mnt_flags &amp;= ~(MNT_RELATIME | MNT_NOATIME);<br>        <span class="hljs-keyword">if</span> (flags &amp; MS_RDONLY)<br>                mnt_flags |= MNT_READONLY;<br>        <span class="hljs-comment">/* The default atime for remount is preservation */</span><br>        <span class="hljs-keyword">if</span> ((flags &amp; MS_REMOUNT) &amp;&amp;<br>            ((flags &amp; (MS_NOATIME | MS_NODIRATIME | MS_RELATIME |<br>                       MS_STRICTATIME)) == <span class="hljs-number">0</span>)) &#123;<br>                mnt_flags &amp;= ~MNT_ATIME_MASK;<br>                mnt_flags |= path.mnt-&gt;mnt_flags &amp; MNT_ATIME_MASK;<br>        &#125;<br>        flags &amp;= ~(MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_ACTIVE | MS_BORN |<br>                   MS_NOATIME | MS_NODIRATIME | MS_RELATIME| MS_KERNMOUNT |<br>                   MS_STRICTATIME);<br>        <span class="hljs-comment">// 根据flags的指示，决定做哪种mount操作</span><br>        <span class="hljs-keyword">if</span> (flags &amp; MS_REMOUNT)<br>                retval = do_remount(&amp;path, flags &amp; ~MS_REMOUNT, mnt_flags,<br>                                    data_page);<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (flags &amp; MS_BIND)<br>                retval = do_loopback(&amp;path, dev_name, flags &amp; MS_REC);<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (flags &amp; (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))<br>                retval = do_change_type(&amp;path, flags);<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (flags &amp; MS_MOVE)<br>                retval = do_move_mount(&amp;path, dev_name);<br>        <span class="hljs-keyword">else</span><br>                <span class="hljs-comment">// 我们这里以new mount为入手点，继续向下分析</span><br>                retval = do_new_mount(&amp;path, type_page, flags, mnt_flags,<br>                                      dev_name, data_page);<br>dput_out:<br>        path_put(&amp;path);<br>        <span class="hljs-keyword">return</span> retval;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>综上所述，我们得出do_mount主要干这么几个事：</p>
+<ol>
+<li><p>解析mountpoint路径名，把字符串路径名变成内核dentry或者说path结构</p>
+</li>
+<li><p>解析flags，把通用option分出来。</p>
+</li>
+<li><p>根据flags中指明mount操作的标志，决定做哪一种mount操作。</p>
+</li>
+<li><p>执行remount&#x2F;bind&#x2F;shared&#x2F;move&#x2F;new mount操作。</p>
+</li>
+</ol>
+<p>到此mount就可能做5种mount操作（remount, bind, chang type, move和new mount）之一。我们以do_new_mount为例继续分析，do_new_mount属于最常见的情况，挂载一个新的文件系统。</p>
+<h2 id="7-do-new-mount调用"><a href="#7-do-new-mount调用" class="headerlink" title="7.do_new_mount调用"></a>7.do_new_mount调用</h2><p>do_new_mount函数也在namespace.c里可以找到，它主要做三件事：</p>
+<ol>
+<li>根据fstype从全局文件系统类型(file_system_type)链表中找到对应的文件系统类型结构</li>
+<li>用上一步得到的特定文件系统类型结构中的mount回调函数执行下面的挂载操作，最终构建一个mount结构体，其中包含vfsmount信息。</li>
+<li>将得到的mount结构体加入全局文件系统树中</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">do_new_mount</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> path *path, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *fstype, <span class="hljs-type">int</span> flags,</span><br><span class="hljs-params">                        <span class="hljs-type">int</span> mnt_flags, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name, <span class="hljs-type">void</span> *data)</span><br>&#123;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_system_type</span> *<span class="hljs-title">type</span>;</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">user_namespace</span> *<span class="hljs-title">user_ns</span> =</span> current-&gt;nsproxy-&gt;mnt_ns-&gt;user_ns;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vfsmount</span> *<span class="hljs-title">mnt</span>;</span><br>        <span class="hljs-type">int</span> err;<br> <br>        <span class="hljs-keyword">if</span> (!fstype)<br>                <span class="hljs-keyword">return</span> -EINVAL;<br> <br>        <span class="hljs-comment">// 根据fs类型名（如xfs）在全局文件系统类型链表上找到其对应的file_system_type结构</span><br>        type = get_fs_type(fstype);<br>        <span class="hljs-keyword">if</span> (!type)<br>                <span class="hljs-keyword">return</span> -ENODEV;<br> <br>        <span class="hljs-comment">// 调用此函数准备进入每个文件系统的个别处理函数，构建一个vfsmnt结构</span><br>        <span class="hljs-comment">// 注意这里以文件系统类型、挂载标记、设备名和挂载选项信息为参数，并没有mountpoint参数。这里只是想用type中的mount回调函数读取设备的superblock信息，填充mnt结构，然后把flag和data解析后填充到mnt结构中。</span><br>        mnt = vfs_kern_mount(type, flags, name, data);<br>        <span class="hljs-keyword">if</span> (!IS_ERR(mnt) &amp;&amp; (type-&gt;fs_flags &amp; FS_HAS_SUBTYPE) &amp;&amp;<br>            !mnt-&gt;mnt_sb-&gt;s_subtype)<br>                mnt = fs_set_subtype(mnt, fstype);<br> <br>        put_filesystem(type);<br>        <span class="hljs-keyword">if</span> (IS_ERR(mnt))<br>                <span class="hljs-keyword">return</span> PTR_ERR(mnt);<br> <br>        <span class="hljs-comment">// 准备将得到的mnt结构加入全局文件系统树</span><br>        <span class="hljs-comment">// 注意path变量，也就是mountpoint在这里</span><br>        err = do_add_mount(real_mount(mnt), path, mnt_flags);<br>        <span class="hljs-keyword">if</span> (err)<br>                mntput(mnt);<br>        <span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="99-向驱动大哥学习，走进file-operations"><a href="#99-向驱动大哥学习，走进file-operations" class="headerlink" title="99.向驱动大哥学习，走进file_operations"></a>99.向驱动大哥学习，走进file_operations</h2><p>我们按照学习驱动的方式，学习整个文件系统的挂载。在学习驱动的时候，最关键的就是字符设备操作集<code>file_operations </code>，我们写驱动的时候会初始化每一个驱动对应的操作集，例如我们编写一个led驱动，我们常常写成下面的样子，每一个file_operation的操作，如open、write都在自己的驱动中指明对应的函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">led_fops</span> =</span> &#123;<br>    .owner = THIS_MODULE,<br>    .open = led_open,<br>    .write = led_write,<br>    .release = led_release,<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>那么文件系统也是通用的道理，也有文件系统自己的操作集<code>file_operations</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// include\linux\fs.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">module</span> *<span class="hljs-title">owner</span>;</span><br>	<span class="hljs-type">loff_t</span> (*llseek) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">loff_t</span>, <span class="hljs-type">int</span>);<br>	<span class="hljs-type">ssize_t</span> (*read) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">char</span> __user *, <span class="hljs-type">size_t</span>, <span class="hljs-type">loff_t</span> *);<br>	<span class="hljs-type">ssize_t</span> (*write) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">const</span> <span class="hljs-type">char</span> __user *, <span class="hljs-type">size_t</span>, <span class="hljs-type">loff_t</span> *);<br>	<span class="hljs-type">ssize_t</span> (*read_iter) (<span class="hljs-keyword">struct</span> kiocb *, <span class="hljs-keyword">struct</span> iov_iter *);<br>	<span class="hljs-type">ssize_t</span> (*write_iter) (<span class="hljs-keyword">struct</span> kiocb *, <span class="hljs-keyword">struct</span> iov_iter *);<br>	<span class="hljs-type">int</span> (*iterate) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-keyword">struct</span> dir_context *);<br>	<span class="hljs-type">unsigned</span> <span class="hljs-title function_">int</span> <span class="hljs-params">(*poll)</span> <span class="hljs-params">(<span class="hljs-keyword">struct</span> file *, <span class="hljs-keyword">struct</span> poll_table_struct *)</span>;<br>	<span class="hljs-type">long</span> (*unlocked_ioctl) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>);<br>	<span class="hljs-type">long</span> (*compat_ioctl) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>);<br>	<span class="hljs-type">int</span> (*mmap) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-keyword">struct</span> vm_area_struct *);<br>	<span class="hljs-type">int</span> (*mremap)(<span class="hljs-keyword">struct</span> file *, <span class="hljs-keyword">struct</span> vm_area_struct *);<br>	<span class="hljs-type">int</span> (*open) (<span class="hljs-keyword">struct</span> inode *, <span class="hljs-keyword">struct</span> file *);<br>	<span class="hljs-type">int</span> (*flush) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">fl_owner_t</span> id);<br>	<span class="hljs-type">int</span> (*release) (<span class="hljs-keyword">struct</span> inode *, <span class="hljs-keyword">struct</span> file *);<br>	<span class="hljs-type">int</span> (*fsync) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">loff_t</span>, <span class="hljs-type">loff_t</span>, <span class="hljs-type">int</span> datasync);<br>	<span class="hljs-type">int</span> (*aio_fsync) (<span class="hljs-keyword">struct</span> kiocb *, <span class="hljs-type">int</span> datasync);<br>	<span class="hljs-type">int</span> (*fasync) (<span class="hljs-type">int</span>, <span class="hljs-keyword">struct</span> file *, <span class="hljs-type">int</span>);<br>	<span class="hljs-type">int</span> (*lock) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">int</span>, <span class="hljs-keyword">struct</span> file_lock *);<br>	<span class="hljs-type">ssize_t</span> (*sendpage) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-keyword">struct</span> page *, <span class="hljs-type">int</span>, <span class="hljs-type">size_t</span>, <span class="hljs-type">loff_t</span> *, <span class="hljs-type">int</span>);<br>	<span class="hljs-type">unsigned</span> <span class="hljs-title function_">long</span> <span class="hljs-params">(*get_unmapped_area)</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>)</span>;<br>	<span class="hljs-type">int</span> (*check_flags)(<span class="hljs-type">int</span>);<br>	<span class="hljs-type">int</span> (*flock) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">int</span>, <span class="hljs-keyword">struct</span> file_lock *);<br>	<span class="hljs-type">ssize_t</span> (*splice_write)(<span class="hljs-keyword">struct</span> pipe_inode_info *, <span class="hljs-keyword">struct</span> file *, <span class="hljs-type">loff_t</span> *, <span class="hljs-type">size_t</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>);<br>	<span class="hljs-type">ssize_t</span> (*splice_read)(<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">loff_t</span> *, <span class="hljs-keyword">struct</span> pipe_inode_info *, <span class="hljs-type">size_t</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>);<br>	<span class="hljs-type">int</span> (*setlease)(<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">long</span>, <span class="hljs-keyword">struct</span> file_lock **, <span class="hljs-type">void</span> **);<br>	<span class="hljs-type">long</span> (*fallocate)(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">int</span> mode, <span class="hljs-type">loff_t</span> offset,<br>			  <span class="hljs-type">loff_t</span> len);<br>	<span class="hljs-type">void</span> (*show_fdinfo)(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-keyword">struct</span> file *f);<br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> CONFIG_MMU</span><br>	<span class="hljs-type">unsigned</span> (*mmap_capabilities)(<span class="hljs-keyword">struct</span> file *);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>对于一个具体的文件系统ext4、f2fs等，都会指明自己的file_operations，以f2fs为例</p>
+<img src="/2023/03/09/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fmount%E8%BF%87%E7%A8%8B/image-20230309230859994.png" srcset="/img/loading.gif" lazyload alt="image-20230309230859994" style="zoom: 67%;">
+
+<p>加入我们在用户态执行ioctl操作，那么对应的<code>f2fs_ioct</code>l就会执行。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Linux学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>文件系统mount过程</div>
+      <div>http://example.com/2023/03/09/文件系统mount过程/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/" title="Android HIDL服务实现">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android HIDL服务实现</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/09/%E6%87%82%E5%BE%97%E4%BA%86Android-I-O%E8%B0%83%E4%BC%98%E5%AF%B9%E4%BD%A0%E7%9A%84%E5%BA%94%E7%94%A8%E5%B8%AE%E5%8A%A9%E5%BE%88%E5%A4%A7%EF%BC%88%E4%B8%8A%E7%AF%87%EF%BC%89/" title="懂得了Android I/O调优对你的应用帮助很大（上篇）">
+                        <span class="hidden-mobile">懂得了Android I/O调优对你的应用帮助很大（上篇）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

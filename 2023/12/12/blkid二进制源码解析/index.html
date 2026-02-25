@@ -1,0 +1,762 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="blkid二进制源码解析blkid用于查看块设备UUID、Label、挂载、文件系统类型等信息 blkid的源码位于：external\e2fsprogs\misc\blkid.c 在安卓vold源码中会通过blkid去预读卷的元数据信息   可以看到这条命令实际的执行结果如下：    以下的源码解析将基于这条命令!  blkid二进制主入口1234567891011121314151617181">
+<meta property="og:type" content="article">
+<meta property="og:title" content="blkid二进制源码解析">
+<meta property="og:url" content="http://example.com/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="blkid二进制源码解析blkid用于查看块设备UUID、Label、挂载、文件系统类型等信息 blkid的源码位于：external\e2fsprogs\misc\blkid.c 在安卓vold源码中会通过blkid去预读卷的元数据信息   可以看到这条命令实际的执行结果如下：    以下的源码解析将基于这条命令!  blkid二进制主入口1234567891011121314151617181">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212220132527.png">
+<meta property="og:image" content="http://example.com/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212221419697.png">
+<meta property="og:image" content="http://example.com/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212223241899.png">
+<meta property="og:image" content="http://example.com/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212224912193.png">
+<meta property="og:image" content="http://example.com/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212225111226.png">
+<meta property="article:published_time" content="2023-12-12T13:55:06.000Z">
+<meta property="article:modified_time" content="2023-12-12T15:09:15.538Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212220132527.png">
+  
+  
+  
+  <title>blkid二进制源码解析 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="blkid二进制源码解析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-12 21:55" pubdate>
+          2023年12月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          55 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">blkid二进制源码解析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="blkid二进制源码解析"><a href="#blkid二进制源码解析" class="headerlink" title="blkid二进制源码解析"></a>blkid二进制源码解析</h1><p>blkid用于查看块设备UUID、Label、挂载、文件系统类型等信息</p>
+<p>blkid的源码位于：<code>external\e2fsprogs\misc\blkid.c</code></p>
+<p><strong>在安卓vold源码中会通过blkid去预读卷的元数据信息</strong></p>
+<img src="/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212220132527.png" srcset="/img/loading.gif" lazyload alt="image-20231212220132527" style="zoom:50%;">
+
+<p>可以看到这条命令实际的执行结果如下：</p>
+<img src="/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212221419697.png" srcset="/img/loading.gif" lazyload alt="image-20231212221419697" style="zoom:67%;">
+
+<blockquote>
+<p>以下的源码解析将基于这条命令!</p>
+</blockquote>
+<h2 id="blkid二进制主入口"><a href="#blkid二进制主入口" class="headerlink" title="blkid二进制主入口"></a>blkid二进制主入口</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv)</span><br>&#123;<br>	<span class="hljs-keyword">while</span> ((c = getopt (argc, argv, <span class="hljs-string">&quot;c:f:ghlLo:s:t:w:v&quot;</span>)) != EOF)<br>		<span class="hljs-keyword">switch</span> (c) &#123;<br>		<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;c&#x27;</span>:<br>			read = optarg;<br>			<span class="hljs-keyword">if</span> (!write)<br>				write = read;<br>			<span class="hljs-keyword">break</span>;<br>		<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;s&#x27;</span>:<br>			show[numtag++] = optarg;<br>			<span class="hljs-keyword">break</span>;<br>		&#125;<br>	&#125;<br>	<span class="hljs-comment">// 这里只有一个设备：因此device[0] = &quot;/dev/block/vold/public:252,80&quot;</span><br>	<span class="hljs-keyword">while</span> (optind &lt; argc)<br>		devices[numdev++] = argv[optind++];<br><br>	<span class="hljs-keyword">if</span> (lookup) &#123;<br>		<span class="hljs-comment">// ...</span><br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!numdev) &#123;<br>		<span class="hljs-comment">// ..</span><br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; numdev; i++) &#123;  <span class="hljs-comment">/*这边我就指明了一个外置存储设备public:252,80，所以只会遍历一次*/</span><br>		blkid_dev dev = blkid_get_dev(cache, devices[i], BLKID_DEV_NORMAL);  <span class="hljs-comment">// (BLKID_DEV_CREATE | BLKID_DEV_VERIFY)</span><br><br>		<span class="hljs-keyword">if</span> (dev) &#123;<br>            <span class="hljs-comment">// 打印我们-s指明的需要show的参数：TYPE,UUID,LABEL</span><br>			print_tags(dev, show, numtag, output_format);<br>			err = <span class="hljs-number">0</span>;<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="获取设备属性信息"><a href="#获取设备属性信息" class="headerlink" title="获取设备属性信息"></a>获取设备属性信息</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">blkid_dev <span class="hljs-title function_">blkid_get_dev</span><span class="hljs-params">(blkid_cache cache, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *devname, <span class="hljs-type">int</span> flags)</span><br>&#123;<br>	blkid_dev dev = <span class="hljs-literal">NULL</span>, tmp;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> *<span class="hljs-title">p</span>, *<span class="hljs-title">pnext</span>;</span><br><br>	<span class="hljs-keyword">if</span> (!dev &amp;&amp; (flags &amp; BLKID_DEV_CREATE)) &#123;<br>		<span class="hljs-keyword">if</span> (access(devname, F_OK) &lt; <span class="hljs-number">0</span>)<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>        dev = blkid_new_dev();<br>		dev-&gt;bid_time = INT_MIN;<br>		dev-&gt;bid_name = blkid_strdup(devname);<br>		dev-&gt;bid_cache = cache;<br>        cache-&gt;bic_flags |= BLKID_BIC_FL_CHANGED;<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (flags &amp; BLKID_DEV_VERIFY) &#123;<br>		dev = blkid_verify(cache, dev);<br>	&#125;<br>	<span class="hljs-keyword">return</span> dev;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>通过blkid_new_dev函数初始化blkid_dev结构体，最终通过blkid_verify校验该设备</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs c">blkid_dev <span class="hljs-title function_">blkid_verify</span><span class="hljs-params">(blkid_cache cache, blkid_dev dev)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkid_probe</span> <span class="hljs-title">probe</span>;</span><br>    <br>	<span class="hljs-keyword">if</span> (stat(dev-&gt;bid_name, &amp;st) &lt; <span class="hljs-number">0</span>) &#123;<br>		<span class="hljs-comment">// ...</span><br>	&#125;<br><br><br>    <span class="hljs-comment">// 打开设备，获取文件描述符</span><br>	<span class="hljs-keyword">if</span> ((probe.fd = open(dev-&gt;bid_name, O_RDONLY)) &lt; <span class="hljs-number">0</span>) &#123;<br>		<span class="hljs-comment">// ...</span><br>	&#125;<br><br>	probe.cache = cache;<br>	probe.dev = dev;<br>	probe.sbbuf = <span class="hljs-number">0</span>;<br>	probe.buf = <span class="hljs-number">0</span>;<br>	probe.buf_max = <span class="hljs-number">0</span>;<br><br>	type = <span class="hljs-number">0</span>;<br><br>    <span class="hljs-comment">// 遍历所有支持的文件系统类型(下面有)</span><br>	<span class="hljs-keyword">for</span> (id = type_array; id-&gt;bim_type; id++) &#123;<br>		<span class="hljs-keyword">if</span> (dev-&gt;bid_type &amp;&amp; <span class="hljs-built_in">strcmp</span>(id-&gt;bim_type, dev-&gt;bid_type))<br>			<span class="hljs-keyword">continue</span>;<br><br>		idx = id-&gt;bim_kboff + (id-&gt;bim_sboff &gt;&gt; <span class="hljs-number">10</span>);<br>		buf = get_buffer(&amp;probe, (__u64) idx &lt;&lt; <span class="hljs-number">10</span>, <span class="hljs-number">1024</span>); <span class="hljs-comment">// 拿到不同文件系统在不同位置存储的魔术字</span><br><br>		<span class="hljs-keyword">if</span> (<span class="hljs-built_in">memcmp</span>(id-&gt;bim_magic, buf + (id-&gt;bim_sboff &amp; <span class="hljs-number">0x3ff</span>), id-&gt;bim_len))<br>			<span class="hljs-keyword">continue</span>;<br><br>        <span class="hljs-comment">// 魔术字校验通过，说明找到了该设备对应的文件系统，下面就是正式拿到那些属性值了:TYPE UUID LABEL</span><br>		<span class="hljs-keyword">if</span> ((id-&gt;bim_probe == <span class="hljs-literal">NULL</span>) ||<br>		    (id-&gt;bim_probe(&amp;probe, id, buf) == <span class="hljs-number">0</span>)) &#123;<br>			type = id-&gt;bim_type;<br>			<span class="hljs-keyword">goto</span> found_type;<br>		&#125;<br>	&#125;<br><br>found_type:<br>	<span class="hljs-keyword">if</span> (dev &amp;&amp; type) &#123;<br>		dev-&gt;bid_devno = st.st_rdev;<br>		dev-&gt;bid_time = time(<span class="hljs-number">0</span>);<br>		dev-&gt;bid_flags |= BLKID_BID_FL_VERIFIED;<br>		cache-&gt;bic_flags |= BLKID_BIC_FL_CHANGED;<br><br>		blkid_set_tag(dev, <span class="hljs-string">&quot;TYPE&quot;</span>, type, <span class="hljs-number">0</span>);<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> dev;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>type_array存储了所有类型的文件系统和对应处理函数</li>
+</ul>
+<img src="/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212223241899.png" srcset="/img/loading.gif" lazyload alt="image-20231212223241899" style="zoom:67%;">
+
+<p>上面可以看到魔术字校验通过后会去调用对应的probe函数去拿到属性值，以我的外置SD卡为例，说明一下魔术字校验和对应的处理函数</p>
+<ul>
+<li>我的SD卡0x52开始的4个字节魔术字为：FAT32</li>
+</ul>
+<img src="/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212224912193.png" srcset="/img/loading.gif" lazyload alt="image-20231212224912193" style="zoom: 67%;">
+
+<ul>
+<li>正好与预设数组中的能够对上</li>
+</ul>
+<img src="/2023/12/12/blkid%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/image-20231212225111226.png" srcset="/img/loading.gif" lazyload alt="image-20231212225111226" style="zoom:80%;">
+
+<blockquote>
+<p>🤖这里其实也解答了我个人的一些疑问：<strong>到底什么是vfat文件系统，从源码角度理解，所有fat文件系的都是vfat文件系统</strong></p>
+</blockquote>
+<p>调用文件系统处理函数，即<strong>probe_fat</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 把前面读到的buffer传过来</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">probe_fat</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> blkid_probe *probe, <span class="hljs-keyword">struct</span> blkid_magic *id __BLKID_ATTR((unused)),</span><br><span class="hljs-params">		      <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *buf)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vfat_super_block</span> *<span class="hljs-title">vs</span> =</span> (<span class="hljs-keyword">struct</span> vfat_super_block *) buf;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">msdos_super_block</span> *<span class="hljs-title">ms</span> =</span> (<span class="hljs-keyword">struct</span> msdos_super_block *) buf;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vfat_dir_entry</span> *<span class="hljs-title">dir</span>;</span><br>	<span class="hljs-type">char</span> serno[<span class="hljs-number">10</span>];<br>	<span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *label = <span class="hljs-number">0</span>, *vol_label = <span class="hljs-number">0</span>, *tmp;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span>	*vol_serno;<br>	<span class="hljs-type">int</span> label_len = <span class="hljs-number">0</span>, maxloop = <span class="hljs-number">100</span>;<br>	__u16 sector_size, dir_entries, reserved;<br>	__u32 sect_count, fat_size, dir_size, cluster_count, fat_length;<br>	__u32 buf_size, start_data_sect, next, root_start, root_dir_entries;<br><br>	<span class="hljs-comment">/* sector size check */</span><br>	tmp = (<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *)&amp;ms-&gt;ms_sector_size;<br>	sector_size = tmp[<span class="hljs-number">0</span>] + (tmp[<span class="hljs-number">1</span>] &lt;&lt; <span class="hljs-number">8</span>);<br>	<span class="hljs-keyword">if</span> (sector_size != <span class="hljs-number">0x200</span> &amp;&amp; sector_size != <span class="hljs-number">0x400</span> &amp;&amp;<br>	    sector_size != <span class="hljs-number">0x800</span> &amp;&amp; sector_size != <span class="hljs-number">0x1000</span>)<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br><br>	tmp = (<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *)&amp;ms-&gt;ms_dir_entries;<br>	dir_entries = tmp[<span class="hljs-number">0</span>] + (tmp[<span class="hljs-number">1</span>] &lt;&lt; <span class="hljs-number">8</span>);<br>	reserved =  blkid_le16(ms-&gt;ms_reserved);<br>	tmp = (<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *)&amp;ms-&gt;ms_sectors;<br>	sect_count = tmp[<span class="hljs-number">0</span>] + (tmp[<span class="hljs-number">1</span>] &lt;&lt; <span class="hljs-number">8</span>);<br>	<span class="hljs-keyword">if</span> (sect_count == <span class="hljs-number">0</span>)<br>		sect_count = blkid_le32(ms-&gt;ms_total_sect);<br><br>	fat_length = blkid_le16(ms-&gt;ms_fat_length);<br>	<span class="hljs-keyword">if</span> (fat_length == <span class="hljs-number">0</span>)<br>		fat_length = blkid_le32(vs-&gt;vs_fat32_length);<br><br>	fat_size = fat_length * ms-&gt;ms_fats;<br>	dir_size = ((dir_entries * <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> vfat_dir_entry)) +<br>			(sector_size<span class="hljs-number">-1</span>)) / sector_size;<br><br>	cluster_count = sect_count - (reserved + fat_size + dir_size);<br>	<span class="hljs-keyword">if</span> (ms-&gt;ms_cluster_size == <span class="hljs-number">0</span>)<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>	cluster_count /= ms-&gt;ms_cluster_size;<br><br>	<span class="hljs-keyword">if</span> (cluster_count &gt; FAT32_MAX)<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br><br>	<span class="hljs-keyword">if</span> (ms-&gt;ms_fat_length) &#123;<br>		<span class="hljs-comment">/* the label may be an attribute in the root directory */</span><br>		root_start = (reserved + fat_size) * sector_size;<br>		root_dir_entries = vs-&gt;vs_dir_entries[<span class="hljs-number">0</span>] +<br>			(vs-&gt;vs_dir_entries[<span class="hljs-number">1</span>] &lt;&lt; <span class="hljs-number">8</span>);<br><br>		buf_size = root_dir_entries * <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> vfat_dir_entry);<br>		dir = (<span class="hljs-keyword">struct</span> vfat_dir_entry *) get_buffer(probe, root_start,<br>							   buf_size);<br>		<span class="hljs-keyword">if</span> (dir)<br>			vol_label = search_fat_label(dir, root_dir_entries);<br><br>		<span class="hljs-keyword">if</span> (!vol_label || !<span class="hljs-built_in">memcmp</span>(vol_label, no_name, <span class="hljs-number">11</span>))<br>			vol_label = ms-&gt;ms_label;<br>		vol_serno = ms-&gt;ms_serno;<br><br>		blkid_set_tag(probe-&gt;dev, <span class="hljs-string">&quot;SEC_TYPE&quot;</span>, <span class="hljs-string">&quot;msdos&quot;</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-string">&quot;msdos&quot;</span>));<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-comment">/* Search the FAT32 root dir for the label attribute */</span><br>		buf_size = vs-&gt;vs_cluster_size * sector_size;<br>		start_data_sect = reserved + fat_size;<br><br>		next = blkid_le32(vs-&gt;vs_root_cluster);<br>		<span class="hljs-keyword">while</span> (next &amp;&amp; --maxloop) &#123;<br>			__u32 next_sect_off;<br>			__u64 next_off, fat_entry_off;<br>			<span class="hljs-type">int</span> count;<br><br>			next_sect_off = (next - <span class="hljs-number">2</span>) * vs-&gt;vs_cluster_size;<br>			next_off = (__u64) (start_data_sect + next_sect_off) *<br>				sector_size;<br><br>			dir = (<span class="hljs-keyword">struct</span> vfat_dir_entry *)<br>				get_buffer(probe, next_off, buf_size);<br>			<span class="hljs-keyword">if</span> (dir == <span class="hljs-literal">NULL</span>)<br>				<span class="hljs-keyword">break</span>;<br><br>			count = buf_size / <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> vfat_dir_entry);<br><br>			vol_label = search_fat_label(dir, count);<br>			<span class="hljs-keyword">if</span> (vol_label)<br>				<span class="hljs-keyword">break</span>;<br><br>			<span class="hljs-comment">/* get FAT entry */</span><br>			fat_entry_off =<br>				((<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>) reserved *<br>				 (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>) sector_size) +<br>				(next * <span class="hljs-keyword">sizeof</span>(__u32));<br>			buf = get_buffer(probe, fat_entry_off, buf_size);<br>			<span class="hljs-keyword">if</span> (buf == <span class="hljs-literal">NULL</span>)<br>				<span class="hljs-keyword">break</span>;<br><br>			<span class="hljs-comment">/* set next cluster */</span><br>			next = blkid_le32(*((__u32 *) buf) &amp; <span class="hljs-number">0x0fffffff</span>);<br>		&#125;<br><br>		<span class="hljs-keyword">if</span> (!vol_label || !<span class="hljs-built_in">memcmp</span>(vol_label, no_name, <span class="hljs-number">11</span>))<br>			vol_label = vs-&gt;vs_label;<br>		vol_serno = vs-&gt;vs_serno;<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (vol_label &amp;&amp; <span class="hljs-built_in">memcmp</span>(vol_label, no_name, <span class="hljs-number">11</span>)) &#123;<br>		<span class="hljs-keyword">if</span> ((label_len = figure_label_len(vol_label, <span class="hljs-number">11</span>)))<br>			label = vol_label;<br>	&#125;<br><br>	<span class="hljs-comment">/* We can&#x27;t just print them as %04X, because they are unaligned */</span><br>	<span class="hljs-built_in">sprintf</span>(serno, <span class="hljs-string">&quot;%02X%02X-%02X%02X&quot;</span>, vol_serno[<span class="hljs-number">3</span>], vol_serno[<span class="hljs-number">2</span>],<br>		vol_serno[<span class="hljs-number">1</span>], vol_serno[<span class="hljs-number">0</span>]);<br><br>	blkid_set_tag(probe-&gt;dev, <span class="hljs-string">&quot;LABEL&quot;</span>, (<span class="hljs-type">const</span> <span class="hljs-type">char</span> *) label, label_len);<br>	blkid_set_tag(probe-&gt;dev, <span class="hljs-string">&quot;UUID&quot;</span>, serno, <span class="hljs-keyword">sizeof</span>(serno)<span class="hljs-number">-1</span>);<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>☃️<strong>结论：</strong>说白了每个文件系统都有固定的位置去存储这些属性值，blkid也只是从磁盘里面读出来放到buffer里面，交由各自文件系统去固定的位置拿出来而已。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>blkid二进制源码解析</div>
+      <div>http://example.com/2023/12/12/blkid二进制源码解析/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/13/stm32f103%E9%97%AA%E5%AD%98flash%E8%AF%BB%E5%86%99/" title="stm32f103闪存flash读写">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">stm32f103闪存flash读写</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/11/HDD%E5%92%8CSSD%E7%A1%AC%E7%9B%98%E8%AF%BB%E5%86%99%E6%B5%8B%E8%AF%95fio%E4%B8%8ECrystalDiskMark/" title="HDD和SSD硬盘读写测试fio与CrystalDiskMark">
+                        <span class="hidden-mobile">HDD和SSD硬盘读写测试fio与CrystalDiskMark</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

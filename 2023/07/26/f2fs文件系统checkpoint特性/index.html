@@ -1,0 +1,952 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="f2fs文件系统checkpoint特性相较于很多文章一上来解读代码，我更愿意从问题出现的背景开始讲起，一个技术如果没有时代背景，他的出现显得像个怪胎。 崩溃一致性问题对于一般的文件系统而言，如果我要对文件做追加动作，我们需要做哪些事情呢，罗列一下：  文件关联的inode表明了文件的基本属性，所以当我们往一个文件里面追加内容的时候，inode的大小，修改时间等都需要修改；这个在f2fs文件系统里">
+<meta property="og:type" content="article">
+<meta property="og:title" content="f2fs文件系统checkpoint特性">
+<meta property="og:url" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="f2fs文件系统checkpoint特性相较于很多文章一上来解读代码，我更愿意从问题出现的背景开始讲起，一个技术如果没有时代背景，他的出现显得像个怪胎。 崩溃一致性问题对于一般的文件系统而言，如果我要对文件做追加动作，我们需要做哪些事情呢，罗列一下：  文件关联的inode表明了文件的基本属性，所以当我们往一个文件里面追加内容的时候，inode的大小，修改时间等都需要修改；这个在f2fs文件系统里">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817222646785.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817224041664.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817223902687.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820215948710.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820220002296.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/1.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/5.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820215120800.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232432068.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232815934.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234038768.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234351910.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234432799.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820214217698.png">
+<meta property="og:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820214243206.png">
+<meta property="article:published_time" content="2023-07-26T15:47:03.000Z">
+<meta property="article:modified_time" content="2023-10-02T04:53:27.638Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png">
+  
+  
+  
+  <title>f2fs文件系统checkpoint特性 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="f2fs文件系统checkpoint特性"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-26 23:47" pubdate>
+          2023年7月26日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          76 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">f2fs文件系统checkpoint特性</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="f2fs文件系统checkpoint特性"><a href="#f2fs文件系统checkpoint特性" class="headerlink" title="f2fs文件系统checkpoint特性"></a>f2fs文件系统checkpoint特性</h1><p>相较于很多文章一上来解读代码，我更愿意从问题出现的背景开始讲起，一个技术如果没有时代背景，他的出现显得像个怪胎。</p>
+<h2 id="崩溃一致性问题"><a href="#崩溃一致性问题" class="headerlink" title="崩溃一致性问题"></a>崩溃一致性问题</h2><p>对于一般的文件系统而言，如果我要对文件做追加动作，我们需要做哪些事情呢，罗列一下：</p>
+<ol>
+<li>文件关联的inode表明了文件的基本属性，所以当我们往一个文件里面追加内容的时候，inode的大小，修改时间等都需要修改；这个在f2fs文件系统里面就是f2fs_node啦。</li>
+<li>当需要添加的内容很大的时候，需要分配额外的数据块；在f2fs文件系统里面表现为Data Block也就是Data Segment里面的一个个block</li>
+<li>在FAT文件系统里面通常使用簇链Cluster Chain来表示一个完整的文件，当我们添加文件的内容时需要将原先指向EOF的Cluster指向新增的Cluster，而新增的Cluster指向EOF；在F2fs文件系统里面通常使用Node Block来表示一个完整的文件，当我们添加文件的内容时需要更改node block里面的i_addr或者指向的direct node和indirect node。</li>
+<li>另外一个对于F2fs文件系统比较特殊的是，在元数据区域内有NAT，SIT和SSA区域，当我们添加文件内容时，需要更新元数据区。</li>
+</ol>
+<p>我们将上面的内容进行抽象，即Inode修改，MetaData修改，和Data Block修改。用一个集合表示<code>&#123;INode，Metadata，DataBlock&#125;</code>，所以我们要修改的Block起码涉及3处，假如在这个集合任意一处发生了系统崩溃或者系统断电，那么将造成一个问题，三个区域的数据内容对不上，这样就引发了崩溃一致性问题。</p>
+<hr>
+<h2 id="解决崩溃一致性问题"><a href="#解决崩溃一致性问题" class="headerlink" title="解决崩溃一致性问题"></a>解决崩溃一致性问题</h2><p>崩溃一致性问题，在一般的教科书上，通常有2种方式：FSCK和Jounral机制。</p>
+<ul>
+<li>Fsck基本原理就是检查目录项数据与元数据是否一样，如果不一样的话，通过一定的算法进行Recovery【要么修改目录项保持和元数据一样，要么根据元数据修改目录项，这个看起来是废话，但是对于fsck.msdos这就是裁剪簇链或者更新目录项的基本思想】</li>
+<li>本文不探讨Fsck，解决崩溃一致性问题比较有效的还是Journal机制，也就是写日志，也是借鉴了数据库的思想。</li>
+</ul>
+<blockquote>
+<p>这里借助南大蒋炎岩老师的思路往下说：</p>
+</blockquote>
+<p>对于一个二叉树，有2个视角，一个是数据结构视角，一个是文件操作视角。</p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230807231209215.png" srcset="/img/loading.gif" lazyload alt="image-20230807231209215" style="zoom:80%;">
+
+<p>中序遍历的结果为：<strong>12345</strong></p>
+<p>从文件操作的角度看：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">insert</span> <span class="hljs-number">4</span><br><span class="hljs-keyword">insert</span> <span class="hljs-number">2</span><br><span class="hljs-keyword">insert</span> <span class="hljs-number">5</span><br><span class="hljs-keyword">insert</span> <span class="hljs-number">1</span><br><span class="hljs-keyword">insert</span> <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<p>这样我们就可以通过记录所有的文件操作，反向还原出这棵树的原样。</p>
+<hr>
+<p><strong>两个“视角”</strong></p>
+<ol>
+<li>存储实际数据结构<ul>
+<li>文件系统的”直观”表示</li>
+<li>crash unsafe</li>
+</ul>
+</li>
+<li>Append-only记录所有历史操作<ul>
+<li>“重做”所有操作得到数据结构的当前状态</li>
+<li>容易实现崩溃一致性</li>
+</ul>
+</li>
+</ol>
+<p><strong>两者的融合</strong></p>
+<ul>
+<li>数据结构发生时，用（2）append-only记录日志</li>
+<li>日志落盘后，用（1）更新数据结构</li>
+<li>崩溃后，重放日志并清除（称为redo log；相应也可以undo log）</li>
+</ul>
+<h2 id="抽象Journal过程"><a href="#抽象Journal过程" class="headerlink" title="抽象Journal过程"></a>抽象Journal过程</h2><img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817222646785.png" srcset="/img/loading.gif" lazyload alt="image-20230817222646785" style="zoom:67%;">
+
+
+
+<ol>
+<li><p>通过bread扫描磁盘找到可以写入新的journal的起始位置</p>
+</li>
+<li><p>开始bwrite写入TxBegin，表示事务开始了</p>
+</li>
+<li><p>开始bwrite写入许多的文件操作</p>
+</li>
+<li><p>文件操作写完之后，一定要先调用bflush确保前面所有的操作日志落盘</p>
+</li>
+<li><p>bwrite写入TxEnd，表示整个事务结束了</p>
+</li>
+<li><p>最后一样要调用bflush，确保整个是事务数据都落盘了</p>
+<ul>
+<li><p>当存在系统崩溃Crash</p>
+</li>
+<li><p>恢复的时候只要看有没有TxEnd标志，如果没有就将整个事务Transaction全部丢弃</p>
+</li>
+<li><p>只要有TxEnd，就能100%确保前面的所有操作日志已经落盘了</p>
+</li>
+</ul>
+</li>
+<li><p>后面就真正的去更新数据区域Main Data Area里面的数据块就行了</p>
+</li>
+</ol>
+<hr>
+<p><strong>Journaling的优化：</strong></p>
+<p>现在磁盘都需要写入双份的日志journal</p>
+<ul>
+<li>批处理(xv6;jbd)<ul>
+<li>多次系统调用的Tx合并成一个，减少log大小</li>
+<li>jdb：定期writeback</li>
+</ul>
+</li>
+<li>CheckSum(Ext4)<ul>
+<li>不再标记TxBegin&#x2F;TxEnd</li>
+<li>直接标记Tx的长度和checksum</li>
+<li>当Tx的长度和checksum相等，表明是一次完整的journal</li>
+</ul>
+</li>
+<li>Metadata journaling(ext4 default)<ul>
+<li>数据占磁盘写入的绝大部分<ul>
+<li>只对inode和bitmap做journaling可以提高性能</li>
+</ul>
+</li>
+<li>保证文件系统的目录结构是一样的，但数据可能丢失</li>
+</ul>
+</li>
+</ul>
+<h2 id="书面化的Journal"><a href="#书面化的Journal" class="headerlink" title="书面化的Journal"></a>书面化的Journal</h2><p>✉️ <strong>摘抄自：《操作系统导论》</strong></p>
+<blockquote>
+<p>对于一致更新问题，最流行的解决方案可能是从数据库管理系统的世界中借鉴的一个想法。这种名为预写日志（write-ahead logging）的想法，是为了解决这类问题而发明的。在文件系统中，出于历史原因，我们通常将预写日志称为日志（journaling）。第一个实现它的文件系统是 Cedar ，但许多现代文件系统都使用这个想法，包括 Linux ext3 和 ext4、reiserfs、IBM 的 JFS、SGI 的 XFS 和 Windows NTFS。</p>
+</blockquote>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817224041664.png" srcset="/img/loading.gif" lazyload alt="image-20230817224041664" style="zoom:80%;">
+
+<blockquote>
+<p>这里的加检查点可能还是比较抽象，简单的说：</p>
+<p>数据日志（data journaling）的工作原理是，在将 inode、位图和数据块写入磁盘位置之前，先将它们写入日志。对于这个请求添加事务标记构成一个事务，一旦这个事务安全地存在于磁盘上，我们就可以在系统中打一个时间戳，表明整个操作日志已经顺利落盘了。打完时间戳，就开始将inode、位图和数据块写入到磁盘。这个整个过程成为加检查点，所以checkpoint是一个行为，是一个动作，在f2fs文件系统里面表现为do_checkpoint函数。当我们恢复的时候只要找到最近的一个时间戳，把它记录的事务日志重做一遍就行。</p>
+</blockquote>
+<blockquote>
+<p><strong>数据恢复的过程：</strong></p>
+<p>如果崩溃发生在事务被安全地写入日志之前，那只需要简单地跳过待执行的更新。如果在事务已提交到日志之后，但在加检查点完成之前发生崩溃，可以在系统引导时，文件系统恢复过程将扫描日志，并查找已提交到磁盘的事务。然后将这些事务重放（replayed），文件系统再次尝试将事务中的块写入它们最终的磁盘位置，称为<strong>重做日志（redo logging）</strong>。</p>
+</blockquote>
+<hr>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230817223902687.png" srcset="/img/loading.gif" lazyload alt="image-20230817223902687" style="zoom: 80%;">
+
+<h2 id="数据库的前滚恢复和后滚恢复"><a href="#数据库的前滚恢复和后滚恢复" class="headerlink" title="数据库的前滚恢复和后滚恢复"></a>数据库的前滚恢复和后滚恢复</h2><p><strong>注：不针对某一个具体的数据库，这里只讨论思想</strong></p>
+<p><strong>前滚：</strong></p>
+<blockquote>
+<p>未完全提交的事务，即该事务已经被执行commit命令了，只是现在该事务修改所对应的脏数据块中只有一部分被写到磁盘上的数据文件中，还有一部分已经被置为提交标记的脏块还在内存上，如果此时数据库实例崩溃了，则当数据库实例恢复时，就需要用前滚（这个机制）来完成事务的完全提交，即将先前那部分已经被置为提交标记且还在内存上的脏块写入到磁盘上的数据文件中。</p>
+</blockquote>
+<p><strong>回滚（后滚）：</strong></p>
+<blockquote>
+<p>未提交的事务，即该事务未被执行commit命令。但是此时，该事务修改的脏块中也有可能一部分脏块写入到数据文件中了。如果此时数据库实例崩溃了，则当数据库实例恢复时，就需要用回滚（这个机制）来将先前那部分已经写入到数据文件的脏块从数据文件上撤销掉。</p>
+</blockquote>
+<p><strong>数据库Crash Recovery过程：</strong></p>
+<ol>
+<li>首先进行前滚：在重做日志redolog中找到最近检查点位置，然后从该检查点位置开始往下，应用所有的重做条目，从而在buffer cache里又恢复了实例崩溃那个时间点的状态。这个过程叫做前滚，前滚完毕以后，buffer cache里既有崩溃时已经提交还没有写入数据文件的脏数据块，也还有事务被突然终止，而导致的既没有提交又没有回滚的事务所弄脏的数据块。</li>
+<li>前滚一旦完毕，立即打开数据库。但是，这时的数据库中还含有那些中间状态的、既没有提交又没有回滚的脏块，这种脏块是不能存在于数据库中的，因为它们并没有被提交，必须被回滚。打开数据库以后，进程会在后台进行回滚。</li>
+</ol>
+<p><strong>数据库Crash Recovery示例：</strong></p>
+<p>程序员在9:00:00打卡开始上班，触发了5个事务，分别是T1，T2，T3，T4，T5。在9:07:46的时候，T3和T5完成（commit），在9:08:00的时候发生了检查点事件，此时系统将对数据区的更改都写入到磁盘数据文件中，在9:08:27时，系统异常断电，因此9:08:00到9:08:27之间的数据操作都仅仅记录在redo log中，并没有将这些修改写入到磁盘数据文件中。当重新启动数据库时，会进行Crash Recovery，整个过程分为前滚和后滚。前滚是指9:08:00至9:08:27的操作重新保存到Buffer Cache中，由于这些操作都记录在了redo log中，因此只需要从redo log中读取这些操作并执行即可。前滚执行完毕以后，会立即打开数据库，此时数据库吃鱼异常关闭前的状态。打开数据库后进入回滚，回滚阶段是指将未提交的事务回滚，即示例中的T1、T2和T4回滚，此时数据库恢复正常。</p>
+<blockquote>
+<p>需要注意一下：不是只有commit才会触发写入redo log，事务开始后会有各种场景触发redo log写入。</p>
+</blockquote>
+<h2 id="F2FS文件系统Checkpoint机制"><a href="#F2FS文件系统Checkpoint机制" class="headerlink" title="F2FS文件系统Checkpoint机制"></a>F2FS文件系统Checkpoint机制</h2><h3 id="f2fs-checkpoint数据结构"><a href="#f2fs-checkpoint数据结构" class="headerlink" title="f2fs_checkpoint数据结构"></a>f2fs_checkpoint数据结构</h3><p>首先我们看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820215948710.png" srcset="/img/loading.gif" lazyload alt="image-20230820215948710" style="zoom:50%;">
+
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820220002296.png" srcset="/img/loading.gif" lazyload alt="image-20230820220002296" style="zoom:50%;">
+
+<p>checkpoint区域主要有以下几个部分：</p>
+<ul>
+<li>Header和footer：在每一个checkpoint pack中都有header和footer。checkpoint会在header和footer中都存储一个cp版本号，随着每一次checkpoint动作发生，会依次递增。当进行挂载的时候，当cp_pack中的header和footer相等认为该cp是有效的，否则备份区域有效。如果主备份区域都是有效的，选择时间点最近的一个cp区域。</li>
+<li>nat_bitmap和sit_bitmap：nat_bitmap表示当前的block是在nat主区还是nat备区；sit_bitmap表示当前segment的分配情况【存疑，是否也是用于区分主备区】。</li>
+<li>nat_journal和sit_journal：是nat区域和sit区域的journal日志，详见：<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/">f2fs文件系统Journal机制_</a></li>
+<li>summary blocks of active segments：</li>
+<li>Orphan block：存放孤儿节点打信息。</li>
+</ul>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+
+
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:80%;">
+
+<p>对应的数据结构为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_checkpoint</span> &#123;</span><br>    __le64 checkpoint_ver;      <span class="hljs-comment">/* checkpoint block version number */</span><br>    __le64 user_block_count;    <span class="hljs-comment">/* # of user blocks */</span><br>    __le64 valid_block_count;   <span class="hljs-comment">/* # of valid blocks in main area */</span><br>    __le32 rsvd_segment_count;  <span class="hljs-comment">/* # of reserved segments for gc */</span><br>    __le32 free_segment_count;  <span class="hljs-comment">/* # of free segments in main area */</span><br><br>    <span class="hljs-comment">/* information of current node segments */</span><br>    __le32 cur_node_segno[MAX_ACTIVE_NODE_LOGS];<br>    __le16 cur_node_blkoff[MAX_ACTIVE_NODE_LOGS];<br>    <span class="hljs-comment">/* information of current data segments */</span><br>    __le32 cur_data_segno[MAX_ACTIVE_DATA_LOGS];<br>    __le16 cur_data_blkoff[MAX_ACTIVE_DATA_LOGS];<br>    __le32 ckpt_flags;      <span class="hljs-comment">/* Flags : umount and journal_present */</span><br>    __le32 cp_pack_total_block_count;   <span class="hljs-comment">/* total # of one cp pack */</span><br>    __le32 cp_pack_start_sum;   <span class="hljs-comment">/* start block number of data summary */</span><br>    __le32 valid_node_count;    <span class="hljs-comment">/* Total number of valid nodes */</span><br>    __le32 valid_inode_count;   <span class="hljs-comment">/* Total number of valid inodes */</span><br>    __le32 next_free_nid;       <span class="hljs-comment">/* Next free node number */</span><br>    __le32 checksum_offset;     <span class="hljs-comment">/* checksum offset inside cp block */</span><br>    __le64 elapsed_time;        <span class="hljs-comment">/* mounted time */</span><br>    <span class="hljs-comment">/* allocation type of current segment */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> alloc_type[MAX_ACTIVE_LOGS];<br><br>    <span class="hljs-comment">/* SIT and NAT version bitmap */</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> sit_nat_version_bitmap[];<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="checkpoint作用"><a href="#checkpoint作用" class="headerlink" title="checkpoint作用"></a>checkpoint作用</h3><p>看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820215120800.png" srcset="/img/loading.gif" lazyload alt="image-20230820215120800" style="zoom:50%;">
+
+<p>从F2FS的磁盘布局可以了解到，F2FS有一个元数据区域，用于集中管理磁盘所有的block的信息，因此F2FS使用了检查点(checkpointing)机制去维护文件系统的恢复点(recovery point)，这个恢复点用于在系统突然崩溃的时候，元数据区域依然能够正确地将数据重新读取出来。因此保证元数据区域的有效性以及恢复性。当F2FS需要通过 <code>fsync</code> 或 <code>umount</code> 等命令对系统进行同步的时候，F2FS会触发一次Checkpoint机制，它会完成以下的工作:</p>
+<ol>
+<li>页缓存的脏node和dentry block会刷写回到磁盘;</li>
+<li>挂起系统其他的写行为，如create，unlink，mkdir；</li>
+<li>将系统的meta data，如NAT、SIT、SSA的数据写回磁盘;</li>
+<li>更新checkpoint的状态，包括checkpoint的版本，NAT和SIT的bitmaps以及journals，SSA，Orphan inode</li>
+</ol>
+<h3 id="后滚恢复原理Roll-Back-Recovery"><a href="#后滚恢复原理Roll-Back-Recovery" class="headerlink" title="后滚恢复原理Roll-Back Recovery"></a>后滚恢复原理Roll-Back Recovery</h3><p>看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232432068.png" srcset="/img/loading.gif" lazyload alt="image-20230727232432068" style="zoom: 50%;">
+
+<p>突然出现断电异常以后，F2FS会回滚到最近的一次检查点。为了确保最少有一个稳定的检查点，F2fS会维护两份checkpoint pack，如果一个checkpoint pack的头部和尾部是一致的，我们认为他是有效的，否则就丢弃它里面的内容。</p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727232815934.png" srcset="/img/loading.gif" lazyload alt="image-20230727232815934" style="zoom: 50%;">
+
+<p>后滚恢复发生的F2FS文件系统挂载的时候，它会去检查checkpoint pack的头部和尾部。如果2个checkpoint pack都是有效的，F2FS会比较cp1和cp2的版本，最终会选择版本最新的那一个。同时会去检查选择的cp是否存在孤儿节点，如果存在会将它引用的数据块全部截断。</p>
+<hr>
+<p>因为后滚恢复发生在了mount阶段，先简单说下调用调用栈：</p>
+<p><strong>f2fs_mount -&gt; f2fs_fill_super -&gt; f2fs_get_valid_checkpoint</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">f2fs_get_valid_checkpoint</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi)</span> &#123;<br>	sbi-&gt;ckpt = f2fs_kvzalloc(sbi, array_size(blk_size, cp_blks),<br>				  GFP_KERNEL);<br>    <br>    <span class="hljs-comment">// cp1的起始地址</span><br>	cp_start_blk_no = le32_to_cpu(fsb-&gt;cp_blkaddr);<br>    <span class="hljs-comment">// 获取cp1的版本号，同时cp1是一个页，对应了cp区域的一个block</span><br>	cp1 = validate_checkpoint(sbi, cp_start_blk_no, &amp;cp1_version);<br><br>	<span class="hljs-comment">// cp2的起始地址</span><br>	cp_start_blk_no += ((<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span>)<span class="hljs-number">1</span>) &lt;&lt;<br>				le32_to_cpu(fsb-&gt;log_blocks_per_seg);<br>    <span class="hljs-comment">// 获取cp2的版本号，同时cp2是一个页，对应了cp区域的一个block</span><br>	cp2 = validate_checkpoint(sbi, cp_start_blk_no, &amp;cp2_version);<br>	<br>    <span class="hljs-comment">// 如果2个cp pack都是有效的，选择最新的那个</span><br>	<span class="hljs-keyword">if</span> (cp1 &amp;&amp; cp2) &#123;<br>		<span class="hljs-keyword">if</span> (ver_after(cp2_version, cp1_version))<br>			cur_page = cp2;<br>		<span class="hljs-keyword">else</span><br>			cur_page = cp1;<br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cp1) &#123;<br>		cur_page = cp1;<br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cp2) &#123;<br>		cur_page = cp2;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		err = -EFSCORRUPTED;<br>		<span class="hljs-keyword">goto</span> fail_no_cp;<br>	&#125;<br><br>	cp_block = (<span class="hljs-keyword">struct</span> f2fs_checkpoint *)page_address(cur_page);<br>	<span class="hljs-built_in">memcpy</span>(sbi-&gt;ckpt, cp_block, blk_size);  <span class="hljs-comment">// 拷贝到内存中</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里我不想花太多的经历去研究所谓的checksum算法，也就是如何确保头部和尾部是一样的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> page *<span class="hljs-title function_">validate_checkpoint</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> f2fs_sb_info *sbi,</span><br><span class="hljs-params">				<span class="hljs-type">block_t</span> cp_addr, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span> *version)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">cp_page_1</span> =</span> <span class="hljs-literal">NULL</span>, *cp_page_2 = <span class="hljs-literal">NULL</span>;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_checkpoint</span> *<span class="hljs-title">cp_block</span> =</span> <span class="hljs-literal">NULL</span>;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span> cur_version = <span class="hljs-number">0</span>, pre_version = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">int</span> err;<br>	<br>    <span class="hljs-comment">// 获取cp pack中page1的版本号【也就是头部】</span><br>	err = get_checkpoint_version(sbi, cp_addr, &amp;cp_block, &amp;cp_page_1, version);<br>	pre_version = *version;<br>	<br>    <span class="hljs-comment">// 获取cp pack中page2的版本号【也就是尾部】</span><br>	cp_addr += le32_to_cpu(cp_block-&gt;cp_pack_total_block_count) - <span class="hljs-number">1</span>;<br>	err = get_checkpoint_version(sbi, cp_addr, &amp;cp_block, &amp;cp_page_2, version);<br>	cur_version = *version;<br>	<br>    <span class="hljs-comment">// 判断头部尾部是不是相等</span><br>	<span class="hljs-keyword">if</span> (cur_version == pre_version) &#123;<br>		*version = cur_version;<br>		f2fs_put_page(cp_page_2, <span class="hljs-number">1</span>);<br>		<span class="hljs-keyword">return</span> cp_page_1;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里就不去研究这个crc值怎么算的了：</p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234038768.png" srcset="/img/loading.gif" lazyload alt="image-20230727234038768" style="zoom: 67%;">
+
+<ul>
+<li>首先获取到cp起始位置偏移0xffc后的4个字节值</li>
+<li>然后计算cp区域的crc值</li>
+<li>将计算出来的值和cp区域保存的值比较，判断是不是一致的，也就是判断CP区域的数据是不是记录全了，日志是不是完备的。</li>
+</ul>
+<hr>
+<p>算了，简单说一下CP区域里面保存的那个<strong>cp起始位置偏移0xffc后的4个字节值</strong>怎么来的？</p>
+<ol>
+<li>当我们执行mkfs.f2fs格式化磁盘的时候，会调用这里</li>
+</ol>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234351910.png" srcset="/img/loading.gif" lazyload alt="image-20230727234351910" style="zoom:75%;">
+
+<ol start="2">
+<li>计算CRC值以后记录到对应的位置</li>
+</ol>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230727234432799.png" srcset="/img/loading.gif" lazyload alt="image-20230727234432799" style="zoom:75%;">
+
+
+
+<h3 id="前滚恢复原理Roll-Forward-Recovery"><a href="#前滚恢复原理Roll-Forward-Recovery" class="headerlink" title="前滚恢复原理Roll-Forward Recovery"></a>前滚恢复原理Roll-Forward Recovery</h3><p>还是先看论文《F2FS: A New File System for Flash Storage》怎么说的</p>
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820214217698.png" srcset="/img/loading.gif" lazyload alt="image-20230820214217698" style="zoom:50%;">
+
+<img src="/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/image-20230820214243206.png" srcset="/img/loading.gif" lazyload alt="image-20230820214243206" style="zoom:50%;">
+
+<p>应用程序常常会调用fsync完成一些同步性的请求，为了满足这个同步性的请求，一个简单的方法是每次调用fsync都写一次Checkpoint。然而，由于Checkpoint需要同时写入大量与调用fsync的应用程序无关的node、 dentry block等数据，因此这是一个大开销的操作，会影响到手机的流畅性。</p>
+<p>因此，F2FS使用了高效的前滚恢复方式以优化fsync的性能。核心的概念是只写入data block和direct node到磁盘，但是而不写入其他元数据。F2FS具体实现是在fsync操作完成之后，给每一个相关的direct node加上一个特殊的标记位。当系统后滚恢复到了一个稳定的Checkpoint后，F2FS会选择性地(通过标记位)通过前滚恢复恢复一些已经fsync到磁盘，但是没有被元数据索引的一些数据。</p>
+<p>一个典型的场景是：当完成一次写操作后，需要更新node page和data block，然后执行fsync，node page以及data block在submit bio后就完成了数据写入磁盘。此时需要注意的是nat bitmap是在checkpoit的地方更新的，优化后的fsync，不会每一次fsync都会执行checkpoint。但是如果在checkpoint之前出现了宕机，虽然node page和data page本身已经写入了磁盘，但是丢失了nat bitmap，因此无法索引这些已经写入磁盘的node page和data page，这时就要利用前滚恢复机制，重新建立索引。</p>
+<p>前滚恢复的原理如下:</p>
+<ol>
+<li>假设上一次稳定的Checkpoint的日志位置是N</li>
+<li>F2FS收集了日志位置是N+n的，含有特殊标记位的direct node block，这些block之间组成一个list用于表示node information，其中n表示上一次稳定的Checkpoint之后写入了多少个block。通过这个list中的node information，系统将距离上一次稳定的Checkpoint最靠近的被更新的node block(日志位置是N-n)，载入到cache当中。</li>
+<li>比较日志位置是N-n和N+n的数据是否一致，如果不一致则使用N+n的数据覆盖已经缓存的N-n的node block，然后标记为脏。</li>
+<li>执行写Checkpoint流程，刷新元数据。</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>f2fs文件系统checkpoint特性</div>
+      <div>http://example.com/2023/07/26/f2fs文件系统checkpoint特性/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/08/08/fork%E5%AD%90%E8%BF%9B%E7%A8%8B%E8%B6%85%E6%97%B6%E6%8E%A7%E5%88%B6/" title="【实验】fork子进程超时控制">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【实验】fork子进程超时控制</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/26/%E6%97%A5%E5%BF%97%E5%9E%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" title="日志型文件系统">
+                        <span class="hidden-mobile">日志型文件系统</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

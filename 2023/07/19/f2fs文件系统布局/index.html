@@ -1,0 +1,981 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="f2fs文件系统布局💌 感谢HZero.chen，让我对f2fs文件系统的布局有了更深刻的认识~文章许多图片都来来自于他的文章，仅作本人学习备忘 1.准备实验环境我们首先创建一个镜像，将其格式化为f2fs文件系统，并与loop设备进行绑定，随后进行挂载 12345sudo apt-get install -y f2fs-tools             &#x2F;&#x2F; 安装f2fs工具dd if&#x3D;&#x2F;de">
+<meta property="og:type" content="article">
+<meta property="og:title" content="f2fs文件系统布局">
+<meta property="og:url" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="f2fs文件系统布局💌 感谢HZero.chen，让我对f2fs文件系统的布局有了更深刻的认识~文章许多图片都来来自于他的文章，仅作本人学习备忘 1.准备实验环境我们首先创建一个镜像，将其格式化为f2fs文件系统，并与loop设备进行绑定，随后进行挂载 12345sudo apt-get install -y f2fs-tools             &#x2F;&#x2F; 安装f2fs工具dd if&#x3D;&#x2F;de">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/1.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719213848821.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/2.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/3.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/4.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/5.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/6.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719233445458.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719234855034.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235441702.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235854137.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724233134094.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724232829641.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724232531598.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724233756028.png">
+<meta property="og:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230723231428571.png">
+<meta property="article:published_time" content="2023-07-19T13:18:29.000Z">
+<meta property="article:modified_time" content="2023-07-24T15:49:23.461Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png">
+  
+  
+  
+  <title>f2fs文件系统布局 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="f2fs文件系统布局"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-19 21:18" pubdate>
+          2023年7月19日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          99 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">f2fs文件系统布局</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="f2fs文件系统布局"><a href="#f2fs文件系统布局" class="headerlink" title="f2fs文件系统布局"></a>f2fs文件系统布局</h1><p>💌 感谢<a target="_blank" rel="noopener" href="https://blog.csdn.net/jasonactions/article/details/122409327">HZero.chen</a>，让我对f2fs文件系统的布局有了更深刻的认识~文章许多图片都来来自于他的文章，仅作本人学习备忘</p>
+<h2 id="1-准备实验环境"><a href="#1-准备实验环境" class="headerlink" title="1.准备实验环境"></a>1.准备实验环境</h2><p>我们首先创建一个镜像，将其格式化为f2fs文件系统，并与loop设备进行绑定，随后进行挂载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo apt-get install -y f2fs-tools             // 安装f2fs工具<br><span class="hljs-built_in">dd</span> <span class="hljs-keyword">if</span>=/dev/zero of=f2fs.img bs=4K count=51200  // 创建200M的f2fs.img<br>mkfs.f2fs -l f2fs f2fs.img                     // 格式化为f2fs<br>sudo losetup /dev/loop0 f2fs.img               // 将loop0与f2fs.img绑定【可以通过losetup -f查看当前空闲loop设备】<br>sudo mount /dev/loop0 ./mntf2fs/               // 将loop0进行挂载<br></code></pre></td></tr></table></figure>
+
+<p>为了模拟真实的f2fs文件系统的flash设备，我们往里面放一些材料</p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719212612079.png" srcset="/img/loading.gif" lazyload alt="image-20230719212612079" style="zoom: 80%;">
+
+<ul>
+<li>foo.txt是一个文本文件，里面只有一句话就是hello amx</li>
+<li>meinv.jpg是一个jpg格式的图片，大小约为5.40Mb</li>
+</ul>
+<h2 id="2-整体布局"><a href="#2-整体布局" class="headerlink" title="2.整体布局"></a>2.整体布局</h2><blockquote>
+<p>这张图来自于论文：《<strong>F2FS: A New File System for Flash Storage</strong>》</p>
+</blockquote>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 80%;">
+
+<p>可以看到整体布局是常规的文件系统布局方式：<strong>超级块 + 元数据区 + 用户数据区</strong>；</p>
+<ul>
+<li>元数据区分为了CP、SIT、NAT、SSA四个区域，这四个区域都是以Segment为单位进行对齐的。</li>
+<li>因f2fs为日志结构文件系统LFS，所以其用户数据区也称为日志区Main Area。f2fs不同于传统的LFS将所有的数据都存储在一个日志里面，f2fs将其划分为了Node Segment和Data Segment，又根据其是否经常改动划分为了Hot、Warm和Cold，因此总共是6种形式。</li>
+</ul>
+<hr>
+<p><strong>f2fs基本数据单位</strong></p>
+<ul>
+<li><strong>block</strong>: F2FS的数据存储的基本单位是block，大小为4KB，整个flash设备被格式化为多个block组成的结构。很多数据结构也被设计为4KB的大小，这是因为很多flash设备单次IO的读写都是基于4KB的倍数进行。</li>
+<li><strong>segment</strong>: segment是管理block的结构，一个segment的大小是512个block，也就是2MB。</li>
+<li><strong>section</strong>: 默认情况下一个segment等于一个section，section是GC的基本操作单位，每次GC都会从section中选出特定的segment进行回收。F2FS将section分为了6类，分别是hot-node，warm-node，cold-node，hot-data，warm-data，cold-data，hot-&gt;cold表示了数据的从高到低的修改频率，通过不同类型section：进行gc的时候可针对使用hot的section进行gc，以降低gc的时间开销。</li>
+<li><strong>zone</strong>: 默认情况一个zone等于一个section，与物理设备有关，大部分情况下用不上</li>
+</ul>
+<h3 id="2-1-超级块SuperBlock"><a href="#2-1-超级块SuperBlock" class="headerlink" title="2.1 超级块SuperBlock"></a>2.1 超级块SuperBlock</h3><p>值得注意的是，f2fs的superblock不是从0x0开始，而是预留了1KB，即其偏移量为0x400</p>
+<blockquote>
+<p>读者可以通过<strong>hexdump</strong>命令查看supeblock或者通过<strong>ultra edit</strong>手动查看</p>
+</blockquote>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719213848821.png" srcset="/img/loading.gif" lazyload alt="image-20230719213848821" style="zoom:80%;">
+
+<p>🔴 <strong>注意</strong>：我们这里只关注Disk本身的布局方式，而不关注其在内存中的表现形式！</p>
+<p>其对应了<code>f2fs_super_block</code>结构体</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_super_block</span> &#123;</span><br>	__le32 magic;			<span class="hljs-comment">/* Magic Number */</span><br>	__le16 major_ver;		<span class="hljs-comment">/* Major Version */</span><br>	__le16 minor_ver;		<span class="hljs-comment">/* Minor Version */</span><br>	__le32 log_sectorsize;		<span class="hljs-comment">/* log2 sector size in bytes */</span><br>	__le32 log_sectors_per_block;	<span class="hljs-comment">/* log2 # of sectors per block */</span><br>	__le32 log_blocksize;		<span class="hljs-comment">/* log2 block size in bytes */</span><br>	__le32 log_blocks_per_seg;	<span class="hljs-comment">/* log2 # of blocks per segment */</span><br>	__le32 segs_per_sec;		<span class="hljs-comment">/* # of segments per section */</span><br>	__le32 secs_per_zone;		<span class="hljs-comment">/* # of sections per zone */</span><br>	__le32 checksum_offset;		<span class="hljs-comment">/* checksum offset inside super block */</span><br>	__le64 block_count;		<span class="hljs-comment">/* total # of user blocks */</span><br>	__le32 section_count;		<span class="hljs-comment">/* total # of sections */</span><br>	__le32 segment_count;		<span class="hljs-comment">/* total # of segments */</span><br>	__le32 segment_count_ckpt;	<span class="hljs-comment">/* # of segments for checkpoint */</span><br>	__le32 segment_count_sit;	<span class="hljs-comment">/* # of segments for SIT */</span><br>	__le32 segment_count_nat;	<span class="hljs-comment">/* # of segments for NAT */</span><br>	__le32 segment_count_ssa;	<span class="hljs-comment">/* # of segments for SSA */</span><br>	__le32 segment_count_main;	<span class="hljs-comment">/* # of segments for main area */</span><br>	__le32 segment0_blkaddr;	<span class="hljs-comment">/* start block address of segment 0 */</span><br>	__le32 cp_blkaddr;		<span class="hljs-comment">/* start block address of checkpoint */</span><br>	__le32 sit_blkaddr;		<span class="hljs-comment">/* start block address of SIT */</span><br>	__le32 nat_blkaddr;		<span class="hljs-comment">/* start block address of NAT */</span><br>	__le32 ssa_blkaddr;		<span class="hljs-comment">/* start block address of SSA */</span><br>	__le32 main_blkaddr;		<span class="hljs-comment">/* start block address of main area */</span><br>	__le32 root_ino;		<span class="hljs-comment">/* root inode number */</span><br>	__le32 node_ino;		<span class="hljs-comment">/* node inode number */</span><br>	__le32 meta_ino;		<span class="hljs-comment">/* meta inode number */</span><br>	__u8 uuid[<span class="hljs-number">16</span>];			<span class="hljs-comment">/* 128-bit uuid for volume */</span><br>	__le16 volume_name[MAX_VOLUME_NAME];	<span class="hljs-comment">/* volume name */</span><br>	__le32 extension_count;		<span class="hljs-comment">/* # of extensions below */</span><br>	__u8 extension_list[F2FS_MAX_EXTENSION][F2FS_EXTENSION_LEN];<span class="hljs-comment">/* extension array */</span><br>	__le32 cp_payload;<br>	__u8 version[VERSION_LEN];	<span class="hljs-comment">/* the kernel version */</span><br>	__u8 init_version[VERSION_LEN];	<span class="hljs-comment">/* the initial kernel version */</span><br>	__le32 feature;			<span class="hljs-comment">/* defined features */</span><br>	__u8 encryption_level;		<span class="hljs-comment">/* versioning level for encryption */</span><br>	__u8 encrypt_pw_salt[<span class="hljs-number">16</span>];	<span class="hljs-comment">/* Salt used for string2key algorithm */</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_device</span> <span class="hljs-title">devs</span>[<span class="hljs-title">MAX_DEVICES</span>];</span>	<span class="hljs-comment">/* device list */</span><br>	__le32 qf_ino[F2FS_MAX_QUOTAS];	<span class="hljs-comment">/* quota inode numbers */</span><br>	__u8 hot_ext_count;		<span class="hljs-comment">/* # of hot file extension */</span><br>	__le16  s_encoding;		<span class="hljs-comment">/* Filename charset encoding */</span><br>	__le16  s_encoding_flags;	<span class="hljs-comment">/* Filename charset encoding flags */</span><br>	__u8 reserved[<span class="hljs-number">306</span>];		<span class="hljs-comment">/* valid reserved region */</span><br>	__le32 crc;			<span class="hljs-comment">/* checksum of superblock */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><strong>第一个SuperBlock(sb#1)如下所示【偏移0x400】：</strong></li>
+</ul>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/2.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:67%;">
+
+<ul>
+<li><strong>第二个SuperBlock(sb#2)如下所示【偏移0x1400】：</strong></li>
+</ul>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
+
+<blockquote>
+<p>以下内容来自：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/634651371">https://zhuanlan.zhihu.com/p/634651371</a></p>
+</blockquote>
+<ul>
+<li><p><strong>magic</strong>：f2fs的魔数字，用来检查SuperBlock是否破损，其内容固定为0xF2F52010。</p>
+</li>
+<li><p><strong>major_ver、minor_ver</strong>：这两个是Linux用于标识一个块设备的主次号，主次号可以确定系统中的每一个块设备。</p>
+</li>
+<li><p><strong>log_sectorsize</strong>：块设备中一个扇区大小，普通设备是512，此处是对2取对数后的结果，所以是9。</p>
+</li>
+<li><p><strong>log_sectors_per_block</strong>：一个block对应扇区数，并对2取对数后的结果，一个block是4KB，而sector是512，所以结果是3。</p>
+</li>
+<li><p><strong>log_blocksize</strong>：一个block大小对2取对数的结果，也即log2(4096)，结果是12。</p>
+</li>
+<li><p><strong>log_blocks_per_seg</strong>：一个segment对应的block数目，并对2取对数的结果，结果是9。</p>
+</li>
+<li><p><strong>segs_per_sec、secs_per_zone</strong>：分别是一个section对应的segmeng数量和一个zone对应的section数量，默认两者均为1。</p>
+</li>
+<li><p><strong>crc_offset、crc</strong>：SuperBlock中的crc字段偏移量，crc则是该SuperBlock结构体的crc计算结果，用于检查SuperBlock的正确性。其中这两个字段由F2FS_FEATURE_SB_CHKSUM标记位控制，如果设置了该标记，mkfs才会真正写入这两个字段的内容。</p>
+</li>
+<li><p><strong>block_count</strong>：整个块设备的block个数，需要做4KB对齐，如果对应多个设备，计算的是所有设备的block个数。</p>
+</li>
+<li><p><strong>section_count</strong>：Main Area对应的section个数，如果是多设备，需要全部计算。</p>
+</li>
+<li><p><strong>segment_count_ckpt</strong>：CP区域所占的segment数，CP区域固定占2个segment。</p>
+</li>
+<li><p><strong>segment_count_sit</strong>：SIT区域所占用的segment数，这个是根据segment_count的值确定的，一个f2fs_sit_entry结构体占74字节，所以一个block可容纳56个f2fs_sit_entry，也即一个segment可容纳28672个f2fs_sit_entry，对应的是56G。但由于SIT有一个备份区域，所以每56G的大小就需要2个segment。注意：SIT区域管理系统中所有的segment，包括CP区域和SIT区域自身。</p>
+</li>
+<li><p><strong>segment_count_nat</strong>：NAT区域所占用的segment数，对应的是从NAT区域开始的所有block（包括NAT、SSA、Node、Data区域）。一个f2fs_nat_entry大小是9字节，所以一个block对应455个f2fs_nat_entry。同样，NAT区域也有一个备份区。</p>
+</li>
+<li><p><strong>segment_count_ssa</strong>：SSA区域所占用的segmeng数，一个SSA Block对应的是一个segment信息。同时需要注意的是，SSA区域主要是用于GC流程的，如果f2fs在mkfs的时候指定了只读属性，那么该区域也就没必要的。对应的是从SSA区域开始的所有segment的管理。SSA区域不做备份。</p>
+</li>
+<li><p><strong>segment_count_main</strong>：Main Area区域对应的segment数，包括Node和Data的区域。</p>
+</li>
+<li><p><strong>segment0_blkaddr</strong>：第一个segment的开始对应的block号，注意：本来第一个segment应该对应的是SuperBlock，但是f2fs是从CP区域开始对segment进行编码的，所以对应的是CP区域的开始block。</p>
+</li>
+<li><p>⭐<strong>cp_blkaddr</strong>：CP区域的起始block号，和segment0_blkaddr一样。</p>
+</li>
+<li><p>⭐<strong>sit_blkaddr</strong>：SIT区域的起始block号。</p>
+</li>
+<li><p>⭐<strong>nat_blkaddr</strong>：NAT区域的起始block号。</p>
+</li>
+<li><p>⭐<strong>ssa_blkaddr</strong>：SSA区域的起始block号。</p>
+</li>
+<li><p>⭐<strong>main_blkaddr</strong>：Main Area开始的block号。</p>
+</li>
+<li><p><strong>root_ino、meta_ino、node_ino</strong>：分别是root inode号，固定是3；元数据inode号，固定是2；Node对应的inode号，固定是1。其中root_ino是根目录的inode号，在文件系统挂载的是时候初始化，而meta_ino则对应元数据区域，缓存元数据的page cache；node_ino则对应的是所有node的page cache</p>
+</li>
+<li><p><strong>uuid</strong>：随机值盐值，用于计算inode的crc。</p>
+</li>
+<li><p><strong>volume_name</strong>：分区名。</p>
+</li>
+<li><p><strong>extension_list</strong>：可以通过ioctl设定将哪些文件标记为cold，一般是读多写少的文件，例如：mp3、gif等等</p>
+</li>
+<li><p><strong>version</strong>：mkfs时的linux的版本号。</p>
+</li>
+<li><p><strong>feature</strong>：mkfs指定的特性列表，例如：加密、SuperBlock的crc检查等等。&#x2F;sys&#x2F;fs&#x2F;f2fs&#x2F;features&#x2F;表示文件系统支持的特性。</p>
+</li>
+<li><p><strong>encrypt_pw_salt</strong>：密钥的加密盐值，可通过ioctl获取。</p>
+</li>
+<li><p><strong>devs</strong>：文件系统对应的设备列表，每个设备都有各自的地址访问，在写数据的时候需要遍历所有设备。</p>
+</li>
+<li><p><strong>s_encoding、s_encoding_flags</strong>：文件名编码格式？</p>
+</li>
+<li><p><strong>s_stop_reason</strong>：CP停止的原因（CP失败的原因？）</p>
+</li>
+<li><p><strong>s_errors</strong>：文件系统损坏的原因。</p>
+</li>
+</ul>
+<h3 id="2-2-CheckPoint"><a href="#2-2-CheckPoint" class="headerlink" title="2.2 CheckPoint"></a>2.2 CheckPoint</h3><img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 67%;">
+
+<blockquote>
+<p>如上为cp block的总体布局，分为两种：<strong>nomal mode</strong>和<strong>compact mode</strong>.通过镜像可知，本文创建的镜像的CP为compact mode<br>ckpt_flags的值是5，通过ckpt_flags &amp; CP_COMPACT_SUM_FLAG的值也可以知道，它就是compact mode.<br>cp区域主要包含两个cp pack，每个cp pack占据一个segment。</p>
+</blockquote>
+<h4 id="2-2-1-cp-page-1"><a href="#2-2-1-cp-page-1" class="headerlink" title="2.2.1 cp page 1"></a>2.2.1 cp page 1</h4><p>其对应的数据结构为<code>f2fs_checkpoint</code>结构体</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_checkpoint</span> &#123;</span><br>	__le64 checkpoint_ver;		<span class="hljs-comment">/* checkpoint block version number */</span><br>	__le64 user_block_count;	<span class="hljs-comment">/* # of user blocks */</span><br>	__le64 valid_block_count;	<span class="hljs-comment">/* # of valid blocks in main area */</span><br>	__le32 rsvd_segment_count;	<span class="hljs-comment">/* # of reserved segments for gc */</span><br>	__le32 overprov_segment_count;	<span class="hljs-comment">/* # of overprovision segments */</span><br>	__le32 free_segment_count;	<span class="hljs-comment">/* # of free segments in main area */</span><br><br>	<span class="hljs-comment">/* information of current node segments */</span><br>	__le32 cur_node_segno[MAX_ACTIVE_NODE_LOGS];<br>	__le16 cur_node_blkoff[MAX_ACTIVE_NODE_LOGS];<br>	<span class="hljs-comment">/* information of current data segments */</span><br>	__le32 cur_data_segno[MAX_ACTIVE_DATA_LOGS];<br>	__le16 cur_data_blkoff[MAX_ACTIVE_DATA_LOGS];<br>	__le32 ckpt_flags;		<span class="hljs-comment">/* Flags : umount and journal_present */</span><br>	__le32 cp_pack_total_block_count;	<span class="hljs-comment">/* total # of one cp pack */</span><br>	__le32 cp_pack_start_sum;	<span class="hljs-comment">/* start block number of data summary */</span><br>	__le32 valid_node_count;	<span class="hljs-comment">/* Total number of valid nodes */</span><br>	__le32 valid_inode_count;	<span class="hljs-comment">/* Total number of valid inodes */</span><br>	__le32 next_free_nid;		<span class="hljs-comment">/* Next free node number */</span><br>	__le32 sit_ver_bitmap_bytesize;	<span class="hljs-comment">/* Default value 64 */</span><br>	__le32 nat_ver_bitmap_bytesize; <span class="hljs-comment">/* Default value 256 */</span><br>	__le32 checksum_offset;		<span class="hljs-comment">/* checksum offset inside cp block */</span><br>	__le64 elapsed_time;		<span class="hljs-comment">/* mounted time */</span><br>	<span class="hljs-comment">/* allocation type of current segment */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> alloc_type[MAX_ACTIVE_LOGS];<br><br>	<span class="hljs-comment">/* SIT and NAT version bitmap */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> sit_nat_version_bitmap[<span class="hljs-number">1</span>];<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom: 50%;">
+
+<blockquote>
+<p>上面为HZero.chen博客中的数据，下面是我自己实验的数据</p>
+</blockquote>
+<hr>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719233445458.png" srcset="/img/loading.gif" lazyload alt="image-20230719233445458" style="zoom:67%;">
+
+<ul>
+<li><p><strong>checkpoint_ver</strong>：0x69d7b561</p>
+</li>
+<li><p><strong>user_block_count</strong>：0x7a00(31232)，4096&#x2F;512&#x3D;8个segment,而main area有56个segment，其它48个segment为overprovision segment</p>
+</li>
+<li><p><strong>valid_block_count</strong>：0x56d(1389)</p>
+</li>
+<li><p><strong>rsvd_segment_count</strong>：0x15(31)，保留了21个segment</p>
+</li>
+<li><p><strong>overprov_segment_count</strong>：0x1f(31)</p>
+</li>
+<li><p><strong>free_segment_count</strong>：0x54(84)</p>
+</li>
+<li><p><strong>cur_node_segno</strong></p>
+<ul>
+<li>0x01、0x02</li>
+</ul>
+</li>
+</ul>
+<p>—-cur_node_blkoff—-<br>0x00000006<br>0x0000000C<br>0x00000000</p>
+<p>—-cur_data_segno—-<br>0x00000034<br>0x00000001<br>0x00000000|</p>
+<p>—-cur_data_blkoff—-<br>0x00000005<br>0x00000003<br>0x00000001</p>
+<p>ckpt_flags:0x5</p>
+<p>cp_pack_total_block_count:0x6</p>
+<p>cp_pack_start_sum:0x1</p>
+<p>valid_node_count:0x5</p>
+<p>valid_inode_count:0x5</p>
+<p>next_free_nid:0x8</p>
+<p>sit_ver_bitmap_bytesize:0x40</p>
+<p>nat_ver_bitmap_bytesize:0x40</p>
+<p>checksum_offset:0xffc</p>
+<p>elapsed_time:40</p>
+<p>allocation type of current segment<br>0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|<br>0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|0x00000000|<br>0x00000000|0x00000000|</p>
+<p>sit_nat_version_bitmap:0x0</p>
+<p>&#x2F;&#x2F; TODO</p>
+<h4 id="2-2-2-NAT-Journal"><a href="#2-2-2-NAT-Journal" class="headerlink" title="2.2.2 NAT Journal"></a>2.2.2 NAT Journal</h4><p>在f2fs中存在journal机制，通过联合体<code>f2fs_journal</code>表示，所以它既可以表示NAT，又可以表示SIT</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		__le16 n_nats;<br>		__le16 n_sits;<br>	&#125;;<br>	<span class="hljs-comment">/* spare area is used by NAT or SIT journals or extra info */</span><br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal</span> <span class="hljs-title">nat_j</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal</span> <span class="hljs-title">sit_j</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_extra_info</span> <span class="hljs-title">info</span>;</span><br>	&#125;;<br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>这里先以NAT为例，前面16位小端为nats，后面的是nat_journal结构体</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal_entry</span> <span class="hljs-title">entries</span>[<span class="hljs-title">NAT_JOURNAL_ENTRIES</span>];</span><br>	__u8 reserved[NAT_JOURNAL_RESERVED];<br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">nat_journal_entry</span> &#123;</span><br>	__le32 nid;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> <span class="hljs-title">ne</span>;</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> &#123;</span><br>	__u8 version;		<span class="hljs-comment">/* latest version of cached nat entry */</span><br>	__le32 ino;		<span class="hljs-comment">/* inode number */</span><br>	__le32 block_addr;	<span class="hljs-comment">/* block address */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>说白了里面存储的也是<strong>f2fs_nat_entry</strong></p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719234855034.png" srcset="/img/loading.gif" lazyload alt="image-20230719234855034" style="zoom:67%;">
+
+<p>前面2个字节0x05表示nats，随后的4个字节0x00000003表示的是nid，后面即使f2fs_nat_entry结构体了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">00            version      0x00<br>00 00 00 03   ino          0x03(3)<br>00 00 10 04   block_addr   0x1004(4100)<br></code></pre></td></tr></table></figure>
+
+<p>我们一般会<strong>dump.f2fs -n 0~-1 f2fs.img</strong>查看nat的信息，结果会保存在<code>dump_nat</code>中</p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235441702.png" srcset="/img/loading.gif" lazyload alt="image-20230719235441702" style="zoom:67%;">
+
+<p>以第一个<strong>nid:3</strong>为例，与上面的nat journal完美的对上了，同理这里面的信息都与nat journal一一对应。</p>
+<h4 id="2-2-3-SIT-Journal"><a href="#2-2-3-SIT-Journal" class="headerlink" title="2.2.3 SIT Journal"></a>2.2.3 SIT Journal</h4><p>如2.2.2所说，f2fs_journal结构体既能表示nat，也能表示sit【因为内部成员是联合体】，那么这边应该表示的是sit</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal_entry</span> <span class="hljs-title">entries</span>[<span class="hljs-title">SIT_JOURNAL_ENTRIES</span>];</span><br>	__u8 reserved[SIT_JOURNAL_RESERVED];<br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sit_journal_entry</span> &#123;</span><br>	__le32 segno;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_entry</span> <span class="hljs-title">se</span>;</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_entry</span> &#123;</span><br>	__le16 vblocks;				<span class="hljs-comment">/* reference above */</span><br>	__u8 valid_map[SIT_VBLOCK_MAP_SIZE];	<span class="hljs-comment">/* bitmap for valid blocks */</span><br>	__le64 mtime;				<span class="hljs-comment">/* segment age for cleaning */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>说白了里面存储的也是<strong>f2fs_sit_entry</strong></p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230719235854137.png" srcset="/img/loading.gif" lazyload alt="image-20230719235854137" style="zoom:67%;">
+
+<h3 id="2-3-SIT"><a href="#2-3-SIT" class="headerlink" title="2.3 SIT"></a>2.3 SIT</h3><p>SIT区域由N个struct f2fs_sit_block组成，每一个struct f2fs_sit_block包含了55个struct f2fs_sit_entry，每一个entry对应了一个segment的管理状态。每一个entry包含了三个变量: vblocks(记录这个segment有多少个block已经被使用了)，valid_map(记录这个segment里面的哪一些block是无效的)，mtime(表示修改时间)。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_block</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_entry</span> <span class="hljs-title">entries</span>[<span class="hljs-title">SIT_ENTRY_PER_BLOCK</span>];</span><br>&#125; __packed;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_sit_entry</span> &#123;</span><br>	__le16 vblocks;				<span class="hljs-comment">/* reference above */</span><br>	__u8 valid_map[SIT_VBLOCK_MAP_SIZE];	<span class="hljs-comment">/* bitmap for valid blocks */</span><br>	__le64 mtime;				<span class="hljs-comment">/* segment age for cleaning */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724233134094.png" srcset="/img/loading.gif" lazyload alt="image-20230724233134094" style="zoom:67%;">
+
+<p><strong>注意到内核代码里面有一个很有意思的注释：</strong></p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724232829641.png" srcset="/img/loading.gif" lazyload alt="image-20230724232829641" style="zoom: 67%;">
+
+<p>在f2fs_sit_entry的第一个字段vblocks其代表的含义为：</p>
+<ul>
+<li><p>**[15:10]**表示当前Segment类型是属于哪一种，HOT&#x2F;WARM&#x2F;COLD * NODE&#x2F;DATA</p>
+</li>
+<li><p>**[9:0]**表示有效块的数量</p>
+</li>
+<li><p>这2个值也对应了<strong>dump_sit</strong>中的值</p>
+</li>
+</ul>
+<hr>
+<p>首先我们验证一下上面的注释是否是正确的：</p>
+<p>观察到第一个Segment 0的前2个字节为0xc01 &#x3D; 0000 1100 0000 0001，其<strong>高[15:10]位为0000 11 &#x3D;  3，低[9:0]位为00 0000 0001 &#x3D; 1</strong>，可以看到下面的dump_sit中<strong>segno: 0</strong>对应的<strong>seg_type: 3</strong>，<strong>vblocks: 1</strong></p>
+<p>通过<strong>dump.f2fs -s 0~-1 f2fs.img</strong> 看一下SIT的整体情况</p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724232531598.png" srcset="/img/loading.gif" lazyload alt="image-20230724232531598" style="zoom:67%;">
+
+<p>我们再来看一个有趣的现象，观察<strong>segno: 9</strong>，发现它是一个Warm Node，</p>
+<img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230724233756028.png" srcset="/img/loading.gif" lazyload alt="image-20230724233756028" style="zoom:80%;">
+
+<p>这个segment偏移量为9，前面已经有9个Segment了，一个Segment为2MB，而Main Area的起始位置为<strong>0x100000</strong>，所以</p>
+<ul>
+<li><strong>SegNo 9</strong>的物理起始地址为：<strong>0x20000(2M) * 0x9 + 0x100000 &#x3D; 0x1300000</strong></li>
+</ul>
+<p>又注意到e0这个位置前面总共59个字节，也就是472Bit，我们知道这是一个位图，其代表了前472个Block都是无效的，其大小总共为：</p>
+<ul>
+<li><strong>472 * 4096 &#x3D; 1,933,312Byte  &#x3D; 0x1D8000</strong></li>
+</ul>
+<p>下面开始看0xe0(11100000)其表示了从第472个Block开始的8个块，其中第472，473，474个Block是有效的，总共3个，这也验证了dump_sit的vblocks为3。</p>
+<ul>
+<li>计算出第472个Block的位置为<strong>0x1300000 + 0x1D8000 &#x3D; 0x14D8000</strong></li>
+</ul>
+<h3 id="2-4-NAT"><a href="#2-4-NAT" class="headerlink" title="2.4 NAT"></a>2.4 NAT</h3><img src="/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/image-20230723231428571.png" srcset="/img/loading.gif" lazyload alt="image-20230723231428571" style="zoom:80%;">
+
+<p>这里一开始我很奇怪，为啥这里只有3个inode，即node_ino:1、meta_ino:2、root_ino:3，那其余文件的inode去哪里了，不是说NAT维护了一张inode no和block addr的表吗。</p>
+<p>这里其实是由于Journal机制，为了不频繁读写NAT，所以将nat的改动先存放在了nat journal中，所以这也是为什么nat journal和NAT区域都是按照<strong>f2fs_nat_entry</strong> 排布的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">f2fs_nat_entry</span> &#123;</span><br>	__u8 version;		<span class="hljs-comment">/* latest version of cached nat entry */</span><br>	__le32 ino;		<span class="hljs-comment">/* inode number */</span><br>	__le32 block_addr;	<span class="hljs-comment">/* block address */</span><br>&#125; __packed;<br></code></pre></td></tr></table></figure>
+
+<p>只有当nat journal区域撑满了放不下了，才会刷写到磁盘对应的NAT区域中。</p>
+<hr>
+<p>我们做个实验，写一个shell脚本<code>f2fs.sh</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br><br>for i in &#123;1..2000&#125;<br>do<br>fileName=&quot;hello&quot;$&#123;i&#125;<br>touch /home/amx/Desktop/f2fs/mntf2fs/$&#123;fileName&#125;.txt<br>echo &quot;hello amx&quot;$&#123;i&#125; &gt;&gt; /home/amx/Desktop/f2fs/mntf2fs/$&#123;fileName&#125;.txt<br>done<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>功能就是创建2000个文件，文件名为hello[i]，向里面写入hello amx[i]</p>
+</blockquote>
+<p>执行这个脚本，再次<code>hexdump -C -s 0xA00000 -n 2097152 f2fs.img</code>就可以看到NAT区域已经更新了【如果没更新，就把for循环次数放大】。后续直接 <strong>rm -rf hello</strong>*删掉这些文件即可</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>f2fs文件系统布局</div>
+      <div>http://example.com/2023/07/19/f2fs文件系统布局/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/" title="f2fs文件系统Journal机制">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">f2fs文件系统Journal机制</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/16/%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" title="块设备驱动">
+                        <span class="hidden-mobile">块设备驱动</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

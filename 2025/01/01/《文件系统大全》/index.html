@@ -1,0 +1,880 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="《文件系统大全》fuse文件系统学习资料 详解 FUSE 用户态文件系统  FUSE架构  FUSE使用实例  深入分析Android 11 FUSE文件系统  ✅基于FUSE的简单文件系统  fuse死锁案例  github上实现基于fuse的自定义文件系统全源码  Android Fuse的paththrough方案  Android Fuse USB文件系统问题分析  ✅安卓fuse文件系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《文件系统大全》">
+<meta property="og:url" content="http://example.com/2025/01/01/%E3%80%8A%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A4%A7%E5%85%A8%E3%80%8B/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="《文件系统大全》fuse文件系统学习资料 详解 FUSE 用户态文件系统  FUSE架构  FUSE使用实例  深入分析Android 11 FUSE文件系统  ✅基于FUSE的简单文件系统  fuse死锁案例  github上实现基于fuse的自定义文件系统全源码  Android Fuse的paththrough方案  Android Fuse USB文件系统问题分析  ✅安卓fuse文件系统">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-01-01T11:41:20.000Z">
+<meta property="article:modified_time" content="2026-02-25T11:50:49.924Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>《文件系统大全》 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="《文件系统大全》"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-01 19:41" pubdate>
+          2025年1月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          16 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">《文件系统大全》</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="《文件系统大全》"><a href="#《文件系统大全》" class="headerlink" title="《文件系统大全》"></a>《文件系统大全》</h1><h2 id="fuse文件系统学习资料"><a href="#fuse文件系统学习资料" class="headerlink" title="fuse文件系统学习资料"></a><strong>fuse文件系统学习资料</strong></h2><ul>
+<li><p><a target="_blank" rel="noopener" href="https://fishpi.cn/article/1640420458343">详解 FUSE 用户态文件系统</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/c2b77d0bbc43">FUSE架构</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://zhoubofsy.github.io/2017/01/13/linux/filesystem-userspace-usage/">FUSE使用实例</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7260746629396152379?searchId=20231205221857A49D19E7DB8503104AF8">深入分析Android 11 FUSE文件系统</a></p>
+</li>
+<li><p>✅<a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/1164554">基于FUSE的简单文件系统</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/pengdonglin137/p/17893209.html">fuse死锁案例</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/wuzhouhui/fs_on_fuse">github上实现基于fuse的自定义文件系统全源码</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7206239276894748733">Android Fuse的paththrough方案</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/9602b3b93528">Android Fuse USB文件系统问题分析</a></p>
+</li>
+<li><p>✅<a target="_blank" rel="noopener" href="https://article.juejin.cn/post/7205928315588313146">安卓fuse文件系统核心原理</a></p>
+</li>
+</ul>
+<h2 id="vfat文件系统"><a href="#vfat文件系统" class="headerlink" title="vfat文件系统"></a>vfat文件系统</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/06/29/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">vfat文件系统</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/">FAT文件系统原理</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/06/30/%E5%AE%9A%E4%BD%8D%E5%92%8C%E6%8F%90%E5%8F%96FAT32%E5%88%86%E5%8C%BA%E7%9A%84%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE/">【实验】定位和提取FAT32分区的文件数据</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/03/fsck-msdos%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#">fsck_msdos学习笔记</a></li>
+</ul>
+<h2 id="exfat文件系统"><a href="#exfat文件系统" class="headerlink" title="exfat文件系统"></a>exfat文件系统</h2><ul>
+<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/01/17/exfat%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/">exfat文件写入流程</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/02/21/exfat%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4%E6%B5%81%E7%A8%8B/">exfat文件删除流程</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2024/12/28/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B0%87%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/">exfat文件系统簇分配策略</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/03/19/exfat%E6%96%B0%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5%E6%97%B6%E8%B5%B7%E5%A7%8B%E7%B0%87%E5%8F%B7%E6%BE%84%E6%B8%85/">exfat新文件写入时起始簇号澄清</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/03/19/exfat%E6%96%87%E4%BB%B6%E8%B5%B7%E5%A7%8B%E7%B0%87%E5%86%99%E5%85%A5%E6%97%B6%E6%9C%BA/">exfat文件起始簇写入时机</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/01/01/%E5%A6%82%E4%BD%95%E6%9F%A5%E7%9C%8Blinux%E7%A4%BE%E5%8C%BAexfat%E6%89%80%E6%9C%89%E6%8F%90%E4%BA%A4%E8%AE%B0%E5%BD%95/">如何查看linux社区exfat所有提交记录</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/01/06/exfat%E5%A4%A7%E4%BA%8B%E4%BB%B6/">exfat大事件</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/03/19/exfat%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E9%A1%B9%E6%A0%A1%E9%AA%8C%E5%92%8C%E5%9C%A8%E7%BA%BF%E8%AE%A1%E7%AE%97/">exfat文件目录项校验和在线计算</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/03/24/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fls%E5%91%BD%E4%BB%A4%E5%9B%9E%E6%98%BE%E6%B5%81%E7%A8%8B/">exfat文件系统ls命令回显流程</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/">exfat文件元数据写入流程</a></p>
+</li>
+</ul>
+<h2 id="ntfs文件系统"><a href="#ntfs文件系统" class="headerlink" title="ntfs文件系统"></a>ntfs文件系统</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/01/02/linux%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85ntfs-3g%E5%8F%8A%E6%A0%BC%E5%BC%8F%E5%8C%96/">linux系统安装ntfs-3g及格式化</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/01/03/ntfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%A3%81%E7%9B%98%E5%B8%83%E5%B1%80/">ntfs文件系统磁盘布局</a></li>
+</ul>
+<h2 id="erofs文件系统"><a href="#erofs文件系统" class="headerlink" title="erofs文件系统"></a>erofs文件系统</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2024/11/15/%E8%AF%A6%E8%A7%A3lz4%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95-%E5%90%AB%E6%B1%87%E7%BC%96/">详解lz4压缩算法(含汇编)</a></li>
+</ul>
+<h2 id="f2fs文件系统"><a href="#f2fs文件系统" class="headerlink" title="f2fs文件系统"></a>f2fs文件系统</h2><ul>
+<li>🌭基础信息<ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/19/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80/">f2fs文件系统布局</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/08/22/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3wandering-tree%E9%97%AE%E9%A2%98/">f2fs文件系统如何解决wandering tree问题</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/10/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%ADf2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%98%AF%E5%90%A6%E4%BD%BF%E7%94%A8%E5%A4%9A%E8%AE%BE%E5%A4%87/">如何判断f2fs文件系统是否使用多设备</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/11/14/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE/">f2fs文件系统文件查找</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/12/18/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%89%B9%E6%80%A7%E6%A0%87%E5%BF%97%E4%BD%8D/">f2fs文件系统特性标志位</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/12/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A4%B4%E6%96%87%E4%BB%B6f2fs-h%E7%AE%A1%E7%90%86%E7%9A%84%E4%BD%8D%E5%9B%BE%E5%92%8C-I%E5%86%85%E5%AD%98%E4%BF%A1%E6%81%AF/">f2fs文件系统头文件f2fs.h管理的位图和_I内存信息</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/10/08/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FCURSEG%E5%A4%87%E5%BF%98/">f2fs文件系统CURSEG备忘</a></li>
+<li>🫑<a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/04/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9A%84%E6%96%B9%E6%96%B9%E9%9D%A2%E9%9D%A2/">f2fs文件系统node block的方方面面</a></li>
+</ul>
+</li>
+<li>🍰NAT &amp; SIT&amp; SSA 结构<ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/10/04/f2fs%E4%B8%ADnat%E4%B8%8Esit%E4%BD%8D%E5%9B%BE%E7%AE%A1%E7%90%86/">f2fs中nat与sit位图管理</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/06/01/f2fs-summary%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/">f2fs_summary到底是什么</a></li>
+</ul>
+</li>
+<li>🍔segment &amp; block<ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/08/21/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-block%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/">f2fs文件系统node block相关概念</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2024/06/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B4%A2%E5%BC%95%E5%9D%97%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%9D%97/">f2fs文件系统索引块与数据块</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/11/28/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AF%B9%E4%BA%8Enode-page%E7%9A%84%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/">f2fs文件系统对于node page的读写操作</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2024/12/24/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fnode-page%E9%A2%84%E8%AF%BB%E6%9C%BA%E5%88%B6/">f2fs文件系统node page预读机制</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/11/27/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E9%85%8Dsegment/">f2fs文件系统分配segment</a></li>
+</ul>
+</li>
+<li>🍕checkpoint特性<ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/26/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fcheckpoint%E7%89%B9%E6%80%A7/">f2fs文件系统checkpoint特性</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/23/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6/#f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FJournal%E6%9C%BA%E5%88%B6">f2fs文件系统Journal机制</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/10/02/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84write-checkpoint%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/#">f2fs文件系统的write checkpoint流程分析</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/10/02/checkpoint%E7%89%88%E6%9C%AC%E5%8F%B7%E5%A6%82%E4%BD%95%E5%8F%98%E6%8D%A2/">checkpoint版本号如何变换</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/09/19/%E5%AE%89%E5%8D%93checkpoint-disable%E5%A6%82%E4%BD%95%E4%BC%A0%E9%80%92%E5%88%B0f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">安卓checkpoint&#x3D;disable如何传递到f2fs文件系统</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/03/15/User-Data-Checkpoint%E6%9C%BA%E5%88%B6/">安卓User Data Checkpoint机制(UDC)</a></li>
+</ul>
+</li>
+<li>🍥gc特性<ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/11/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/">f2fs文件系统gc垃圾回收（一）概述</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/05/28/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fgc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88%E4%BA%8C%EF%BC%89%E5%90%8E%E5%8F%B0GC/">f2fs文件系统gc垃圾回收（二）后台GC</a></li>
+</ul>
+</li>
+<li>🍿fsck.f2fs校验<ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/12/28/f2fs-fsck%E7%AE%80%E8%AE%B0/">f2fs.fsck简记</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/05/04/%E4%B8%BA%E4%BB%80%E4%B9%88dump-f2fs%E6%80%BB%E6%98%AF%E5%A4%B1%E8%B4%A5-Can-t-find-valid-checkpoint/">为什么dump.f2fs总是失败?(Can’t find valid checkpoint)</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="overlayfs文件系统"><a href="#overlayfs文件系统" class="headerlink" title="overlayfs文件系统"></a>overlayfs文件系统</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/05/07/overlayfs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/">overlayfs文件系统介绍</a></li>
+</ul>
+<h2 id="vfs相关"><a href="#vfs相关" class="headerlink" title="vfs相关"></a>vfs相关</h2><h2 id="文件加密"><a href="#文件加密" class="headerlink" title="文件加密"></a>文件加密</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/06/24/%E3%80%90%E7%A7%91%E6%99%AE%E3%80%91%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E6%8A%80%E6%9C%AF%EF%BC%88%E5%85%AC%E9%92%A5%E4%BD%93%E7%B3%BB%EF%BC%89%E3%80%90%E5%85%AC%E9%92%A5-%E7%A7%81%E9%92%A5-%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D-CA%E8%AF%81%E4%B9%A6%E3%80%91/">【科普】非对称加密技术（公钥体系）【公钥 私钥 数字签名 CA证书】</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/09/19/%E9%BE%99%E8%9C%A5%E7%99%BD%E7%9A%AE%E4%B9%A6%E7%B2%BE%E9%80%89%EF%BC%9A%E5%9F%BA%E4%BA%8E-SM4-%E7%AE%97%E6%B3%95%E7%9A%84%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86%EF%BC%88fscrypt%EF%BC%89%E5%AE%9E%E8%B7%B5/">【转载】龙蜥白皮书精选：基于 SM4 算法的文件加密（fscrypt）实践</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/">System DE Master Key流程分析</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/09/22/%E5%AE%89%E5%8D%93S%E6%A8%A1%E6%8B%9F%E5%99%A8%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86%E5%85%A8%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/">安卓S模拟器文件加密全流程梳理</a></li>
+</ul>
+<h2 id="USB领域"><a href="#USB领域" class="headerlink" title="USB领域"></a>USB领域</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/07/13/U%E7%9B%98%E5%9C%A8Windows%E4%B8%8A%E6%8A%A5%E9%94%99%E5%85%A8%E6%94%B6%E9%9B%86%E6%88%90%E5%B0%B1/">U盘在Windows上报错全收集成就</a></li>
+<li><a target="_blank" rel="noopener" href="https://xxxdk.xyz/xxx/2020/01/SCSI-%E9%94%99%E8%AF%AF%E4%BF%A1%E6%81%AF%E8%A1%A8%E6%95%B4%E7%90%86/">SCSI Sense Key查询</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.t10.org/lists/asc-num.htm">SCSI ASC&#x2F;ASCQ查询</a></li>
+</ul>
+<h2 id="开源相关"><a href="#开源相关" class="headerlink" title="开源相关"></a>开源相关</h2><ul>
+<li>🚕【理想汽车】<ul>
+<li><a target="_blank" rel="noopener" href="https://www.lixiang.com/tech/haloos#li">星环OS介绍</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitee.com/haloos">星环OS开源</a></li>
+</ul>
+</li>
+<li>🛻【小米内核】<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/MiCode/Xiaomi_Kernel_OpenSource/tree/xuanyuan-v-oss">小米15Ultra内核</a></li>
+</ul>
+</li>
+<li>🛩️【瑞芯微内核】<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/qxhome/rk3568-kernel5.10-alldrivers">rk3568内核</a></li>
+</ul>
+</li>
+<li>🌍【安卓源码在线】<ul>
+<li><a target="_blank" rel="noopener" href="http://xrefandroid.com/">xrefandroid</a></li>
+</ul>
+</li>
+<li>🗽【修复工具大全】<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/fatprogs/fatprogs">fatprogs</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/dosfstools/dosfstools">dosfstools</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="社区合入记录"><a href="#社区合入记录" class="headerlink" title="社区合入记录"></a>社区合入记录</h2><ul>
+<li><p>🏸Linux社区</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/09/02/%E7%BA%AA%E5%BF%B5%E4%BA%BA%E7%94%9F%E7%AC%AC%E4%B8%80%E4%B8%AAkernel%E8%A1%A5%E4%B8%81">纪念人生第一个kernel补丁</a></li>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/05/07/%E8%AE%B0%E5%BD%95%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%90%91%E5%AE%89%E5%8D%93%E7%A4%BE%E5%8C%BA%E6%8F%90%E4%BA%A4%E4%BB%A3%E7%A0%81%E7%9A%84%E7%BB%8F%E5%8E%86/">记录第一次向安卓社区提交代码的经历</a></li>
+<li><a target="_blank" rel="noopener" href="https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/fs/ntfs3?id=aee4d5a521e94f658e46c904e08a473daa9c8fc0">ntfs3: fix double free of sbi-&gt;options-&gt;nls and clarify ownership of fc-&gt;fs_private</a></li>
+<li><a target="_blank" rel="noopener" href="https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/fs/ntfs3?id=02f312754c873efe076888a2fdca982e56617929">ntfs3: fix use-after-free of sbi-&gt;options in cmp_fnames</a></li>
+</ul>
+</li>
+<li><p>🏓exfatprogs</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/exfatprogs/exfatprogs/commit/e3997df562bbef6887931d098001d6bc7a4b7f16">fsck: support repair bitmap size</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/exfatprogs/exfatprogs/commit/6d4fbde5a44b5ce99f830f1e97b664052d140498">tests: add test for bad bitmap size</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/exfatprogs/exfatprogs/commit/b4f31b55baf3f294f265112d3d171e821a5cf5bb">lib: Fix NULL pointer dereference in read_fil:e_dentry_set()</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/exfatprogs/exfatprogs/commit/09c8375772aa97b746d471cc99a8bc7e55504c18">dump: support paths with ‘.’ and ‘..’</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/exfatprogs/exfatprogs/commit/5041ed654aeea3a0027e1b00fa51fbcc749bc6e0">mkfs: add read-after-write verification for volume boot record</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/exfatprogs/exfatprogs/commit/dc4e13c21290c969ac9a57be105f860527eab6b7">fsck: change 0x80 entries to deleted file entries to avoid bogus dentry</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/exfatprogs/exfatprogs/commit/76d73ee65c2e704b8215bbdce417ac51ca6553fb">exfatprogs: adjust exit code</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="文件系统周边"><a href="#文件系统周边" class="headerlink" title="文件系统周边"></a>文件系统周边</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2025/06/04/%E6%A0%87%E5%87%86%E5%BA%93std-filesystem/">标准库std::filesystem</a></li>
+<li>安卓文件管家：<code>packages\apps\DocumentsUI</code></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>《文件系统大全》</div>
+      <div>http://example.com/2025/01/01/《文件系统大全》/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年1月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/01/%E5%A6%82%E4%BD%95%E6%9F%A5%E7%9C%8Blinux%E7%A4%BE%E5%8C%BAexfat%E6%89%80%E6%9C%89%E6%8F%90%E4%BA%A4%E8%AE%B0%E5%BD%95/" title="如何查看linux社区exfat所有提交记录">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">如何查看linux社区exfat所有提交记录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/01/touch%E5%91%BD%E4%BB%A4%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="touch命令源码解析">
+                        <span class="hidden-mobile">touch命令源码解析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

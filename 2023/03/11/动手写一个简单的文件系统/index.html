@@ -1,0 +1,870 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="动手写一个简单的文件系统 🍉 参考博客：https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;8966d121263b 🍒 项目地址：https:&#x2F;&#x2F;github.com&#x2F;ZhangShurong&#x2F;HUST_OS_fs_experiment 🍐 文件系统前置知识：https:&#x2F;&#x2F;blog.csdn.net&#x2F;u012489236&#x2F;article&#x2F;details&#x2F;123834123?spm&#x3D;100">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动手写一个简单的文件系统">
+<meta property="og:url" content="http://example.com/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="动手写一个简单的文件系统 🍉 参考博客：https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;8966d121263b 🍒 项目地址：https:&#x2F;&#x2F;github.com&#x2F;ZhangShurong&#x2F;HUST_OS_fs_experiment 🍐 文件系统前置知识：https:&#x2F;&#x2F;blog.csdn.net&#x2F;u012489236&#x2F;article&#x2F;details&#x2F;123834123?spm&#x3D;100">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230311221220446.png">
+<meta property="og:image" content="http://example.com/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230311224039035.png">
+<meta property="og:image" content="http://example.com/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230312230337246.png">
+<meta property="og:image" content="http://example.com/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230311223941193.png">
+<meta property="article:published_time" content="2023-03-11T14:10:10.000Z">
+<meta property="article:modified_time" content="2023-03-13T14:05:23.657Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230311221220446.png">
+  
+  
+  
+  <title>动手写一个简单的文件系统 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="动手写一个简单的文件系统"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-11 22:10" pubdate>
+          2023年3月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          110 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">动手写一个简单的文件系统</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="动手写一个简单的文件系统"><a href="#动手写一个简单的文件系统" class="headerlink" title="动手写一个简单的文件系统"></a>动手写一个简单的文件系统</h1><blockquote>
+<p>🍉 <strong>参考博客</strong>：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8966d121263b">https://www.jianshu.com/p/8966d121263b</a></p>
+<p>🍒 <strong>项目地址</strong>：<a target="_blank" rel="noopener" href="https://github.com/ZhangShurong/HUST_OS_fs_experiment">https://github.com/ZhangShurong/HUST_OS_fs_experiment</a></p>
+<p>🍐 <strong>文件系统前置知识：</strong><a target="_blank" rel="noopener" href="https://blog.csdn.net/u012489236/article/details/123834123?spm=1001.2014.3001.5506">https://blog.csdn.net/u012489236/article/details/123834123?spm=1001.2014.3001.5506</a></p>
+</blockquote>
+<h2 id="0-下载运行"><a href="#0-下载运行" class="headerlink" title="0.下载运行"></a>0.下载运行</h2><p>按照<code>Readme.md</code>执行以后，可以看到具有了一个基础文件系统的功能：</p>
+<img src="/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230311221220446.png" srcset="/img/loading.gif" lazyload alt="image-20230311221220446" style="zoom: 67%;">
+
+<p>如果有编译报错，有关于timepesc类型转换的；解决方案如下：</p>
+<img src="/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230311224039035.png" srcset="/img/loading.gif" lazyload alt="image-20230311224039035" style="zoom: 55%;">
+
+
+
+<h2 id="1-总体设计"><a href="#1-总体设计" class="headerlink" title="1.总体设计"></a>1.总体设计</h2><p>本文件系统的磁盘结构参考minix的文件系统实现。但是自举块（或称引导块）中没有数据。且不采用二级或者多级索引，其结构如下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">|Dummy Block|Super Block|IMap|BMap|Inode Table|Data blocks|<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230312230337246.png" srcset="/img/loading.gif" lazyload alt="image-20230312230337246" style="zoom:67%;">
+
+<p>其中每个块的大小定义为4096bytes，每个Inode含有10个块所以单个文件最大为40KB，支持的最小磁盘大小为24K。以下详细阐述文件系统中所需要的三个基本数据结构。</p>
+<h3 id="1-1-超级块结构"><a href="#1-1-超级块结构" class="headerlink" title="1.1 超级块结构"></a>1.1 超级块结构</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HUST_fs_super_block</span> &#123;</span><br>    <span class="hljs-type">uint64_t</span> version;<br>    <span class="hljs-type">uint64_t</span> magic;<br>    <span class="hljs-type">uint64_t</span> block_size;<br>    <span class="hljs-type">uint64_t</span> inodes_count;<br>    <span class="hljs-type">uint64_t</span> free_blocks;<br>    <span class="hljs-type">uint64_t</span> blocks_count;<br>    <span class="hljs-type">uint64_t</span> bmap_block;<br>    <span class="hljs-type">uint64_t</span> imap_block;<br>    <span class="hljs-type">uint64_t</span> inode_table_block;<br>    <span class="hljs-type">uint64_t</span> data_block_number;<br>    <span class="hljs-type">char</span> padding[<span class="hljs-number">4016</span>];<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>超级块中的padding数组，是为了使超级块的大小为4096bytes，以简化后期的工作；“Magic”为1314522；indoe_count记录文件系统所支持的inode个数，这个值在格式化时就已经计算并写入超级块了。Bmap_block记录着bmap开始的数据块索引,imap_block，inode_table_block和data_block_number同理，记录索引是为了简化文件块的定位操作。</p>
+<h3 id="1-2-HUST-inode结构"><a href="#1-2-HUST-inode结构" class="headerlink" title="1.2 HUST_inode结构"></a>1.2 HUST_inode结构</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HUST_inode</span> &#123;</span>  <br>    <span class="hljs-type">mode_t</span> mode; <span class="hljs-comment">//sizeof(mode_t) is 4  </span><br>    <span class="hljs-type">uint64_t</span> inode_no;  <br>    <span class="hljs-type">uint64_t</span> blocks;  <br>    <span class="hljs-type">uint64_t</span> block[HUST_N_BLOCKS];  <br>    <span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span>  <br>        <span class="hljs-type">uint64_t</span> file_size;  <br>        <span class="hljs-type">uint64_t</span> dir_children_count;  <br>    &#125;;  <br>    <span class="hljs-type">int32_t</span> i_uid;   <br>    <span class="hljs-type">int32_t</span> i_gid;  <br>    <span class="hljs-type">int32_t</span> i_nlink;  <br>    <span class="hljs-type">int64_t</span> i_atime;  <br>    <span class="hljs-type">int64_t</span> i_mtime;  <br>    <span class="hljs-type">int64_t</span> i_ctime;  <br>    <span class="hljs-type">char</span> padding[<span class="hljs-number">112</span>];  <br>&#125;;  <br></code></pre></td></tr></table></figure>
+
+<p>HUST_inode对应着磁盘上的inode结构，在后文会描述它是如何转换为VFS中的inode的。在上述结构体中，mode代表该inode是文件还是目录，blocks代表该inode的大小（所占块的数目），i_uid和i_gid用于后面的多用户管理。Padding数组是为了让HUST_inode结构体能够被4096整除；宏HUST_N_BLOCK被定义为10，意味着每个文件（目录）最大的大小为10个块；block数组存储着每个块的索引，用于定位文件。</p>
+<h3 id="1-3-文件系统的目录结构"><a href="#1-3-文件系统的目录结构" class="headerlink" title="1.3 文件系统的目录结构"></a>1.3 文件系统的目录结构</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HUST_dir_record</span> &#123;</span>  <br>    <span class="hljs-type">char</span> filename[HUST_FILENAME_MAX_LEN];  <br>    <span class="hljs-type">uint64_t</span> inode_no;  <br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>文件记录是为了储存目录项，其中HUST_FILENAME_MAX_LEN定义为256也就是说，文件名最大长度256。<br> 编写文件系统除了设计文件系统的磁盘结构，定义文件系统支持的操作也是十分重要的，这个直接影响了文件系统的功能。本文件系统支持基本的文件的增删改查，多用户等功能，但是不支持文件的移动，软硬链接等操作。</p>
+<h2 id="2-mkfs的实现"><a href="#2-mkfs的实现" class="headerlink" title="2.mkfs的实现"></a>2.mkfs的实现</h2><p>要使用这个文件系统，必须首先创建一个符合磁盘布局的映像文件，所以我们需要实现一个格式化程序，这个程序按照惯例叫做mkfs。本节详细描述mkfs的实现。</p>
+<p>mkfs的作用是将一个文件改写成对应于我们文件系统的结构，其主要功能点为<strong>写入超级块，写入imap,bmap，写入inode table</strong>，以及创建一个根目录和测试文件。</p>
+<p>超级块包含了文件系统的基本信息，其信息在上文中有详细描述。写入超级块信息，需要计算整个磁盘的大小，然后计算imap，bmap以及inode table的大小，这样才能确定各个区域在磁盘中的位置。这些工作都是在init_disk这个函数中完成的。基本逻辑为读取需要格式化的文件大小，计算出整个磁盘中的块的个数，简单的将块的个数与inode的个数等同起来；然后通过块数以及inode个数计算imap和bmap的大小。其中bmap的大小如下（imap大小计算公式与bmap一致）：<br>$$<br>bmapsize &#x3D; blockcount&#x2F; HUST_BLOCKSIZE * 8<br>$$<br>关键代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">init_disk</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">const</span> <span class="hljs-type">char</span>* path)</span>  <br>&#123;  <br>    <span class="hljs-comment">//获取基本信息  </span><br>    <span class="hljs-comment">//... ...  </span><br>    <span class="hljs-comment">//计算bmap  </span><br>    bmap_size = super_block.blocks_count/(<span class="hljs-number">8</span>*HUST_BLOCKSIZE);  <br>    super_block.bmap_block = RESERVE_BLOCKS;  <br>  <br>    <span class="hljs-keyword">if</span> (super_block.blocks_count%(<span class="hljs-number">8</span>*HUST_BLOCKSIZE) != <span class="hljs-number">0</span>) &#123;  <br>        bmap_size += <span class="hljs-number">1</span>;  <br>    &#125;  <br>    bmap = (<span class="hljs-type">uint8_t</span> *)<span class="hljs-built_in">malloc</span>(bmap_size*HUST_BLOCKSIZE);  <span class="hljs-comment">// 单位是块</span><br>    <span class="hljs-built_in">memset</span>(bmap,<span class="hljs-number">0</span>,bmap_size*HUST_BLOCKSIZE);  <br>  <br>    <span class="hljs-comment">//计算imap  </span><br>    imap_size = super_block.inodes_count/(<span class="hljs-number">8</span>*HUST_BLOCKSIZE);  <span class="hljs-comment">// 单位是块</span><br>    super_block.imap_block = super_block.bmap_block + bmap_size;  <br> <br>    <span class="hljs-keyword">if</span>(super_block.inodes_count%(<span class="hljs-number">8</span>*HUST_BLOCKSIZE) != <span class="hljs-number">0</span>) &#123;  <br>        imap_size += <span class="hljs-number">1</span>;  <br>    &#125;  <br>    imap = (<span class="hljs-type">uint8_t</span> *)<span class="hljs-built_in">malloc</span>(imap_size*HUST_BLOCKSIZE);  <br>    <span class="hljs-built_in">memset</span>(imap,<span class="hljs-number">0</span>,imap_size*HUST_BLOCKSIZE);  <br>  <br>    <span class="hljs-comment">//计算inode_table  </span><br>    inode_table_size = super_block.inodes_count/(HUST_BLOCKSIZE/HUST_INODE_SIZE);  <br>    super_block.inode_table_block = super_block.imap_block + imap_size;  <br>    super_block.data_block_number = RESERVE_BLOCKS + bmap_size + imap_size + inode_table_size;  <br>    super_block.free_blocks = super_block.blocks_count - super_block.data_block_number - <span class="hljs-number">1</span>;  <br><br>    <span class="hljs-comment">// 设置bmap以及imap  </span><br>    <span class="hljs-comment">// ... ...  </span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中，imap和bmap为uint8_t的全局数组。</p>
+<p>计算完基本信息之后，我们需要将其写入文件并创建根目录和测试文件。文件创建的基本步骤如下：</p>
+<ol>
+<li>检测（获取）磁盘（文件）大小，确认是否有足够的空间</li>
+<li>找的空闲的inode和block，并标记imap和bmap。</li>
+<li>生成相应的数据，并写入对应的块中。对于根目录来讲，写入的数据为三个目录项，目录项的内容为文件（目录）名以及对应的inode编号。第一个目录项为当前目录和对应的inode编号0，第二个目录项为上一级目录和对应的inode编号0，第三个目录项为欢迎文件，内容为文件名“file”和对应的inode编号1。</li>
+<li>设置对应的inode信息，如是文件还是目录（mode信息），创建时间修改时间(i_ctime和i_mtime)，用户id和组id信息（i_uid和i_gid）等。</li>
+<li>更新超级块信息。</li>
+</ol>
+<p>在我们的文件系统写完之前，我们可以新建一个文件来测试我们的mkfs是否能正常运行，通过16进制编辑器来查看是否功能正常。具体步骤如下：</p>
+<ul>
+<li>运行下列命令创建文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">dd bs=4096 count=100 if=/dev/zero of=image <br><br>- if=文件名：输入文件名，默认为标准输入。即指定源文件。<br>- of=文件名：输出文件名，默认为标准输出。即指定目的文件。<br>- bs=bytes：同时设置读入/输出的块大小为bytes个字节。<br>- count=blocks：仅拷贝blocks个块，块大小等于bs指定的字节数。<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>编译mkfs.c</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gcc mkfs.c -o mkfs <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>格式化image文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./mkfs ./image<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>通过hexdump来查看文件的结构，结果如下图。通过检查，我们发现，image文件结构写入正确无误。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c">amx@amxxxx:~/Desktop/simple_fs$ hexdump ./image <br><span class="hljs-number">0000000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br>*<br><span class="hljs-number">0001000</span> <span class="hljs-number">0001</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0</span>eda <span class="hljs-number">0014</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span>  <span class="hljs-comment">/* HUST_fs文件系统的magic为1314522 */</span><br><span class="hljs-number">0001010</span> <span class="hljs-number">1000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0064</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">0001020</span> <span class="hljs-number">0059</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0064</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">0001030</span> <span class="hljs-number">0002</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0003</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">0001040</span> <span class="hljs-number">0004</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">000</span>a <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">0001050</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br>*<br><span class="hljs-number">0002000</span> <span class="hljs-number">07f</span>f <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">0002010</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br>*<br><span class="hljs-number">0003000</span> <span class="hljs-number">0003</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">0003010</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br>*<br><span class="hljs-number">0004000</span> <span class="hljs-number">4000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">0004010</span> <span class="hljs-number">0001</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">000</span>a <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">0004020</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br>*<br><span class="hljs-number">0004040</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">24</span>ed <span class="hljs-number">4</span>c27 <span class="hljs-number">7f</span>f3 <span class="hljs-number">0000</span><br><span class="hljs-number">0004050</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">3760</span> <span class="hljs-number">4</span>c3b <span class="hljs-number">7f</span>f3 <span class="hljs-number">0000</span><br><span class="hljs-number">0004060</span> <span class="hljs-number">0</span>d68 <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0003</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">0004070</span> <span class="hljs-number">03e8</span> <span class="hljs-number">0000</span> <span class="hljs-number">03e8</span> <span class="hljs-number">0000</span> <span class="hljs-number">0002</span> <span class="hljs-number">0000</span> <span class="hljs-number">7f</span>f3 <span class="hljs-number">0000</span><br><span class="hljs-number">0004080</span> <span class="hljs-number">8f</span>e7 <span class="hljs-number">640</span>c <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">8f</span>e7 <span class="hljs-number">640</span>c <span class="hljs-number">0000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">0004090</span> <span class="hljs-number">8f</span>e7 <span class="hljs-number">640</span>c <span class="hljs-number">0000</span> <span class="hljs-number">0000</span> <span class="hljs-number">3848</span> <span class="hljs-number">4</span>c3b <span class="hljs-number">7f</span>f3 <span class="hljs-number">0000</span><br>...............................................<br>amx@amxxxx:~/Desktop/simple_fs$ <br></code></pre></td></tr></table></figure>
+
+<h2 id="3-文件系统的实现"><a href="#3-文件系统的实现" class="headerlink" title="3.文件系统的实现"></a>3.文件系统的实现</h2><p>一个通常意义上的文件系统驱动可以单独被编译成模块动态加载，也可以被直接编译到内核中，为了调试的方便，本文中的文件系统采用动态加载的方式实现。实现一个文件系统必须遵照内核的一些“规则”，以下我将以递进的顺序阐述文件系统的实现过程。</p>
+<h3 id="3-1-文件系统的加载与卸载"><a href="#3-1-文件系统的加载与卸载" class="headerlink" title="3.1 文件系统的加载与卸载"></a>3.1 文件系统的加载与卸载</h3><p>首先为了能够成功加载文件系统，文件系统需要提供文件系统的名字，超级块的加载和删除方法。这些东西反应在<code>file_system_type</code>中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_system_type</span> <span class="hljs-title">HUST_fs_type</span> =</span> &#123;  <br>    .owner = THIS_MODULE,  <br>    .name = <span class="hljs-string">&quot;HUST_fs&quot;</span>,  <br>    .mount = HUST_fs_mount,  <br>    .kill_sb = HUST_fs_kill_superblock, <span class="hljs-comment">/* unmount */</span>  <br>&#125;;  <br></code></pre></td></tr></table></figure>
+
+<p>文件系统作为一种块设备驱动，自然也需要实现module_init以及mocule_exit。代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* Called when the module is loaded. */</span>  <br><span class="hljs-type">int</span> <span class="hljs-title function_">HUST_fs_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>  <br>&#123;  <br>    <span class="hljs-type">int</span> ret;  <br>    ret = register_filesystem(&amp;HUST_fs_type);  <br>    <span class="hljs-keyword">if</span> (ret == <span class="hljs-number">0</span>)  <br>        printk(KERN_INFO <span class="hljs-string">&quot;Sucessfully registered HUST_fs\n&quot;</span>);  <br>    <span class="hljs-keyword">else</span>  <br>        printk(KERN_ERR <span class="hljs-string">&quot;Failed to register HUST_fs. Error: [%d]\n&quot;</span>, ret);  <br>    <span class="hljs-keyword">return</span> ret;  <br>&#125;  <br>  <br><span class="hljs-comment">/* Called when the module is unloaded. */</span>  <br><span class="hljs-type">void</span> <span class="hljs-title function_">HUST_fs_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>  <br><br>    <span class="hljs-type">int</span> ret;  <br>    ret = unregister_filesystem(&amp;HUST_fs_type);  <br>    <span class="hljs-keyword">if</span> (ret == <span class="hljs-number">0</span>)  <br>        printk(KERN_INFO <span class="hljs-string">&quot;Sucessfully unregistered HUST_fs\n&quot;</span>);  <br>    <span class="hljs-keyword">else</span>  <br>        printk(KERN_ERR <span class="hljs-string">&quot;Failed to unregister HUST_fs. Error: [%d]\n&quot;</span>, ret);  <br>&#125;  <br>module_init(HUST_fs_init);  <br>module_exit(HUST_fs_exit);  <br>  <br>MODULE_LICENSE(<span class="hljs-string">&quot;MIT&quot;</span>);  <br>MODULE_AUTHOR(<span class="hljs-string">&quot;cv&quot;</span>); <br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到，设备驱动加载的时候，驱动向内核注册了文件系统，而驱动卸载的时候，文件系统的信息也被删除。文件系统加载时调用的函数为HUST_fs_mount，实际上，这个函数向内核注册了一个回调：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">HUST_fs_fill_super</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> super_block *sb, <span class="hljs-type">void</span> *data, <span class="hljs-type">int</span> silent)</span>  <br></code></pre></td></tr></table></figure>
+
+<p>这个函数是用来与VFS交互从而生成VFS超级块的。在HUST fs中，超级块在磁盘的第二个4096字节上，即块号为1。这个函数执行时会从磁盘中读取信息，填充到VFS提供的超级块结构体中，下列为部分关键代码。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">HUST_fs_fill_super</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> super_block *sb, <span class="hljs-type">void</span> *data, <span class="hljs-type">int</span> silent)</span>  &#123;  <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">buffer_head</span> *<span class="hljs-title">bh</span>;</span>  <br>    bh = sb_bread(sb, <span class="hljs-number">1</span>);  <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HUST_fs_super_block</span> *<span class="hljs-title">sb_disk</span>;</span>  <br>    sb_disk = (<span class="hljs-keyword">struct</span> HUST_fs_super_block *)bh-&gt;b_data;  <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">inode</span> *<span class="hljs-title">root_inode</span>;</span>  <br>    <span class="hljs-keyword">if</span> (sb_disk-&gt;block_size != <span class="hljs-number">4096</span>) &#123;  <br>        printk(KERN_ERR <span class="hljs-string">&quot;HUST_fs expects a blocksize of %d\n&quot;</span>, <span class="hljs-number">4096</span>);  <br>        ret = -EFAULT;  <br>        <span class="hljs-keyword">goto</span> release;  <br>   &#125;  <br>   <span class="hljs-comment">//fill vfs super block  </span><br>    sb-&gt;s_magic = sb_disk-&gt;magic;  <br>    sb-&gt;s_fs_info = sb_disk;  <br>    sb-&gt;s_maxbytes = HUST_BLOCKSIZE * HUST_N_BLOCKS; <span class="hljs-comment">/* Max file size */</span>  <br>    sb-&gt;s_op = &amp;HUST_fs_super_ops;  <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上述代码可以看出，我们用sb_read来读取磁盘上的内容，然后填充super_block结构体。值得注意的是，有关超级块的操作函数即superblock_operations也是在此处赋值的。由于super_block* sb在文件系统卸载之前是一直存在于内存中的，所以我们可以使用s_fs_info来存储原始的超级块信息，避免后期交互时 再次读取磁盘。</p>
+<p>文件系统卸载的时候超级块信息需要被删除，所以HUST_fs_kill_superblock的作用时释放该超级块，通知VFS该挂载点已经卸载。</p>
+<p>实现基本函数后，可以对文件系统进行挂载操作，挂载操作的脚本内容如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">sudo umount ./test  <br>sudo rmmod HUST_fs  <br>dd bs=<span class="hljs-number">4096</span> count=<span class="hljs-number">100</span> <span class="hljs-keyword">if</span>=/dev/zero of=image  <br>./mkfs image  <br>insmod HUST_fs.ko  <br>mount -o loop -t HUST_fs image ./test  <br>dmesg<br></code></pre></td></tr></table></figure>
+
+<p>我们从第0节可以看到挂载成功</p>
+<h3 id="3-2-ls命令的实现"><a href="#3-2-ls命令的实现" class="headerlink" title="3.2  ls命令的实现"></a>3.2  ls命令的实现</h3><p>加载文件系统之后第一个要实现的功能是读取文件系统中的数据，所以选择实现文件夹读取操作，这一操作在2.x内核中是<code>.readdir</code>函数指针，在最新版本中是<code>.iterate</code>函数指针。这个指针在保存在file_operation中，如下所示。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">HUST_fs_dir_ops</span> =</span> &#123;  <br>    .owner = THIS_MODULE,  <br>    .iterate = HUST_fs_iterate,  <br>&#125;; <br></code></pre></td></tr></table></figure>
+
+<p>HUST_fs_iterate函数主要功能逻辑是读取inode的块数据，并且将块数据中的inode和文件名通过dir_emit函数传输到VFS层。以根目录为例，根目录的包含三个数据项，分别是父目录，当前目录和欢迎文件，所以该函数会执行以下三个语句</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//参数分别表示上下文，文件/目录名，文件/目录名长度，inode号，文件类型  </span><br>dir_emit(ctx, <span class="hljs-string">&quot;.&quot;</span>, <span class="hljs-number">1</span>,<span class="hljs-number">0</span>, DT_DIR);  <br>dir_emit(ctx, <span class="hljs-string">&quot;..&quot;</span>, <span class="hljs-number">2</span>,<span class="hljs-number">0</span>, DT_DIR);  <br>dir_emit(ctx, <span class="hljs-string">&quot;file&quot;</span>, <span class="hljs-number">4</span>,<span class="hljs-number">1</span>, DT_REG);<br></code></pre></td></tr></table></figure>
+
+<p>完成该函数后，在填充根目录inode时将HUST_fs_dir_ops指针赋值，即可在挂在文件系统后执行ls命令。</p>
+<img src="/2023/03/11/%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20230311223941193.png" srcset="/img/loading.gif" lazyload alt="image-20230311223941193" style="zoom: 80%;">
+
+<p>如上图所示，我们成功看到了欢迎文件。但是此时我们不能对文件进行任何操作，因为还没有实现其他的接口。</p>
+<h3 id="3-3-磁盘管理相关逻辑的实现"><a href="#3-3-磁盘管理相关逻辑的实现" class="headerlink" title="3.3 磁盘管理相关逻辑的实现"></a>3.3 磁盘管理相关逻辑的实现</h3><p>这个磁盘管理的内涵包括向磁盘写入和从磁盘取出读取inode，更新inode信息，维护imap，bmap，inode table等操作。为了使磁盘上的内容有序的组合起来，磁盘空间的管理十分的重要，后续的文件读写操作都与此相关。</p>
+<p>写入和删除inode的操作存放在super_operations这个结构体中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">super_operations</span> <span class="hljs-title">HUST_fs_super_ops</span> =</span> &#123;  <br>    .evict_inode = HUST_evict_inode,  <br>    .write_inode = HUST_write_inode,  <br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>HUST_fs_super_ops需要在填充超级块时赋值到super_block的s_ops字段中。HUST_write_inode函数的功能是将内存中的inode保存在磁盘上。关键代码如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">HUST_write_inode</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> writeback_control *wbc)</span>  <br>&#123;  <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">buffer_head</span> * <span class="hljs-title">bh</span>;</span>  <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HUST_inode</span> * <span class="hljs-title">raw_inode</span> =</span> <span class="hljs-literal">NULL</span>;  <br>    HUST_fs_get_inode(inode-&gt;i_sb, inode-&gt;i_ino, raw_inode);  <br>    <span class="hljs-keyword">if</span> (!raw_inode)  <br>        <span class="hljs-keyword">return</span> -EFAULT;  <br>    raw_inode-&gt;mode = inode-&gt;i_mode;  <br>    raw_inode-&gt;i_uid = fs_high2lowuid(i_uid_read(inode));  <br>    raw_inode-&gt;i_gid = fs_high2lowgid(i_gid_read(inode));  <br>    raw_inode-&gt;i_nlink = inode-&gt;i_nlink;  <br>    raw_inode-&gt;file_size = inode-&gt;i_size;      <br>    raw_inode-&gt;i_atime = (inode-&gt;i_atime.tv_sec);  <br>    raw_inode-&gt;i_mtime = (inode-&gt;i_mtime.tv_sec);  <br>    raw_inode-&gt;i_ctime = (inode-&gt;i_ctime.tv_sec);  <br>    mark_buffer_dirty(bh);  <br>    brelse(bh);  <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;  <br>&#125;  <br></code></pre></td></tr></table></figure>
+
+<p>可以看到，该函数的将vfs inode中的相关信息存储到HUST_inode结构体中，然后写入磁盘。这个是单独的写入磁盘操作，事实上，当我们申请inode时，imap也是需要检查刷新的，需要把相应位置标记为1。同理，evict_inode函数的作用时删除inode，删除成功后，我们需要刷新imap的值，把相应位置标记为0。</p>
+<p>设置和写入map的操作都在map.c中，以下以imap为例。对于imap来讲，申请inode的时候需要检查第一个空闲的inode编号，当inode被释放的时候也要及时清零对应的imap。与此相关的函数如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//从磁盘中读取数据并存在imap数组中  </span><br><span class="hljs-type">int</span> <span class="hljs-title function_">get_imap</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> super_block* sb, <span class="hljs-type">uint8_t</span>* imap, <span class="hljs-type">ssize_t</span> imap_size)</span>;  <br><span class="hljs-comment">//在vaddr数组中找到第一个为0的bit，这个函数用于定位空inode或者block  </span><br><span class="hljs-type">int</span> <span class="hljs-title function_">HUST_find_first_zero_bit</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">void</span> *vaddr, <span class="hljs-type">unsigned</span> size)</span>;  <br><span class="hljs-comment">//将imap的某一位置0或者1，并保存在磁盘上  </span><br><span class="hljs-type">int</span> <span class="hljs-title function_">set_and_save_imap</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> super_block* sb, <span class="hljs-type">uint64_t</span> inode_num, <span class="hljs-type">uint8_t</span> value)</span>;  <br><span class="hljs-comment">//定义的位操作宏如下  </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> setbit(number,x) number |= 1UL &lt;&lt; x  </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> clearbit(number, x) number &amp;= ~(1UL &lt;&lt; x)  </span><br></code></pre></td></tr></table></figure>
+
+<p>由于本文件系统并不是为了实际使用，所以上述的操作都没有考虑性能以及准确性问题。事实上，能够加上校验或者冗余备份是最好的。</p>
+<h3 id="3-4-读写文件内容"><a href="#3-4-读写文件内容" class="headerlink" title="3.4 读写文件内容"></a>3.4 读写文件内容</h3><p>为了能够快速看到文件系统在正常工作，所以接下来需要实现文件的读写操作。文件读写操作按照一般处理，应该是实现在struct file_operations这个结构体中的。事实上，最开始我是实现在这个结构体中的read_iter函数指针中的。但是比较有趣的一点是，如果我们实现了struct address_space_operations结构体中的函数，那么struct file_operations结构体中的函数则可以交由VFS实现。代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">HUST_fs_file_ops</span> =</span> &#123;  <br>    .owner = THIS_MODULE,  <br>    .llseek = generic_file_llseek,  <br>    .mmap = generic_file_mmap,  <br>    .fsync = generic_file_fsync,  <br>    .read_iter = generic_file_read_iter,  <br>    .write_iter = generic_file_write_iter,  <br>&#125;;  <br><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span>   <span class="hljs-title">address_space_operations</span> <span class="hljs-title">HUST_fs_aops</span> =</span> &#123;  <br>    .readpage = HUST_fs_readpage,  <br>    .writepage = HUST_fs_writepage,  <br>    .write_begin = HUST_fs_write_begin,  <br>    .write_end = generic_write_end,  <br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>上述的generic开头的函数是不需要我们手动实现的。上述的address_space_operations操作其实是实现了页高速缓存的一些操作。页高速缓存是linux内核实现的一种主要磁盘缓存，它主要用来减少对磁盘的IO操作，具体地讲，是通过把磁盘中的数据缓存到物理内存中，把对磁盘的访问变为对物理内存的访问。这些接口一旦实现，那么对文件的操作就可以转移到内存中，这就是为什么可以使用generic开头的这些函数来代替手写。</p>
+<p>HUST_fs_readpage, HUST_fs_writepage以及HUST_fs_write_begin都被注册回调到同一个函数HUST_fs_get_block。HUST_fs_get_block主要返回内核请求长度的数据。至于读写操作，内核调用__bwrite函数最终调用块设备驱动执行。因为在我没有采用二级或者多级索引，故而HUST_fs_get_block函数逻辑比较简单，部分代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">HUST_fs_get_block</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-type">sector_t</span> block,  </span><br><span class="hljs-params">              <span class="hljs-keyword">struct</span> buffer_head *bh, <span class="hljs-type">int</span> create)</span>  <br>&#123;  <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">super_block</span> *<span class="hljs-title">sb</span> =</span> inode-&gt;i_sb;  <br>    <span class="hljs-keyword">if</span> (block &gt; HUST_N_BLOCKS) <br>        <span class="hljs-keyword">return</span> -ENOSPC;  <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HUST_inode</span> <span class="hljs-title">H_inode</span>;</span>  <br>    <span class="hljs-keyword">if</span> (<span class="hljs-number">-1</span> == HUST_fs_get_inode(sb, inode-&gt;i_ino, &amp;H_inode))  <br>        <span class="hljs-keyword">return</span> -EFAULT;  <br>    <span class="hljs-keyword">if</span> (H_inode.blocks == <span class="hljs-number">0</span>)  <br>        <span class="hljs-keyword">if</span>(alloc_block_for_inode(sb, &amp;H_inode, <span class="hljs-number">1</span>)) <br>            <span class="hljs-keyword">return</span> -EFAULT;  <br>    map_bh(bh, sb, H_inode.block[block]);  <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;  <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如上所示，该函数判断传入的block的大小，并将磁盘内容映射到bh中。后续的读写操作将有VFS帮我们完成。</p>
+<h3 id="3-5-inode操作"><a href="#3-5-inode操作" class="headerlink" title="3.5 inode操作"></a>3.5 inode操作</h3><p>Inode操作涉及文件(夹)的创建删除，将HUST_inode映射到VFS中的inode等操作。具体实现的函数如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">inode_operations</span> <span class="hljs-title">HUST_fs_inode_ops</span> =</span> &#123;  <br>    .lookup = HUST_fs_lookup,  <br>    .mkdir = HUST_fs_mkdir,  <br>    .create = HUST_fs_create,  <br>    .unlink = HUST_fs_unlink,  <br>&#125;; <br></code></pre></td></tr></table></figure>
+
+<p>HUST_fs_lookup是其中比较复杂的一个函数，它负责将一个目录下的inode信息交由VFS管理。首先，HUST_fs_lookup读取文件夹的内容，然后遍历文件夹下面的HUST_inode，找到我们想要的HUST_inode，根据不同的文件属性，申请vfs_inode；并对不同的vfs_inode设置不同的操作。假设vfs_inode对应的是一个文件，那么就设置vfs_inode-&gt;mapping-&gt;a_ops，如果vfs_inode对应的是文件夹，那么就设置vfs_inode-&gt;f_ops &#x3D; &amp;HUST_fs_dir_ops;最后将vfs_inode注册到VFS中。这部分的关键代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">struct</span> dentry *<span class="hljs-title function_">HUST_fs_lookup</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *parent_inode,  </span><br><span class="hljs-params">                  <span class="hljs-keyword">struct</span> dentry *child_dentry, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> flags)</span>  <br>&#123;  <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">super_block</span> *<span class="hljs-title">sb</span> =</span> parent_inode-&gt;i_sb;  <br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HUST_inode</span> <span class="hljs-title">H_inode</span>;</span>  <br><span class="hljs-comment">//省略代码  </span><br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; H_inode.dir_children_count; i++) &#123;  <br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">strncmp</span>  <br>            (child_dentry-&gt;d_name.name, dtptr[i].filename,  <br>             HUST_FILENAME_MAX_LEN) == <span class="hljs-number">0</span>)&#123;  <br>            inode = iget_locked(sb, dtptr[i].inode_no);  <br>            <span class="hljs-keyword">if</span> (inode-&gt;i_state &amp; I_NEW) &#123;  <br>                inode_init_owner(inode, parent_inode, <span class="hljs-number">0</span>);  <br>                <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HUST_inode</span> <span class="hljs-title">H_child_inode</span>;</span>  <br>                <span class="hljs-keyword">if</span> (<span class="hljs-number">-1</span> == HUST_fs_get_inode(sb, dtptr[i].inode_no, &amp;H_child_inode))  <br>                    <span class="hljs-keyword">return</span> ERR_PTR(-EFAULT);  <br>                HUST_fs_convert_inode(&amp;H_child_inode, inode);  <br>                inode-&gt;i_op = &amp;HUST_fs_inode_ops;  <br>                <span class="hljs-keyword">if</span> (S_ISDIR(H_child_inode.mode)) &#123;  <br>                    inode-&gt;i_fop = &amp;HUST_fs_dir_ops;  <br>                &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (S_ISREG(H_child_inode.mode)) &#123;  <br>                    inode-&gt;i_fop = &amp;HUST_fs_file_ops;;  <br>                    inode-&gt;i_mapping-&gt;a_ops = &amp;HUST_fs_aops;  <br>                &#125;  <br>                inode-&gt;i_mode = H_child_inode.mode;  <br>                inode-&gt;i_size = H_child_inode.file_size;  <br>                insert_inode_hash(inode);  <br>                unlock_new_inode(inode);  <br>            &#125;  <br>        &#125;  <br>    &#125;  <br><span class="hljs-comment">//省略代码  </span><br>&#125; <br></code></pre></td></tr></table></figure>
+
+<p>只有在这里注册了相关函数，系统调用才能正常执行。不然就会出现不支持的操作这种报错信息。</p>
+<p>.create与.mkdir都是对应了inode的创建，只是inode的属性不能而已。.create创建普通文件而.mkdir创建文件夹。所以这两个函数的功能被函数HUST_fs_create_obj所处理。这个函数接受新建文件（夹）的请求，检查磁盘的大小，检查是否有空余的indoe，并且分配inode号，然后更新imap信息，最后更新超级块信息。由于该函数逻辑简单但是代码量比较大，故而不在此展示其具体实现。</p>
+<p>在完成上述工作之后，我们的文件系统基本已经完成了，这个系统采用线性（区别于minixi二级索引用树来管理）的方式管理磁盘空间，支持基本的增删改查文件操作，支持文件权限，支持多用户。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Linux学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>动手写一个简单的文件系统</div>
+      <div>http://example.com/2023/03/11/动手写一个简单的文件系统/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/15/User-Data-Checkpoint%E6%9C%BA%E5%88%B6/" title="User Data Checkpoint机制">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">User Data Checkpoint机制</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/10/Android-HIDL%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0/" title="Android HIDL服务实现">
+                        <span class="hidden-mobile">Android HIDL服务实现</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

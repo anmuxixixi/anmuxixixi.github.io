@@ -1,0 +1,787 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="【转载】FAT文件系统原理 转载自：http:&#x2F;&#x2F;info.mrtlab.com&#x2F;filesystem&#x2F;FAT-principle-three.html 仅作为个人学习记录，侵权联系删除！  FAT表(File Allocation Table 文件分配表)，是Microsoft在FAT文件系统中用于磁盘数据(文件)索引和定位引进的一种链式结构。假如把磁盘比作一本书，FAT表可以认为相当于书中的目">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【转载】FAT文件系统原理">
+<meta property="og:url" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="【转载】FAT文件系统原理 转载自：http:&#x2F;&#x2F;info.mrtlab.com&#x2F;filesystem&#x2F;FAT-principle-three.html 仅作为个人学习记录，侵权联系删除！  FAT表(File Allocation Table 文件分配表)，是Microsoft在FAT文件系统中用于磁盘数据(文件)索引和定位引进的一种链式结构。假如把磁盘比作一本书，FAT表可以认为相当于书中的目">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/9E224840581.gif">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/D7224840866.gif">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/AF224840326.gif">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/FF224840997.gif">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/DC224840568.gif">
+<meta property="og:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/image-20230630230351647.png">
+<meta property="article:published_time" content="2023-06-30T14:56:47.000Z">
+<meta property="article:modified_time" content="2023-06-30T15:04:35.989Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Linux学习笔记">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/9E224840581.gif">
+  
+  
+  
+  <title>【转载】FAT文件系统原理 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【转载】FAT文件系统原理"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-30 22:56" pubdate>
+          2023年6月30日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          19 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【转载】FAT文件系统原理</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="【转载】FAT文件系统原理"><a href="#【转载】FAT文件系统原理" class="headerlink" title="【转载】FAT文件系统原理"></a>【转载】FAT文件系统原理</h1><blockquote>
+<p>转载自：<a target="_blank" rel="noopener" href="http://info.mrtlab.com/filesystem/FAT-principle-three.html">http://info.mrtlab.com/filesystem/FAT-principle-three.html</a></p>
+<p>仅作为个人学习记录，侵权联系删除！</p>
+</blockquote>
+<p>FAT表(File Allocation Table 文件分配表)，是Microsoft在FAT文件系统中用于磁盘数据(文件)索引和定位引进的一种链式结构。假如把磁盘比作一本书，FAT表可以认为相当于书中的目录，而文件就是各个章节的内容。但FAT表的表示方法却与目录有很大的不同。</p>
+<p>在FAT文件系统中，文件的存储依照FAT表制定的簇链式数据结构来进行。同时，FAT文件系统将组织数据时使用的目录也抽象为文件，以简化对数据的管理。</p>
+<hr>
+<p> ★存储过程假想：</p>
+<p>我们模拟对一个分区存储数据的过程来说明FAT文件系统中数据的存储原则。</p>
+<p>假定现在有一个空的完全没有存放数据的磁盘，大小为100KB，我们将其想象为线形的空间地址。为了存储管理上的便利，我们人为的将这100KB的空间均分成100份，每份1KB。我们来依次存储这样几个文件：A.TXT(大小10KB),B.TXT(大小53.6KB)，C.TXT(大小20.5KB)。</p>
+<p>最起码能够想到，我们可以顺序的在这100KB空间中存放这3个文件。同时不要忘了，我们还要记下他们的大小和开始的位置，这样下次要用时才能找的到，这就像是目录。为了便于查找，我们假定用第1K的空间来存储他们的特征(属性)。还有，我们设计的存储单位是1KB，所以，A.TXT我们需要10个存储单位(为了说明方便，我们把存储单位叫做“簇”吧。也能少打点字，呵呵。)，B.TXT需要54个簇，C.TXT需要21个簇。可能有人会说B.TXT和C.TXT不是各自浪费了不到1簇的空间吗？干嘛不让他们紧挨着，不是省地方吗？我的回答是，如果按照这样的方式存储，目录中原本只需要记下簇号，现在还需要记下簇内的偏移，这样会增加目录的存储量，而且存取没有了规则，读取也不太方便，是得不偿失的。</p>
+<p>根据上面所说的思想，我们设计了这样的图4.3.1所示的存储方式。</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/9E224840581.gif" srcset="/img/loading.gif" lazyload alt="img" style="zoom:100%;">
+
+<p>我们再考虑如何来写这三个文件的目录。对于每个文件而言，一定要记录的有：文件名，开始簇，大小，创建日期、时间，修改日期、时间，文件的读写属性等。这里大小能不能用结束簇来计算呢？一定不能，因为文件的大小不一定就是整数个簇的大小，否则的话像B.TXT的内容就是54KB的内容了，少了固然不行，可多了也是不行的。那么我们怎么记录呢？可以想象一下。为了管理上的方便，我们用数据库的管理方式来管理我们的目录。于是我把1KB再分成10份，假定开始簇号为0，定义每份100B的各个位置的代表含义如图4.3.2：</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/D7224840866.gif" srcset="/img/loading.gif" lazyload alt="img">
+
+<p>这样设计的结构绝对可以对文件进行正确的读写了。接着让我们设计的文件系统工作吧。先改动个文件，比如A.TXT，增加点内容吧！咦？增加后往哪里放呀，虽然存储块的后面有很多空间，但紧随其后B.TXT的数据还顶着呢？要是把A.TXT移到后边太浪费处理资源，而且也不一定解决问题。这个问题看来暂时解决不了。</p>
+<p>那我们换个操作，把B.txt删了，b.txt的空间随之释放。这时候空间如图4.3.3，目录如图4.3.4：</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/AF224840326.gif" srcset="/img/loading.gif" lazyload alt="img">
+
+<p>这个操作看来还可以，我们接着做，在存入一个文件D.txt(大小为60.3KB),总共100簇的空间只用了31簇，还有68簇剩余，按说能放下。可是？往那里放呢？没有61个连续的空间了，目录行没办法写了，看来无连续块存储暂时也不行。</p>
+<p>你一定能够想到我们可以在连续空间不够或增加文件长度的时候转移影响我们操作的其他文件，从而腾出空间来，但我要问你，那不是成天啥也不要干了，就是倒腾东西了吗？</p>
+<p>看来我们设计的文件系统有致命的漏洞，怎么解决呢？。。。。</p>
+<hr>
+<p>其实可以这样解决：</p>
+<p>首先我们允许文件的不连续存储。目录中依然只记录开始簇和文件的大小。那么我们怎么记录文件占用那些簇呢，以文件映射簇不太方便，因为文件名是不固定的。我们换个思想，可以用簇来映射文件，在整个存储空间的前部留下几簇来记录数据区中数据与簇号的关系。对于上例因为总空间也不大，所以用前部的1Kb的空间来记录这种对应，假设3个文件都存储，空间分配如图4.3.5，同时修改一下目录，如图4.3.6：</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/FF224840997.gif" srcset="/img/loading.gif" lazyload alt="img">
+
+<p>第一簇用来记录数据区中每一簇的被占用情况，暂时称其为文件分配表。结合文件分配表和文件目录就可以达到完全的文件读取了。我们想到，把文件分配表做成一个数据表，以图4.3.7的形式记录簇与数据的对应。</p>
+<p>用图4.3.7的组织方式是完全可以实现对文件占有簇的记录的。但还不够效率。比如文件名在文件分配表中记录太多，浪费空间，而实际上在目录中已经记录了文件的开始簇了。所以可以改良一下，用链的方式来存放占有簇的关系，变成图4.3.8的组织方式。</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/DC224840568.gif" srcset="/img/loading.gif" lazyload alt="img">
+
+<p>参照图4.3.8来理解一下文件分配表的意义。如文件a.txt我们根据目录项中指定的a.txt的首簇为2，然后找到文件分配表的第2簇记录，上面登记的是3，我们就能确定下一簇是3。找到文件分配表的第3簇记录，上面登记的是4，我们就能确定下一簇是4……直到指到第11簇，发现下一个指向是FF，就是结束。文件便丝毫无误读取完毕。</p>
+<p>我们再看上面提到的第三种情况，就是将b.txt删除以后，存入一个大小为60.3KB的d.txt。利用簇链可以很容易的实现。实现后的磁盘如图4.3.9 4.3.10 4.3.11：</p>
+<img src="/2023/06/30/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/image-20230630230351647.png" srcset="/img/loading.gif" lazyload alt="image-20230630230351647" style="zoom: 45%;">
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">#Linux学习笔记</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【转载】FAT文件系统原理</div>
+      <div>http://example.com/2023/06/30/FAT文件系统原理/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月30日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/06/30/%E5%AE%9A%E4%BD%8D%E5%92%8C%E6%8F%90%E5%8F%96FAT32%E5%88%86%E5%8C%BA%E7%9A%84%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE/" title="定位和提取FAT32分区的文件数据">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">定位和提取FAT32分区的文件数据</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/29/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" title="vfat文件系统">
+                        <span class="hidden-mobile">vfat文件系统</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

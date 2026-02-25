@@ -1,0 +1,802 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="exfat文件元数据写入流程实验部分情况一：非碎片化不需要分配新的簇写入向hello.txt写入下面的值   用wireshark抓包得到的值有2组：   首先写入的是文件数据【只下发了512字节，为什么不是4096字节？】   随后写入的是文件的元数据【元数据下发了4096字节】   情况二：非碎片化需要分配新的簇写入（直接复制一个文件）写入一个稍大的文件elf.h   比较有意思的一点是目录表">
+<meta property="og:type" content="article">
+<meta property="og:title" content="exfat文件元数据写入流程">
+<meta property="og:url" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="exfat文件元数据写入流程实验部分情况一：非碎片化不需要分配新的簇写入向hello.txt写入下面的值   用wireshark抓包得到的值有2组：   首先写入的是文件数据【只下发了512字节，为什么不是4096字节？】   随后写入的是文件的元数据【元数据下发了4096字节】   情况二：非碎片化需要分配新的簇写入（直接复制一个文件）写入一个稍大的文件elf.h   比较有意思的一点是目录表">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412212452875.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412212547878.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412212626283.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412212803844.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412215602997.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412222636118.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412223554367.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412225102851.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412225121269.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412223103445.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412223201321.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412223337786.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250413215918564.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250413215904524.png">
+<meta property="og:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/v2-8944f38afb283231aeed9ad0f8007f22_r.jpg">
+<meta property="article:published_time" content="2025-04-12T13:23:58.000Z">
+<meta property="article:modified_time" content="2025-04-17T12:13:43.142Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412212452875.png">
+  
+  
+  
+  <title>exfat文件元数据写入流程 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="exfat文件元数据写入流程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-04-12 21:23" pubdate>
+          2025年4月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          52 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">exfat文件元数据写入流程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="exfat文件元数据写入流程"><a href="#exfat文件元数据写入流程" class="headerlink" title="exfat文件元数据写入流程"></a>exfat文件元数据写入流程</h1><h2 id="实验部分"><a href="#实验部分" class="headerlink" title="实验部分"></a>实验部分</h2><h3 id="情况一：非碎片化不需要分配新的簇写入"><a href="#情况一：非碎片化不需要分配新的簇写入" class="headerlink" title="情况一：非碎片化不需要分配新的簇写入"></a>情况一：非碎片化不需要分配新的簇写入</h3><p>向hello.txt写入下面的值</p>
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412212452875.png" srcset="/img/loading.gif" lazyload alt="image-20250412212452875" style="zoom:80%;">
+
+<p>用wireshark抓包得到的值有2组：</p>
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412212547878.png" srcset="/img/loading.gif" lazyload alt="image-20250412212547878" style="zoom:80%;">
+
+<p>首先写入的是文件数据【只下发了512字节，为什么不是4096字节？】</p>
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412212626283.png" srcset="/img/loading.gif" lazyload alt="image-20250412212626283" style="zoom:80%;">
+
+<p>随后写入的是文件的元数据【元数据下发了4096字节】</p>
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412212803844.png" srcset="/img/loading.gif" lazyload alt="image-20250412212803844" style="zoom:80%;">
+
+<h3 id="情况二：非碎片化需要分配新的簇写入（直接复制一个文件）"><a href="#情况二：非碎片化需要分配新的簇写入（直接复制一个文件）" class="headerlink" title="情况二：非碎片化需要分配新的簇写入（直接复制一个文件）"></a>情况二：非碎片化需要分配新的簇写入（直接复制一个文件）</h3><p>写入一个稍大的文件elf.h<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412215602997.png" srcset="/img/loading.gif" lazyload alt="image-20250412215602997" style="zoom:80%;"></p>
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412222636118.png" srcset="/img/loading.gif" lazyload alt="image-20250412222636118" style="zoom:80%;">
+
+<p>比较有意思的一点是目录表写了三遍：</p>
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412223554367.png" srcset="/img/loading.gif" lazyload alt="image-20250412223554367" style="zoom:67%;">
+
+<p>🧸<strong>多次试验后发现均是上述流程：目录表 &#x3D;》bitmap &#x3D;》目录表 &#x3D;》数据  &#x3D;》数据 &#x3D;》… &#x3D;》目录表 &#x3D;》 MBR</strong></p>
+<blockquote>
+<p>这可能是windows做的优化，我推测做的优化为：</p>
+<ul>
+<li><p>知道了是拷贝，所以数据更新前就有一次目录表分配，这是已经开始分配簇了</p>
+</li>
+<li><p>❤️<strong>这里做了预分配是最大的亮点</strong>【因为知道文件大小，可以先分配簇并更新备份文件大小】后面等所有的簇分配完（bitmap更新），再更新一下备份文件大小</p>
+</li>
+<li><p>最后等所有数据写完了，没有因为掉盘中断，更新最后的主大小</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>假如上面的流程做了一半，也就是数据写了一半，也能保证能够打开一半，这就是Windows吊的地方</strong></p>
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412225102851.png" srcset="/img/loading.gif" lazyload alt="image-20250412225102851" style="zoom:67%;">
+
+<p><strong>只更新了备份大小（没有更新主），Windows还是能打开，Linux值得借鉴</strong></p>
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412225121269.png" srcset="/img/loading.gif" lazyload alt="image-20250412225121269" style="zoom:90%;">
+
+
+
+<h3 id="情况三：非碎片化需要分配新的簇写入（往创建好的文件里面写）"><a href="#情况三：非碎片化需要分配新的簇写入（往创建好的文件里面写）" class="headerlink" title="情况三：非碎片化需要分配新的簇写入（往创建好的文件里面写）"></a>情况三：非碎片化需要分配新的簇写入（往创建好的文件里面写）</h3><p>往创建好的222.txt里面写入elf.h一模一样的内容</p>
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412223103445.png" srcset="/img/loading.gif" lazyload alt="image-20250412223103445" style="zoom:80%;">
+
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412223201321.png" srcset="/img/loading.gif" lazyload alt="image-20250412223201321" style="zoom:80%;">
+
+<p>🧸<strong>常规流程：数据区 &#x3D;》 目录表 &#x3D;》 bitmap &#x3D;》 MBR</strong></p>
+<blockquote>
+<p>备份一下目录表，供日后复习使用</p>
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250412223337786.png" srcset="/img/loading.gif" lazyload alt="image-20250412223337786" style="zoom:67%;">
+</blockquote>
+<h2 id="代码部分"><a href="#代码部分" class="headerlink" title="代码部分"></a>代码部分</h2><h3 id="fsync情况"><a href="#fsync情况" class="headerlink" title="fsync情况"></a>fsync情况</h3><img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250413215918564.png" srcset="/img/loading.gif" lazyload alt="image-20250413215918564" style="zoom: 80%;">
+
+<img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/image-20250413215904524.png" srcset="/img/loading.gif" lazyload alt="image-20250413215904524" style="zoom:67%;">
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> __generic_file_fsync(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">loff_t</span> start, <span class="hljs-type">loff_t</span> end,<br>				 <span class="hljs-type">int</span> datasync)<br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">inode</span> *<span class="hljs-title">inode</span> =</span> file-&gt;f_mapping-&gt;host;<br>	<span class="hljs-type">int</span> err;<br>	<span class="hljs-type">int</span> ret;<br><br>    <span class="hljs-comment">// 回写数据脏页</span><br>	err = file_write_and_wait_range(file, start, end);<br><br>	inode_lock(inode);<br>	ret = sync_mapping_buffers(inode-&gt;i_mapping);<br>	<span class="hljs-keyword">if</span> (!(inode-&gt;i_state &amp; I_DIRTY_ALL))<br>		<span class="hljs-keyword">goto</span> out;<br>    <span class="hljs-comment">// 如果指向是fdatasync直接退出</span><br>	<span class="hljs-keyword">if</span> (datasync &amp;&amp; !(inode-&gt;i_state &amp; I_DIRTY_DATASYNC))<br>		<span class="hljs-keyword">goto</span> out;<br>	<span class="hljs-comment">// 元数据回写</span><br>	err = sync_inode_metadata(inode, <span class="hljs-number">1</span>);<br><br>out:<br>	inode_unlock(inode);<br>	err = file_check_and_advance_wb_err(file);<br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>数据回写：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">file_write_and_wait_range</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">loff_t</span> lstart, <span class="hljs-type">loff_t</span> lend)</span><br>&#123;<br>	<span class="hljs-type">int</span> err = <span class="hljs-number">0</span>, err2;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">address_space</span> *<span class="hljs-title">mapping</span> =</span> file-&gt;f_mapping;<br><br>	<span class="hljs-keyword">if</span> (mapping_needs_writeback(mapping)) &#123;<br>		err = __filemap_fdatawrite_range(mapping, lstart, lend, WB_SYNC_ALL);<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br><br><span class="hljs-type">int</span> __filemap_fdatawrite_range(<span class="hljs-keyword">struct</span> address_space *mapping, <span class="hljs-type">loff_t</span> start,<br>				<span class="hljs-type">loff_t</span> end, <span class="hljs-type">int</span> sync_mode)<br>&#123;<br>	<span class="hljs-type">int</span> ret;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">writeback_control</span> <span class="hljs-title">wbc</span> =</span> &#123;<br>		.sync_mode = sync_mode,<br>		.nr_to_write = LONG_MAX,<br>		.range_start = start,<br>		.range_end = end,<br>	&#125;;<br><br>    <span class="hljs-comment">// 回写脏页</span><br>	ret = do_writepages(mapping, &amp;wbc);<br><br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>元数据回写：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * sync_inode_metadata - write an inode to disk</span><br><span class="hljs-comment"> * @inode: the inode to sync</span><br><span class="hljs-comment"> * @wait: wait for I/O to complete.</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * Write an inode to disk and adjust its dirty state after completion.</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * Note: only writes the actual inode, no associated data or other metadata.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">sync_inode_metadata</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-type">int</span> wait)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">writeback_control</span> <span class="hljs-title">wbc</span> =</span> &#123;<br>		.sync_mode = wait ? WB_SYNC_ALL : WB_SYNC_NONE,<br>		.nr_to_write = <span class="hljs-number">0</span>, <span class="hljs-comment">/* metadata-only */</span><br>	&#125;;<br><br>	<span class="hljs-keyword">return</span> sync_inode(inode, &amp;wbc);<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">sync_inode</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> writeback_control *wbc)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> writeback_single_inode(inode, wbc);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">writeback_single_inode</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode,</span><br><span class="hljs-params">				  <span class="hljs-keyword">struct</span> writeback_control *wbc)</span><br>&#123;<br>	ret = __writeback_single_inode(inode, wbc);<br><br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span><br>__writeback_single_inode(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> writeback_control *wbc)<br>&#123;<br>	ret = do_writepages(mapping, wbc);<br><br>    <span class="hljs-comment">// 写入元数据</span><br>	<span class="hljs-keyword">if</span> (dirty &amp; ~I_DIRTY_PAGES) &#123;<br>		<span class="hljs-type">int</span> err = write_inode(inode, wbc);<br>		<span class="hljs-keyword">if</span> (ret == <span class="hljs-number">0</span>)<br>			ret = err;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最后如果inode上没有挂脏页，就回写inode</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">exfat_write_inode</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> writeback_control *wbc)</span><br>&#123;<br>	<span class="hljs-type">int</span> ret;<br><br>	mutex_lock(&amp;EXFAT_SB(inode-&gt;i_sb)-&gt;s_lock);<br>	ret = __exfat_write_inode(inode, wbc-&gt;sync_mode == WB_SYNC_ALL);<br>	mutex_unlock(&amp;EXFAT_SB(inode-&gt;i_sb)-&gt;s_lock);<br><br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __exfat_write_inode(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-type">int</span> sync)<br>&#123;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span> on_disk_size;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_dentry</span> *<span class="hljs-title">ep</span>, *<span class="hljs-title">ep2</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_entry_set_cache</span> *<span class="hljs-title">es</span> =</span> <span class="hljs-literal">NULL</span>;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">super_block</span> *<span class="hljs-title">sb</span> =</span> inode-&gt;i_sb;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_sb_info</span> *<span class="hljs-title">sbi</span> =</span> EXFAT_SB(sb);<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_inode_info</span> *<span class="hljs-title">ei</span> =</span> EXFAT_I(inode);<br>	<span class="hljs-type">bool</span> is_dir = (ei-&gt;type == TYPE_DIR) ? <span class="hljs-literal">true</span> : <span class="hljs-literal">false</span>;<br><br>	<span class="hljs-keyword">if</span> (inode-&gt;i_ino == EXFAT_ROOT_INO)<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * If the indode is already unlinked, there is no need for updating it.</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-keyword">if</span> (ei-&gt;dir.dir == DIR_DELETED)<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br>	<span class="hljs-keyword">if</span> (is_dir &amp;&amp; ei-&gt;dir.dir == sbi-&gt;root_dir &amp;&amp; ei-&gt;entry == <span class="hljs-number">-1</span>)<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br>	exfat_set_volume_dirty(sb);<br><br>	<span class="hljs-comment">/* get the directory entry of given file or directory */</span><br>	es = exfat_get_dentry_set(sb, &amp;(ei-&gt;dir), ei-&gt;entry, ES_ALL_ENTRIES);<br>	<span class="hljs-keyword">if</span> (!es)<br>		<span class="hljs-keyword">return</span> -EIO;<br>	ep = exfat_get_dentry_cached(es, <span class="hljs-number">0</span>);<br>	ep2 = exfat_get_dentry_cached(es, <span class="hljs-number">1</span>);<br><br>	ep-&gt;dentry.file.attr = cpu_to_le16(exfat_make_attr(inode));<br><br>	<span class="hljs-comment">/* set FILE_INFO structure using the acquired struct exfat_dentry */</span><br>	exfat_set_entry_time(sbi, &amp;ei-&gt;i_crtime,<br>			&amp;ep-&gt;dentry.file.create_tz,<br>			&amp;ep-&gt;dentry.file.create_time,<br>			&amp;ep-&gt;dentry.file.create_date,<br>			&amp;ep-&gt;dentry.file.create_time_cs);<br>	exfat_set_entry_time(sbi, &amp;inode-&gt;i_mtime,<br>			&amp;ep-&gt;dentry.file.modify_tz,<br>			&amp;ep-&gt;dentry.file.modify_time,<br>			&amp;ep-&gt;dentry.file.modify_date,<br>			&amp;ep-&gt;dentry.file.modify_time_cs);<br>	exfat_set_entry_time(sbi, &amp;inode-&gt;i_atime,<br>			&amp;ep-&gt;dentry.file.access_tz,<br>			&amp;ep-&gt;dentry.file.access_time,<br>			&amp;ep-&gt;dentry.file.access_date,<br>			<span class="hljs-literal">NULL</span>);<br><br>	<span class="hljs-comment">/* File size should be zero if there is no cluster allocated */</span><br>	on_disk_size = i_size_read(inode);<br><br>	<span class="hljs-keyword">if</span> (ei-&gt;start_clu == EXFAT_EOF_CLUSTER)<br>		on_disk_size = <span class="hljs-number">0</span>;<br><br>	ep2-&gt;dentry.stream.valid_size = cpu_to_le64(on_disk_size);<br>	ep2-&gt;dentry.stream.size = ep2-&gt;dentry.stream.valid_size;<br><br>	exfat_update_dir_chksum_with_entry_set(es);<br>	<span class="hljs-keyword">return</span> exfat_free_dentry_set(es, sync);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="脏页回写流程"><a href="#脏页回写流程" class="headerlink" title="脏页回写流程"></a>脏页回写流程</h3><img src="/2025/04/12/exfat%E6%96%87%E4%BB%B6%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/v2-8944f38afb283231aeed9ad0f8007f22_r.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom:80%;">
+
+<p>元数据回写流程</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c">ret_from_fork<br>kthread<br>worker_thread<br>process_one_work<br>wb_workfn<br>wb_do_writeback<br>wb_writeback<br>__writeback_inodes_wb<br>writeback_sb_inodes<br>__writeback_single_inode<br>    (<span class="hljs-number">1</span>) exfat_writepages: 回写脏页数据<br>	(<span class="hljs-number">2</span>) exfat_write_inode: 回写脏的元数据<br></code></pre></td></tr></table></figure>
+
+<p>注意：这里脏元数据也并非立马回写，也只是置为脏等待回写！</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">exfat_write_inode</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> writeback_control *wbc)</span><br>&#123;<br>	<span class="hljs-type">int</span> ret;<br><br>	mutex_lock(&amp;EXFAT_SB(inode-&gt;i_sb)-&gt;s_lock);<br>	ret = __exfat_write_inode(inode, wbc-&gt;sync_mode == WB_SYNC_ALL);<br>	mutex_unlock(&amp;EXFAT_SB(inode-&gt;i_sb)-&gt;s_lock);<br><br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __exfat_write_inode(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-type">int</span> sync)<br>&#123;<br>	<span class="hljs-comment">// ...更新元数据</span><br>	<span class="hljs-keyword">return</span> exfat_free_dentry_set(es, sync);<br>&#125;<br><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">exfat_free_dentry_set</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> exfat_entry_set_cache *es, <span class="hljs-type">int</span> sync)</span><br>&#123;<br>	<span class="hljs-type">int</span> i, err = <span class="hljs-number">0</span>;<br><br>	<span class="hljs-keyword">if</span> (es-&gt;modified)<br>		err = exfat_update_bhs(es-&gt;bh, es-&gt;num_bh, sync);<br><br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">exfat_update_bhs</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> buffer_head **bhs, <span class="hljs-type">int</span> nr_bhs, <span class="hljs-type">int</span> sync)</span><br>&#123;<br>	<span class="hljs-type">int</span> i, err = <span class="hljs-number">0</span>;<br><br>	<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; nr_bhs; i++) &#123;<br>		set_buffer_uptodate(bhs[i]);<br>		mark_buffer_dirty(bhs[i]);<br>		<span class="hljs-keyword">if</span> (sync)<br>			write_dirty_buffer(bhs[i], <span class="hljs-number">0</span>);<br>	&#125;<br><br>	<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; nr_bhs &amp;&amp; sync; i++) &#123;<br>		wait_on_buffer(bhs[i]);<br>		<span class="hljs-keyword">if</span> (!err &amp;&amp; !buffer_uptodate(bhs[i]))<br>			err = -EIO;<br>	&#125;<br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>exfat文件元数据写入流程</div>
+      <div>http://example.com/2025/04/12/exfat文件元数据写入流程/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年4月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/04/17/exfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%85%83%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B/" title="exfat文件系统元数据写入流程">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">exfat文件系统元数据写入流程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/04/12/wireshark%E6%8A%93usb%E5%8C%85/" title="wireshark抓usb包">
+                        <span class="hidden-mobile">wireshark抓usb包</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

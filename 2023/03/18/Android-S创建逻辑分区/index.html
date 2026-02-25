@@ -1,0 +1,905 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Android S创建逻辑分区从安卓模拟器看来，super设备对应的真实块设备为&#x2F;dev&#x2F;block&#x2F;vda2   从真实模拟器运行环境来看，super总共分为了四个分区system、vendor、product、system_ext【其中system分区由于system as root机制作为了rootfs进行挂载】   另外从网上找到一份真实Android S启动日志：   🤖从真实启动日志">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android S创建逻辑分区">
+<meta property="og:url" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="Android S创建逻辑分区从安卓模拟器看来，super设备对应的真实块设备为&#x2F;dev&#x2F;block&#x2F;vda2   从真实模拟器运行环境来看，super总共分为了四个分区system、vendor、product、system_ext【其中system分区由于system as root机制作为了rootfs进行挂载】   另外从网上找到一份真实Android S启动日志：   🤖从真实启动日志">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230318233940020.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230318234134317.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230322203850415.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/086bef9593e0494a90d27eef2e071bae.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/4ff675e237df41ed9c7d4809bed4d758.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/28872ef9b62844a5b49c0caa07658ff6.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/fc1dd4f8828e4e279906e52bd4417f7a.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/e3b51aa1d6f94b66a78618b135853e75.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230320234029590.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/02bdee1d427e444ab4e2d8b2416591fe.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230427230005157.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/0ea2cc17e450475396458ff4843f7a78.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/9d54d69d1fe943458fe819d4edfa5bb8.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230426231255747.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/format.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/device-mapper.png">
+<meta property="og:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230427231954102.png">
+<meta property="article:published_time" content="2023-03-18T15:30:20.000Z">
+<meta property="article:modified_time" content="2023-04-27T15:20:08.078Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230318233940020.png">
+  
+  
+  
+  <title>Android S创建逻辑分区 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android S创建逻辑分区"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-18 23:30" pubdate>
+          2023年3月18日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          17k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          144 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android S创建逻辑分区</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Android-S创建逻辑分区"><a href="#Android-S创建逻辑分区" class="headerlink" title="Android S创建逻辑分区"></a>Android S创建逻辑分区</h1><p>从安卓模拟器看来，super设备对应的真实块设备为<code>/dev/block/vda2</code></p>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230318233940020.png" srcset="/img/loading.gif" lazyload alt="image-20230318233940020" style="zoom:80%;">
+
+<p>从真实模拟器运行环境来看，super总共分为了四个分区system、vendor、product、system_ext【其中<strong>system</strong>分区由于<strong>system as root</strong>机制作为了rootfs进行挂载】</p>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230318234134317.png" srcset="/img/loading.gif" lazyload alt="image-20230318234134317" style="zoom: 80%;">
+
+<p>另外从网上找到一份真实Android S启动日志：</p>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230322203850415.png" srcset="/img/loading.gif" lazyload alt="image-20230322203850415" style="zoom:80%;">
+
+<p>🤖从真实启动日志来看，那么<strong>为什么这个dm设备怎么来的？为什么dm-0是system_a而不是vendor_a呢？</strong></p>
+<p>我们要带着这些问题去思考，一步步阅读源码，解决自己的疑惑……</p>
+<h2 id="1-整体认知——LpMetadata"><a href="#1-整体认知——LpMetadata" class="headerlink" title="1.整体认知——LpMetadata"></a>1.整体认知——LpMetadata</h2><blockquote>
+<p>这里引用<strong>洛奇看世界</strong>大哥画的精美示意图：<a target="_blank" rel="noopener" href="https://blog.csdn.net/guyongqiangx/article/details/123899602">https://blog.csdn.net/guyongqiangx/article/details/123899602</a></p>
+</blockquote>
+<ul>
+<li>super整体分区布局示意图如下：</li>
+</ul>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/086bef9593e0494a90d27eef2e071bae.png" srcset="/img/loading.gif" lazyload alt="image-20230318234134317" style="zoom: 80%;">
+
+<ul>
+<li>super分区中的metadata如下：</li>
+</ul>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/4ff675e237df41ed9c7d4809bed4d758.png" srcset="/img/loading.gif" lazyload alt="image-20230318234134317" style="zoom: 67%;">
+
+<p>metadata对应的数据结构为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\fs_mgr\liblp\include\liblp\liblp.h</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">LpMetadata</span> &#123;<br>    LpMetadataGeometry geometry;<br>    LpMetadataHeader header;<br>    std::vector&lt;LpMetadataPartition&gt; partitions;<br>    std::vector&lt;LpMetadataExtent&gt; extents;<br>    std::vector&lt;LpMetadataPartitionGroup&gt; groups;<br>    std::vector&lt;LpMetadataBlockDevice&gt; block_devices;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>下面配合具体从super分区中抓取的数据解析。</p>
+<p>命令：<code>dd if=/dev/block/platform/soc/7824900.sdhci/by-name/super bs=4096 count=1048576 of=/data/super.data</code></p>
+<blockquote>
+<p>下面引用：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43899302/article/details/119343835?spm=1001.2014.3001.5506">https://blog.csdn.net/weixin_43899302/article/details/119343835?spm=1001.2014.3001.5506</a></p>
+</blockquote>
+<h3 id="1-1-LpMetadataGeometry"><a href="#1-1-LpMetadataGeometry" class="headerlink" title="1.1 LpMetadataGeometry"></a>1.1 LpMetadataGeometry</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\fs_mgr\liblp\include\liblp\metadata_format.h</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">LpMetadataGeometry</span> &#123;<br>    <span class="hljs-type">uint32_t</span> magic;<br>    <span class="hljs-type">uint32_t</span> struct_size;<br>    <span class="hljs-type">uint8_t</span> checksum[<span class="hljs-number">32</span>];<br>    <span class="hljs-type">uint32_t</span> metadata_max_size;<br>    <span class="hljs-type">uint32_t</span> metadata_slot_count;<br>    <span class="hljs-type">uint32_t</span> logical_block_size;<br>&#125; __attribute__((packed)) LpMetadataGeometry;<br></code></pre></td></tr></table></figure>
+
+<p>因为metadata.img前面预留了4KB（4096Byte），所以偏移位置为<strong>0x1000h</strong></p>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/28872ef9b62844a5b49c0caa07658ff6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:100%;">
+
+<blockquote>
+<p>前32位（4字节）为MetadataGeometry的Magic，在代码中会进行校验魔术字LP_METADATA_GEOMETRY_MAGIC</p>
+<p>☃️<strong>一定注意：看镜像的16进制都是小端模式</strong></p>
+<p>依次类推，后面0x0000034表示32位的变量struct_size</p>
+<p>所以最终这些<strong>metadata.img</strong>中的数据都会一一按位读取到结构体LpMetadataGeometry</p>
+</blockquote>
+<p>在创建super分区的时候，会调用<strong>ParseGeometry</strong>去进行解析<strong>LpMetadataGeometry</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\fs_mgr\liblp\include\liblp\metadata_format.h</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> LP_METADATA_GEOMETRY_MAGIC 0x616c4467</span><br><br><span class="hljs-comment">// system\core\fs_mgr\liblp\reader.cpp</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">ParseGeometry</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">void</span>* buffer, LpMetadataGeometry* geometry)</span> </span>&#123;<br>    <span class="hljs-built_in">static_assert</span>(<span class="hljs-built_in">sizeof</span>(*geometry) &lt;= LP_METADATA_GEOMETRY_SIZE);<br>    <span class="hljs-built_in">memcpy</span>(geometry, buffer, <span class="hljs-built_in">sizeof</span>(*geometry));<br><br>    <span class="hljs-keyword">if</span> (geometry-&gt;magic != LP_METADATA_GEOMETRY_MAGIC) &#123;<br>        LERROR &lt;&lt; <span class="hljs-string">&quot;Logical partition metadata has invalid geometry magic signature.&quot;</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (geometry-&gt;struct_size &gt; <span class="hljs-built_in">sizeof</span>(LpMetadataGeometry)) &#123;<br>        LERROR &lt;&lt; <span class="hljs-string">&quot;Logical partition metadata has unrecognized fields.&quot;</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    &#123;<br>        LpMetadataGeometry temp = *geometry;<br>        <span class="hljs-built_in">memset</span>(&amp;temp.checksum, <span class="hljs-number">0</span>, <span class="hljs-built_in">sizeof</span>(temp.checksum));<br>        <span class="hljs-built_in">SHA256</span>(&amp;temp, temp.struct_size, temp.checksum);<br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">memcmp</span>(temp.checksum, geometry-&gt;checksum, <span class="hljs-built_in">sizeof</span>(temp.checksum)) != <span class="hljs-number">0</span>) &#123;<br>            LERROR &lt;&lt; <span class="hljs-string">&quot;Logical partition metadata has invalid geometry checksum.&quot;</span>;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (geometry-&gt;struct_size != <span class="hljs-built_in">sizeof</span>(LpMetadataGeometry)) &#123;<br>        LERROR &lt;&lt; <span class="hljs-string">&quot;Logical partition metadata has invalid struct size.&quot;</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (geometry-&gt;metadata_slot_count == <span class="hljs-number">0</span>) &#123;<br>        LERROR &lt;&lt; <span class="hljs-string">&quot;Logical partition metadata has invalid slot count.&quot;</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (geometry-&gt;metadata_max_size % LP_SECTOR_SIZE != <span class="hljs-number">0</span>) &#123;<br>        LERROR &lt;&lt; <span class="hljs-string">&quot;Metadata max size is not sector-aligned.&quot;</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-2-LpMetadataHeader"><a href="#1-2-LpMetadataHeader" class="headerlink" title="1.2 LpMetadataHeader"></a>1.2 LpMetadataHeader</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\fs_mgr\liblp\include\liblp\metadata_format.h</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">LpMetadataHeader</span> &#123;<br>    <span class="hljs-type">uint32_t</span> magic;<br>    <span class="hljs-type">uint16_t</span> major_version;<br>    <span class="hljs-type">uint16_t</span> minor_version;<br>    <span class="hljs-type">uint32_t</span> header_size;<br>    <span class="hljs-type">uint8_t</span> header_checksum[<span class="hljs-number">32</span>];<br>    <span class="hljs-type">uint32_t</span> tables_size;<br>    <span class="hljs-type">uint8_t</span> tables_checksum[<span class="hljs-number">32</span>];<br>    LpMetadataTableDescriptor partitions;<br>    LpMetadataTableDescriptor extents;<br>    LpMetadataTableDescriptor groups;<br>    LpMetadataTableDescriptor block_devices;<br>&#125; __attribute__((packed)) LpMetadataHeader;<br><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">LpMetadataTableDescriptor</span> &#123;<br>    <span class="hljs-type">uint32_t</span> offset;<br>    <span class="hljs-type">uint32_t</span> num_entries;<br>    <span class="hljs-type">uint32_t</span> entry_size;<br>&#125; __attribute__((packed)) LpMetadataTableDescriptor;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/fc1dd4f8828e4e279906e52bd4417f7a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:100%;">
+
+<h3 id="1-3-LpMetadataPartition"><a href="#1-3-LpMetadataPartition" class="headerlink" title="1.3 LpMetadataPartition"></a>1.3 LpMetadataPartition</h3><p>这个就是表示super中的一个个逻辑分区所有的字段，比如说name表示逻辑分区名，attributes表示逻辑分区属性</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">LpMetadataPartition</span> &#123;<br>    <span class="hljs-type">char</span> name[<span class="hljs-number">36</span>];                 <span class="hljs-comment">// 分区名字</span><br>    <span class="hljs-type">uint32_t</span> attributes;		   <span class="hljs-comment">// 分区表属性</span><br>    <span class="hljs-type">uint32_t</span> first_extent_index;   <span class="hljs-comment">// 在1.4节中extents的第一个元素值索引【一般一个分区只会占用一个extents数组中的元素】</span><br>    <span class="hljs-type">uint32_t</span> num_extents;          <span class="hljs-comment">// 在1.4节中extents数组中占用了几个元素【一般只会占用一个，所以num_extents一般为0x01】</span><br>    <span class="hljs-type">uint32_t</span> group_index;          <span class="hljs-comment">// 在1.5节中的分组索引</span><br>&#125; __attribute__((packed)) LpMetadataPartition;<br><br></code></pre></td></tr></table></figure>
+
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/e3b51aa1d6f94b66a78618b135853e75.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:100%;">
+
+<p>我们来看一下前面的36字节表示的逻辑分区名，可以看到这里表示的是<strong>system</strong></p>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230320234029590.png" srcset="/img/loading.gif" lazyload alt="image-20230320234029590" style="zoom:80%;">
+
+<h3 id="1-4-LpMetadataExtent"><a href="#1-4-LpMetadataExtent" class="headerlink" title="1.4 LpMetadataExtent"></a>1.4 LpMetadataExtent</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">LpMetadataExtent</span> &#123;<br>    <span class="hljs-type">uint64_t</span> num_sectors;       <span class="hljs-comment">// 当前分区占用扇区数量，一个扇区大小为512Byte</span><br>    <span class="hljs-type">uint32_t</span> target_type;       <span class="hljs-comment">// 想要映射的类型，0表示线性Linear</span><br>    <span class="hljs-type">uint64_t</span> target_data;       <span class="hljs-comment">// 相对于super实际地址的偏移地址</span><br>    <span class="hljs-type">uint32_t</span> target_source;     <span class="hljs-comment">// 在1.6节中表示哪一个source，在安卓映射逻辑分区就是super，所以target_source一般为0x0【super在blockdevice位置】</span><br>&#125; __attribute__((packed)) LpMetadataExtent;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/02bdee1d427e444ab4e2d8b2416591fe.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:100%;">
+
+<p>通过<code>lpdump super.img.raw</code>（未压缩的super.img）可以看到以下内容，</p>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230427230005157.png" srcset="/img/loading.gif" lazyload alt="image-20230427230005157" style="zoom:80%;">
+
+<h3 id="1-5-LpMetadataPartitionGroup"><a href="#1-5-LpMetadataPartitionGroup" class="headerlink" title="1.5 LpMetadataPartitionGroup"></a>1.5 LpMetadataPartitionGroup</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">LpMetadataPartitionGroup</span> &#123;<br>    <span class="hljs-type">char</span> name[<span class="hljs-number">36</span>];<br>    <span class="hljs-type">uint32_t</span> flags;<br>    <span class="hljs-type">uint64_t</span> maximum_size;<br>&#125; __attribute__((packed)) LpMetadataPartitionGroup;<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/0ea2cc17e450475396458ff4843f7a78.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom:100%;">
+
+<h3 id="1-6-LpMetadataBlockDevice"><a href="#1-6-LpMetadataBlockDevice" class="headerlink" title="1.6 LpMetadataBlockDevice"></a>1.6 LpMetadataBlockDevice</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">LpMetadataBlockDevice</span> &#123;<br>    <span class="hljs-type">uint64_t</span> first_logical_sector;<br>    <span class="hljs-type">uint32_t</span> alignment;<br>    <span class="hljs-type">uint32_t</span> alignment_offset;<br>    <span class="hljs-type">uint64_t</span> size;<br>    <span class="hljs-type">char</span> partition_name[<span class="hljs-number">36</span>];<br>    <span class="hljs-type">uint32_t</span> flags;<br>&#125; __attribute__((packed)) LpMetadataBlockDevice;<br><br></code></pre></td></tr></table></figure>
+
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/9d54d69d1fe943458fe819d4edfa5bb8.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述" style="zoom100%;">
+
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230426231255747.png" srcset="/img/loading.gif" lazyload alt="image-20230426231255747" style="zoom:60%;">
+
+<h2 id="2-Device-Mapper机制简介"><a href="#2-Device-Mapper机制简介" class="headerlink" title="2.Device Mapper机制简介"></a>2.Device Mapper机制简介</h2><blockquote>
+<p>参考<strong>内核工匠</strong>的<a target="_blank" rel="noopener" href="https://blog.csdn.net/feelabclihu/article/details/106581248?spm=1001.2014.3001.5506">DeviceMapper架构及在android上的应用</a></p>
+</blockquote>
+<p>Device Mapper是Linux2.6 内核中支持逻辑卷管理的通用设备映射机制，它为实现用于存储资源管理的块设备驱动提供了一个高度模块化的内核架构。</p>
+<p>Device Mapper将所有与策略相关的工作放到用户空间完成，内核中主要提供完成这些策略所需要的机制。用户空间部分责配置具体的策略和控制逻辑，比如逻辑设备和哪些物理设备建立映射，怎么建立这些映射关系等，而具体重定向 IO 请求的工作由内核中相关代码完成。</p>
+<p>内核中相关代码在内核源码的 kernel&#x2F;driver&#x2F;md&#x2F; 目录中，其代码文件可以划分为实现device mapper 内核中基本架构的文件(例如：dm.c dm_table.c等)和实现具体映射工作的 target driver 插件文件(例如：dm-bow.c dm-crypt.c dm-linear.c等)两部分。</p>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/format.png" srcset="/img/loading.gif" lazyload style="zoom:80%;">
+
+<p>它包含三个重要的对象概念，Mapped Device、Mapping Table、Target device。</p>
+<ul>
+<li><strong>Mapped Device</strong>：是一个抽象的逻辑设备，通过MappingTable描述的映射关系（Mapped Device 逻辑的起始地址、范围、和表示在 Target Device 所在物理设备的地址偏移量以及Target 类型等信息）和Target Device建立映射关系。</li>
+<li><strong>Target Device</strong>：是Mapped Device所映射的物理空间段。</li>
+<li><strong>Mapping Table</strong>：DeviceMapper在内核中通过一个一个模块化的 Target Driver 插件实现对 IO 请求的过滤或者重新定向等工作，当前已经实现的插件包括：dm-crypt、dm-linear、dm-verity、dm-bow、dm-raid等。</li>
+</ul>
+<p>Device mapper 中这三个对象和 target driver 插件一起构成了一个可迭代的设备树。该层次在理论上可以在 device mapper 架构下无限迭代下去。</p>
+<h3 id="2-1-核心数据结构"><a href="#2-1-核心数据结构" class="headerlink" title="2.1 核心数据结构"></a>2.1 核心数据结构</h3><ul>
+<li><strong>mapped_device</strong> ：在dm.c 文件中定义，该结构用于表示 mapped device，它主要包括该 mapped device 相关的锁，注册的请求队列和一些内存池以及指向它所对应映射表的指针等域。</li>
+<li><strong>dm_table</strong>：在文件dm_table.c 文件中定义，该结构中包含一个 dm_target结构数组，dm_target 结构具体描述了 mapped_device 到它某个 target device 的映射关系。而在 dm_table 结构中将这些 dm_target 按照 B 树的方式组织起来方便 IO 请求映射时的查找操作。dm_target 结构具体记录该结构对应 target device 所映射的 mapped device 逻辑区域的开始地址和范围，同时还包含指向具体 target device 相关操作的 target_type 结构的指针。</li>
+<li><strong>target_type</strong>：该结构主要包含了 target device 对应的 target driver 插件的名字、定义的构建和删除该类型target device的方法、该类target device对应的IO请求重映射和结束IO的方法等。而表示具体的target device的域是dm_target中的private域，该指针指向mapped device所映射的具体target device对应的结构。表示target device的具体结构由于不同的target 类型而不同。</li>
+</ul>
+<p>开发者可以定制device target部分，以实现自己所需要的需求功能。</p>
+<h3 id="2-2-三步建立dm设备的过程"><a href="#2-2-三步建立dm设备的过程" class="headerlink" title="2.2 三步建立dm设备的过程"></a>2.2 <strong>三步建立dm设备的过程</strong></h3><p>通过下述的三个主要步骤，device mapper在内核中就建立一个可以提供给用户使用的mapped device逻辑块设备。</p>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/device-mapper.png" srcset="/img/loading.gif" lazyload>
+
+<h2 id="3-挂载阶段创建逻辑分区"><a href="#3-挂载阶段创建逻辑分区" class="headerlink" title="3.挂载阶段创建逻辑分区"></a>3.挂载阶段创建逻辑分区</h2><h3 id="3-1-开始挂载"><a href="#3-1-开始挂载" class="headerlink" title="3.1 开始挂载"></a>3.1 开始挂载</h3><p>🐼 关于第一阶段挂载的流程可以参考我之前写的<a target="_blank" rel="noopener" href="https://blog.csdn.net/stephen_curry300/article/details/126110983?spm=1001.2014.3001.5501">CSDN博客</a></p>
+<p>挂载的入口如下所示：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 路径: /system/core/init/first_stage_mount.cpp</span><br><span class="hljs-comment">// 在设备树中挂载由fstab文件指定的分区</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">DoFirstStageMount</span><span class="hljs-params">(<span class="hljs-type">bool</span> create_devices)</span> </span>&#123;<br>    <span class="hljs-keyword">auto</span> fsm = FirstStageMount::<span class="hljs-built_in">Create</span>();<br>    <span class="hljs-keyword">return</span> (*fsm)-&gt;<span class="hljs-built_in">DoFirstStageMount</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">FirstStageMount::DoFirstStageMount</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">MountPartitions</span>()) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最终与创建逻辑分区的代码走到 <strong>FirstStageMount::CreateLogicalPartitions</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\init\first_stage_mount.cpp</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">FirstStageMount::CreateLogicalPartitions</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 遍历读取到的fstab中flag中是否含有logical</span><br>    <span class="hljs-comment">// 如果有，则支持DmLinear</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">IsDmLinearEnabled</span>()) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 对应3.2 读取元数据</span><br>    <span class="hljs-keyword">auto</span> metadata = android::fs_mgr::<span class="hljs-built_in">ReadCurrentMetadata</span>(super_path_);<br>	<br>    <span class="hljs-comment">// 对应3.3 创建逻辑分区</span><br>    <span class="hljs-keyword">return</span> android::fs_mgr::<span class="hljs-built_in">CreateLogicalPartitions</span>(*metadata.<span class="hljs-built_in">get</span>(), super_path_);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-读取元数据"><a href="#3-2-读取元数据" class="headerlink" title="3.2 读取元数据"></a>3.2 读取元数据</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\fs_mgr\fs_mgr_dm_linear.cpp</span><br><span class="hljs-comment">// 传进来的block_device是super分区对应的真实的块设备（假设为/dev/block/vda2）</span><br><span class="hljs-function">std::unique_ptr&lt;LpMetadata&gt; <span class="hljs-title">ReadCurrentMetadata</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; block_device)</span> </span>&#123;<br>    <span class="hljs-comment">// fs_mgr_get_slot_suffix获取环境变量ro.boot.slot_suffix</span><br>    <span class="hljs-comment">// 如果当前启动分区为_a，则slot=0</span><br>    <span class="hljs-comment">// 如果当前启动分区为_b，则slot=1</span><br>    <span class="hljs-type">uint32_t</span> slot = <span class="hljs-built_in">SlotNumberForSlotSuffix</span>(<span class="hljs-built_in">fs_mgr_get_slot_suffix</span>());<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">ReadMetadata</span>(block_device.<span class="hljs-built_in">c_str</span>(), slot);<br>&#125;<br><br><span class="hljs-comment">// 传进来的super_partition是/dev/block/vda2</span><br><span class="hljs-comment">// 假设启动分区为_a，slot_number为0</span><br><span class="hljs-function">std::unique_ptr&lt;LpMetadata&gt; <span class="hljs-title">ReadMetadata</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; super_partition, <span class="hljs-type">uint32_t</span> slot_number)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">ReadMetadata</span>(<span class="hljs-built_in">PartitionOpener</span>(), super_partition, slot_number);<br>&#125;<br><br><span class="hljs-comment">// --------------------------------------------------------------</span><br><br><span class="hljs-comment">// system\core\fs_mgr\liblp\reader.cpp</span><br><span class="hljs-function">std::unique_ptr&lt;LpMetadata&gt; <span class="hljs-title">ReadMetadata</span><span class="hljs-params">(<span class="hljs-type">const</span> IPartitionOpener&amp; opener,</span></span><br><span class="hljs-params"><span class="hljs-function">                                         <span class="hljs-type">const</span> std::string&amp; super_partition, <span class="hljs-type">uint32_t</span> slot_number)</span> </span>&#123;<br>    android::base::unique_fd fd = opener.<span class="hljs-built_in">Open</span>(super_partition, O_RDONLY);<br><br>    LpMetadataGeometry geometry;<br>    <span class="hljs-comment">// 读取/dev/block/vda2中的元数据</span><br>    <span class="hljs-comment">// 读的是1.1节中的LpMetadataGeometry数据结构，将其保存到geometry</span><br>    <span class="hljs-comment">// 目的是直接赋值给下面即将创建的变量meta的成员变量geometry</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">ReadLogicalPartitionGeometry</span>(fd, &amp;geometry)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br><br>    std::unique_ptr&lt;LpMetadata&gt; metadata;<br><br>    <span class="hljs-comment">// 读取/dev/block/mmcblk0p5中的所有的元数据</span><br>    <span class="hljs-comment">// 将其保存到metadata变量中，最后返回3.1中最初调用ReadCurrentMetadata的地方</span><br>    <span class="hljs-comment">// 所有的metadata结构都是按照1.整体认知——LpMetadata分布的</span><br>    metadata = <span class="hljs-built_in">ParseMetadata</span>(geometry, fd)<br>    <br>    <span class="hljs-keyword">return</span> metadata;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-创建逻辑分区"><a href="#3-3-创建逻辑分区" class="headerlink" title="3.3 创建逻辑分区"></a>3.3 创建逻辑分区</h3><p><strong>3.2节和3.3节是独立的，两节都是3.1的子篇，不要线性阅读</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">CreateLogicalPartitions</span><span class="hljs-params">(<span class="hljs-type">const</span> LpMetadata&amp; metadata, <span class="hljs-type">const</span> std::string&amp; super_device)</span> </span>&#123;<br>    CreateLogicalPartitionParams params = &#123;<br>            .block_device = super_device,<br>            .metadata = &amp;metadata,<br>    &#125;;<br>    <span class="hljs-comment">// 这里的metadata.partitions是1.3节的LpMetadataPartition</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; partition : metadata.partitions) &#123;<br>        params.partition = &amp;partition;<br><br>        std::string ignore_path;<br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">CreateLogicalPartition</span>(params, &amp;ignore_path)) &#123;<br>            LERROR &lt;&lt; <span class="hljs-string">&quot;Could not create logical partition: &quot;</span> &lt;&lt; <span class="hljs-built_in">GetPartitionName</span>(partition);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里会遍历metadata中存储的partitions成员变量，也就是metadata.img中存放的一个个逻辑分区信息，例如如果我们第一个存储的LpMetadataPartition是system的信息，那么首先调用CreateLogicalPartition去创建逻辑分区，第二个存储的LpMetadataPartition是vendor的信息，相应的调用CreateLogicalPartition去创建逻辑分。</p>
+<p>🎈<strong>到这里解释了开头我们提到的为什么dm-1、dm-2创建的先后顺序，其与metadata.img中的分区顺序有关，换句话说，就是与生成super.img时指明的顺序有关。</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">CreateLogicalPartition</span><span class="hljs-params">(CreateLogicalPartitionParams params, std::string* path)</span> </span>&#123;<br>    CreateLogicalPartitionParams::OwnedData owned_data;<br>    <span class="hljs-comment">// 3.3.1：主要初始化params中的partition_name和device_name</span><br>    <span class="hljs-keyword">if</span> (!params.<span class="hljs-built_in">InitDefaults</span>(&amp;owned_data)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br><br>    DmTable table;<br>    <span class="hljs-comment">// 3.3.2：主要创建dmtable</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">CreateDmTableInternal</span>(params, &amp;table)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    DeviceMapper&amp; dm = DeviceMapper::<span class="hljs-built_in">Instance</span>();<br>    <span class="hljs-comment">// 3.3.2：完成第2.2中所说的三步走</span><br>    <span class="hljs-keyword">if</span> (!dm.<span class="hljs-built_in">CreateDevice</span>(params.device_name, table, path, params.timeout_ms)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-comment">// 文章开头的启动日志打印就是在这里</span><br>    LINFO &lt;&lt; <span class="hljs-string">&quot;Created logical partition &quot;</span> &lt;&lt; params.device_name &lt;&lt; <span class="hljs-string">&quot; on device &quot;</span> &lt;&lt; *path;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-3-1-InitDefaults初始化CreateLogicalPartitionParams"><a href="#3-3-1-InitDefaults初始化CreateLogicalPartitionParams" class="headerlink" title="3.3.1 InitDefaults初始化CreateLogicalPartitionParams"></a>3.3.1 InitDefaults初始化CreateLogicalPartitionParams</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">CreateLogicalPartitionParams::InitDefaults</span><span class="hljs-params">(CreateLogicalPartitionParams::OwnedData* owned)</span> </span>&#123;<br>    <span class="hljs-comment">// 3.3节开头的CreateLogicalPartitionParams params的参数中还没有初始化partition_name</span><br>    <span class="hljs-keyword">if</span> (partition_name.<span class="hljs-built_in">empty</span>()) &#123;<br>        <span class="hljs-comment">// partition_name为system_a</span><br>        partition_name = android::fs_mgr::<span class="hljs-built_in">GetPartitionName</span>(*partition);<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (partition_name != android::fs_mgr::<span class="hljs-built_in">GetPartitionName</span>(*partition)) &#123;<br>        LERROR &lt;&lt; <span class="hljs-string">&quot;Inconsistent partition_name &quot;</span> &lt;&lt; partition_name &lt;&lt; <span class="hljs-string">&quot; with partition &quot;</span><br>               &lt;&lt; android::fs_mgr::<span class="hljs-built_in">GetPartitionName</span>(*partition);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (device_name.<span class="hljs-built_in">empty</span>()) &#123;<br>        device_name = partition_name;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br><br><span class="hljs-comment">// --------------------------------------------------------------</span><br><br><span class="hljs-comment">// system\core\fs_mgr\liblp\reader.cpp</span><br><span class="hljs-function">std::string <span class="hljs-title">GetPartitionName</span><span class="hljs-params">(<span class="hljs-type">const</span> LpMetadataPartition&amp; partition)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">NameFromFixedArray</span>(partition.name, <span class="hljs-built_in">sizeof</span>(partition.name));<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">static</span> std::string <span class="hljs-title">NameFromFixedArray</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* name, <span class="hljs-type">size_t</span> buffer_size)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (name[buffer_size - <span class="hljs-number">1</span>] == <span class="hljs-string">&#x27;\0&#x27;</span>) &#123;<br>        <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">string</span>(name);<br>    &#125;<br>    <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">string</span>(name, buffer_size);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-3-2-CreateDmTableInternal创建dm-linear设备table"><a href="#3-3-2-CreateDmTableInternal创建dm-linear设备table" class="headerlink" title="3.3.2 CreateDmTableInternal创建dm-linear设备table"></a>3.3.2 CreateDmTableInternal创建dm-linear设备table</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">CreateDmTableInternal</span><span class="hljs-params">(<span class="hljs-type">const</span> CreateLogicalPartitionParams&amp; params, DmTable* table)</span> </span>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; super_device = params.block_device;<br><br>    <span class="hljs-type">uint64_t</span> sector = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; params.partition-&gt;num_extents; i++) &#123;<br>        <span class="hljs-comment">// 找到各个分区自己的extents内容，也就是1.4节</span><br>        <span class="hljs-comment">// 在partition中的first_extent_index字段会指明当前分区在extents哪个位置</span><br>        <span class="hljs-comment">// 99%的情况只会占用一个位置，所以 params.partition-&gt;num_extents一般都是1</span><br>        <span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; extent = params.metadata-&gt;extents[params.partition-&gt;first_extent_index + i];<br>        std::unique_ptr&lt;DmTarget&gt; target;<br>        <span class="hljs-comment">// 从1.4展示的type来看是数字0，正好对应了这里的LP_TARGET_TYPE_LINEAR，线性排布的DM设备</span><br>        <span class="hljs-keyword">switch</span> (extent.target_type) &#123;<br>            <span class="hljs-keyword">case</span> LP_TARGET_TYPE_ZERO:<br>				<span class="hljs-comment">// ...</span><br>            <span class="hljs-keyword">case</span> LP_TARGET_TYPE_LINEAR: &#123;<br>                <span class="hljs-comment">// 从1.4展示的target_source是0，也就是system_a对应的target_source是0，也就是指向了1.6节中super所在的位置【super的索引为0】</span><br>                <span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; block_device = params.metadata-&gt;block_devices[extent.target_source];<br>                std::string dev_string;<br>                <span class="hljs-comment">// 获取super真实的物理地址，所以dev_string为/dev/block/vda2</span><br>                <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">GetPhysicalPartitionDevicePath</span>(params, block_device, super_device,<br>                                                    &amp;dev_string)) &#123;<br>                    <span class="hljs-built_in">LOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;Unable to complete device-mapper table, unknown block device&quot;</span>;<br>                    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>                &#125;<br>                <span class="hljs-comment">// 创建一个DmTargetLinear类型的指针，由target独占管理</span><br>                target = std::<span class="hljs-built_in">make_unique</span>&lt;DmTargetLinear&gt;(sector, extent.num_sectors, dev_string,<br>                                                          extent.target_data);<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-built_in">LOG</span>(ERROR) &lt;&lt; <span class="hljs-string">&quot;Unknown target type in metadata: &quot;</span> &lt;&lt; extent.target_type;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        <span class="hljs-comment">// 将target添加到table里面去，DmTable维护了一个列表_target</span><br>        <span class="hljs-comment">// DmTable::AddTarget也就是把target添加push到_target中</span><br>        <span class="hljs-keyword">if</span> (!table-&gt;<span class="hljs-built_in">AddTarget</span>(std::<span class="hljs-built_in">move</span>(target))) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>        sector += extent.num_sectors;<br>    &#125;<br>    <span class="hljs-comment">// 如果1.3节中Attribute含有READ_ONLY属性，TABLE设置成只读的</span><br>    <span class="hljs-keyword">if</span> (params.partition-&gt;attributes &amp; LP_PARTITION_ATTR_READONLY) &#123;<br>        table-&gt;<span class="hljs-built_in">set_readonly</span>(<span class="hljs-literal">true</span>);<br>    &#125;<br>    <span class="hljs-comment">// 如果params设置了强制可写，TABLE设置成可读可写</span><br>    <span class="hljs-keyword">if</span> (params.force_writable) &#123;<br>        table-&gt;<span class="hljs-built_in">set_readonly</span>(<span class="hljs-literal">false</span>);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="3-3-2-1-数据结构梳理"><a href="#3-3-2-1-数据结构梳理" class="headerlink" title="3.3.2.1 数据结构梳理"></a>3.3.2.1 数据结构梳理</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">DmTarget</span> &#123;<br>  <span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">DmTarget</span>(<span class="hljs-type">uint64_t</span> start, <span class="hljs-type">uint64_t</span> length) : <span class="hljs-built_in">start_</span>(start), <span class="hljs-built_in">length_</span>(length) &#123;&#125;<br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">DmTargetLinear</span> <span class="hljs-keyword">final</span> : <span class="hljs-keyword">public</span> DmTarget &#123;<br>  <span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">DmTargetLinear</span>(<span class="hljs-type">uint64_t</span> start, <span class="hljs-type">uint64_t</span> length, <span class="hljs-type">const</span> std::string&amp; block_device,<br>                   <span class="hljs-type">uint64_t</span> physical_sector)<br>        : <span class="hljs-built_in">DmTarget</span>(start, length), <span class="hljs-built_in">block_device_</span>(block_device), <span class="hljs-built_in">physical_sector_</span>(physical_sector) &#123;&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="3-3-3-CreateDevice"><a href="#3-3-3-CreateDevice" class="headerlink" title="3.3.3 CreateDevice"></a>3.3.3 CreateDevice</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// system\core\fs_mgr\libdm\dm.cpp</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">DeviceMapper::CreateDevice</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; name, <span class="hljs-type">const</span> DmTable&amp; table, std::string* path,</span></span><br><span class="hljs-params"><span class="hljs-function">                                <span class="hljs-type">const</span> std::chrono::milliseconds&amp; timeout_ms)</span> </span>&#123;<br>    <span class="hljs-comment">// 通过/dev/urandom生成随机UUID</span><br>    std::string uuid = <span class="hljs-built_in">GenerateUuid</span>();<br>    <span class="hljs-comment">// 3.3.3.1 调用ioctl创建设备</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">CreateDevice</span>(name, uuid)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    std::string unique_path;<br>    <span class="hljs-comment">// 3.3.3.2 LoadTableAndActivate创建DM设备三步法</span><br>    <span class="hljs-comment">// 3.3.3.3 GetDeviceUniquePath获取获取dm设备的uuid，看dm设备是否创建成功了</span><br>    <span class="hljs-comment">// 3.3.3.4 GetDmDevicePathByName获取dm设备，看dm设备是否创建成功</span><br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">LoadTableAndActivate</span>(name, table) || !<span class="hljs-built_in">GetDeviceUniquePath</span>(name, &amp;unique_path) ||<br>        !<span class="hljs-built_in">GetDmDevicePathByName</span>(name, path)) &#123;<br>        <span class="hljs-comment">// 如果设备没有创建成功，DeleteDevice会调用ioctl[DM_DEV_REMOVE]删除创建的dm设备</span><br>        <span class="hljs-built_in">DeleteDevice</span>(name);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="3-3-3-1-CreateDevice调用ioctl创建设备"><a href="#3-3-3-1-CreateDevice调用ioctl创建设备" class="headerlink" title="3.3.3.1 CreateDevice调用ioctl创建设备"></a>3.3.3.1 CreateDevice调用ioctl创建设备</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">bool</span> <span class="hljs-title function_">DeviceMapper::CreateDevice</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-built_in">std</span>::<span class="hljs-built_in">string</span>&amp; name, <span class="hljs-type">const</span> <span class="hljs-built_in">std</span>::<span class="hljs-built_in">string</span>&amp; uuid)</span> &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dm_ioctl</span> <span class="hljs-title">io</span>;</span><br>    InitIo(&amp;io, name);<br>    <span class="hljs-comment">// 上面生成了随机的UUID，所以这里肯定不为空</span><br>    <span class="hljs-keyword">if</span> (!uuid.empty()) &#123;<br>        <span class="hljs-built_in">snprintf</span>(io.uuid, <span class="hljs-keyword">sizeof</span>(io.uuid), <span class="hljs-string">&quot;%s&quot;</span>, uuid.c_str());<br>    &#125;<br>	<br>    <span class="hljs-comment">// 向DeviceMapper驱动发送DM_DEV_CRETE创建设备</span><br>    <span class="hljs-keyword">if</span> (ioctl(fd_, DM_DEV_CREATE, &amp;io)) &#123;<br>        PLOG(ERROR) &lt;&lt; <span class="hljs-string">&quot;DM_DEV_CREATE failed for [&quot;</span> &lt;&lt; name &lt;&lt; <span class="hljs-string">&quot;]&quot;</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="3-3-3-2-LoadTableAndActivate传table数据下去"><a href="#3-3-3-2-LoadTableAndActivate传table数据下去" class="headerlink" title="3.3.3.2 LoadTableAndActivate传table数据下去"></a>3.3.3.2 LoadTableAndActivate传table数据下去</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 这边传进来的table是3.3.2创建的dm-linear设备table</span><br><span class="hljs-type">bool</span> <span class="hljs-title function_">DeviceMapper::LoadTableAndActivate</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-built_in">std</span>::<span class="hljs-built_in">string</span>&amp; name, <span class="hljs-type">const</span> DmTable&amp; table)</span> &#123;<br>    <span class="hljs-built_in">std</span>::<span class="hljs-built_in">string</span> <span class="hljs-title function_">ioctl_buffer</span><span class="hljs-params">(<span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> dm_ioctl), <span class="hljs-number">0</span>)</span>;<br>    ioctl_buffer += table.Serialize();<br><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dm_ioctl</span>* <span class="hljs-title">io</span> =</span> reinterpret_cast&lt;<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dm_ioctl</span>*&gt;</span>(&amp;ioctl_buffer[<span class="hljs-number">0</span>]);<br>    InitIo(io, name);<br>    io-&gt;data_size = ioctl_buffer.size();<br>    io-&gt;data_start = <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> dm_ioctl);<br>    io-&gt;target_count = static_cast&lt;<span class="hljs-type">uint32_t</span>&gt;(table.num_targets());<br>    <span class="hljs-keyword">if</span> (table.readonly()) &#123;<br>        io-&gt;flags |= DM_READONLY_FLAG;<br>    &#125;<br>    <span class="hljs-comment">// 向DeviceMapper驱动发送DM_TABLE_LOAD下发MappingTable</span><br>    <span class="hljs-keyword">if</span> (ioctl(fd_, DM_TABLE_LOAD, io)) &#123;<br>        PLOG(ERROR) &lt;&lt; <span class="hljs-string">&quot;DM_TABLE_LOAD failed&quot;</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    InitIo(io, name);<br>    <span class="hljs-comment">// 向DeviceMapper驱动发送DM_DEV_SUSPEND使能MappedDevice</span><br>    <span class="hljs-keyword">if</span> (ioctl(fd_, DM_DEV_SUSPEND, io)) &#123;<br>        PLOG(ERROR) &lt;&lt; <span class="hljs-string">&quot;DM_TABLE_SUSPEND resume failed&quot;</span>;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="3-3-3-3-GetDeviceUniquePath获取获取dm设备的uuid，看dm设备是否创建成功了"><a href="#3-3-3-3-GetDeviceUniquePath获取获取dm设备的uuid，看dm设备是否创建成功了" class="headerlink" title="3.3.3.3 GetDeviceUniquePath获取获取dm设备的uuid，看dm设备是否创建成功了"></a>3.3.3.3 GetDeviceUniquePath获取获取dm设备的uuid，看dm设备是否创建成功了</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">bool</span> <span class="hljs-title function_">DeviceMapper::GetDeviceUniquePath</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-built_in">std</span>::<span class="hljs-built_in">string</span>&amp; name, <span class="hljs-built_in">std</span>::<span class="hljs-built_in">string</span>* path)</span> &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dm_ioctl</span> <span class="hljs-title">io</span>;</span><br>    InitIo(&amp;io, name);<br>    <span class="hljs-comment">// 向DeviceMapper驱动发送DM_DEV_STATUS查询MappedDevice(system_a)的状态</span><br>    <span class="hljs-keyword">if</span> (ioctl(fd_, DM_DEV_STATUS, &amp;io) &lt; <span class="hljs-number">0</span>) &#123;<br>        PLOG(ERROR) &lt;&lt; <span class="hljs-string">&quot;Failed to get device path: &quot;</span> &lt;&lt; name;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>	<br>    <span class="hljs-comment">// 如果内核没有对参数uuid进行赋值，说明没有创建成功</span><br>    <span class="hljs-keyword">if</span> (io.uuid[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;\0&#x27;</span>) &#123;<br>        LOG(ERROR) &lt;&lt; <span class="hljs-string">&quot;Device does not have a unique path: &quot;</span> &lt;&lt; name;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>    *path = <span class="hljs-string">&quot;/dev/block/mapper/by-uuid/&quot;</span>s + io.uuid;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="3-3-3-4-GetDmDevicePathByName获取dm设备，看dm设备是否创建成功"><a href="#3-3-3-4-GetDmDevicePathByName获取dm设备，看dm设备是否创建成功" class="headerlink" title="3.3.3.4 GetDmDevicePathByName获取dm设备，看dm设备是否创建成功"></a>3.3.3.4 GetDmDevicePathByName获取dm设备，看dm设备是否创建成功</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">bool</span> <span class="hljs-title function_">DeviceMapper::GetDmDevicePathByName</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-built_in">std</span>::<span class="hljs-built_in">string</span>&amp; name, <span class="hljs-built_in">std</span>::<span class="hljs-built_in">string</span>* path)</span> &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dm_ioctl</span> <span class="hljs-title">io</span>;</span><br>    InitIo(&amp;io, name);<br>    <span class="hljs-comment">// 向DeviceMapper驱动发送DM_DEV_STATUS查询MappedDevice(system_a)的状态</span><br>    <span class="hljs-keyword">if</span> (ioctl(fd_, DM_DEV_STATUS, &amp;io) &lt; <span class="hljs-number">0</span>) &#123;<br>        PLOG(WARNING) &lt;&lt; <span class="hljs-string">&quot;DM_DEV_STATUS failed for &quot;</span> &lt;&lt; name;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>	<span class="hljs-comment">// 上面调用ioctl后会对io.dev进行赋值</span><br>    <span class="hljs-comment">// minor(io.dev)拿到mapped deivec对应的设备</span><br>    <span class="hljs-comment">// 例如system_a的dev_num为0</span><br>    <span class="hljs-type">uint32_t</span> dev_num = minor(io.dev);<br>    *path = <span class="hljs-string">&quot;/dev/block/dm-&quot;</span> + <span class="hljs-built_in">std</span>::to_string(dev_num);<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4.总结"></a>4.总结</h2><p>最后画了一张图，完美闭关</p>
+<img src="/2023/03/18/Android-S%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%88%86%E5%8C%BA/image-20230427231954102.png" srcset="/img/loading.gif" lazyload alt="image-20230427231954102" style="zoom:1000%;">
+
+
+
+<h2 id="5-感谢"><a href="#5-感谢" class="headerlink" title="5.感谢"></a>5.感谢</h2><p>感谢 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/pyjetson/p/14872499.html%EF%BC%8C%E4%BB%8E%E5%AE%83%E7%9A%84%E5%8D%9A%E5%AE%A2%E9%87%8C%E9%9D%A2%E5%AD%A6%E5%88%B0%E4%BA%86%E5%BE%88%E5%A4%9A%F0%9F%8E%97%EF%B8%8F">https://www.cnblogs.com/pyjetson/p/14872499.html，从它的博客里面学到了很多🎗️</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">Android学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android S创建逻辑分区</div>
+      <div>http://example.com/2023/03/18/Android-S创建逻辑分区/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/22/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91/" title="Linux内核编译">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux内核编译</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/16/%E5%B1%95%E8%AE%AFAndroid-P-System-as-root%E8%A7%84%E8%8C%83%E8%AF%B4%E6%98%8E/" title="展讯Android P System_as_root规范说明">
+                        <span class="hidden-mobile">展讯Android P System_as_root规范说明</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

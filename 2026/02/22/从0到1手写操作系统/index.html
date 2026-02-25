@@ -1,0 +1,1193 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一个操作系统的实现[toc] 前言 前置依赖试验机环境 vmware虚拟机 deepin操作系统 Linux 5.4.50    安装依赖 安装qemu:  1sudo apt install qemu qemu-kvm libvirt-daemon libvirt-clients bridge-utils virt-manager   安卓nasm:  12sudo apt-get instal">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从0到1手写操作系统">
+<meta property="og:url" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="一个操作系统的实现[toc] 前言 前置依赖试验机环境 vmware虚拟机 deepin操作系统 Linux 5.4.50    安装依赖 安装qemu:  1sudo apt install qemu qemu-kvm libvirt-daemon libvirt-clients bridge-utils virt-manager   安卓nasm:  12sudo apt-get instal">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161822504-1771758937840-2.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222195350120.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222211755724.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222220359991.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223173851243.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223174317199.png">
+<meta property="article:published_time" content="2026-02-22T11:14:46.000Z">
+<meta property="article:modified_time" content="2026-02-23T13:52:44.637Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png">
+  
+  
+  
+  <title>从0到1手写操作系统 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="从0到1手写操作系统"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-02-22 19:14" pubdate>
+          2026年2月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          98 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">从0到1手写操作系统</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一个操作系统的实现"><a href="#一个操作系统的实现" class="headerlink" title="一个操作系统的实现"></a>一个操作系统的实现</h1><p>[toc]</p>
+<h2 id="前言-前置依赖"><a href="#前言-前置依赖" class="headerlink" title="前言 前置依赖"></a>前言 前置依赖</h2><h3 id="试验机环境"><a href="#试验机环境" class="headerlink" title="试验机环境"></a>试验机环境</h3><ul>
+<li>vmware虚拟机</li>
+<li>deepin操作系统</li>
+<li>Linux 5.4.50</li>
+</ul>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png" srcset="/img/loading.gif" lazyload alt="image-20260222161410893" style="zoom:80%;">
+
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><ul>
+<li>安装qemu:</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo apt install qemu qemu-kvm libvirt-daemon libvirt-clients bridge-utils virt-manager<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>安卓nasm:</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo apt-get install nasm<br>nasm -version<br></code></pre></td></tr></table></figure>
+
+<h3 id="i386简介"><a href="#i386简介" class="headerlink" title="i386简介"></a>i386简介</h3><p><strong>狭义上：</strong></p>
+<p>i386 &#x3D; Intel 80386，其中 <strong>i</strong> 代表 <strong>intel</strong>，<strong>Intel 80386</strong> 是第一个32位架构的处理器，它的基本程序设计模型本质上至今没有改变。</p>
+<p><strong>广义上：</strong></p>
+<p><strong>i386</strong> 通常被用来作为对Intel（英特尔）32位微处理器的统称，”i386-family processors”,是一系列的处理器。<strong>所有与80386兼容的处理器都被叫作”x86″或者”i386″</strong>，intel自己更喜欢叫IA32,其实是一回事。</p>
+<blockquote>
+<p>在 Linux 和编译环境中，<strong>i386 通常代表 32 位 x86 架构的统称</strong>，而不仅仅是 80386 这颗 CPU。</p>
+</blockquote>
+<h3 id="BIOS与UEFI对比"><a href="#BIOS与UEFI对比" class="headerlink" title="BIOS与UEFI对比"></a>BIOS与UEFI对比</h3><p>BIOS 和 UEFI 本质上都是 <strong>主板固件（Firmware）</strong>，负责在操作系统启动前初始化硬件并加载引导程序。但它们的架构设计、能力和时代背景完全不同。</p>
+<hr>
+<p><strong>一句话区别</strong></p>
+<blockquote>
+<p><strong>BIOS 是传统 16 位实模式固件，UEFI 是现代 32&#x2F;64 位模块化固件系统。</strong></p>
+</blockquote>
+<hr>
+<p>一、架构层面的核心区别</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>BIOS</th>
+<th>UEFI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>诞生年代</td>
+<td>1980s</td>
+<td>2000s（Intel 主导）</td>
+</tr>
+<tr>
+<td>CPU 模式</td>
+<td>16 位实模式</td>
+<td>32 &#x2F; 64 位</td>
+</tr>
+<tr>
+<td>最大可寻址内存</td>
+<td>1MB（早期限制）</td>
+<td>理论上无限制</td>
+</tr>
+<tr>
+<td>启动方式</td>
+<td>读取 MBR 第 0 扇区</td>
+<td>读取 EFI 文件</td>
+</tr>
+<tr>
+<td>分区表支持</td>
+<td>MBR</td>
+<td>GPT</td>
+</tr>
+<tr>
+<td>界面</td>
+<td>纯文本</td>
+<td>图形界面 + 鼠标</td>
+</tr>
+<tr>
+<td>可扩展性</td>
+<td>几乎没有</td>
+<td>模块化驱动体系</td>
+</tr>
+<tr>
+<td>安全机制</td>
+<td>无</td>
+<td>Secure Boot</td>
+</tr>
+</tbody></table>
+<p>二、启动流程差异</p>
+<p>1️⃣ BIOS 启动流程（传统方式）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">上电<br>↓<br>BIOS 初始化硬件<br>↓<br>读取磁盘第 0 扇区 (MBR)<br>↓<br>执行 bootloader<br>↓<br>加载内核<br></code></pre></td></tr></table></figure>
+
+<p>特点：</p>
+<ul>
+<li>只能从 MBR 启动</li>
+<li>只能识别 2TB 以下磁盘</li>
+<li>只能有 4 个主分区</li>
+</ul>
+<p>MBR &#x3D; Master Boot Record</p>
+<hr>
+<p>2️⃣ UEFI 启动流程（现代方式）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell">上电<br>↓<br>UEFI 初始化硬件<br>↓<br>读取 GPT 分区<br>↓<br>查找 EFI System Partition (ESP)<br>↓<br>加载 .efi 文件<br>↓<br>启动操作系统<br></code></pre></td></tr></table></figure>
+
+<p>UEFI 直接加载：</p>
+<ul>
+<li><code>/EFI/BOOT/BOOTX64.EFI</code></li>
+<li>或系统指定的 EFI 引导文件</li>
+</ul>
+<p>例如 Linux 的：</p>
+<ul>
+<li><code>grubx64.efi</code></li>
+<li><code>systemd-bootx64.efi</code></li>
+</ul>
+<h3 id="实模式和保护模式"><a href="#实模式和保护模式" class="headerlink" title="实模式和保护模式"></a>实模式和保护模式</h3><p>在 x86 架构诞生之初，其实是没有虚拟内存的概念的。1978 年发行的 8086 芯片是 x86 架构的首款芯片，<u>它在内存管理上使用的是直接访问物理内存的方式，这种工作方式，有一个专门的名称，那就是实模式（Real Mode）</u>。上节课我们也曾简单提到过，直接访问物理内存的工作方式让程序员必须要关心自己使用的内存会不会与其他进程产生冲突，为程序员带来极大的心智负担。</p>
+<p>后来，CPU 上就出现虚拟内存的概念，它可以将每个进程的地址空间都隔离开，极大地减轻了程序员的负担，同时由于页表项中有多种权限保护标志，极大地提高了应用程序的数据安全。所以人们把 CPU 的这种工作模式称为保护模式（Protection Mode）。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>8086 (实模式)</th>
+<th>i386 (保护模式)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>通用寄存器</td>
+<td>AX, BX, CX, DX, SP, BP, DI, SI</td>
+<td>EAX, EBX, ECX, EDX, ESP, EBP, EDI, ESI</td>
+</tr>
+<tr>
+<td>段寄存器</td>
+<td>16 位 CS, DS, SS, ES</td>
+<td>16 位 CS, DS, SS, ES, FS, GS</td>
+</tr>
+<tr>
+<td>总线长度</td>
+<td>16 位数据线 20 位地址线</td>
+<td>32 位数据线和地址线</td>
+</tr>
+<tr>
+<td>状态，控制，系统地址寄存器</td>
+<td>FLAGS, IP</td>
+<td>EFLAGS, EIP, CR0, CR1, CR2, CR3, GDTR, IDTR, TR, LDTR</td>
+</tr>
+<tr>
+<td>物理地址</td>
+<td>实际物理地址 &#x3D;(段寄存器 &lt;&lt;4)+ 偏移地址</td>
+<td>段选择子：偏移地址</td>
+</tr>
+<tr>
+<td>隔离保护</td>
+<td>直接访问物理地址，所有段可读写无保护，只有特权级别 0</td>
+<td>使用虚拟地址，有特权级别 0~3</td>
+</tr>
+</tbody></table>
+<h3 id="8086汇编语言基础"><a href="#8086汇编语言基础" class="headerlink" title="8086汇编语言基础"></a>8086汇编语言基础</h3><p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0">贺利坚汇编原理学习笔记</a></p>
+<h3 id="□-本文咱将这个操作系统叫做Ainux"><a href="#□-本文咱将这个操作系统叫做Ainux" class="headerlink" title="□ 本文咱将这个操作系统叫做Ainux"></a>□ 本文咱将这个操作系统叫做Ainux</h3><p>文章有些地方看到Ainux不要奇怪，只是随便给这个0到1的操作系统取了一个随意的名字。</p>
+<h2 id="第一章-马上动手写一个最小的”操作系统”"><a href="#第一章-马上动手写一个最小的”操作系统”" class="headerlink" title="第一章 马上动手写一个最小的”操作系统”"></a>第一章 马上动手写一个最小的”操作系统”</h2><h3 id="1-1-10分钟完成的操作系统"><a href="#1-1-10分钟完成的操作系统" class="headerlink" title="1.1 10分钟完成的操作系统"></a>1.1 10分钟完成的操作系统</h3><ul>
+<li>编写boot.asm</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs asm">[org 0x7c00]<br><br>; 设置屏幕模式为文本模式，清除屏幕<br>mov ax, 3<br>int 0x10; BIOS 系统调用，显示器相关的功能<br><br>; 初始化段寄存器<br>mov ax, 0<br>mov ds, ax<br>mov es, ax<br>mov ss, ax<br>mov sp, 0x7c00<br><br>; 0xb8000 文本显示器的内存区域<br>mov ax, 0xb800<br>mov ds, ax<br>mov byte [0], &#x27;H&#x27;<br>mov byte [2], &#x27;e&#x27;<br>mov byte [4], &#x27;l&#x27;<br>mov byte [6], &#x27;l&#x27;<br>mov byte [8], &#x27;o&#x27;<br>mov byte [10], &#x27; &#x27;<br>mov byte [12], &#x27;a&#x27;<br>mov byte [14], &#x27;m&#x27;<br>mov byte [16], &#x27;x&#x27;<br><br>; 阻塞<br>jmp $<br><br>; 填充 0<br>times 510 - ($ - $$) db 0<br><br>; 主引导扇区的最后两个字节必须是 0x55 0xaa<br>; dw 0xaa55<br>db 0x55, 0xaa<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>编写Makefile</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">boot.bin: boot.asm</span><br>	nasm -f bin boot.asm -o boot.bin<br><br><span class="hljs-section">master.img: boot.bin</span><br>	dd if=/dev/zero of=master.img bs=512 count=32768<br>	dd if=boot.bin of=master.img bs=512 count=1 conv=notrunc<br><br><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: clean</span><br><span class="hljs-section">clean:</span><br>	rm -rf *.bin<br>	rm -rf *.img<br><br><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: qemu</span><br><span class="hljs-section">qemu: master.img</span><br>	qemu-system-i386 \<br>	-m 32M \<br>	-boot c \<br>	-hda <span class="hljs-variable">$&lt;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>编译运行</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">make qemu<br></code></pre></td></tr></table></figure>
+
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161822504-1771758937840-2.png" srcset="/img/loading.gif" lazyload alt="image-20260222161822504" style="zoom:80%;">
+
+<p>成功运行，撒花🎉🎉🎉</p>
+<h3 id="1-2-BIOS启动"><a href="#1-2-BIOS启动" class="headerlink" title="1.2 BIOS启动"></a>1.2 BIOS启动</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://learningos.cn/ucore_os_webdocs/lab1/lab1_3_1_bios_booting.html">https://learningos.cn/ucore_os_webdocs/lab1/lab1_3_1_bios_booting.html</a></p>
+</blockquote>
+<p>当计算机加电后，一般不直接执行操作系统，而是执行系统初始化软件完成基本 IO 初始化和引导加载功能。简单地说，系统初始化软件就是在操作系统内核运行之前运行的一段小软件。通过这段小软件，我们可以初始化硬件设备、建立系统的内存空间映射图，从而将系统的软硬件环境带到一个合适的状态，以便为最终调用操作系统内核准备好正确的环境。最终引导加载程序把操作系统内核映像加载到 RAM 中，并将系统控制权传递给它。</p>
+<p>对于绝大多数计算机系统而言，操作系统和应用软件是存放在磁盘（硬盘&#x2F;软盘）、光盘、EPROM、ROM、Flash 等可在掉电后继续保存数据的存储介质上。计算机启动后，CPU 一开始会到一个特定的地址开始执行指令，这个特定的地址存放了系统初始化软件，负责完成计算机基本的 IO 初始化，这是系统加电后运行的第一段软件代码。对于 Intel 80386 的体系结构而言，PC 机中的系统初始化软件由 <u><strong>BIOS (Basic Input Output System，即基本输入&#x2F;输出系统，其本质是一个固化在主板 Flash&#x2F;CMOS 上的软件)</strong></u> 和位于软盘&#x2F;硬盘引导扇区中的 OS Boot Loader（本文实验中的 bootasm.S 和 bootmain.c）【TODO】 一起组成。BIOS 实际上是被固化在计算机 ROM（只读存储器）芯片上的一个特殊的软件，为上层软件提供最底层的、最直接的硬件控制与支持。更形象地说，BIOS 就是 PC 计算机硬件与上层软件程序之间的一个”桥梁”，负责访问和控制硬件。</p>
+<p>以 Intel 80386 为例，计算机加电后，CPU 从物理地址 0xFFFFFFF0（由初始化的 CS：EIP 确定，此时 CS 和 IP 的值分别是 0xF000 和 0xFFF0)）开始执行。在 0xFFFFFFF0 这里只是存放了一条跳转指令，通过跳转指令跳到 BIOS 例行程序起始点。<u>BIOS 做完计算机硬件自检和初始化后，会选择一个启动设备（例如软盘、硬盘、光盘等），并且读取该设备的第一扇区(即主引导扇区或启动扇区)到内存一个特定的地址 0x7c00 处，然后 CPU 控制权会转移到那个地址继续执行</u>。至此 BIOS 的初始化工作做完了，进一步的工作交给了内核加载器bootloader。</p>
+<h3 id="1-3-引导扇区"><a href="#1-3-引导扇区" class="headerlink" title="1.3 引导扇区"></a>1.3 引导扇区</h3><p>我们知道，当计算机电源被打开时，它会进行<u><strong>加电自检</strong></u>(POST)，然后寻找启动盘，如果选择从软盘启动，计算机就会检查软盘的0面0磁道1扇区，如果发现它以0xAA55结束，则BIOS认为它是一个引导扇区。淡然，一个正确的引导扇区除了以0xAA55结束之外，还应该包含一段少于512字节的执行码。</p>
+<p>一旦BIOS发现了引导扇区，就会将这512字节的内容装载到内存地址0000:7c00处，然后跳转到0000:7c00处将控制权彻底交给这段引导代码。到此为止，计算机不再由BIOS中固有的程序来控制，而变成由操作系统来控制。</p>
+<blockquote>
+<p>主引导扇区的作用：读取内核加载器并执行</p>
+</blockquote>
+<h3 id="1-4-实模式print"><a href="#1-4-实模式print" class="headerlink" title="1.4 实模式print"></a>1.4 实模式print</h3><p>我们发现开头使用的mov ax</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222195350120.png" srcset="/img/loading.gif" lazyload alt="image-20260222195350120" style="zoom:80%;">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs assembly">[org 0x7c00]<br><br>; 设置屏幕模式为文本模式，清除屏幕<br>mov ax, 3<br>int 0x10<br><br>; 初始化段寄存器<br>mov ax, 0<br>mov ds, ax<br>mov es, ax<br>mov ss, ax<br>mov sp, 0x7c00<br><br>; -------------------------------------------- 新增start --------------------------------------------<br>mov si, booting<br>call print<br><br>; 阻塞<br>jmp $<br><br>print:<br>    mov ah, 0x0e<br>.next:<br>    mov al, [si]<br>    cmp al, 0<br>    jz .done<br>    int 0x10<br>    inc si<br>    jmp .next<br>.done:<br>    ret<br><br>booting:<br>    db &quot;Boot Ainux...&quot;, 10, 13, 0<br>; -------------------------------------------- 新增end --------------------------------------------<br><br>; 填充 0<br>times 510 - ($ - $$) db 0<br><br>; 主引导扇区的最后两个字节必须是 0x55 0xaa<br>; dw 0xaa55<br>db 0x55, 0xaa<br></code></pre></td></tr></table></figure>
+
+<p>这段代码是一个<strong>x86 实模式下的引导扇区字符串打印程序</strong>，用 NASM 语法编写，核心是通过 BIOS 中断 <code>int 0x10</code> 实现字符输出。下面逐行拆解：</p>
+<ol>
+<li>主程序部分</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs assembly">mov si, booting<br>call print<br><br>; 阻塞<br>jmp $<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>mov si, booting</code>：将字符串 <code>booting</code> 的<strong>内存地址</strong>加载到源变址寄存器 <code>si</code> 中。<code>si</code> 是字符串遍历的指针。</li>
+</ul>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://anmuxixixi.github.io/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#4-3-SI%E5%92%8CDI%E5%AF%84%E5%AD%98%E5%99%A8">si寄存器</a></p>
+</blockquote>
+<ul>
+<li><code>call print</code>：调用 <code>print</code> 子程序，开始打印字符串。</li>
+<li><code>jmp $</code>：无限跳转到当前指令地址，让程序阻塞在这里，防止执行后续未定义的内存区域。<code>$</code> 代表当前指令地址。</li>
+</ul>
+<ol start="2">
+<li><code>print</code> 子程序（核心打印逻辑）</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs assembly">print:<br>    mov ah, 0x0e    ; 设置BIOS中断功能号：0x0E表示Teletype输出（逐字符打印）<br>.next:<br>    mov al, [si]    ; 从si指向的内存地址读取一个字符到al寄存器<br>    cmp al, 0       ; 比较al中的值是否为0（字符串结束符）<br>    jz .done        ; 如果是0（ZF=1），跳转到.done结束打印<br>    int 0x10        ; 调用BIOS视频中断，打印al中的字符<br>    inc si          ; si自增，指向下一个字符<br>    jmp .next       ; 循环处理下一个字符<br>.done:<br>    ret             ; 子程序返回，回到call指令的下一条指令<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>ah = 0x0e</code>：配置 <code>int 0x10</code> 中断为 Teletype 模式，自动处理字符显示和光标移动。</li>
+<li>循环逻辑：通过 <code>si</code> 逐个读取字符，遇到 <code>0</code> 终止，否则调用中断打印。</li>
+</ul>
+<ol start="3">
+<li>字符串定义</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs assembly">booting:<br>    db &quot;Booting ainux...&quot;, 10, 13, 0 ; \n\r<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>db</code>：定义字节序列，字符串 <code>&quot;Booting ainux...&quot;</code> 会被转换为对应的 ASCII 码。</li>
+<li><code>10, 13</code>：分别是换行符（<code>\n</code>）和回车符（<code>\r</code>）的 ASCII 码，用于换行。</li>
+<li><code>0</code>：字符串结束符（C 风格的 <code>\0</code>），告诉 <code>print</code> 子程序何时停止。</li>
+</ul>
+<h3 id="1-5-磁盘读写"><a href="#1-5-磁盘读写" class="headerlink" title="1.5 磁盘读写"></a>1.5 磁盘读写</h3><p>bootloader 让 CPU 进入保护模式后，下一步的工作就是从硬盘上加载并运行 OS。考虑到实现的简单性，bootloader 的访问硬盘都是 LBA 模式的 PIO（Program IO）方式，即所有的 IO 操作是通过 CPU 访问硬盘的 IO 地址寄存器完成。</p>
+<p>一般主板有 2 个 IDE 通道，每个通道可以接 2 个 IDE 硬盘。访问第一个硬盘的扇区可设置 IO 地址寄存器 0x1f0-0x1f7 实现的，具体参数见下表。一般第一个 IDE 通道通过访问 IO 地址 0x1f0-0x1f7 来实现，第二个 IDE 通道通过访问 0x170-0x17f 实现。每个通道的主从盘的选择通过第 6 个 IO 偏移地址寄存器来设置。</p>
+<table>
+<thead>
+<tr>
+<th>Primary 通道</th>
+<th>Secondary 通道</th>
+<th>in 操作</th>
+<th>out 操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0x1F0</td>
+<td>0x170</td>
+<td>Data</td>
+<td>Data</td>
+</tr>
+<tr>
+<td>0x1F1</td>
+<td>0x171</td>
+<td>Error</td>
+<td>Features</td>
+</tr>
+<tr>
+<td>0x1F2</td>
+<td>0x172</td>
+<td>Sector count</td>
+<td>Sector count</td>
+</tr>
+<tr>
+<td>0x1F3</td>
+<td>0x173</td>
+<td>LBA low</td>
+<td>LBA low</td>
+</tr>
+<tr>
+<td>0x1F4</td>
+<td>0x174</td>
+<td>LBA mid</td>
+<td>LBA mid</td>
+</tr>
+<tr>
+<td>0x1F5</td>
+<td>0x175</td>
+<td>LBA high</td>
+<td>LBA high</td>
+</tr>
+<tr>
+<td>0x1F6</td>
+<td>0x176</td>
+<td>Device</td>
+<td>Device</td>
+</tr>
+<tr>
+<td>0x1F7</td>
+<td>0x177</td>
+<td>Status</td>
+<td>Command</td>
+</tr>
+</tbody></table>
+<ul>
+<li>0x1F0：16bit 端口，用于读写数据</li>
+<li>0x1F1：检测前一个指令的错误</li>
+<li>0x1F2：读写扇区的数量</li>
+<li>0x1F3：起始扇区的 0 ~ 7 位</li>
+<li>0x1F4：起始扇区的 8 ~ 15 位</li>
+<li>0x1F5：起始扇区的 16 ~ 23 位</li>
+<li>0x1F6:<ul>
+<li>0 ~ 3：起始扇区的 24 ~ 27 位</li>
+<li>4: 0 主盘, 1 从片</li>
+<li>6: 0 CHS, 1 LBA</li>
+<li>5 ~ 7：固定为1</li>
+</ul>
+</li>
+<li>0x1F7: out<ul>
+<li>0xEC: 识别硬盘</li>
+<li>0x20: 读硬盘</li>
+<li>0x30: 写硬盘</li>
+</ul>
+</li>
+<li>0x1F7: in &#x2F; 8bit<ul>
+<li>0 ERR</li>
+<li>3 DRQ 数据准备完毕</li>
+<li>7 BSY 硬盘繁忙</li>
+</ul>
+</li>
+</ul>
+<p>当前 硬盘数据是储存到硬盘扇区中，一个扇区大小为 512 字节。读一个扇区的流程大致如下：</p>
+<ol>
+<li>等待磁盘准备好</li>
+<li>发出读取扇区的命令</li>
+<li>等待磁盘准备好</li>
+<li>把磁盘扇区数据读到指定内存</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs assembly">; -------------------------- 初始化参数 --------------------------<br>mov edi, 0x1000    ; ① 数据存储的目标内存地址：读取的硬盘数据会放到0x1000开始的位置<br>mov ecx, 0         ; ② 要读取的起始扇区号：从第0个扇区（硬盘MBR所在扇区）开始读<br>mov bl, 1          ; ③ 要读取的扇区数量<br><br>; -------------------------- 硬盘读取核心函数 --------------------------<br>read_disk:<br>    ; ===== 第一步：向硬盘控制器端口写入「读取参数」（扇区数+起始扇区LBA地址）=====<br>    ; 1. 设置要读取的扇区数量（写入0x1F2端口）<br>    mov dx, 0x1f2   ; dx = 硬盘「扇区计数端口」地址<br>    mov al, bl      ; al = 要读取的扇区数量（bl里存的是扇区数）<br>    out dx, al      ; 将扇区数写入0x1F2端口，硬盘知道要读多少个扇区<br><br>    ; 2. 写入起始扇区LBA地址的低8位（0x1F3端口）<br>    inc dx          ; dx自增1 → 0x1F3（LBA低8位端口）<br>    mov al, cl      ; al = ecx的低8位（起始扇区号的0-7位）<br>    out dx, al      ; 写入LBA低8位<br><br>    ; 3. 写入起始扇区LBA地址的中8位（0x1F4端口）<br>    inc dx          ; dx → 0x1F4（LBA中8位端口）<br>    shr ecx, 8      ; ecx右移8位，原LBA[8-15]变为低8位<br>    mov al, cl      ; al = 新的ecx低8位（LBA[8-15]）<br>    out dx, al      ; 写入LBA中8位<br><br>    ; 4. 写入起始扇区LBA地址的高8位（0x1F5端口）<br>    inc dx          ; dx → 0x1F5（LBA高8位端口）<br>    shr ecx, 8      ; ecx再右移8位，原LBA[16-23]变为低8位<br>    mov al, cl      ; al = 新的ecx低8位（LBA[16-23]）<br>    out dx, al      ; 写入LBA高8位<br><br>    ; 5. 写入LBA最高4位 + 硬盘模式（0x1F6端口）<br>    inc dx          ; dx → 0x1F6（设备/头寄存器端口）<br>    shr ecx, 8      ; ecx再右移8位，原LBA[24-27]变为低8位<br>    and cl, 0b1111  ; 只保留cl的低4位（LBA[24-27]，高4位清零）<br>    mov al, 0b1110_0000  ; 固定配置：1110=LBA模式 + 主硬盘（0000）<br>    or al, cl       ; 把LBA[24-27]合并到al的低4位<br>    out dx, al      ; 告诉硬盘：用LBA模式读主硬盘的这个扇区<br><br>    ; 6. 发送「读扇区」命令（0x1F7端口）<br>    inc dx          ; dx → 0x1F7（命令/状态端口）<br>    mov al, 0x20    ; al = 0x20（ATA PIO读扇区命令）<br>    out dx, al      ; 发送命令，硬盘开始准备数据<br><br>    ; ===== 第二步：循环读取指定数量的扇区 =====<br>    xor ecx, ecx    ; 清空ecx（避免残留值干扰）<br>    mov cl, bl      ; cl = 要读取的扇区数量（循环次数）<br>.read:<br>    push cx         ; 保存循环次数（因为下面的子函数会修改cx，防止丢失）<br>    call .waits     ; 调用等待函数：等硬盘数据准备好<br>    call .reads     ; 调用读取函数：读取1个扇区（512字节）到内存<br>    pop cx          ; 恢复循环次数<br>    loop .read      ; cx--，如果cx≠0则跳回.read继续读下一个扇区<br>    ret             ; 函数返回<br><br>    ; ===== 子函数1：等待硬盘数据就绪 =====<br>.waits:<br>    mov dx, 0x1f7   ; dx = 0x1F7（硬盘状态端口）<br>.check:<br>    in al, dx       ; 读取硬盘状态到al<br>    ; 下面3个jmp是「空指令」：消耗CPU时钟周期，给硬盘留响应时间<br>    jmp $+2         ; $表示当前指令地址，$+2跳转到下一条指令，无实际逻辑<br>    jmp $+2<br>    jmp $+2<br>    and al, 0b1000_1000  ; 只保留2个关键状态位：bit7（忙）、bit3（数据就绪）<br>    cmp al, 0b0000_1000  ; 判断：bit7=0（不忙）且bit3=1（数据就绪）<br>    jnz .check      ; 如果不满足，跳回.check继续等<br>    ret             ; 满足条件，返回<br><br>    ; ===== 子函数2：读取1个扇区（512字节）到内存 =====<br>.reads:<br>    mov dx, 0x1f0   ; dx = 0x1F0（硬盘数据端口，16位）<br>    mov cx, 256     ; cx = 256（因为1个扇区=512字节=256个16位字）<br>.readw:<br>    in ax, dx       ; 从0x1F0端口读取16位数据到ax<br>    ; 空指令：等待硬盘数据稳定<br>    jmp $+2<br>    jmp $+2<br>    jmp $+2<br>    mov [edi], ax   ; 将ax中的数据写入edi指向的内存地址<br>    add edi, 2      ; edi += 2（指向下一个16位内存位置）<br>    loop .readw     ; cx--，读满256次（512字节）为止<br>    ret             ; 1个扇区读取完成，返回<br></code></pre></td></tr></table></figure>
+
+<p>可以看到第0号扇区确实被加载到了0x1000的位置</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222211755724.png" srcset="/img/loading.gif" lazyload alt="image-20260222211755724" style="zoom:67%;">
+
+<p>✅<strong>这里顺便补一下qemu断点调试</strong></p>
+<blockquote>
+<p>需要改一下Makefile文件：添加<code>-s -S</code></p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222220359991.png" srcset="/img/loading.gif" lazyload alt="image-20260222220359991" style="zoom:80%;">
+
+<p>编译运行后开始gdb调试</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">1. 连接 QEMU</span><br>(gdb) target remote localhost:1234<br>Remote debugging using localhost:1234<br>warning: No executable has been specified and target does not support<br>determining executable automatically.  Try using the &quot;file&quot; command.<br>0x0000fff0 in ?? ()<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">2. 切换到16位实模式</span><br>(gdb) set architecture i8086<br>The target architecture is assumed to be i8086<br><br><br>(gdb) c<br>Continuing.<br>^C<br>Program received signal SIGINT, Interrupt.<br>0x00007c35 in ?? ()<br>(gdb) x/512bx 0x1000<br>.....<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-6-内核加载器bootloader"><a href="#1-6-内核加载器bootloader" class="headerlink" title="1.6 内核加载器bootloader"></a>1.6 内核加载器bootloader</h3><p>BIOS 将通过读取硬盘主引导扇区到内存，并转跳到对应内存中的位置执行 bootloader。bootloader 完成的工作包括：</p>
+<ul>
+<li>切换到保护模式，启用分段机制</li>
+<li>读磁盘中 ELF 执行文件格式的 Ainux 操作系统到内存</li>
+<li>显示字符串信息</li>
+<li>把控制权交给 Ainux 操作系统</li>
+</ul>
+<hr>
+<p>编写loader.asm</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs assembly">[org 0x1000]<br><br>dw 0x55aa; 魔数, 用于判断读取是否正常<br><br>mov si, loading<br>call print<br><br>jmp $<br><br>print:<br>    mov ah, 0x0e<br>.next:<br>    mov al, [si]<br>    cmp al, 0<br>    jz .done<br>    int 0x10<br>    inc si<br>    jmp .next<br>.done:<br>    ret<br><br>loading:<br>    db &quot;Loading loader...&quot;, 10, 13, 0<br><br></code></pre></td></tr></table></figure>
+
+<p>修改Makefile，编译loader.bin，并加载到master.img的第2个扇区里面</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223173851243.png" srcset="/img/loading.gif" lazyload alt="image-20260223173851243" style="zoom: 67%;">
+
+<p>修改boot.asm，需要读取第2个扇区的内容，也就读取内核加载器的代码段，开始拉起内核【当然现在写的内核加载器非常简单，就打印了一句话Loading loader…】</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs assembly">[org 0x7c00]<br><br>; 设置屏幕模式为文本模式，清除屏幕<br>mov ax, 3<br>int 0x10<br><br>; 初始化段寄存器<br>mov ax, 0<br>mov ds, ax<br>mov es, ax<br>mov ss, ax<br>mov sp, 0x7c00<br><br>mov si, booting<br>call print<br><br>; ---------------------------------------- 本节重点START:将内核加载器的镜像内容读取到0x1000位置  ----------------------------------------<br>mov edi, 0x1000; 将数据读取到0x1000<br>mov ecx, 2; 起始扇区<br>mov bl, 4; 扇区数量<br>call read_disk<br><br>cmp word [0x1000], 0x55aa<br>jnz error<br><br>jmp 0:0x1002; 打印master.img第2个扇区的内容，也就是开始执行loader的代码段<br><br>; ---------------------------------------- 本节重点END: 将内核加载器的镜像内容读取到0x1000位置  ----------------------------------------<br><br>; 阻塞<br>jmp $<br><br><br>read_disk:<br>    ; 1.5节的内容，不重复<br>    ret<br><br>print:<br>	; 1.4节的内容，不重复<br><br>booting:<br>    db &quot;BIOS load MBR SUCC&quot;, 10, 13, 0<br><br>error:<br>    mov si, .msg<br>    call print<br>    hlt; 让CPU停止<br>    jmp $<br>    .msg db &quot;Booting Error..&quot;, 10, 13, 0<br><br>; 填充 0<br>times 510 - ($ - $$) db 0<br><br>; 主引导扇区的最后两个字节必须是 0x55 0xaa<br>; dw 0xaa55<br>db 0x55, 0xaa<br></code></pre></td></tr></table></figure>
+
+<p>运行成功</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223174317199.png" srcset="/img/loading.gif" lazyload alt="image-20260223174317199" style="zoom:80%;">
+
+<h3 id="1-7-内存检测"><a href="#1-7-内存检测" class="headerlink" title="1.7 内存检测"></a>1.7 内存检测</h3><p>TODO:  目的是什么</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.ghxi.com/jsjc2023080401.html">从0到-1写一个操作系统-0x05-检查内存容量</a></p>
+<p>BIOS中断0x15有3个子功能，子功能号需要存放到寄存器EAX或AX中，以下是这三种模式的介绍：</p>
+<p>EAX&#x3D;0xE820：遍历主机上全部内存<br>AX&#x3D;0xE801：分别检测低15MB和16MB～4GB内存，最大支持4GB<br>AH&#x3D;0x88：最多检测64MB内存，实际内存超过此容量也按照64MB返回</p>
+</blockquote>
+<p>本文使用BIOS 0x15中断 0xe820功能获取内存</p>
+<hr>
+<p><strong>输入（调用前设置）</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">寄存器</th>
+<th align="center">作用</th>
+<th align="center">取值要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>EAX</strong></td>
+<td align="center">功能号</td>
+<td align="center"><strong>0x0000E820</strong>（必须，高 16 位清 0）</td>
+</tr>
+<tr>
+<td align="center"><strong>EBX</strong></td>
+<td align="center">继续值（Continuation）</td>
+<td align="center"><strong>首次调用必须设为 0</strong>；后续调用使用 BIOS 返回的 EBX</td>
+</tr>
+<tr>
+<td align="center"><strong>ES:DI</strong></td>
+<td align="center">结果缓冲区指针</td>
+<td align="center">指向一段可写内存，用于存放返回的 ARDS 结构</td>
+</tr>
+<tr>
+<td align="center"><strong>ECX</strong></td>
+<td align="center">缓冲区大小</td>
+<td align="center"><strong>≥20</strong>（标准 ARDS 为 20 字节；ACPI 3.0 扩展为 24 字节）</td>
+</tr>
+<tr>
+<td align="center"><strong>EDX</strong></td>
+<td align="center">签名</td>
+<td align="center"><strong>0x534D4150</strong>（<code>SMAP</code>），用于标识调用意图</td>
+</tr>
+</tbody></table>
+<p><strong>输出（调用后返回）</strong></p>
+<table>
+<thead>
+<tr>
+<th>寄存器</th>
+<th>含义</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CF</strong></td>
+<td>状态位</td>
+<td><strong>CF&#x3D;0</strong> 成功；<strong>CF&#x3D;1</strong> 失败（AH &#x3D; 错误码）</td>
+</tr>
+<tr>
+<td><strong>EAX</strong></td>
+<td>签名</td>
+<td>成功时固定为 <strong>0x534D4150（SMAP）</strong>，用于校验</td>
+</tr>
+<tr>
+<td><strong>EBX</strong></td>
+<td>下一个继续值</td>
+<td>非 0：还有更多区域；<strong>0</strong>：已遍历完成</td>
+</tr>
+<tr>
+<td><strong>ECX</strong></td>
+<td>实际写入字节数</td>
+<td>通常为 <strong>20</strong>（标准 ARDS）</td>
+</tr>
+<tr>
+<td><strong>ES:DI</strong></td>
+<td><strong>ARDS 结构</strong></td>
+<td><strong>填充本次返回的内存区域描述</strong></td>
+</tr>
+<tr>
+<td><strong>AH</strong></td>
+<td>错误码</td>
+<td>失败时有效（如 0x86 &#x3D; 不支持该功能）</td>
+</tr>
+</tbody></table>
+<p><strong>ARDS 结构（Address Range Descriptor Structure）</strong></p>
+<p>标准 20 字节格式（ACPI 3.0 扩展为 24 字节，增加<code>Extended Attributes</code>）：</p>
+<table>
+<thead>
+<tr>
+<th align="center">偏移</th>
+<th align="center">长度</th>
+<th align="center">字段</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0x00</td>
+<td align="center">8 字节</td>
+<td align="center"><strong>BaseAddr</strong></td>
+<td align="center">内存区域的<strong>64 位起始物理地址</strong></td>
+</tr>
+<tr>
+<td align="center">0x08</td>
+<td align="center">8 字节</td>
+<td align="center"><strong>Length</strong></td>
+<td align="center">区域长度（字节数，64 位）</td>
+</tr>
+<tr>
+<td align="center">0x10</td>
+<td align="center">4 字节</td>
+<td align="center"><strong>Type</strong></td>
+<td align="center">内存类型（决定是否可用）</td>
+</tr>
+</tbody></table>
+<p>关键 Type 值（内存类型）</p>
+<ul>
+<li><strong>0x01</strong>：<strong>可用内存</strong>（OS 可自由使用）</li>
+<li><strong>0x02</strong>：<strong>保留内存</strong>（不可用，如 ROM、MMIO、BIOS 数据区）</li>
+<li><strong>0x03</strong>：<strong>存储ACPI表 可回收内存</strong>（OS 读取 ACPI 表后可回收）</li>
+<li><strong>0x04：操作系统不可使用这段内存</strong></li>
+<li><strong>0x05：已经损坏的内存区域，不可使用</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs assembly">detect_memory:<br>    ; 初始化E820调用参数<br>    xor ebx, ebx                 ; ebx=0表示开始新的检测<br>    mov ax, 0<br>    mov es, ax                   ; es=0（结构体存储在es:edi）<br>    mov edi, ards_buffer         ; edi指向缓冲区起始位置<br>    mov edx, 0x534d4150          ; E820固定签名（&#x27;SMAP&#x27;）<br><br>.next:<br>    ; 调用int 0x15的E820子功能检测内存<br>    mov eax, 0xe820              ; 子功能号：E820内存检测<br>    mov ecx, 20                  ; ARDS结构体大小（20字节）<br>    mov [es:edi + 16], dword 1   ; 版本号（必须设置为1）<br>    int 0x15                     ; 执行BIOS中断<br><br>    ; 检查调用结果<br>    jc error                     ; CF=1表示调用失败，跳转到错误处理<br><br>    ; 处理返回的结构体<br>    add di, cx                   ; 缓冲区指针后移（指向下一个结构体位置）<br>    inc word [ards_count]        ; 区块数量+1<br><br>    ; 判断是否还有更多区块（ebx=0表示检测完成）<br>    cmp ebx, 0<br>    jnz .next                    ; ebx≠0，继续检测下一个区块<br><br>    ; 内存检测完成，打印成功提示<br>    mov si, detecting<br>    call print<br><br>    ; （可选）遍历打印所有内存区块信息（示例：仅读取不打印）<br>    mov cx, [ards_count]         ; cx=区块数量<br>    mov si, 0                    ; si=缓冲区偏移量<br>.show:<br>    ; 读取ARTS结构体关键字段（示例：仅读取，可扩展打印逻辑）<br>    ; [ards_buffer+si]     = 基地址低32位<br>    ; [ards_buffer+si+8]   = 长度低32位<br>    ; [ards_buffer+si+16]  = 类型（1=可用内存，2=保留内存）<br>    mov eax, [ards_buffer + si]  ; 读取基地址低32位<br>    mov ebx, [ards_buffer + si + 8] ; 读取长度低32位<br>    mov ecx, [ards_buffer + si + 16] ; 读取内存类型<br>    add si, 20                   ; 偏移量+20（下一个结构体）<br>    loop .show                   ; cx--，直到cx=0<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>从0到1手写操作系统</div>
+      <div>http://example.com/2026/02/22/从0到1手写操作系统/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年2月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/22/Agent%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="Agent学习笔记">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Agent学习笔记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/11/%E4%BB%A3%E7%A0%81%E8%A7%84%E8%8C%83/" title="代码规范">
+                        <span class="hidden-mobile">代码规范</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>

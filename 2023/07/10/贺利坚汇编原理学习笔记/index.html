@@ -1,0 +1,2207 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="贺利坚汇编原理学习笔记1.绪论2.寄存器与内存2.1 寄存器与数据存储CPU的组成：  运算器进行信息处理 寄存器进行信息存储 控制器协调各种器件进行工作 内部总线实现CPU内部各个器件之间的联系    寄存器是CPU内部的信息存储单元 8086CPU有14个寄存器：  通用寄存器：AX、BX、CX、DX 编制寄存器：SI、DI 指针寄存器：SP、BP 指令指针寄存器：IP 段寄存器：CS、SS、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="贺利坚汇编原理学习笔记">
+<meta property="og:url" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="贺利坚汇编原理学习笔记1.绪论2.寄存器与内存2.1 寄存器与数据存储CPU的组成：  运算器进行信息处理 寄存器进行信息存储 控制器协调各种器件进行工作 内部总线实现CPU内部各个器件之间的联系    寄存器是CPU内部的信息存储单元 8086CPU有14个寄存器：  通用寄存器：AX、BX、CX、DX 编制寄存器：SI、DI 指针寄存器：SP、BP 指令指针寄存器：IP 段寄存器：CS、SS、">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233214391.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233531410.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233807727.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233838706.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233936082.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234028265.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234058102.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234149190.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234217377.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234435359.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234448354.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E5%AF%BB%E5%9D%80.gif">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710235315274.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710235333716.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710235404944.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814230353121.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814230512608.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CSIP%E4%BD%BF%E7%94%A8.gif">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814230955255.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814231054600.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814231121068.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814231312265.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814232606821.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814232824634.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814232859407.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814232939498-1692026986451-1.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814233023823.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814233101872-1692027062908-3.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017223725866.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017223822854.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017223854704.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017224210041.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017224225895.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017224322736.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017224347327.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017224431299.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017225144131.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017230500913.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017230529058.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224356757.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224507713.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224524046.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224551005.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224616181.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224637070.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019225239376.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019225602999.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019233615304.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019233706662.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019233938706.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019234020855.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019234134875.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025232807914.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025232927777.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233038026.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233149391.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233325126.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233439215.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233541049.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233613363.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233721670.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233755039.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E5%AF%84%E5%AD%98%E5%99%A8.gif">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026230503145.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026230756028.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026230828068.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026231029785.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026231104392.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026231317864.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026231334269.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026233116017.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019233938706.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026233147770.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026233240390.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026233536229.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026233635364.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110230247901.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110230402736.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110230955692.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110233558883.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110233913928.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110234103528.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110234134851.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110234159040.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111214422664.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111214444899.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111215522599.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111222346551.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111222404831.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111222724356.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111222751863.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111222821711.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225708887.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225811584.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225829214.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230125070.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230234039.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230243711.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230328737.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230350736.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230422845.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E7%9B%B4%E6%8E%A5%E5%AF%BB%E5%9D%80%E8%BF%87%E7%A8%8B.gif">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E9%97%B4%E6%8E%A5%E5%AF%BB%E5%9D%80%E8%BF%87%E7%A8%8B.gif">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E7%9B%B8%E5%AF%B9%E5%AF%BB%E5%9D%80%E8%BF%87%E7%A8%8B.gif">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E5%9F%BA%E5%9D%80%E5%8F%98%E5%9D%80%E5%AF%BB%E5%9D%80%E8%BF%87%E7%A8%8B.gif">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E7%9B%B8%E5%AF%B9%E5%9F%BA%E5%9D%80%E5%8F%98%E5%9D%80%E5%AF%BB%E5%9D%80%E8%BF%87%E7%A8%8B.gif">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111224722444.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111224937285.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225006820.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225123350.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225405800.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112204734926.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112204842121.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112205034655.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112205224931.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112205458273.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112205624778.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112205630893.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115225802336.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230436427.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230444733.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230820219.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230831757.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230909267.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230953946.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115231012570.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115231033431.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232508424.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232516058.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232759181.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232833839.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232900240.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232939435.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233111259.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233449096.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233515697.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233532438.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233751028.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303183904011.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303183919422.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303184058864.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303185212685.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303185939593.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303214615586.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303214741610.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303225236381.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303225415284.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303230013763.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231430845.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231442019.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231553015.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231653626.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231752734.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231820589.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231936728.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304232034695.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304232043454.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230140896.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230235890.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230635245.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230944934.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305232631338.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305232840562.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305232932548.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305233803864.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305233822669.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305233838883.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305235352330.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305235614090.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305235622143.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307230827387.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231027733.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231054757.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231508991.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231548037.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231607907.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231655253.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307232011828.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307232939157.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233344065.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233624935.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233800314.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240313222815307.png">
+<meta property="og:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240313230336086.png">
+<meta property="article:published_time" content="2023-07-10T15:29:30.000Z">
+<meta property="article:modified_time" content="2024-03-13T15:04:22.834Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="汇编">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233214391.png">
+  
+  
+  
+  <title>贺利坚汇编原理学习笔记 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+  
+  <div class="deng-container left">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">新</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">春</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="deng-container right">
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">快</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+    <div class="deng-box">
+    <div class="deng">
+      <div class="xian"></div>
+      <div class="deng-a">
+        <div class="deng-b">
+          <div class="deng-t">乐</div>
+        </div>
+      </div>
+      <div class="shui shui-a">
+        <div class="shui-c"></div>
+        <div class="shui-b"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="贺利坚汇编原理学习笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-10 23:29" pubdate>
+          2023年7月10日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          20k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          167 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">贺利坚汇编原理学习笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="贺利坚汇编原理学习笔记"><a href="#贺利坚汇编原理学习笔记" class="headerlink" title="贺利坚汇编原理学习笔记"></a>贺利坚汇编原理学习笔记</h1><h2 id="1-绪论"><a href="#1-绪论" class="headerlink" title="1.绪论"></a>1.绪论</h2><h2 id="2-寄存器与内存"><a href="#2-寄存器与内存" class="headerlink" title="2.寄存器与内存"></a>2.寄存器与内存</h2><h3 id="2-1-寄存器与数据存储"><a href="#2-1-寄存器与数据存储" class="headerlink" title="2.1 寄存器与数据存储"></a>2.1 寄存器与数据存储</h3><p>CPU的组成：</p>
+<ul>
+<li>运算器进行信息处理</li>
+<li>寄存器进行信息存储</li>
+<li>控制器协调各种器件进行工作</li>
+<li>内部总线实现CPU内部各个器件之间的联系</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233214391.png" srcset="/img/loading.gif" lazyload alt="image-20230710233214391" style="zoom: 67%;">
+
+<p><strong>寄存器是CPU内部的信息存储单元</strong></p>
+<p>8086CPU有14个寄存器：</p>
+<ul>
+<li>通用寄存器：AX、BX、CX、DX</li>
+<li>编制寄存器：SI、DI</li>
+<li>指针寄存器：SP、BP</li>
+<li>指令指针寄存器：IP</li>
+<li>段寄存器：CS、SS、DS、ES</li>
+<li>标志寄存器：PSW</li>
+</ul>
+<p><strong>共性：8086CPU所有的寄存器都是16位的，可以存放两个字节</strong></p>
+<h4 id="2-1-1-通用寄存器——以AX为例"><a href="#2-1-1-通用寄存器——以AX为例" class="headerlink" title="2.1.1 通用寄存器——以AX为例"></a>2.1.1 通用寄存器——以AX为例</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233531410.png" srcset="/img/loading.gif" lazyload alt="image-20230710233531410" style="zoom:50%;">
+
+<ul>
+<li>一个寄存器存储一个16的数据<ul>
+<li>最大值为2^16-1</li>
+</ul>
+</li>
+<li>例如：在AX中存储18D，换算成16进制为12H，换算成2进制为10010B</li>
+<li>例如：在AX中存储20000D，换算成16进制为4E20H，换算成2进制为0100111000100000B</li>
+</ul>
+<h4 id="2-1-2-如何兼容8位CPU"><a href="#2-1-2-如何兼容8位CPU" class="headerlink" title="2.1.2 如何兼容8位CPU"></a>2.1.2 如何兼容8位CPU</h4><p>8086上一代CPU中的寄存器都是8位的，如何保证程序的兼容性</p>
+<blockquote>
+<p>通用寄存器均可以分为两个独立的8位寄存器使用</p>
+</blockquote>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233807727.png" srcset="/img/loading.gif" lazyload alt="image-20230710233807727" style="zoom:67%;">
+
+<ul>
+<li>AX可以分为AH和AL</li>
+<li>BX可以分为BH和BL</li>
+<li>CX可以分为CH和CL</li>
+<li>DX可以分为DH和DL</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233838706.png" srcset="/img/loading.gif" lazyload alt="image-20230710233838706" style="zoom:80%;">
+
+<h4 id="2-1-3-“字”在寄存器中的存储"><a href="#2-1-3-“字”在寄存器中的存储" class="headerlink" title="2.1.3 “字”在寄存器中的存储"></a>2.1.3 “字”在寄存器中的存储</h4><ul>
+<li>8086是16位CPU<ul>
+<li>8086的字长(word size)为16bit</li>
+</ul>
+</li>
+<li>一个字(word)可以存在一个16位寄存器中<ul>
+<li>这个字的高位字节存在这个寄存器的高8位寄存器</li>
+<li>这个字的低位字节存在这个寄存器的低8位寄存器</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710233936082.png" srcset="/img/loading.gif" lazyload alt="image-20230710233936082" style="zoom: 67%;">
+
+<h3 id="2-2-mov和add指令"><a href="#2-2-mov和add指令" class="headerlink" title="2.2 mov和add指令"></a>2.2 mov和add指令</h3><h4 id="2-2-1-学习汇编指令——用中学"><a href="#2-2-1-学习汇编指令——用中学" class="headerlink" title="2.2.1 学习汇编指令——用中学"></a>2.2.1 学习汇编指令——用中学</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234028265.png" srcset="/img/loading.gif" lazyload alt="image-20230710234028265" style="zoom:80%;">
+
+<h4 id="2-2-2-写出汇编指令执行的结果-1"><a href="#2-2-2-写出汇编指令执行的结果-1" class="headerlink" title="2.2.2 写出汇编指令执行的结果(1)"></a>2.2.2 写出汇编指令执行的结果(1)</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234058102.png" srcset="/img/loading.gif" lazyload alt="image-20230710234058102" style="zoom:80%;">
+
+<h4 id="2-2-3-写出汇编指令执行的结果-2"><a href="#2-2-3-写出汇编指令执行的结果-2" class="headerlink" title="2.2.3 写出汇编指令执行的结果(2)"></a>2.2.3 写出汇编指令执行的结果(2)</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234149190.png" srcset="/img/loading.gif" lazyload alt="image-20230710234149190" style="zoom:80%;">
+
+<h3 id="2-3-确定物理地址的办法"><a href="#2-3-确定物理地址的办法" class="headerlink" title="2.3 确定物理地址的办法"></a>2.3 确定物理地址的办法</h3><h4 id="2-3-1-物理地址"><a href="#2-3-1-物理地址" class="headerlink" title="2.3.1 物理地址"></a>2.3.1 物理地址</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234217377.png" srcset="/img/loading.gif" lazyload alt="image-20230710234217377" style="zoom:67%;">
+
+<ul>
+<li>CPU访问内存单元时要给出内存单元的地址。</li>
+<li>所有的内存单元构成的存储空间是一个一维的线性空间。</li>
+<li>每一个内存单元在这个空间中都有唯一的地址，这个唯一的地址称为<strong>物理地址</strong>。</li>
+<li>事实：<ul>
+<li>8086有20位地址总线，可传送20位地址，<strong>寻址能力为1M</strong>。</li>
+<li>8086是16位结构的CPU<ul>
+<li>运算器一次最多可以处理16位的数据，寄存器的最大宽度为16位</li>
+<li>在8086内部处理的、传输、暂存的地址也是16位，<strong>寻址能力也只有64KB</strong>！</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>问题：8086如何处理在寻址空间上的这个矛盾？！</strong></li>
+</ul>
+<hr>
+<p><strong>8086CPU给出物理地址的方法</strong></p>
+<ul>
+<li>8086CPU的解决方法<ul>
+<li>用两个16位地址(段地址、偏移地址)合成一个20位的物理地址。</li>
+</ul>
+</li>
+<li>地址加法器合成物理地址的方法：<ul>
+<li>物理地址&#x3D;段地址×16+偏移地址</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234435359.png" srcset="/img/loading.gif" lazyload alt="image-20230710234435359" style="zoom:67%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710234448354.png" srcset="/img/loading.gif" lazyload alt="image-20230710234448354" style="zoom: 50%;">
+
+<h4 id="2-3-2-演示：物理地址-x3D-段地址×16-偏移地址"><a href="#2-3-2-演示：物理地址-x3D-段地址×16-偏移地址" class="headerlink" title="2.3.2 演示：物理地址&#x3D;段地址×16+偏移地址"></a>2.3.2 演示：物理地址&#x3D;段地址×16+偏移地址</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/寻址.gif" srcset="/img/loading.gif" lazyload style="zoom:67%;">
+
+
+
+<p><strong>思考：段地址是123CH，可否？</strong></p>
+<blockquote>
+<p>可以，段地址×16+偏移地址&#x3D;0x123C8，还是没变</p>
+</blockquote>
+<h4 id="2-3-3-“段地址×16-偏移地址-x3D-物理地址”的本质"><a href="#2-3-3-“段地址×16-偏移地址-x3D-物理地址”的本质" class="headerlink" title="2.3.3 “段地址×16+偏移地址&#x3D;物理地址”的本质"></a>2.3.3 “段地址×16+偏移地址&#x3D;物理地址”的本质</h4><ul>
+<li><p>要解决的问题</p>
+<ul>
+<li>用两个16位的地址（段地址、偏移地址），相加得到一个20位的物理地址</li>
+</ul>
+</li>
+<li><p>本质含义</p>
+<ul>
+<li>CPU在访问内存时，用一个基础地址（段地址×16）和一个相对于基础地址的偏移地址相加，给出内存单元的物理地址。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-4-内存的分段表示法"><a href="#2-4-内存的分段表示法" class="headerlink" title="2.4 内存的分段表示法"></a>2.4 内存的分段表示法</h3><h4 id="2-4-1-用分段的方式管理内存"><a href="#2-4-1-用分段的方式管理内存" class="headerlink" title="2.4.1 用分段的方式管理内存"></a>2.4.1 用分段的方式管理内存</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710235315274.png" srcset="/img/loading.gif" lazyload alt="image-20230710235315274" style="zoom: 67%;">
+
+<h4 id="2-4-2-同一段内存，多种分段方案"><a href="#2-4-2-同一段内存，多种分段方案" class="headerlink" title="2.4.2 同一段内存，多种分段方案"></a>2.4.2 同一段内存，多种分段方案</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710235333716.png" srcset="/img/loading.gif" lazyload alt="image-20230710235333716" style="zoom: 67%;">
+
+<h4 id="2-4-3-用不同的段地址和偏移地址形成同一个物理地址"><a href="#2-4-3-用不同的段地址和偏移地址形成同一个物理地址" class="headerlink" title="2.4.3 用不同的段地址和偏移地址形成同一个物理地址"></a>2.4.3 用不同的段地址和偏移地址形成同一个物理地址</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230710235404944.png" srcset="/img/loading.gif" lazyload alt="image-20230710235404944" style="zoom:67%;">
+
+<h3 id="2-5-Debug的使用"><a href="#2-5-Debug的使用" class="headerlink" title="2.5 Debug的使用"></a>2.5 Debug的使用</h3><h3 id="2-6-CS、IP与代码段"><a href="#2-6-CS、IP与代码段" class="headerlink" title="2.6 CS、IP与代码段"></a>2.6 CS、IP与代码段</h3><p>两个关键的寄存器：</p>
+<ul>
+<li>CS：代码段寄存器</li>
+<li>IP：指令指针寄存器</li>
+<li>⭐<strong>CS:IP：CPU将内存中CS:IP指向的内容当做指令执行</strong></li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814230353121.png" srcset="/img/loading.gif" lazyload alt="image-20230814230353121" style="zoom:67%;">
+
+<p><strong>示例：在CS和IP指示下代码的执行</strong></p>
+<ul>
+<li>8086CPU当前状态：CS中内容为2000H，IP中内容为0000H</li>
+<li>内存20000H~20009H处存放着可执行的机器代码‘</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814230512608.png" srcset="/img/loading.gif" lazyload alt="image-20230814230512608" style="zoom:67%;">
+
+<p><strong>8086PC工作过程的简要描述：</strong></p>
+<ol>
+<li>从CS:IP指向内存单元读取指令，读取的指令进入指令缓冲器</li>
+<li>IP&#x3D;IP+所读指令的长度，从而指向下一条指令</li>
+<li>执行指令。转到步骤（1），重复这个过程</li>
+</ol>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CSIP使用.gif" srcset="/img/loading.gif" lazyload style="zoom:67%;">
+
+<p><strong>DEBUG演示：</strong></p>
+<ul>
+<li>使用<strong>r</strong>命令查看当前所有寄存器的值</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814230955255.png" srcset="/img/loading.gif" lazyload alt="image-20230814230955255" style="zoom:67%;">
+
+<ul>
+<li>使用<strong>rcs</strong>和<strong>rip</strong>改变cs和ip的值</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814231054600.png" srcset="/img/loading.gif" lazyload alt="image-20230814231054600" style="zoom:80%;">
+
+<ul>
+<li><p>使用<strong>a</strong>命令写入汇编指令</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814231121068.png" srcset="/img/loading.gif" lazyload alt="image-20230814231121068" style="zoom:67%;">
+</li>
+<li><p>使用t命令执行指令</p>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814231312265.png" srcset="/img/loading.gif" lazyload alt="image-20230814231312265" style="zoom:67%;">
+
+<blockquote>
+<p>再次强调：<strong>内存中每个位置到底存的是数据还是指令，如果是CS:IP指向的那就是指令</strong></p>
+</blockquote>
+<h3 id="2-7-jmp指令"><a href="#2-7-jmp指令" class="headerlink" title="2.7 jmp指令"></a>2.7 jmp指令</h3><p>事实：执行何处的指令，取决于CS:IP</p>
+<p>应用：可以通过改变CS、IP中的内容，来控制CPU要执行的目标指令</p>
+<p>问题：如何改变CS、IP的值？</p>
+<ul>
+<li><p>方法1：Debug 中的 R 命令可以改变寄存器的值——rcs, rip</p>
+</li>
+<li><p>Debug是调试手段，并非程序方式！</p>
+</li>
+<li><p>方法2：用指令修改</p>
+</li>
+<li><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814232606821.png" srcset="/img/loading.gif" lazyload alt="image-20230814232606821" style="zoom:67%;">
+</li>
+<li><p><strong>方法3：转移指令 jmp</strong></p>
+</li>
+</ul>
+<h4 id="2-7-1-转移指令jmp"><a href="#2-7-1-转移指令jmp" class="headerlink" title="2.7.1 转移指令jmp"></a>2.7.1 转移指令jmp</h4><p><strong>同时修改CS、IP的内容</strong></p>
+<ul>
+<li>jmp 段地址：偏移地址</li>
+<li>jmp 2AE3:3</li>
+<li>jmp 3:0B16</li>
+</ul>
+<p><strong>功能：用指令中给出的段地址修改CS，偏移地址修改IP。</strong></p>
+<p><strong>仅修改IP的内容</strong></p>
+<ul>
+<li>jmp 某一合法寄存器</li>
+<li>jmp ax （类似于 mov IP, ax）</li>
+<li>jmp bx</li>
+</ul>
+<p><strong>功能：用寄存器中的值修改IP。</strong></p>
+<h4 id="2-7-2-案例分析"><a href="#2-7-2-案例分析" class="headerlink" title="2.7.2 案例分析"></a>2.7.2 案例分析</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814232824634.png" srcset="/img/loading.gif" lazyload alt="image-20230814232824634" style="zoom:80%;">
+
+<p><strong>DEBUG调试</strong></p>
+<ul>
+<li>通过<strong>a</strong>命令写入指令</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814232859407.png" srcset="/img/loading.gif" lazyload alt="image-20230814232859407" style="zoom:67%;">
+
+<ul>
+<li><p>修改<strong>rcs，rip</strong>起始地址</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814232939498-1692026986451-1.png" srcset="/img/loading.gif" lazyload alt="image-20230814232939498" style="zoom:67%;">
+</li>
+<li><p>通过<strong>t</strong>指令单步调试</p>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814233023823.png" srcset="/img/loading.gif" lazyload alt="image-20230814233023823" style="zoom:67%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20230814233101872-1692027062908-3.png" srcset="/img/loading.gif" lazyload alt="image-20230814233101872" style="zoom:67%;">
+
+<h3 id="2-8-内存中字的存储"><a href="#2-8-内存中字的存储" class="headerlink" title="2.8 内存中字的存储"></a>2.8 内存中字的存储</h3><h4 id="2-8-1-内存中字的存储"><a href="#2-8-1-内存中字的存储" class="headerlink" title="2.8.1 内存中字的存储"></a>2.8.1 内存中字的存储</h4><p>事实：对8086CPU，16位作为一个字</p>
+<p>问题：16位的字存储在一个16位的寄存器中，如何存储？</p>
+<p>回答：高8位放高字节，低8位放低字节</p>
+<p>问题：16位的字在<strong>内存</strong>中需要2个连续字节存储，怎么存放？</p>
+<p>回答： 低位字节存在低地址单元，高位字节存在高地址单元</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017223725866.png" srcset="/img/loading.gif" lazyload alt="image-20231017223725866" style="zoom:67%;">
+
+<h4 id="2-8-2-字单元"><a href="#2-8-2-字单元" class="headerlink" title="2.8.2 字单元"></a>2.8.2 字单元</h4><p><strong>字单元</strong>：由两个地址连续的内存单元组成，存放一个字型数据（16位）</p>
+<p><strong>原理</strong>：在一个字单元中，低地址单元存放低位字节，高地址单元存放高位字节</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017223822854.png" srcset="/img/loading.gif" lazyload alt="image-20231017223822854" style="zoom:80%;">
+
+<ul>
+<li>在起始地址为0的单元中，存放的是4E20H</li>
+<li>在起始地址为2的单元中，存放的是0012H</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017223854704.png" srcset="/img/loading.gif" lazyload alt="image-20231017223854704" style="zoom:67%;">
+
+<h3 id="2-9-用DS和-addresss-实现字的传送"><a href="#2-9-用DS和-addresss-实现字的传送" class="headerlink" title="2.9 用DS和[addresss]实现字的传送"></a>2.9 用DS和[addresss]实现字的传送</h3><h4 id="2-9-1-要解决的问题：CPU从内存单元中要读取的数据"><a href="#2-9-1-要解决的问题：CPU从内存单元中要读取的数据" class="headerlink" title="2.9.1 要解决的问题：CPU从内存单元中要读取的数据"></a>2.9.1 要解决的问题：CPU从内存单元中要读取的数据</h4><p>要求：CPU要读取一个内存单元的时候，必须先给出这个内存单元的地址</p>
+<p>原理：在8086 PC中，内存地址由段地址和偏移地址组成（段地址:偏移地址）</p>
+<p>解决方案：DS和[address]配合</p>
+<ul>
+<li>用DS寄存器存放要修改的数据的段地址</li>
+<li>偏移地址用[…]形式给出</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017224210041.png" srcset="/img/loading.gif" lazyload alt="image-20231017224210041" style="zoom:67%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017224225895.png" srcset="/img/loading.gif" lazyload alt="image-20231017224225895" style="zoom:80%;">
+
+<h4 id="2-9-2-字的传送"><a href="#2-9-2-字的传送" class="headerlink" title="2.9.2 字的传送"></a>2.9.2 字的传送</h4><p>8086CPU可以一次性传送一个字（16位的数据）</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017224322736.png" srcset="/img/loading.gif" lazyload alt="image-20231017224322736" style="zoom:67%;">
+
+<h4 id="2-9-3-案例分析"><a href="#2-9-3-案例分析" class="headerlink" title="2.9.3 案例分析"></a>2.9.3 案例分析</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017224347327.png" srcset="/img/loading.gif" lazyload alt="image-20231017224347327" style="zoom: 50%;">
+
+<ul>
+<li>mov ax, 1000H：将1000H存放在AX寄存器中</li>
+<li>mov ds, ax：将ax寄存器的值赋值给ds寄存器，即现在段地址为1000H</li>
+<li>mov ax, [0]：将1000:0的值【即1123，因为ax是16位的，为字符型寄存器】赋值给ax寄存器</li>
+<li>mov bx, [2]：将1000:2的值【即6622，因为bx也是字符型寄存器】赋值给bx寄存器</li>
+<li>mov cx, [1]：将1000:1的值【即2211，因为cx也是字符型寄存器】赋值给cx寄存器</li>
+<li>add bx, [1]：将bx加上1000:1的值 &#x3D; 6622H + 2211H &#x3D; 8833H</li>
+<li>add cx, [2]：将cx加上1000:2的值 &#x3D; 2211H + 6622H &#x3D; 8833H</li>
+</ul>
+<p>调试结果：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017224431299.png" srcset="/img/loading.gif" lazyload alt="image-20231017224431299" style="zoom:80%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017225144131.png" srcset="/img/loading.gif" lazyload alt="image-20231017225144131" style="zoom:80%;">
+
+<h3 id="2-10-DS与数据段"><a href="#2-10-DS与数据段" class="headerlink" title="2.10 DS与数据段"></a>2.10 DS与数据段</h3><h4 id="2-10-1-对内存单元中数据的访问"><a href="#2-10-1-对内存单元中数据的访问" class="headerlink" title="2.10.1 对内存单元中数据的访问"></a>2.10.1 对内存单元中数据的访问</h4><p>对于8096 PC机，可以根据需要将一组内存单元定义为一个段。</p>
+<ul>
+<li>物理地址&#x3D;段地址×16+偏移地址</li>
+<li>将一组长度为N（N≤64K）、地址连续、起始地址为16的倍数的内存单元当作专门存储数据的内存空间，从而定义了一个数据段</li>
+</ul>
+<p>例：用123B0H~123B9H的空间来存放数据</p>
+<ul>
+<li>段地址：123BH　起始偏移地址：0000H　长度：10字节</li>
+<li>段地址：1230H　起始偏移地址：00B0H　长度：10字节</li>
+</ul>
+<p><strong>处理方法</strong>：(DS):([address])</p>
+<ul>
+<li>用DS存放数据段的段地址</li>
+<li>用相关指令访问数据段中的具体单元，单元地址由[address]指出</li>
+</ul>
+<h4 id="2-10-2-将123B0H-123BAH的内存单元定义为数据段"><a href="#2-10-2-将123B0H-123BAH的内存单元定义为数据段" class="headerlink" title="2.10.2 将123B0H~123BAH的内存单元定义为数据段"></a>2.10.2 将123B0H~123BAH的内存单元定义为数据段</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017230500913.png" srcset="/img/loading.gif" lazyload alt="image-20231017230500913" style="zoom:80%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231017230529058.png" srcset="/img/loading.gif" lazyload alt="image-20231017230529058" style="zoom: 67%;">
+
+<h4 id="2-10-3-用DS和-address-形式访问内存中数据段方法小结"><a href="#2-10-3-用DS和-address-形式访问内存中数据段方法小结" class="headerlink" title="2.10.3 用DS和[address]形式访问内存中数据段方法小结"></a>2.10.3 用DS和[address]形式访问内存中数据段方法小结</h4><ul>
+<li>字在内存中存储时 ，要用两个地址连续的内存单元来存放，字的低位字节存放在低地址单元中，高位字节存放再高地址单元中。</li>
+<li>用 mov 指令要访问内存单元，可以在mov指令中只给出单元的偏移地址，此时，段地址默认在DS寄存器中</li>
+<li>[address]表示一个偏移地址为address的内存单元。</li>
+<li>在内存和寄存器之间传送字符型数据时，高地址单元和高8位寄存器、低地址单元和低8位寄存器相对应。</li>
+<li>mov、add、sub是具有两个操作对象的指令，访问内存中的数据段（对照：jmp是具有一个操作对象的指令，对应内存中的代码段）</li>
+<li>可以根据自己的推测，在Debug中实验指令的新格式。</li>
+</ul>
+<h3 id="2-11-栈及栈操作的实现"><a href="#2-11-栈及栈操作的实现" class="headerlink" title="2.11  栈及栈操作的实现"></a>2.11  栈及栈操作的实现</h3><h4 id="2-11-1-栈结构"><a href="#2-11-1-栈结构" class="headerlink" title="2.11.1 栈结构"></a>2.11.1 栈结构</h4><ul>
+<li>栈是一种只能在一端进行插入或删除操作的数据结构。</li>
+<li>栈有2个基本的操作：入栈和出栈<ul>
+<li>入栈：将一个新的元素放到栈顶</li>
+<li>出栈：从栈顶取出一个元素</li>
+</ul>
+</li>
+<li>栈顶的元素总是最后入栈，需要出栈时，又最先被从栈中取出</li>
+<li>栈的操作规则：LIFO（Last In First Out，后进先出）</li>
+<li>CPU提供的栈机制<ul>
+<li>现金的CPU中都有栈的设计</li>
+<li>8086 CPU提供相关的指令，支持用栈的方式访问内存空间</li>
+<li>基于8086 CPU的编程，可以将一段内存当作栈来使用</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224356757.png" srcset="/img/loading.gif" lazyload alt="image-20231019224356757" style="zoom:80%;">
+
+<hr>
+<p><strong>例：现将10000H~1000FH内存当作栈来使用……</strong></p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224507713.png" srcset="/img/loading.gif" lazyload alt="image-20231019224507713" style="zoom:80%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224524046.png" srcset="/img/loading.gif" lazyload alt="image-20231019224524046" style="zoom:80%;">
+
+<h4 id="2-11-2-栈的操作"><a href="#2-11-2-栈的操作" class="headerlink" title="2.11.2 栈的操作"></a>2.11.2 栈的操作</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224551005.png" srcset="/img/loading.gif" lazyload alt="image-20231019224551005" style="zoom:67%;">
+
+<p>执行前内存空间：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224616181.png" srcset="/img/loading.gif" lazyload alt="image-20231019224616181" style="zoom: 67%;">
+
+<p>执行栈操作后：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019224637070.png" srcset="/img/loading.gif" lazyload alt="image-20231019224637070" style="zoom: 67%;">
+
+<h4 id="2-11-3-push指令和pop指令的执行过程"><a href="#2-11-3-push指令和pop指令的执行过程" class="headerlink" title="2.11.3 push指令和pop指令的执行过程"></a>2.11.3 push指令和pop指令的执行过程</h4><p>🎆<strong>push ax</strong></p>
+<ul>
+<li>SP&#x3D;SP-2</li>
+<li>将ax中的内容送入SS:SP指向的内存单元处，SS:SP此时指向新栈顶</li>
+</ul>
+<p>🎆<strong>pop ax</strong></p>
+<ul>
+<li>将SS:SP指向的内存单元处的数据送入ax中</li>
+<li>SP&#x3D;SP+2，SS:SP指向当前栈顶下面的单元，以当前栈顶下面的单元为新的栈顶</li>
+</ul>
+<h4 id="2-11-4-执行入栈或出栈时如何保证不越界"><a href="#2-11-4-执行入栈或出栈时如何保证不越界" class="headerlink" title="2.11.4 执行入栈或出栈时如何保证不越界"></a>2.11.4 执行入栈或出栈时如何保证不越界</h4><p><strong>8086 CPU不保证对栈的操作不会越界；</strong></p>
+<p>8086CPU只知道栈顶在何处（由SS:SP指示），不知道程序安排的栈空间有多大。</p>
+<p>我们在编程的时候要自己操心栈顶越界的问题，要根据可能用到的最大栈空间，来安排栈的大小，防止入栈的数据太多而导致的越界；防止出栈时空了仍然继续出栈而导致的越界。</p>
+<h4 id="2-11-5-栈的小结"><a href="#2-11-5-栈的小结" class="headerlink" title="2.11.5 栈的小结"></a>2.11.5 栈的小结</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019225239376.png" srcset="/img/loading.gif" lazyload alt="image-20231019225239376" style="zoom:67%;">
+
+<h3 id="2-12-关于段的总结"><a href="#2-12-关于段的总结" class="headerlink" title="2.12 关于段的总结"></a>2.12 关于段的总结</h3><h4 id="2-12-1-各种段"><a href="#2-12-1-各种段" class="headerlink" title="2.12.1 各种段"></a>2.12.1 各种段</h4><p>✅基础：<strong>物理地址 &#x3D; 段地址 × 16 + 偏移地址</strong></p>
+<p>做法：</p>
+<ul>
+<li>编程时，可以根据需要将一组内存单元定义为一个段</li>
+<li>可以将起始地址为16的倍数，长度为N（N≤64K）的一组地址连续的内存单元，定义为一个段</li>
+<li>将一段内存定义为一个段，用一个段地址指示段，用偏移地址访问段内的单元——在程序中可以完成由程序员安排</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019225602999.png" srcset="/img/loading.gif" lazyload alt="image-20231019225602999" style="zoom: 80%;">
+
+<h2 id="3-汇编语言程序"><a href="#3-汇编语言程序" class="headerlink" title="3.汇编语言程序"></a>3.汇编语言程序</h2><h3 id="3-1-用汇编语言写源程序"><a href="#3-1-用汇编语言写源程序" class="headerlink" title="3.1 用汇编语言写源程序"></a>3.1 用汇编语言写源程序</h3><h4 id="3-1-1-用汇编语言编写程序的工作过程"><a href="#3-1-1-用汇编语言编写程序的工作过程" class="headerlink" title="3.1.1 用汇编语言编写程序的工作过程"></a>3.1.1 用汇编语言编写程序的工作过程</h4><p>🎆<strong>汇编程序：包含汇编指令和伪指令的文本</strong></p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019233615304.png" srcset="/img/loading.gif" lazyload alt="image-20231019233615304" style="zoom:80%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019233706662.png" srcset="/img/loading.gif" lazyload alt="image-20231019233706662" style="zoom: 80%;">
+
+<p><strong>伪指令：没有对应的机器码指令，最终不被CPU执行</strong></p>
+<blockquote>
+<p>谁来执行伪指令呢？</p>
+<p>伪指令是由编译器来执行的指令，编译器根据伪指令来进行相关的编译工作</p>
+</blockquote>
+<p>程序返回：程序运行结束后，将CPU的控制权交给使它得以运行的程序（常为DOS系统）【8086CPU固定位：mov ax,4c00h；int 21h】</p>
+<h4 id="3-1-2-程序中三种伪指令"><a href="#3-1-2-程序中三种伪指令" class="headerlink" title="3.1.2 程序中三种伪指令"></a>3.1.2 程序中三种伪指令</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019233938706.png" srcset="/img/loading.gif" lazyload alt="image-20231019233938706" style="zoom:67%;">
+
+<h4 id="3-1-3-源程序经编译链接后变为机器码"><a href="#3-1-3-源程序经编译链接后变为机器码" class="headerlink" title="3.1.3 源程序经编译链接后变为机器码"></a>3.1.3 源程序经编译链接后变为机器码</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019234020855.png" srcset="/img/loading.gif" lazyload alt="image-20231019234020855" style="zoom:67%;">
+
+<h4 id="3-1-4-如何写出一个程序来"><a href="#3-1-4-如何写出一个程序来" class="headerlink" title="3.1.4 如何写出一个程序来"></a>3.1.4 如何写出一个程序来</h4><ol>
+<li>定义一个段</li>
+<li>实现处理任务</li>
+<li>指出程序在何处结束</li>
+<li>段与段寄存器关联</li>
+<li>加上程序返回的代码</li>
+</ol>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019234134875.png" srcset="/img/loading.gif" lazyload alt="image-20231019234134875" style="zoom:67%;">
+
+<h3 id="3-2-由源程序到程序执行"><a href="#3-2-由源程序到程序执行" class="headerlink" title="3.2 由源程序到程序执行"></a>3.2 由源程序到程序执行</h3><h4 id="3-2-1-编辑源程序"><a href="#3-2-1-编辑源程序" class="headerlink" title="3.2.1 编辑源程序"></a>3.2.1 编辑源程序</h4><p>在<code>D:\MASM</code>创建文件<code>p4-1.asm</code>，并写入汇编指令</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025232807914.png" srcset="/img/loading.gif" lazyload alt="image-20231025232807914" style="zoom:80%;">
+
+<h4 id="3-2-2-编译"><a href="#3-2-2-编译" class="headerlink" title="3.2.2 编译"></a>3.2.2 编译</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025232927777.png" srcset="/img/loading.gif" lazyload alt="image-20231025232927777" style="zoom:67%;">
+
+<ul>
+<li>目标文件（*.OBJ）是我们对一个源程序进行编译要得到的最终结果。</li>
+<li>列表文件（*.LST）是编译器将源程序编译为目标文件的过程中产生的中间结果。</li>
+<li>交叉引用文件（*.CRF）同列表文件一样，是编译器将源程序编译为目标文件过程中产生的中间结果。</li>
+<li>对源程序的编译结束，编译器输出的最后两行告诉我们这个源程序没有警告错误和必须要改正的错误。</li>
+</ul>
+<h4 id="3-2-3-连接"><a href="#3-2-3-连接" class="headerlink" title="3.2.3 连接"></a>3.2.3 连接</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233038026.png" srcset="/img/loading.gif" lazyload alt="image-20231025233038026" style="zoom:80%;">
+
+<ul>
+<li>可执行文件(.EXE)是我们对一个程序进行连接要得到的最终结果。</li>
+<li>映像文件(.MAP)是连接程序将目标文件连接为可执行文件过程中产生的中间结果。</li>
+<li>库文件(.LIB)里包含了一些可以调用的子程序，如果我们的程序中调用了某一个库文件中的子程序，就需要<br>在连接的时候，将这个库文件和我们的目标文件连接到一起，生成可执行文件。</li>
+<li>no stack segment，一个“没有栈段”的警告错误 ，当前可以不理会这个错误。</li>
+</ul>
+<h4 id="3-2-4-执行可执行程序"><a href="#3-2-4-执行可执行程序" class="headerlink" title="3.2.4 执行可执行程序"></a>3.2.4 执行可执行程序</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233149391.png" srcset="/img/loading.gif" lazyload alt="image-20231025233149391" style="zoom:80%;">
+
+<ul>
+<li>我们的程序没有像显示器输出任何信息。程序只是做了一些将数据送入寄存器和加法的操作，而这些事情，我们不可能从显示屏上看出来。</li>
+<li>程序执行完成后，返回，屏幕上再次出现操作系统的提示符。</li>
+</ul>
+<h3 id="3-3-运行及跟踪"><a href="#3-3-运行及跟踪" class="headerlink" title="3.3 运行及跟踪"></a>3.3 运行及跟踪</h3><h4 id="3-3-1-用Debug装载程序"><a href="#3-3-1-用Debug装载程序" class="headerlink" title="3.3.1 用Debug装载程序"></a>3.3.1 用Debug装载程序</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233325126.png" srcset="/img/loading.gif" lazyload alt="image-20231025233325126" style="zoom:80%;">
+
+<ul>
+<li><p>程序加载后，DS中存放着程序所在内存区的段地址，这个内存区的偏移地址为 0 ，则程序所在的内存区的地址为：DS:0。</p>
+</li>
+<li><p>这个内存区的前256 个字节存PSP，DOS用来和程序进行通信。</p>
+</li>
+<li><p>从 256字节处向后的空间存放的是程序，CS的值为DS+100H。</p>
+</li>
+<li><p>程序加载后，CX中存放代码的长度（字节）。</p>
+</li>
+</ul>
+<h4 id="3-3-2-用Debug单步执行程序"><a href="#3-3-2-用Debug单步执行程序" class="headerlink" title="3.3.2 用Debug单步执行程序"></a>3.3.2 用Debug单步执行程序</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233439215.png" srcset="/img/loading.gif" lazyload alt="image-20231025233439215" style="zoom:80%;">
+
+<h4 id="3-3-3-其他调试指令"><a href="#3-3-3-其他调试指令" class="headerlink" title="3.3.3 其他调试指令"></a>3.3.3 其他调试指令</h4><p><strong>继续命令P(Proceed)：类似</strong>T命令，逐条执行指令、显示结果。但遇子程序、中断等时，直接执行，然后显示结果。</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233541049.png" srcset="/img/loading.gif" lazyload alt="image-20231025233541049" style="zoom:67%;">
+
+<p><strong>运行命令G(Go)：</strong>从指定地址处开始运行程序，直到遇到断点或者程序正常结束。</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233613363.png" srcset="/img/loading.gif" lazyload alt="image-20231025233613363" style="zoom: 67%;">
+
+<h3 id="3-4-…-和-…"><a href="#3-4-…-和-…" class="headerlink" title="3.4 […]和(…)"></a>3.4 […]和(…)</h3><h4 id="3-4-1-…-的规定与-…-的约定"><a href="#3-4-1-…-的规定与-…-的约定" class="headerlink" title="3.4.1 […]的规定与(…)的约定"></a>3.4.1 […]的规定与(…)的约定</h4><ul>
+<li>[…]——(汇编语法规定)表示一个内存单元</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233721670.png" srcset="/img/loading.gif" lazyload alt="image-20231025233721670" style="zoom:67%;">
+
+<ul>
+<li>(…)——(为学习方便做出的约定)表示一个内存单元或寄存器中的内容</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231025233755039.png" srcset="/img/loading.gif" lazyload alt="image-20231025233755039" style="zoom:80%;">
+
+<h4 id="3-4-2-符号idata表示常量"><a href="#3-4-2-符号idata表示常量" class="headerlink" title="3.4.2 符号idata表示常量"></a>3.4.2 符号idata表示常量</h4><ul>
+<li>mov ax,[idata]：代表mov ax,[1]、mov ax,[2]、mov ax,[3]…</li>
+<li>mov bx,idata：代表mov bx,1、mov bx,2、mov bx,3…</li>
+<li>mov ds,idata：代表mov ds,1、mov ds,2…(都是非法指令)</li>
+</ul>
+<h4 id="3-4-3-案例分析"><a href="#3-4-3-案例分析" class="headerlink" title="3.4.3 案例分析"></a>3.4.3 案例分析</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs asm">mov ax,200H<br>mov ds,ax<br>mov bx,1000H<br>mov ax,[bx]<br>inc bx<br>inc bx<br>mov [bx],ax<br>inc bx<br>inc bx<br>mov [bx],ax<br>inc bx<br>mov [bx],al<br>inc bx<br>mov [bx],al<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/寄存器.gif" srcset="/img/loading.gif" lazyload alt="image-20231025233755039" style="zoom:50%;">
+
+<h3 id="3-5-Loop指令"><a href="#3-5-Loop指令" class="headerlink" title="3.5 Loop指令"></a>3.5 Loop指令</h3><h4 id="3-5-1-loop指令"><a href="#3-5-1-loop指令" class="headerlink" title="3.5.1 loop指令"></a>3.5.1 loop指令</h4><p>功能：实现循环（计数型循环）</p>
+<ul>
+<li>CPU执行loop指令时要进行的操作<ul>
+<li>(cx)&#x3D;(cx)-1</li>
+<li>判断cx中的值，不为零转至标号处执行程序，为零则向下执行</li>
+</ul>
+</li>
+</ul>
+<p>要求：</p>
+<ul>
+<li>cx 中要提前存放循环次数，因为(cx)影响着loop指令的执行结果</li>
+<li>要定义一个标号</li>
+</ul>
+<blockquote>
+<p>其实就相当于do while循环【提前一次，后判断类型】</p>
+</blockquote>
+<h4 id="3-5-2-案例分析"><a href="#3-5-2-案例分析" class="headerlink" title="3.5.2 案例分析"></a>3.5.2 案例分析</h4><ol>
+<li>编程计算2^12</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code<br>code segment<br>	mov ax,2<br>	mov cx,11<br>  s:add ax,ax<br>  	loop s<br>  	<br>  	mov ax,4c00h<br>  	int 21h<br>code ends<br>end<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>计算123×236，结果存储在ax中</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code<br>code segment<br>	mov ax,0<br>	mov cx,236<br>  s:add ax,123<br>  	loop s<br>  	<br>  	mov ax,4c00h<br>  	int 21h<br>code ends<br>end<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>计算ffff:0006<strong>字节</strong>单元中的数乘以3，结果存储在dx中</li>
+</ol>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026230503145.png" srcset="/img/loading.gif" lazyload alt="image-20231026230503145" style="zoom:67%;">
+
+<h3 id="3-6-段前缀的使用"><a href="#3-6-段前缀的使用" class="headerlink" title="3.6 段前缀的使用"></a>3.6 段前缀的使用</h3><h4 id="3-6-1-引入段前缀：一个“异常”现象及对策"><a href="#3-6-1-引入段前缀：一个“异常”现象及对策" class="headerlink" title="3.6.1 引入段前缀：一个“异常”现象及对策"></a>3.6.1 引入段前缀：一个“异常”现象及对策</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026230756028.png" srcset="/img/loading.gif" lazyload alt="image-20231026230756028" style="zoom:80%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026230828068.png" srcset="/img/loading.gif" lazyload alt="image-20231026230828068" style="zoom:67%;">
+
+<h4 id="3-6-2-访问连续的内存单元——loop和-bx-联手"><a href="#3-6-2-访问连续的内存单元——loop和-bx-联手" class="headerlink" title="3.6.2 访问连续的内存单元——loop和[bx]联手"></a>3.6.2 访问连续的内存单元——loop和[bx]联手</h4><p><strong>问题</strong>：计算ffff:0~ffff:b字节单元中的数据的和，结果存储在dx中</p>
+<p><strong>分析：</strong></p>
+<ul>
+<li>运算后的结果是否会超出 dx 所能存储的范围？<ul>
+<li>ffff:0～ffff:b内存单元中的数据是字节型数据，范围在0～255之间，12个这样的数据相加，结果不会大于 65535，可以在dx中存放下。</li>
+</ul>
+</li>
+<li>是否可以将 ffff:0～ffff:b中的数据直接累加到dx中？<ul>
+<li>add dx, ds:[addr] ;(dx)&#x3D;(dx)+?</li>
+<li>期望：取出内存中的8位数据进行相加</li>
+<li>实际：取出的是内存中的16位数据</li>
+</ul>
+</li>
+<li>是否可以将 ffff:0～ffff:b中的数据直接累加到dl中？<ul>
+<li>add dl, ds:[addr] ;(dl)&#x3D;(dl)+?</li>
+<li>期望：取出内存中的8位数据相加</li>
+<li>实际：取出的是内存中的8位数据，但很有可能造成进位丢失。</li>
+</ul>
+</li>
+<li>对策：取出8位数据，加到16位的寄存器</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026231029785.png" srcset="/img/loading.gif" lazyload alt="image-20231026231029785" style="zoom:80%;">
+
+<hr>
+<p>那么问题的计算为：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026231104392.png" srcset="/img/loading.gif" lazyload alt="image-20231026231104392" style="zoom:67%;">
+
+<h4 id="3-6-3-段前缀的使用"><a href="#3-6-3-段前缀的使用" class="headerlink" title="3.6.3 段前缀的使用"></a>3.6.3 段前缀的使用</h4><p><strong>问题：</strong>将内存ffff:0~ffff:b中的数据拷贝到 0:200~0:20b单元中</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026231317864.png" srcset="/img/loading.gif" lazyload alt="image-20231026231317864" style="zoom:50%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026231334269.png" srcset="/img/loading.gif" lazyload alt="image-20231026231334269" style="zoom: 80%;">
+
+<p><strong>疑问1：为什么mov ax,0020h表示内存单元0:200</strong></p>
+<blockquote>
+<p>因为20:0和0:200表示的是同一个物理段地址，都是512</p>
+</blockquote>
+<p><strong>疑问2：dl的作用</strong></p>
+<blockquote>
+<p>将dl作为中介，将ffff:0内存单元中的数据暂存dl，后期将其拷贝到0:200</p>
+</blockquote>
+<p><strong>疑问3：原始方案哪里效率低？</strong></p>
+<blockquote>
+<p>其都是用将ax中的值拷贝到ds中，这样每次循环都有一次多余的内存搬运</p>
+<p>使用附加段寄存器，即ds不变，一直表示ffff:0开始的内存地址，而es表示的是0:200的地址</p>
+</blockquote>
+<h3 id="3-7-在代码段中使用数据"><a href="#3-7-在代码段中使用数据" class="headerlink" title="3.7 在代码段中使用数据"></a>3.7 在代码段中使用数据</h3><h4 id="3-7-1-问题：这样作是危险的！"><a href="#3-7-1-问题：这样作是危险的！" class="headerlink" title="3.7.1 问题：这样作是危险的！"></a>3.7.1 问题：这样作是危险的！</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026233116017.png" srcset="/img/loading.gif" lazyload alt="image-20231026233116017" style="zoom:80%;">
+
+<h4 id="3-7-2-有问题的案例"><a href="#3-7-2-有问题的案例" class="headerlink" title="3.7.2 有问题的案例"></a>3.7.2 有问题的案例</h4><blockquote>
+<p><strong>注意：</strong>我们知道代码的框架为</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231019233938706.png" srcset="/img/loading.gif" lazyload alt="image-20231019233938706" style="zoom:50%;">
+
+<p>理论上数据段和代码段是分开的，这里只是在codeseg中使用dw声明了数据段；这也是本小节【3.7 在代码段中使用数据】的作用。</p>
+</blockquote>
+<hr>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026233147770.png" srcset="/img/loading.gif" lazyload alt="image-20231026233147770" style="zoom:80%;">
+
+<p>但是这个代码存在问题：代码开始地址是cs:0，而这里是数据段</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026233240390.png" srcset="/img/loading.gif" lazyload alt="image-20231026233240390" style="zoom:80%;">
+
+
+
+<h4 id="3-7-3-改进代码"><a href="#3-7-3-改进代码" class="headerlink" title="3.7.3 改进代码"></a>3.7.3 改进代码</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026233536229.png" srcset="/img/loading.gif" lazyload alt="image-20231026233536229" style="zoom:67%;">
+
+<p>此时，代码段真正的开始地址是0010（IP&#x3D;0010）</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231026233635364.png" srcset="/img/loading.gif" lazyload alt="image-20231026233635364" style="zoom:67%;">
+
+<h3 id="3-8-在代码段中使用栈"><a href="#3-8-在代码段中使用栈" class="headerlink" title="3.8 在代码段中使用栈"></a>3.8 在代码段中使用栈</h3><h4 id="3-8-1-在代码段中使用栈：以数据逆序存放为例"><a href="#3-8-1-在代码段中使用栈：以数据逆序存放为例" class="headerlink" title="3.8.1 在代码段中使用栈：以数据逆序存放为例"></a>3.8.1 在代码段中使用栈：以数据逆序存放为例</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110230247901.png" srcset="/img/loading.gif" lazyload alt="image-20231110230247901" style="zoom:67%;">
+
+<p>程序的思路大致如下：</p>
+<ul>
+<li>程序运行时，定义的数据存放在cs:0~cs:F单元中，共8个字单元。</li>
+<li>依次将这8个字单元中的数据入栈，然后再依次出栈到这 8 个字单元中，从而实现数据的逆序存放。</li>
+<li>栈需要的内存空间，在程序中通过定义“空”数据来取得</li>
+</ul>
+<h4 id="3-8-2-数据逆序存放程序"><a href="#3-8-2-数据逆序存放程序" class="headerlink" title="3.8.2 数据逆序存放程序"></a>3.8.2 数据逆序存放程序</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110230402736.png" srcset="/img/loading.gif" lazyload alt="image-20231110230402736" style="zoom:80%;">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code<br>code segment<br>	dw 0123H,0456H,0789H,0abcH,0defH,0fedH,0cbaH,0987H<br>	dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0<br><br>start: mov ax,cs<br>	   mov ss,ax<br>	   mov sp,30h<br>	   mov bx,0<br>	   mov cx,8<br>	s: push cs:[bx]<br>	   add bx,2<br>	   loop s<br>	<br>	   mov bx,0<br>	   mov cx,8<br>	s0:pop cs:[bx]<br>	   add bx,2<br>	   loop s0<br>	   <br>	   mov ax,4c00h<br>	   int 21h<br><br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-9-将数据、代码、栈放入不同段"><a href="#3-9-将数据、代码、栈放入不同段" class="headerlink" title="3.9 将数据、代码、栈放入不同段"></a>3.9 将数据、代码、栈放入不同段</h3><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110230955692.png" srcset="/img/loading.gif" lazyload alt="image-20231110230955692" style="zoom:80%;">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code,ds:data,ss:stack<br>data segment<br>	dw 0123H,0456H,0789H,0abcH,0defH,0fedH,0cbaH,0987H<br>data ends<br>stack segment<br>	dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0<br>stack ends<br><br>code segment<br>start: mov ax,stack<br>	   mov ss,ax<br>	   mov sp,20h<br>	   mov ax,data<br>	   mov ds,ax<br>	   <br>	   mov bx,0<br>	   mov cx,8<br>	s: push [bx]<br>	   add bx,2<br>	   loop s<br>	<br>	   mov bx,0<br>	   mov cx,8<br>	s0:pop [bx]<br>	   add bx,2<br>	   loop s0<br>	   <br>	   mov ax,4c00h<br>	   int 21h<br>	  <br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-寄存器"><a href="#4-寄存器" class="headerlink" title="4.寄存器"></a>4.寄存器</h2><h3 id="4-1-处理字符问题"><a href="#4-1-处理字符问题" class="headerlink" title="4.1 处理字符问题"></a>4.1 处理字符问题</h3><p>汇编程序中，用 <strong>‘……’</strong> 的方式指明数据是以字符的形式给出的，编译器将把它们转化为相对应的ASCII码。</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110233558883.png" srcset="/img/loading.gif" lazyload alt="image-20231110233558883" style="zoom:80%;">
+
+<blockquote>
+<p>这里起始在贺老师的P23讲过，在代码段开始的前256个字节(0x100)存放了段前缀用来存放数据。</p>
+</blockquote>
+<p>🎆这里值得注意的是：大小写转换的规律，字符的ASCII码相差了0x20H</p>
+<h4 id="4-1-1-大小写转换的问题"><a href="#4-1-1-大小写转换的问题" class="headerlink" title="4.1.1 大小写转换的问题"></a>4.1.1 大小写转换的问题</h4><p>问题：对dataseg中的字符串</p>
+<ul>
+<li>第一个字符串：小写字母转换为大写字母<ul>
+<li>若字母是小写，转大写；如本身是大写，不变</li>
+</ul>
+</li>
+<li>第二个字符串：大写字母转换为小写字母<ul>
+<li>若字母是大写，转小写；若本身是小写，不变</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110233913928.png" srcset="/img/loading.gif" lazyload alt="image-20231110233913928" style="zoom:50%;">
+
+<p>这里我们可以用到**与运算 **和 <strong>或运算</strong></p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110234103528.png" srcset="/img/loading.gif" lazyload alt="image-20231110234103528" style="zoom:80%;">
+
+<h4 id="4-1-2-程序：解决大小写问题"><a href="#4-1-2-程序：解决大小写问题" class="headerlink" title="4.1.2 程序：解决大小写问题"></a>4.1.2 程序：解决大小写问题</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110234134851.png" srcset="/img/loading.gif" lazyload alt="image-20231110234134851" style="zoom: 60%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231110234159040.png" srcset="/img/loading.gif" lazyload alt="image-20231110234159040" style="zoom:67%;">
+
+<h3 id="4-2-bx-idata-方式寻址"><a href="#4-2-bx-idata-方式寻址" class="headerlink" title="4.2 [bx+idata]方式寻址"></a>4.2 [bx+idata]方式寻址</h3><h4 id="4-2-1-bx-idata-的含义"><a href="#4-2-1-bx-idata-的含义" class="headerlink" title="4.2.1 [bx+idata]的含义"></a>4.2.1 [bx+idata]的含义</h4><ul>
+<li>[bx+idata]表示一个内存单元，它的偏移地址为(bx)+idata（bx中的数值加上idata）。</li>
+<li>mov ax,[bx+200] &#x2F; mov ax,[200+bx] 的含义<ul>
+<li>将一个内存单元的内容送入ax</li>
+<li>这个内存单元的长度为2字节（字单元），存放一个字</li>
+<li>内存单元的段地址在ds中，偏移地址为200加上bx中的值</li>
+<li>数学化的描述为：(ax)&#x3D;((ds)*16+bx+200)</li>
+</ul>
+</li>
+<li>指令mov ax,[bx+200]的其他写法<ul>
+<li>mov ax,[200+bx]</li>
+<li>mov ax,200[bx]</li>
+<li>mov ax,[bx].200</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-2-2-应用：用-bx-idata-的方式进行数组的处理"><a href="#4-2-2-应用：用-bx-idata-的方式进行数组的处理" class="headerlink" title="4.2.2 应用：用[bx+idata]的方式进行数组的处理"></a>4.2.2 应用：用[bx+idata]的方式进行数组的处理</h4><p><strong>问题：</strong>在codesg中填写代码，将datasg中定义的</p>
+<ul>
+<li>第一个字符串，转化为大写</li>
+<li>第二个字符串转化为小写</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111214422664.png" srcset="/img/loading.gif" lazyload alt="image-20231111214422664" style="zoom:67%;">
+
+<h4 id="4-2-3-在Debug中执行"><a href="#4-2-3-在Debug中执行" class="headerlink" title="4.2.3 在Debug中执行"></a>4.2.3 在Debug中执行</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111214444899.png" srcset="/img/loading.gif" lazyload alt="image-20231111214444899" style="zoom: 90%;">
+
+<h3 id="4-3-SI和DI寄存器"><a href="#4-3-SI和DI寄存器" class="headerlink" title="4.3 SI和DI寄存器"></a>4.3 SI和DI寄存器</h3><h4 id="4-3-1-CPU内部的寄存器"><a href="#4-3-1-CPU内部的寄存器" class="headerlink" title="4.3.1 CPU内部的寄存器"></a>4.3.1 CPU内部的寄存器</h4><p>8086 CPU有14个寄存器：</p>
+<ul>
+<li>通用寄存器：AX、BX、CX、DX</li>
+<li><strong>变址寄存器：SI、DI</strong></li>
+<li>指针寄存器：SP、BP</li>
+<li>指令指针寄存器： IP</li>
+<li>段寄存器：CS、SS、DS、ES</li>
+<li>标志寄存器：PSW</li>
+</ul>
+<h4 id="4-3-2-SI和DI常执行与地址有关的操作"><a href="#4-3-2-SI和DI常执行与地址有关的操作" class="headerlink" title="4.3.2 SI和DI常执行与地址有关的操作"></a>4.3.2 SI和DI常执行与地址有关的操作</h4><p>SI 和 DI 是8086CPU中和BX功能相近的寄存器</p>
+<blockquote>
+<p>区别：SI和DI不能够分成两个8 位寄存器来使用。</p>
+</blockquote>
+<ul>
+<li>BX：通用寄存器，在计算存储器地址时，常作为基址寄存器用</li>
+<li>SI：source index，源变址寄存器</li>
+<li>DI：destination index，目标变址寄存器</li>
+</ul>
+<h4 id="4-3-3-应用SI和DI"><a href="#4-3-3-应用SI和DI" class="headerlink" title="4.3.3 应用SI和DI"></a>4.3.3 应用SI和DI</h4><p><strong>问题：</strong>用寄存器SI和DI实现将字符串**’welcome to masm!’**复制到它后面的数据区中。</p>
+<p>思路：</p>
+<ol>
+<li>用ds:si指向要复制的原始字符串</li>
+<li>用ds:di指向目的空间</li>
+<li>然后用一个循环完成复制</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:codeseg,ds:dataseg<br>dataseg segement<br>	db &#x27;Welcome to masm!&#x27;<br>	db &#x27;................&#x27;<br>dataseg ends<br>codeseg segment<br>start:	mov ax,dataseg<br>		mov ds,ax<br>		<br>		mov si,0<br>		mov di,16<br>		mov cx,8<br>	s:	mov ax,[si]<br>		mov [di],ax<br>		add si,2<br>		add di,2<br>		loop s<br>		<br>		mov ax,4c00j<br>		int 21h<br>codeseg ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111215522599.png" srcset="/img/loading.gif" lazyload alt="image-20231111215522599" style="zoom: 60%;">
+
+<h3 id="4-4-bx-si-和-bx-di-方式寻址"><a href="#4-4-bx-si-和-bx-di-方式寻址" class="headerlink" title="4.4 [bx+si] 和 [bx+di]方式寻址"></a>4.4 [bx+si] 和 [bx+di]方式寻址</h3><h4 id="4-4-1-bx-si-和-bx-di-方式指定地址"><a href="#4-4-1-bx-si-和-bx-di-方式指定地址" class="headerlink" title="4.4.1 [bx+si] 和 [bx+di]方式指定地址"></a>4.4.1 [bx+si] 和 [bx+di]方式指定地址</h4><ul>
+<li><p>[bx+si]表示一个内存单元，偏移地址为(bx)+(si)（即bx中的数值加上si中的数值）。</p>
+</li>
+<li><p>指令mov ax,[bx+si]的含义：</p>
+<ul>
+<li>将一个内存单元的内容送入ax</li>
+<li>这个内存单元的长度为2字节（字单元），存放一个字</li>
+<li>偏移地址为bx中的数值加上si中的数值</li>
+<li>段地址在ds中</li>
+</ul>
+</li>
+<li><p>指令mov ax,[bx+si]的数学化的描述：(ax)&#x3D;( (ds)*16+(bx)+(si))</p>
+</li>
+<li><p>mov ax,[bx+si]的其他写法：mov ax,[bx][si]</p>
+</li>
+</ul>
+<h4 id="4-4-2-应用案例"><a href="#4-4-2-应用案例" class="headerlink" title="4.4.2 应用案例"></a>4.4.2 应用案例</h4><p>内存中数据：2000:1000 BE 00 06 00 00 00 ….</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111222346551.png" srcset="/img/loading.gif" lazyload alt="image-20231111222346551" style="zoom: 40%;">
+
+<p>程序执行完成以后：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111222404831.png" srcset="/img/loading.gif" lazyload alt="image-20231111222404831" style="zoom: 50%;">
+
+<h3 id="4-5-bx-si-idata-和-bx-di-idata"><a href="#4-5-bx-si-idata-和-bx-di-idata" class="headerlink" title="4.5 [bx+si+idata]和[bx+di+idata]"></a>4.5 [bx+si+idata]和[bx+di+idata]</h3><h4 id="4-5-1-bx-si-idata-和-bx-di-idata-方式指定地址"><a href="#4-5-1-bx-si-idata-和-bx-di-idata-方式指定地址" class="headerlink" title="4.5.1 [bx+si+idata]和[bx+di+idata]方式指定地址"></a>4.5.1 [bx+si+idata]和[bx+di+idata]方式指定地址</h4><ul>
+<li><p>bx+si+idata]表示一个内存单元：偏移地址为(bx)+(si)+idata，即bx中的数值加上si中的数值再加上idata</p>
+</li>
+<li><p>指令mov ax,[bx+si+idata]的含义</p>
+<ul>
+<li>将一个内存单元的内容送入ax</li>
+<li>这个内存单元的长度为2字节（字单元），存放一个字</li>
+<li>偏移地址为bx中的数值加上si中的数值再加上idata，段地址在ds中</li>
+</ul>
+</li>
+<li><p>数学化的描述：(ax)&#x3D;( (ds)*16+(bx)+(si)+idata)</p>
+</li>
+<li><p>指令mov ax,[bx+si+idata]的其他写法</p>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111222724356.png" srcset="/img/loading.gif" lazyload alt="image-20231111222724356" style="zoom:80%;">
+
+<h4 id="4-5-2-应用案例"><a href="#4-5-2-应用案例" class="headerlink" title="4.5.2 应用案例"></a>4.5.2 应用案例</h4><p>内存中数据：2000:1000 BE 00 06 00 00 00 ….</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111222751863.png" srcset="/img/loading.gif" lazyload alt="image-20231111222751863" style="zoom: 60%;">
+
+<p>程序完成以后：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111222821711.png" srcset="/img/loading.gif" lazyload alt="image-20231111222821711" style="zoom: 50%;">
+
+<h3 id="4-6-不同的寻址方式的灵活应用"><a href="#4-6-不同的寻址方式的灵活应用" class="headerlink" title="4.6 不同的寻址方式的灵活应用"></a>4.6 不同的寻址方式的灵活应用</h3><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225708887.png" srcset="/img/loading.gif" lazyload alt="image-20231111225708887" style="zoom:80%;">
+
+<h4 id="4-6-1-案例1：头一个字母改为大写字母"><a href="#4-6-1-案例1：头一个字母改为大写字母" class="headerlink" title="4.6.1 案例1：头一个字母改为大写字母"></a>4.6.1 案例1：头一个字母改为大写字母</h4><p><strong>问题：</strong>编程将datasg段中每个单词的头一个字母改为大写字母。</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225811584.png" srcset="/img/loading.gif" lazyload alt="image-20231111225811584" style="zoom:80%;">
+
+<p>思路：使用[bx+data]的方式，因为每个单词的相对地址都是固定的，只是基址（第一行、第二行…）需要换</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225829214.png" srcset="/img/loading.gif" lazyload alt="image-20231111225829214" style="zoom:67%;">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs asm">    mov ax,datasg<br>    mov ds,ax<br><br>    mov bx,0<br>    mov cx,6<br>s:  mov al,[bx+3]<br>	and al,11011111b<br>	mov [bx+3],al<br>	add bx,16<br>	loop s<br></code></pre></td></tr></table></figure>
+
+<h4 id="4-6-2-案例2：双重循环处理"><a href="#4-6-2-案例2：双重循环处理" class="headerlink" title="4.6.2 案例2：双重循环处理"></a>4.6.2 案例2：双重循环处理</h4><p><strong>问题：</strong>编程将datasg段中每个单词改为大写字母。</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230125070.png" srcset="/img/loading.gif" lazyload alt="image-20231111230125070" style="zoom:67%;">
+
+<p><strong>问题抽象：</strong></p>
+<ul>
+<li>4个字符串，看成一个4行16列的二维数组</li>
+<li>要修改二维数据的每一行的前3列</li>
+<li>构造4×3的二重数组</li>
+</ul>
+<p><strong>思路：</strong></p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230234039.png" srcset="/img/loading.gif" lazyload alt="image-20231111230234039" style="zoom:80%;">
+
+<p><strong>方案0：</strong></p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230243711.png" srcset="/img/loading.gif" lazyload alt="image-20231111230243711" style="zoom:67%;">
+
+<blockquote>
+<p>当第一个循环处理完了，此时cx为0，则外层循环不会执行</p>
+</blockquote>
+<p><strong>方法1：</strong></p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230328737.png" srcset="/img/loading.gif" lazyload alt="image-20231111230328737" style="zoom:50%;">
+
+<p><strong>方法2：</strong></p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230350736.png" srcset="/img/loading.gif" lazyload alt="image-20231111230350736" style="zoom: 50%;">
+
+<p>🎆 <strong>方法3：（推荐）</strong>，前面的其他解法需要设置中间介质存储，当出现三重循环可能会有问题</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111230422845.png" srcset="/img/loading.gif" lazyload alt="image-20231111230422845" style="zoom: 50%;">
+
+
+
+<h3 id="4-7-不同寻址方式演示"><a href="#4-7-不同寻址方式演示" class="headerlink" title="4.7 不同寻址方式演示"></a>4.7 不同寻址方式演示</h3><h4 id="4-7-1-直接寻址过程"><a href="#4-7-1-直接寻址过程" class="headerlink" title="4.7.1 直接寻址过程"></a>4.7.1 直接寻址过程</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/直接寻址过程.gif" srcset="/img/loading.gif" lazyload alt="image-20231111222821711" style="zoom:50%;">
+
+<h4 id="4-7-2-简接寻址过程"><a href="#4-7-2-简接寻址过程" class="headerlink" title="4.7.2 简接寻址过程"></a>4.7.2 简接寻址过程</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/间接寻址过程.gif" srcset="/img/loading.gif" lazyload alt="image-20231111222821711" style="zoom:50%;">
+
+<h4 id="4-7-3-相对寻址过程"><a href="#4-7-3-相对寻址过程" class="headerlink" title="4.7.3 相对寻址过程"></a>4.7.3 相对寻址过程</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/相对寻址过程.gif" srcset="/img/loading.gif" lazyload alt="image-20231111222821711" style="zoom:50%;">
+
+<h4 id="4-7-4-基址变址寻址过程"><a href="#4-7-4-基址变址寻址过程" class="headerlink" title="4.7.4 基址变址寻址过程"></a>4.7.4 基址变址寻址过程</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/基址变址寻址过程.gif" srcset="/img/loading.gif" lazyload alt="image-20231111222821711" style="zoom:50%;">
+
+<h4 id="4-7-5-相对基址变址寻址过程"><a href="#4-7-5-相对基址变址寻址过程" class="headerlink" title="4.7.5 相对基址变址寻址过程"></a>4.7.5 相对基址变址寻址过程</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/相对基址变址寻址过程.gif" srcset="/img/loading.gif" lazyload alt="image-20231111222821711" style="zoom:50%;">
+
+<blockquote>
+<p>这里有个小小的错误，地址加法器中应该是 ds*16 + bx + si + 1，动画中少了加1，但最终的要找的内存单元是对的</p>
+</blockquote>
+<h3 id="4-8-bp寄存器"><a href="#4-8-bp寄存器" class="headerlink" title="4.8 bp寄存器"></a>4.8 bp寄存器</h3><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111224722444.png" srcset="/img/loading.gif" lazyload alt="image-20231111224722444" style="zoom:80%;">
+
+<blockquote>
+<p>注意：bx默认的基址是ds段，bp默认指ss段</p>
+</blockquote>
+<h3 id="4-9-数组在哪里，有多长？"><a href="#4-9-数组在哪里，有多长？" class="headerlink" title="4.9 数组在哪里，有多长？"></a>4.9 数组在哪里，有多长？</h3><h4 id="4-9-1-汇编语言中数据位置的表达"><a href="#4-9-1-汇编语言中数据位置的表达" class="headerlink" title="4.9.1 汇编语言中数据位置的表达"></a>4.9.1 汇编语言中数据位置的表达</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111224937285.png" srcset="/img/loading.gif" lazyload alt="image-20231111224937285" style="zoom: 67%;">
+
+<h4 id="4-9-2-指令要处理的数据有多长？"><a href="#4-9-2-指令要处理的数据有多长？" class="headerlink" title="4.9.2 指令要处理的数据有多长？"></a>4.9.2 指令要处理的数据有多长？</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225006820.png" srcset="/img/loading.gif" lazyload alt="image-20231111225006820" style="zoom: 67%;">
+
+<h3 id="4-10-寻址方式的综合应用"><a href="#4-10-寻址方式的综合应用" class="headerlink" title="4.10 寻址方式的综合应用"></a>4.10 寻址方式的综合应用</h3><h4 id="4-10-1-应用问题"><a href="#4-10-1-应用问题" class="headerlink" title="4.10.1 应用问题"></a>4.10.1 应用问题</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225123350.png" srcset="/img/loading.gif" lazyload alt="image-20231111225123350" style="zoom:80%;">
+
+<p>解决方案：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs asm">mov ax,seg<br>mov ds,ax<br>mov bx,60h<br>mov word ptr [bx+0ch],11<br>mov word ptr [bx+0eh],13<br><br>mov si,0<br>mov byte ptr [bx+10h+si],&#x27;H&#x27;<br>inc si<br>mov byte ptr [bx+10h+si],&#x27;O&#x27;<br>inc si<br>mov byte ptr [bx+10h+si],&#x27;U&#x27;<br></code></pre></td></tr></table></figure>
+
+<h4 id="4-10-2-C语言和汇编的处理方式对比"><a href="#4-10-2-C语言和汇编的处理方式对比" class="headerlink" title="4.10.2 C语言和汇编的处理方式对比"></a>4.10.2 C语言和汇编的处理方式对比</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231111225405800.png" srcset="/img/loading.gif" lazyload alt="image-20231111225405800" style="zoom: 50%;">
+
+<h3 id="4-11-用div指令实现除法"><a href="#4-11-用div指令实现除法" class="headerlink" title="4.11 用div指令实现除法"></a>4.11 用div指令实现除法</h3><h4 id="4-11-1-div指令"><a href="#4-11-1-div指令" class="headerlink" title="4.11.1 div指令"></a>4.11.1 div指令</h4><p>div是除法指令，使用div作除法的时候</p>
+<ul>
+<li>被除数：（默认）放在AX或DX和AX中</li>
+<li>除数：8位或16位，在寄存器或内存单元中</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112204734926.png" srcset="/img/loading.gif" lazyload alt="image-20231112204734926" style="zoom:80%;">
+
+<blockquote>
+<p>如果除数是8位内存或寄存器，则被除数处于AX中</p>
+<p>如果除数是16位内存或寄存器，则被除数位于DX和AX中</p>
+</blockquote>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112204842121.png" srcset="/img/loading.gif" lazyload alt="image-20231112204842121" style="zoom:67%;">
+
+<h4 id="4-11-2-div指令示例"><a href="#4-11-2-div指令示例" class="headerlink" title="4.11.2 div指令示例"></a>4.11.2 div指令示例</h4><p>编程：利用除法指令计算 100001&#x2F;100</p>
+<ul>
+<li>100001D&#x3D;186A1H</li>
+<li>需要进行16位的除法</li>
+<li>用dx和ax两个寄存器联合存放186A1H</li>
+<li>用bx存放除数100D&#x3D;64H</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112205034655.png" srcset="/img/loading.gif" lazyload alt="image-20231112205034655" style="zoom: 50%;">
+
+<p>编程：利用除法指令计算 1001&#x2F;100</p>
+<ul>
+<li>进行8除法即可</li>
+<li>在ax寄存器存放被除数3E9H</li>
+<li>用bx存放除数100D&#x3D;64H</li>
+</ul>
+<h4 id="4-11-3-在内存单元中实施除法"><a href="#4-11-3-在内存单元中实施除法" class="headerlink" title="4.11.3 在内存单元中实施除法"></a>4.11.3 在内存单元中实施除法</h4><ul>
+<li>双字型数据的定义(例示)</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112205224931.png" srcset="/img/loading.gif" lazyload alt="image-20231112205224931" style="zoom:60%;">
+
+<p>例：用div 计算data段中第一个数据除以第二个数据后的结果，商存放在第3个数据的存储单元中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs asm">data segment<br>	dd 100001<br>	dw 100<br>	dw 0<br>data ends<br>code segment<br>	mov ax,data<br>	mov ds,ax<br>	mov ax,ds:[0]<br>	mov dx,ds:[2]<br>	div word ptr ds:[4]<br>	mov ds:[6],ax<br>code ends<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-12-用dup设置内存空间"><a href="#4-12-用dup设置内存空间" class="headerlink" title="4.12 用dup设置内存空间"></a>4.12 用dup设置内存空间</h3><h4 id="4-12-1-dup功能和用法"><a href="#4-12-1-dup功能和用法" class="headerlink" title="4.12.1 dup功能和用法"></a>4.12.1 dup功能和用法</h4><p>功能：dup和db、dw、dd 等数据定义伪指令配合使用，用来进行数据的重复。</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112205458273.png" srcset="/img/loading.gif" lazyload alt="image-20231112205458273" style="zoom: 67%;">
+
+<p>dup的使用格式：</p>
+<ul>
+<li>db重复的次数dup（重复的字节型数据）</li>
+<li>dw重复的次数dup（重复的字型数据）</li>
+<li>dd重复的次数dup（重复的双子数据）</li>
+</ul>
+<h4 id="4-12-2-dup用途"><a href="#4-12-2-dup用途" class="headerlink" title="4.12.2 dup用途"></a>4.12.2 dup用途</h4><p>示例：定义一个200字节的栈段</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112205624778.png" srcset="/img/loading.gif" lazyload alt="image-20231112205624778" style="zoom:67%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231112205630893.png" srcset="/img/loading.gif" lazyload alt="image-20231112205630893" style="zoom:67%;">
+
+<h2 id="5-流程转移与子程序"><a href="#5-流程转移与子程序" class="headerlink" title="5.流程转移与子程序"></a>5.流程转移与子程序</h2><h3 id="5-1-操作符offset"><a href="#5-1-操作符offset" class="headerlink" title="5.1 操作符offset"></a>5.1 操作符offset</h3><h4 id="5-1-1-用操作符offset取得标号的偏移地址"><a href="#5-1-1-用操作符offset取得标号的偏移地址" class="headerlink" title="5.1.1 用操作符offset取得标号的偏移地址"></a>5.1.1 用操作符offset取得标号的偏移地址</h4><p><strong>格式：</strong>offset 标号</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:codeseg<br>codeseg segment<br>start:  mov ax,offset start   ; 相当于mov ax,0<br>    s:  mov ax,offset s       ; 相当于mov ax,3<br>codeseg ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115225802336.png" srcset="/img/loading.gif" lazyload alt="image-20231115225802336" style="zoom: 50%;">
+
+<h4 id="5-1-2-练习"><a href="#5-1-2-练习" class="headerlink" title="5.1.2 练习"></a>5.1.2 练习</h4><p><strong>问题：</strong>有如下程序段，添写2条指令，使该程序在运行中将s处的一条指令复制到s0处。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:codesg<br>codesg segment<br>	s:  mov ax,bx<br>	    mov si,offset s<br>	    mov di,offset s0<br>	    mov ax,cs:[si]<br>	    mov cs:[di],ax<br>	s0: nop<br>		nop<br>codeseg ends<br>ends  ;nop的机器码占一个字节，起“占位”作用<br></code></pre></td></tr></table></figure>
+
+<p><strong>分析：</strong></p>
+<ul>
+<li>s和s0处的指令所在的内存单元的地址是多少？<ul>
+<li>cs:offset s 和cs:offset s0</li>
+</ul>
+</li>
+<li>将s处的指令复制到s0处，就是________<ul>
+<li>就是将cs:offset s 处的数据复制到cs:offset s0处</li>
+</ul>
+</li>
+<li>地址如何表示？<ul>
+<li>段地址已知在cs中，偏移地址已经送入si和di中</li>
+</ul>
+</li>
+<li>要复制的数据有多长？<ul>
+<li>mov ax,bx指令的长度为两个字节，即1个字。</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-2-jmp指令"><a href="#5-2-jmp指令" class="headerlink" title="5.2 jmp指令"></a>5.2 jmp指令</h3><h4 id="5-2-1-jmp指令——无条件转移"><a href="#5-2-1-jmp指令——无条件转移" class="headerlink" title="5.2.1 jmp指令——无条件转移"></a>5.2.1 jmp指令——无条件转移</h4><p><strong>jmp指令的功能：</strong>无条件转移，可以只修改IP，也可以同时修改CS和IP</p>
+<p>jmp指令要给出两种信息：</p>
+<ul>
+<li>转移的目的地址</li>
+<li>转移的距离<ul>
+<li>段间转移（远转移）： jmp 2000:1000</li>
+<li>段内短转移： jmp short 标号 ; IP的修改范围为 -128~127，8位的位移</li>
+<li>段内近转移： jmp near ptr 标号 ; IP的修改范围为 -32768~32767，16位的位移</li>
+</ul>
+</li>
+</ul>
+<h4 id="5-2-2-jmp指令：依据位移进行转移"><a href="#5-2-2-jmp指令：依据位移进行转移" class="headerlink" title="5.2.2 jmp指令：依据位移进行转移"></a>5.2.2 jmp指令：依据位移进行转移</h4><p><strong>引子：</strong>常见指令中的立即数均在机器指令中有体现</p>
+<p><strong>问题：</strong>jmp short 指令中，转移到了哪里？</p>
+<blockquote>
+<p>jmp short 的机器指令中，包含的是跳转到指令的相对位置，而不是转移的目标地址。</p>
+</blockquote>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230436427.png" srcset="/img/loading.gif" lazyload alt="image-20231115230436427" style="zoom:50%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230444733.png" srcset="/img/loading.gif" lazyload alt="image-20231115230444733" style="zoom:50%;">
+
+<p>第一个程序jmp short s指令的读取和执行：</p>
+<p>（1）(IP)&#x3D;0003，CS:IP指向EB 05(jmp 的机器码)</p>
+<p>（2）读取指令码EB 05进入指令缓冲器；</p>
+<p>（3）(IP)&#x3D;(IP)+所读取指令的长度&#x3D;(IP)+2&#x3D;0005，CS:IP指向add ax, 0001；</p>
+<p>（4）CPU执行指令缓冲器中的指令EB05；</p>
+<p>（5）指令EB <strong>05</strong>执行后，(IP)&#x3D;(IP)+<strong>05</strong>&#x3D;000AH，CS:IP指向inc ax</p>
+<h4 id="5-2-3-两种段内转移"><a href="#5-2-3-两种段内转移" class="headerlink" title="5.2.3 两种段内转移"></a>5.2.3 两种段内转移</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230820219.png" srcset="/img/loading.gif" lazyload alt="image-20231115230820219" style="zoom:50%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230831757.png" srcset="/img/loading.gif" lazyload alt="image-20231115230831757" style="zoom: 50%;">
+
+<h4 id="5-2-4-远转移：jmp-far-ptr-标号"><a href="#5-2-4-远转移：jmp-far-ptr-标号" class="headerlink" title="5.2.4 远转移：jmp far ptr 标号"></a>5.2.4 远转移：jmp far ptr 标号</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230909267.png" srcset="/img/loading.gif" lazyload alt="image-20231115230909267" style="zoom:80%;">
+
+<h4 id="5-2-5-转移地址在寄存器中的jmp指令"><a href="#5-2-5-转移地址在寄存器中的jmp指令" class="headerlink" title="5.2.5 转移地址在寄存器中的jmp指令"></a>5.2.5 转移地址在寄存器中的jmp指令</h4><p>指令格式：jmp 16位寄存器</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115230953946.png" srcset="/img/loading.gif" lazyload alt="image-20231115230953946" style="zoom:67%;">
+
+<h4 id="5-2-6-转移地址在内存中的jmp指令"><a href="#5-2-6-转移地址在内存中的jmp指令" class="headerlink" title="5.2.6 转移地址在内存中的jmp指令"></a>5.2.6 转移地址在内存中的jmp指令</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115231012570.png" srcset="/img/loading.gif" lazyload alt="image-20231115231012570" style="zoom:67%;">
+
+<h4 id="5-2-7-jmp指令小结"><a href="#5-2-7-jmp指令小结" class="headerlink" title="5.2.7 jmp指令小结"></a>5.2.7 jmp指令小结</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231115231033431.png" srcset="/img/loading.gif" lazyload alt="image-20231115231033431" style="zoom:67%;">
+
+<h3 id="5-3-call指令和ret指令"><a href="#5-3-call指令和ret指令" class="headerlink" title="5.3 call指令和ret指令"></a>5.3 call指令和ret指令</h3><h4 id="5-3-1-call指令"><a href="#5-3-1-call指令" class="headerlink" title="5.3.1 call指令"></a>5.3.1 call指令</h4><p>字面意思：调用子程序</p>
+<p>实质：流程转移（call指令实现转移的方法和 jmp 指令的原理相似）</p>
+<p>格式：call 标号</p>
+<p><strong>CPU执行call指令，进行两步操作：</strong></p>
+<ul>
+<li>将当前的IP 或 CS和IP 压入栈中</li>
+<li>转移到标号处执行指令</li>
+</ul>
+<p><strong>call标号：</strong></p>
+<ul>
+<li>16位位移&#x3D; “标号”处的地址－call指令后的第一个字节的地址；</li>
+<li>16位位移的范围为 -32768~32767，用补码表示；</li>
+<li>16位位移由编译程序在编译时算出。</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232508424.png" srcset="/img/loading.gif" lazyload alt="image-20231121232508424" style="zoom:80%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232516058.png" srcset="/img/loading.gif" lazyload alt="image-20231121232516058" style="zoom:80%;">
+
+<h4 id="5-3-2-指令”call-far-ptr标号”实现的是段间转移"><a href="#5-3-2-指令”call-far-ptr标号”实现的是段间转移" class="headerlink" title="5.3.2 指令”call far ptr标号”实现的是段间转移"></a>5.3.2 指令”call far ptr标号”实现的是段间转移</h4><p>CPU执行“ call far ptr 标号”时的操作</p>
+<blockquote>
+<p>(sp) &#x3D; (sp) – 2</p>
+<p>((ss) ×16+(sp)) &#x3D; (CS)</p>
+<p>(sp) &#x3D; (sp) – 2</p>
+<p>((ss) ×16+(sp)) &#x3D; (IP)</p>
+<ul>
+<li>(CS) &#x3D; 标号所在的段地址</li>
+<li>(IP) &#x3D; 标号所在的偏移地址</li>
+</ul>
+</blockquote>
+<p>“ call far ptr 标号” 相当于</p>
+<blockquote>
+<p>push CS</p>
+<p>push IP</p>
+<p>jmp far ptr 标号</p>
+</blockquote>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232759181.png" srcset="/img/loading.gif" lazyload alt="image-20231121232759181" style="zoom: 50%;">
+
+<h4 id="5-3-3-转移地址在寄存器中的call指令"><a href="#5-3-3-转移地址在寄存器中的call指令" class="headerlink" title="5.3.3 转移地址在寄存器中的call指令"></a>5.3.3 转移地址在寄存器中的call指令</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232833839.png" srcset="/img/loading.gif" lazyload alt="image-20231121232833839" style="zoom:80%;">
+
+<h4 id="5-3-4-转移指令在内存中的call指令"><a href="#5-3-4-转移指令在内存中的call指令" class="headerlink" title="5.3.4 转移指令在内存中的call指令"></a>5.3.4 转移指令在内存中的call指令</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232900240.png" srcset="/img/loading.gif" lazyload alt="image-20231121232900240" style="zoom: 67%;">
+
+<h4 id="5-3-5-返回指令：ret和retf"><a href="#5-3-5-返回指令：ret和retf" class="headerlink" title="5.3.5 返回指令：ret和retf"></a>5.3.5 返回指令：ret和retf</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121232939435.png" srcset="/img/loading.gif" lazyload alt="image-20231121232939435" style="zoom:67%;">
+
+<h3 id="5-4-call和ret的配合使用"><a href="#5-4-call和ret的配合使用" class="headerlink" title="5.4 call和ret的配合使用"></a>5.4 call和ret的配合使用</h3><h4 id="5-4-1-具有子程序的源程序的框架"><a href="#5-4-1-具有子程序的源程序的框架" class="headerlink" title="5.4.1 具有子程序的源程序的框架"></a>5.4.1 具有子程序的源程序的框架</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233111259.png" srcset="/img/loading.gif" lazyload alt="image-20231121233111259" style="zoom:67%;">
+
+<h4 id="5-4-2-call和ret的配合使用"><a href="#5-4-2-call和ret的配合使用" class="headerlink" title="5.4.2 call和ret的配合使用"></a>5.4.2 call和ret的配合使用</h4><p>例：计算2的N次方，计算前，N的值由CX提供</p>
+<blockquote>
+<p>提示：这个程序没有栈段，是比较危险的</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code<br>code segment<br>start: mov ax,1<br>	   mov cx,3<br>	   call s<br>	   mov bx,ax<br>	   mov ax,4c00h<br>	   int 21h<br>	s: add ax,ax<br>	   loop s<br>	   ret<br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<p>debug结果：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233449096.png" srcset="/img/loading.gif" lazyload alt="image-20231121233449096" style="zoom:67%;">
+
+<p>单步调试结果：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233515697.png" srcset="/img/loading.gif" lazyload alt="image-20231121233515697" style="zoom:67%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233532438.png" srcset="/img/loading.gif" lazyload alt="image-20231121233532438" style="zoom:67%;">
+
+<h4 id="5-4-3-为call和ret指令设置栈"><a href="#5-4-3-为call和ret指令设置栈" class="headerlink" title="5.4.3 为call和ret指令设置栈"></a>5.4.3 为call和ret指令设置栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code, ss:stack<br>stack segment<br>	   db 8 dup(0)<br>	   db 8 dup(0)<br>stack ends<br>code segment<br>start: mov ax,1<br>	   mov cx,3<br>	   call s<br>	   mov bx,ax<br>	   mov ax,4c00h<br>	   int 21h<br>	s: add ax,ax<br>	   loop s<br>	   ret<br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20231121233751028.png" srcset="/img/loading.gif" lazyload alt="image-20231121233751028" style="zoom: 67%;">
+
+<h3 id="5-5-mul指令"><a href="#5-5-mul指令" class="headerlink" title="5.5 mul指令"></a>5.5 mul指令</h3><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303183904011.png" srcset="/img/loading.gif" lazyload alt="image-20240303183904011" style="zoom: 67%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303183919422.png" srcset="/img/loading.gif" lazyload alt="image-20240303183919422" style="zoom:67%;">
+
+<h3 id="5-6-汇编语言的模块化程序设计"><a href="#5-6-汇编语言的模块化程序设计" class="headerlink" title="5.6 汇编语言的模块化程序设计"></a>5.6 汇编语言的模块化程序设计</h3><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303184058864.png" srcset="/img/loading.gif" lazyload alt="image-20240303184058864" style="zoom:80%;">
+
+<p>模块化调用路径：main -&gt; sub1 -&gt; sub2</p>
+<blockquote>
+<p>调用子程序：call指令</p>
+<p>返回：ret指令</p>
+<p>子程序：根据提供的参数处理一定的事务，处理后，将结果（返回值）提供给调用者</p>
+</blockquote>
+<h4 id="5-6-1-参数和结果的传递的问题"><a href="#5-6-1-参数和结果的传递的问题" class="headerlink" title="5.6.1 参数和结果的传递的问题"></a>5.6.1 参数和结果的传递的问题</h4><p>问题：根据提供的N，计算N的3次方</p>
+<p>考虑：（1）我们将参数N存储在什么地方？（2）计算得到的数值，存储在什么地方？</p>
+<p>方案：（1）用寄存器传递参数（2）用内存单元进行参数传递（3）用栈传递参数</p>
+<p>C语言的代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">cube</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span><br>&#123;<br>    <span class="hljs-type">int</span> f;<br>    f = x * x;<br>    f = f * x;<br>    <span class="hljs-keyword">return</span> f;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d\n&quot;</span>, cube(<span class="hljs-number">2</span>));<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="5-6-2-用寄存器来存储参数和结果是最常使用的方法"><a href="#5-6-2-用寄存器来存储参数和结果是最常使用的方法" class="headerlink" title="5.6.2 用寄存器来存储参数和结果是最常使用的方法"></a>5.6.2 用寄存器来存储参数和结果是最常使用的方法</h4><p>用寄存器传递参数：</p>
+<ul>
+<li>参数放到bx中，即(bx)&#x3D;x</li>
+<li>子程序中用到多个mul指令计算N^3</li>
+<li>将结果放到dx和ax中：(dx:ax)&#x3D;N^3</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code<br>data segment<br>	dw 1,2,3,4,5,6,7,8<br>	dd 0,0,0,0,0,0,0,0<br>data ends<br>code segment<br>start: 	mov ax,data<br>		mov ds,ax<br>		mov si,0<br>		mov di,16<br>		mov cx,8<br>	s:  mov bx,[si]<br>		call cube<br>		mov [di],ax<br>		mov [di].2,ax<br>		add si,2<br>		add di,4<br>		loop s<br>		<br>		mov ax,4c00h<br>		int 21h<br>		<br> cube:  mov ax,bx<br>		mul bx<br>		mul bx<br>		ret<br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<p>结果如下：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303185212685.png" srcset="/img/loading.gif" lazyload alt="image-20240303185212685" style="zoom: 67%;">
+
+<h4 id="5-6-3-用内存单元批量传递数据"><a href="#5-6-3-用内存单元批量传递数据" class="headerlink" title="5.6.3 用内存单元批量传递数据"></a>5.6.3 用内存单元批量传递数据</h4><p>方案：</p>
+<ul>
+<li>将数据放到内存中，然后将它们放到内存空间的首地址放在寄存器中，传递给需要的子程序</li>
+<li>对于具有批量数据的返回结果，也可用同样的方法</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:cdoe<br>data segment<br>	db &#x27;conversation&#x27;<br>data ends<br>code segment<br>start: 	  mov ax,data<br>		  mov ds,ax<br>		  mov si,0<br>		  mov cx,12<br>		  call capital<br>		  mov ax,4c00h<br>		  int 21h<br>capital:  and bypte ptr [si],11011111b<br>		  inc si<br>		  loop capital<br>		  ret<br><br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<p>将所有的小写字母改成大写字母后结果如下：</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303185939593.png" srcset="/img/loading.gif" lazyload alt="image-20240303185939593" style="zoom:67%;">
+
+<h4 id="5-6-4-用栈传递参数"><a href="#5-6-4-用栈传递参数" class="headerlink" title="5.6.4 用栈传递参数"></a>5.6.4 用栈传递参数</h4><p>原理：由调用者将需要传递给子程序的参数压入栈中，子程序从栈中取得参数</p>
+<p>任务：计算 (a - b) ^ 3，a、b为word型数据</p>
+<p>（1）进入子程序前，参数a、b入栈</p>
+<p>（2）调用子程序，将使栈顶存放IP</p>
+<p>（3）结果：(dx:ax)&#x3D;(a-b)^3</p>
+<p>例：设 a &#x3D; 3 、b &#x3D; 1 ，计算：( a – b ) ^ 3</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303214615586.png" srcset="/img/loading.gif" lazyload alt="image-20240303214615586" style="zoom: 80%;">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs asm">difcute: push bp<br>		 mov bp,sp<br>		 mov ax,[bp+4]<br>		 sub ax,[bp+6]<br>		 mov bp,ax<br>		 mul bp<br>		 mul bp<br>		 pop bp<br>		 ret 4<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303214741610.png" srcset="/img/loading.gif" lazyload alt="image-20240303214741610" style="zoom: 50%;">
+
+<p>Q1：为什么这里需要寄存器bp？寄存器bp的值有没有被改动？</p>
+<p>A1： <code>push bp</code> 是将bp中的内容送入SS:SP指向的内存单元中，此时这个内存单元就会保存bp的旧值，然后SS:SP指向新栈顶。最后<code>pop bp</code>的时候会把这个内存单元的值重新赋值到bp寄存器里面。</p>
+<p>A2：为什么要使用bp寄存器，前面的内容提到过，bp寄存器默认是SS段的(stack segment)，用它来做偏移地址，很方便。</p>
+<h3 id="5-7-寄存器冲突问题"><a href="#5-7-寄存器冲突问题" class="headerlink" title="5.7 寄存器冲突问题"></a>5.7 寄存器冲突问题</h3><h4 id="5-7-1-问题引入"><a href="#5-7-1-问题引入" class="headerlink" title="5.7.1 问题引入"></a>5.7.1 问题引入</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303225236381.png" srcset="/img/loading.gif" lazyload alt="image-20240303225236381" style="zoom:67%;">
+
+<p>这里cx既可以用于循环，又用于读取数据，最后cx&#x3D;0的时候返回上面的s区域，此时再去loop s，对cx-1，此时cx会越界成FFFF</p>
+<h4 id="5-7-2-寄存器冲突问题的解决"><a href="#5-7-2-寄存器冲突问题的解决" class="headerlink" title="5.7.2 寄存器冲突问题的解决"></a>5.7.2 寄存器冲突问题的解决</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303225415284.png" srcset="/img/loading.gif" lazyload alt="image-20240303225415284" style="zoom:80%;">
+
+<h4 id="5-7-3-寄存器冲突问题的解决示例"><a href="#5-7-3-寄存器冲突问题的解决示例" class="headerlink" title="5.7.3 寄存器冲突问题的解决示例"></a>5.7.3 寄存器冲突问题的解决示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code<br>data segment<br>	db &#x27;word&#x27;0<br>	db &#x27;unix&#x27;0<br>	db &#x27;wind&#x27;0<br>	db &#x27;good&#x27;0<br>data ends<br><br>code segment<br>start:   mov ax,data<br>		 mov ds,ax<br>		 mov bx,0<br>		 mov cx,4<br>	s:   mov si,bx<br>		 call capital<br>		 add bx,5<br>		 loop s<br>		 mov ax,4c00h<br>		 int 21h<br>capital: push cx<br>		 push si<br>change:  mov cl,[si]<br>		 mov ch,0<br>		 jcxz ok<br>		 and byte ptr [si],11011111<br>		 inc si<br>		 jmp short change<br>	ok:  pop si<br>		 pop cx<br>		 ret<br><br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240303230013763.png" srcset="/img/loading.gif" lazyload alt="image-20240303230013763" style="zoom:80%;">
+
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/struggle_w/article/details/123221670">https://blog.csdn.net/struggle_w/article/details/123221670</a></p>
+<h3 id="5-8-标志寄存器"><a href="#5-8-标志寄存器" class="headerlink" title="5.8 标志寄存器"></a>5.8 标志寄存器</h3><h4 id="5-8-1-认识标志寄存器的特殊之处"><a href="#5-8-1-认识标志寄存器的特殊之处" class="headerlink" title="5.8.1 认识标志寄存器的特殊之处"></a>5.8.1 认识标志寄存器的特殊之处</h4><ul>
+<li>标志寄存器的结构<ul>
+<li>flag寄存器是按位起作用的，也就是说，它的每一位都有专门的含义，记录特定的信息</li>
+<li>8086CPU中没有使用flag的1、3、5、12、13、14、15位，这些位不具有任何含义</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231430845.png" srcset="/img/loading.gif" lazyload alt="image-20240304231430845" style="zoom:67%;">
+
+<ul>
+<li><p>标志寄存器的作用</p>
+<ul>
+<li>用来存储相关指令的某些执行结果</li>
+<li>用来为CPU执行相关指令提供行为依据</li>
+<li>用来控制CPU的相关工作方式</li>
+</ul>
+</li>
+<li><p>直接访问标志寄存器的方法</p>
+<ul>
+<li>pushf ：将标志寄存器的值压栈</li>
+<li>popf ：从栈中弹出数据，送入标志寄存器中</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231442019.png" srcset="/img/loading.gif" lazyload alt="image-20240304231442019" style="zoom:80%;">
+
+<h4 id="5-8-2-ZF-零标志-Zero-Flag"><a href="#5-8-2-ZF-零标志-Zero-Flag" class="headerlink" title="5.8.2 ZF-零标志(Zero Flag)"></a>5.8.2 ZF-零标志(Zero Flag)</h4><ul>
+<li>ZF标记相关指令的计算结果是否为 0 <ul>
+<li>ZF&#x3D;1，表示“结果是0 ” ，1表示”逻辑真”</li>
+<li>ZF&#x3D;0，表示“结果不是0” ，0表示“逻辑假”</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231553015.png" srcset="/img/loading.gif" lazyload alt="image-20240304231553015" style="zoom: 67%;">
+
+<h4 id="5-8-3-PF-奇偶标志-Parity-Flag"><a href="#5-8-3-PF-奇偶标志-Parity-Flag" class="headerlink" title="5.8.3 PF-奇偶标志(Parity Flag)"></a>5.8.3 PF-奇偶标志(Parity Flag)</h4><ul>
+<li>PF记录指令执行后，结果的所有二进制位中1的个数：<ul>
+<li>1的个数为偶数，PF &#x3D; 1；</li>
+<li>1的个数为奇数，PF &#x3D; 0;</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231653626.png" srcset="/img/loading.gif" lazyload alt="image-20240304231653626" style="zoom: 67%;">
+
+<h4 id="5-8-4-SF-符号标志-Sign-Flag-【有符号数】"><a href="#5-8-4-SF-符号标志-Sign-Flag-【有符号数】" class="headerlink" title="5.8.4 SF-符号标志(Sign Flag)【有符号数】"></a>5.8.4 SF-符号标志(Sign Flag)【有符号数】</h4><ul>
+<li>SF记录指令执行后，将结果视为有符号数<ul>
+<li>结果为负，SF &#x3D; 1；</li>
+<li>结果为非负，SF &#x3D; 0；</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231752734.png" srcset="/img/loading.gif" lazyload alt="image-20240304231752734" style="zoom:67%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231820589.png" srcset="/img/loading.gif" lazyload alt="image-20240304231820589" style="zoom:80%;">
+
+<h4 id="5-8-5-CF-进位标志-Carry-Flag"><a href="#5-8-5-CF-进位标志-Carry-Flag" class="headerlink" title="5.8.5 CF-进位标志(Carry Flag)"></a>5.8.5 CF-进位标志(Carry Flag)</h4><ul>
+<li>在进行无符号数运算的时候，CF记录了运 算结果的最高有效位向更高位的进位值， 或从更高位的借位值。<ul>
+<li>CF记录指令执行后，有进位或借位，CF &#x3D; 1；无进位或借位，CF &#x3D; 0</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304231936728.png" srcset="/img/loading.gif" lazyload alt="image-20240304231936728" style="zoom:67%;">
+
+<h4 id="5-8-6-OF-溢出标志-Overflow-Flag-【有符号数】"><a href="#5-8-6-OF-溢出标志-Overflow-Flag-【有符号数】" class="headerlink" title="5.8.6 OF-溢出标志(Overflow Flag)【有符号数】"></a>5.8.6 OF-溢出标志(Overflow Flag)【有符号数】</h4><ul>
+<li>在进行有符号数运算的时候，如结果超过了机器所能表示的范围称为溢出。<ul>
+<li>OF记录有符号数操作指令执行后，有溢出，OF &#x3D; 1；无溢出，OF &#x3D; 0</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304232034695.png" srcset="/img/loading.gif" lazyload alt="image-20240304232034695" style="zoom:80%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240304232043454.png" srcset="/img/loading.gif" lazyload alt="image-20240304232043454" style="zoom:80%;">
+
+<h3 id="5-9-带进（借）位的加减法"><a href="#5-9-带进（借）位的加减法" class="headerlink" title="5.9 带进（借）位的加减法"></a>5.9 带进（借）位的加减法</h3><h4 id="5-9-1-adc-带进位加法指令"><a href="#5-9-1-adc-带进位加法指令" class="headerlink" title="5.9.1 adc - 带进位加法指令"></a>5.9.1 adc - 带进位加法指令</h4><ul>
+<li>adc是带进位加法指令 ，它利用了CF位上记录的进位值。<ul>
+<li>格式：adc 操作对象1,操作对象2</li>
+<li>功能：操作对象1&#x3D;操作对象1+操作对象2+CF</li>
+<li>例：adc ax,bx 实现的功能是：(ax)&#x3D;(ax)+(bx)+CF</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230140896.png" srcset="/img/loading.gif" lazyload alt="image-20240305230140896" style="zoom:80%;">
+
+<h4 id="5-9-2-adc指令应用：大数相加"><a href="#5-9-2-adc指令应用：大数相加" class="headerlink" title="5.9.2 adc指令应用：大数相加"></a>5.9.2 adc指令应用：大数相加</h4><p>问题：8086指令提供add指令，完成8位或16位加法，有更大的数相加时，如何做？例如32位、64位、24位</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230235890.png" srcset="/img/loading.gif" lazyload alt="image-20240305230235890" style="zoom:80%;">
+
+<p>🧸<strong>妙啊，妙啊</strong></p>
+<h4 id="5-9-3-128位数据的相加"><a href="#5-9-3-128位数据的相加" class="headerlink" title="5.9.3 128位数据的相加"></a>5.9.3 128位数据的相加</h4><p><strong>问题：</strong>编写一个子程序，对两个128位数据进行相加。</p>
+<p>名称：add128</p>
+<p>功能：两个逆序存放的128位数据进行相加</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs asm">data segment<br>    dw 0A452H,0A8F5H,78E6H,0A8EH,8B7AH,54F6H,0F04H,671EH<br>    dw 0E71EH,0EF04H,54F6H,8B7AH,0A8EH,78E6H,58F5H,0452H<br>data end<br></code></pre></td></tr></table></figure>
+
+<p>数据为128位，需要8个字单元，由低地址单元到高地址 单元，依次存放由低到高的各个字。</p>
+<p><strong>分析：</strong></p>
+<ul>
+<li>ds:si指向存储第一个数的内存空间</li>
+<li>ds:di指向存储第二个数的内存空间</li>
+<li>运算结果存储在第一个数的存储空间中</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230635245.png" srcset="/img/loading.gif" lazyload alt="image-20240305230635245" style="zoom: 80%;">
+
+<p><strong>Q1：sub ax,ax可否替换为mov ax,0</strong></p>
+<p>A1：不可以 ，sub ax,ax目的是为了清零cf寄存器，为下一次调用子程序做初始化cf</p>
+<p><strong>Q2：两个inc di是否可以替换为add di,2</strong></p>
+<p>A2：不可以，如果di+2后溢出了，会污染cf寄存器</p>
+<h3 id="5-9-4-ssb指令"><a href="#5-9-4-ssb指令" class="headerlink" title="5.9.4 ssb指令"></a>5.9.4 ssb指令</h3><ul>
+<li>sbb：带借位减法指令<ul>
+<li>格式：sbb 操作对象1,操作对象2</li>
+<li>功能：操作对象1&#x3D;操作对象1–操作对象2–CF</li>
+<li>与sub区别：利用CF位上记录的借位值</li>
+<li>比如：sbb ax,b，实现功能： (ax) &#x3D; (ax) – (bx)</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305230944934.png" srcset="/img/loading.gif" lazyload alt="image-20240305230944934" style="zoom: 75%;">
+
+<h3 id="5-10-cmp与条件转移指令"><a href="#5-10-cmp与条件转移指令" class="headerlink" title="5.10 cmp与条件转移指令"></a>5.10 cmp与条件转移指令</h3><h4 id="5-10-1-cmp指令"><a href="#5-10-1-cmp指令" class="headerlink" title="5.10.1 cmp指令"></a>5.10.1 cmp指令</h4><ul>
+<li>cmp指令<ul>
+<li>格式：cmp 操作对象1,操作对</li>
+<li>功能：计算操作对象1–操作对象2</li>
+</ul>
+</li>
+<li>应用：<ul>
+<li>其他相关指令通过识别这些被影响的标志寄存器位来得知比较结果</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>cmp 是比较指令，功能相当于减法指令，只是 不保存结果。</p>
+<p>cmp 指令执行后，将对标志寄存器产生影响。</p>
+</blockquote>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305232631338.png" srcset="/img/loading.gif" lazyload alt="image-20240305232631338" style="zoom:67%;">
+
+<h4 id="5-10-2-无符号数比较与标志位取值"><a href="#5-10-2-无符号数比较与标志位取值" class="headerlink" title="5.10.2 无符号数比较与标志位取值"></a>5.10.2 无符号数比较与标志位取值</h4><p><strong>思路：</strong>通过cmp 指令执行后相关标志位的值，可以看出比较的结果</p>
+<ul>
+<li>指令：cmp ax,b</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305232840562.png" srcset="/img/loading.gif" lazyload alt="image-20240305232840562" style="zoom:80%;">
+
+<h4 id="5-10-3-条件转移指令"><a href="#5-10-3-条件转移指令" class="headerlink" title="5.10.3 条件转移指令"></a>5.10.3 条件转移指令</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305232932548.png" srcset="/img/loading.gif" lazyload alt="image-20240305232932548" style="zoom:67%;">
+
+<h4 id="5-10-4-条件转移指令的使用"><a href="#5-10-4-条件转移指令的使用" class="headerlink" title="5.10.4 条件转移指令的使用"></a>5.10.4 条件转移指令的使用</h4><ul>
+<li>jxxx系列指令和cmp指令配合，构造条件转移指<ul>
+<li>不必再考虑cmp指令对相关标志位的影响和jxxx指令对相关标志位的检测</li>
+<li>可以直接考虑cmp和jxxx指令配合使用时表现出来的逻辑含义</li>
+</ul>
+</li>
+<li>jxxx系列指令和cmp指令配合实现高级语言中if语句的功能</li>
+</ul>
+<p><strong>例1：用汇编语言和C语言实现以下功能：如果(ah)&#x3D;(bh)，则(ah)&#x3D;(ah)+(ah)，否则(ah)&#x3D;(ah)+(bh)</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (a == b) &#123;<br>    a += a;<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>    a += b;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs asm">	cmp ah,bh<br>	je s<br>	add ah,bh<br>	jmp short ok<br>s:  add ah,bh<br>ok: ret<br></code></pre></td></tr></table></figure>
+
+<p><strong>例2：给出下面一组数据：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs asm">data segment<br>	db 8,11,8,1,5,63,38<br>data ends<br></code></pre></td></tr></table></figure>
+
+<p>请编程实现如下统计，用ax保存统计结果</p>
+<p><strong>（1）统计数值为8的字节的个数</strong></p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305233803864.png" srcset="/img/loading.gif" lazyload alt="image-20240305233803864" style="zoom: 80%;">
+
+<p><strong>（2）统计数值大于8的字节的个数</strong></p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305233822669.png" srcset="/img/loading.gif" lazyload alt="image-20240305233822669" style="zoom:80%;">
+
+<p><strong>（3）统计数值小于8的字节的个数</strong></p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305233838883.png" srcset="/img/loading.gif" lazyload alt="image-20240305233838883" style="zoom:80%;">
+
+<h3 id="5-11-DF标志和串传送指令"><a href="#5-11-DF标志和串传送指令" class="headerlink" title="5.11 DF标志和串传送指令"></a>5.11 DF标志和串传送指令</h3><p>编程：将data段中的第一个字符串复制到它后面的空间中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs asm">data segment<br>    db &#x27;Welcome to masm!&#x27;<br>    db 16 dup (0)<br>data ends<br></code></pre></td></tr></table></figure>
+
+<p>以前我们的写法是这样的，现在要用更简洁的写法</p>
+<h4 id="5-11-1-DF标志和串传送指令"><a href="#5-11-1-DF标志和串传送指令" class="headerlink" title="5.11.1 DF标志和串传送指令"></a>5.11.1 DF标志和串传送指令</h4><ul>
+<li>功能<ul>
+<li>在串处理指令中，控制每次操作后si，di的增减。</li>
+<li>DF &#x3D; 0：每次操作后si，di递增；</li>
+<li>DF &#x3D; 1：每次操作后si，di递减。</li>
+</ul>
+</li>
+<li>对DF位进行设置的指令：<ul>
+<li>cld指令：将标志寄存器的DF位设为0(clear)</li>
+<li>std指令：将标志寄存器的DF位设为1(setup)</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305235352330.png" srcset="/img/loading.gif" lazyload alt="image-20240305235352330" style="zoom:67%;">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs asm">data segment<br>    db &#x27;Welcome to masm!&#x27;<br>    db 16 dup (0)<br>data ends<br><br>code segment<br>start: 	mov ax,data<br>		mov ds,ax<br>		mov si,0<br>		mov es,ax<br>		mov di,16<br>		cld<br>		mov cx,16<br>	s:	movsb<br>		loops<br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<h4 id="5-11-2-rep指令"><a href="#5-11-2-rep指令" class="headerlink" title="5.11.2 rep指令"></a>5.11.2 rep指令</h4><ul>
+<li>rep指令常和串传送指令搭配使用</li>
+<li>功能：根据cx的值，重复执行后面的指令</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305235614090.png" srcset="/img/loading.gif" lazyload alt="image-20240305235614090" style="zoom:80%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240305235622143.png" srcset="/img/loading.gif" lazyload alt="image-20240305235622143" style="zoom:80%;">
+
+<h2 id="6-中断及外部设备从操作"><a href="#6-中断及外部设备从操作" class="headerlink" title="6.中断及外部设备从操作"></a>6.中断及外部设备从操作</h2><h3 id="6-1-移位指令"><a href="#6-1-移位指令" class="headerlink" title="6.1 移位指令"></a>6.1 移位指令</h3><h4 id="6-1-1-移位指令"><a href="#6-1-1-移位指令" class="headerlink" title="6.1.1 移位指令"></a>6.1.1 移位指令</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307230827387.png" srcset="/img/loading.gif" lazyload alt="image-20240307230827387" style="zoom: 67%;">
+
+<h4 id="6-1-2-逻辑移位指令shl和shr"><a href="#6-1-2-逻辑移位指令shl和shr" class="headerlink" title="6.1.2 逻辑移位指令shl和shr"></a>6.1.2 逻辑移位指令shl和shr</h4><ul>
+<li><p>SHL OPR, CNT，将OPR逻辑左移CNT位</p>
+<ul>
+<li>将寄存器或内存单元中的数据向左移位</li>
+<li>将最后移出的一位写入CF中</li>
+<li>最低位用0补充</li>
+</ul>
+</li>
+<li><p>shl指令操作实例</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs asm">mov al,01010001b<br>mov cl,3<br>shl al,cl<br></code></pre></td></tr></table></figure>
+
+<p>结果：(al)&#x3D;10001000b  CF&#x3D;0</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231027733.png" srcset="/img/loading.gif" lazyload alt="image-20240307231027733" style="zoom:80%;">
+
+<p>左移3次之后，最后一位位0，所以CF&#x3D;0</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231054757.png" srcset="/img/loading.gif" lazyload alt="image-20240307231054757" style="zoom:67%;">
+
+<h3 id="6-2-操作显存数据"><a href="#6-2-操作显存数据" class="headerlink" title="6.2 操作显存数据"></a>6.2 操作显存数据</h3><h4 id="6-2-1-显示的原理"><a href="#6-2-1-显示的原理" class="headerlink" title="6.2.1 显示的原理"></a>6.2.1 显示的原理</h4><p><strong>屏幕上的内容&#x3D;显存中的数据</strong></p>
+<ul>
+<li>🧸对于8086CPU，显存地址空间为0x<strong>B8000h~0xBFFFF</strong>，共32K的空间，是80*25彩色字符模式第0页的显示缓冲区</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231508991.png" srcset="/img/loading.gif" lazyload alt="image-20240307231508991" style="zoom:67%;">
+
+<h4 id="6-2-2-显示缓冲区的结构"><a href="#6-2-2-显示缓冲区的结构" class="headerlink" title="6.2.2 显示缓冲区的结构"></a>6.2.2 显示缓冲区的结构</h4><p>80*25彩色字符模式</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231548037.png" srcset="/img/loading.gif" lazyload alt="image-20240307231548037" style="zoom:67%;">
+
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231607907.png" srcset="/img/loading.gif" lazyload alt="image-20240307231607907" style="zoom:67%;">
+
+<p>下面的示例为显示ABCD不同的颜色：第一个字节为41，对应字符为A；属性字节为42(0000 0010)，背景为000(黑色)，前景也就是字符颜色为010(绿色)</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307231655253.png" srcset="/img/loading.gif" lazyload alt="image-20240307231655253" style="zoom: 80%;">
+
+<h4 id="6-2-3-显示信息的一种”直接”方式"><a href="#6-2-3-显示信息的一种”直接”方式" class="headerlink" title="6.2.3 显示信息的一种”直接”方式"></a>6.2.3 显示信息的一种”直接”方式</h4><p>编程序，在屏幕的中间，白底蓝字，显示”Welcome to masm!”</p>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307232011828.png" srcset="/img/loading.gif" lazyload alt="image-20240307232011828" style="zoom:67%;">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:codeseg,ds:datasg<br>datasg segment<br>	db &#x27;Welcome to masm!&#x27;<br>datasg ends<br><br>codeseg segment<br>start:	mov ax,datasg<br>		mov ds,ax<br>		mov ax,0B800H<br>		mov es,ax<br>		mov si,0<br>		mov di,160*12+80-16  ; 定位到中间行中间列，并定位到起始位置<br>		mov cx,16<br>w:		mov al,[si]<br>		mov es:[di],al<br>		inc di<br>		mov al,71H<br>		mov es:[di],al<br>		inc si<br>		inc di<br>		loop w<br>		<br>		mov ax,4c00h<br>		int 21h<br>codeseg ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-描述内存单元的标号"><a href="#6-3-描述内存单元的标号" class="headerlink" title="6.3 描述内存单元的标号"></a>6.3 描述内存单元的标号</h3><h4 id="6-3-1-关于标号"><a href="#6-3-1-关于标号" class="headerlink" title="6.3.1 关于标号"></a>6.3.1 关于标号</h4><ul>
+<li>代码段中的标号可以用来 标记指令、段的起始地址</li>
+<li>代码段中的数据也可以用 标号</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307232939157.png" srcset="/img/loading.gif" lazyload alt="image-20240307232939157" style="zoom: 67%;">
+
+<h4 id="6-3-2-去了冒号的数据标号"><a href="#6-3-2-去了冒号的数据标号" class="headerlink" title="6.3.2 去了冒号的数据标号"></a>6.3.2 去了冒号的数据标号</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233344065.png" srcset="/img/loading.gif" lazyload alt="image-20240307233344065" style="zoom:67%;">
+
+<ul>
+<li>我们在code 段中使用的标号a、 b后面没有“ : ” ，它们同时描述 内存地址和单元长度的标号。</li>
+<li><strong>标号a</strong><ul>
+<li>地址code:0</li>
+<li>以后的内存单元都是字节</li>
+</ul>
+</li>
+<li><strong>标号b</strong><ul>
+<li>地址code:8</li>
+<li>以后的内存单元都是字</li>
+</ul>
+</li>
+</ul>
+<h4 id="6-3-3-数据标号同时描述内存地址和单元长度"><a href="#6-3-3-数据标号同时描述内存地址和单元长度" class="headerlink" title="6.3.3 数据标号同时描述内存地址和单元长度"></a>6.3.3 数据标号同时描述内存地址和单元长度</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233624935.png" srcset="/img/loading.gif" lazyload alt="image-20240307233624935" style="zoom:67%;">
+
+<h4 id="6-3-4-更常见的方式：数据段中的数据标号"><a href="#6-3-4-更常见的方式：数据段中的数据标号" class="headerlink" title="6.3.4 更常见的方式：数据段中的数据标号"></a>6.3.4 更常见的方式：数据段中的数据标号</h4><img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240307233800314.png" srcset="/img/loading.gif" lazyload alt="image-20240307233800314" style="zoom:67%;">
+
+<p>🧑‍🎄<code>c dw offset a,offset b</code>：<strong>有点类似于C语言里面的指针，c里面存放了a和b的地址</strong></p>
+<h3 id="6-4-数据的直接定址表"><a href="#6-4-数据的直接定址表" class="headerlink" title="6.4 数据的直接定址表"></a>6.4 数据的直接定址表</h3><p><strong>利用表，在两个数据集合之间建立一种映射关系，用查表的方法根据给出的数据得到其在另一集合中的对应数据。</strong></p>
+<ul>
+<li>应用示例：编写程序，计算sin(x)，x∈{0° ,30° ,60° ,90° ,120° ,150° ,180°}，并在屏幕中间显示计算结果。</li>
+<li>常规解法：<ul>
+<li>利用麦克劳林公式计算：</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240313222815307.png" srcset="/img/loading.gif" lazyload alt="image-20240313222815307" style="zoom:67%;">
+
+<ul>
+<li>空间换时间方案<ul>
+<li>将所要计算得sin(x)的结果都存储到一张表中，然后用角度值来查表，找到对对应的sin(x)值</li>
+<li>具体方法：<ul>
+<li>用ax向子程序传递角度值</li>
+<li>用角度值&#x2F;30为table表中的偏移，可以找到对应的字符串首地址</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs asm">assume cs:code<br>code segment<br>start:	<br>	mov al,60<br>	call showsin<br>	mov ax,4c00h<br>	int 21h<br>	<br>    showsin: jmp short show<br>            table dw ag0,ag30,ag60,ag90,ag120,ag150,ag180 <br>            ag0   db&#x27;0&#x27;,0				;sin 0=0<br>            ag30  db &#x27;0.5&#x27;,0			;sin 30=0.5<br>            ag60  db &#x27;0.866&#x27;,0			;sin 60=0.866<br>            ag90  db &#x27;1&#x27;,0<br>            ag120 db &#x27;0.866&#x27;,0<br>            ag150 db &#x27;0.5&#x27;,0<br>            ag180 db &#x27;0&#x27;,0<br>    show: 	push bx<br>            push es<br>            push si<br>            mov bx,0b800h<br>            mov es,bx<br><br>            ;计算出sin(x)对应结果字符串的偏移地址<br>            mov bl,30<br>            div bl				;用角度值/30来得到相对于table的偏移<br>            mov bl,al<br>            mov bh,0<br>            add bx,bx			;因为table中是字单元，需要再乘2<br>            mov bx,table[bx]	;bx中是对应结果字符串的偏移地址<br><br>            ;显示对应结果字符串到屏幕<br>            mov si,160*12+40*2<br>    shows: 	mov ah,cs:[bx]<br>            cmp ah,0<br>            je showret<br>            mov es:[si],ah<br>            inc bx<br>            add si,2<br>            jmp short shows<br><br>	showret:pop si	<br>            pop es<br>            pop bx<br>            ret<br><br>code ends<br>end start<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>备注：代码标号，不会影响代码段执行，会依次顺序执行，除非有jmp&#x2F;call指令</p>
+</blockquote>
+<img src="/2023/07/10/%E8%B4%BA%E5%88%A9%E5%9D%9A%E6%B1%87%E7%BC%96%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20240313230336086.png" srcset="/img/loading.gif" lazyload alt="image-20240313230336086" style="zoom:67%;">
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B1%87%E7%BC%96/" class="category-chain-item">汇编</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%B1%87%E7%BC%96/">#汇编</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>贺利坚汇编原理学习笔记</div>
+      <div>http://example.com/2023/07/10/贺利坚汇编原理学习笔记/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/11/System-DE-Master-Key%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" title="System DE Master Key流程分析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">System DE Master Key流程分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/06/Android-%E6%96%87%E4%BB%B6%E7%BA%A7%E5%8A%A0%E5%AF%86%EF%BC%88File-based-Encryption%EF%BC%89%E4%B9%8B%E5%AF%86%E9%92%A5%E7%AE%A1%E7%90%86/" title="Android 文件级加密（File-based Encryption）之密钥管理">
+                        <span class="hidden-mobile">Android 文件级加密（File-based Encryption）之密钥管理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
