@@ -30,8 +30,10 @@
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222220359991.png">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223173851243.png">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260223174317199.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image002.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/80386-segment%20descriptor.jpg">
 <meta property="article:published_time" content="2026-02-22T11:14:46.000Z">
-<meta property="article:modified_time" content="2026-02-23T13:52:44.637Z">
+<meta property="article:modified_time" content="2026-03-01T14:35:50.838Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png">
@@ -222,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          12k 字
+          20k 字
         
       </span>
     
@@ -233,7 +235,7 @@
         
         
         
-          98 分钟
+          166 分钟
         
       </span>
     
@@ -754,6 +756,139 @@
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs assembly">detect_memory:<br>    ; 初始化E820调用参数<br>    xor ebx, ebx                 ; ebx=0表示开始新的检测<br>    mov ax, 0<br>    mov es, ax                   ; es=0（结构体存储在es:edi）<br>    mov edi, ards_buffer         ; edi指向缓冲区起始位置<br>    mov edx, 0x534d4150          ; E820固定签名（&#x27;SMAP&#x27;）<br><br>.next:<br>    ; 调用int 0x15的E820子功能检测内存<br>    mov eax, 0xe820              ; 子功能号：E820内存检测<br>    mov ecx, 20                  ; ARDS结构体大小（20字节）<br>    mov [es:edi + 16], dword 1   ; 版本号（必须设置为1）<br>    int 0x15                     ; 执行BIOS中断<br><br>    ; 检查调用结果<br>    jc error                     ; CF=1表示调用失败，跳转到错误处理<br><br>    ; 处理返回的结构体<br>    add di, cx                   ; 缓冲区指针后移（指向下一个结构体位置）<br>    inc word [ards_count]        ; 区块数量+1<br><br>    ; 判断是否还有更多区块（ebx=0表示检测完成）<br>    cmp ebx, 0<br>    jnz .next                    ; ebx≠0，继续检测下一个区块<br><br>    ; 内存检测完成，打印成功提示<br>    mov si, detecting<br>    call print<br><br>    ; （可选）遍历打印所有内存区块信息（示例：仅读取不打印）<br>    mov cx, [ards_count]         ; cx=区块数量<br>    mov si, 0                    ; si=缓冲区偏移量<br>.show:<br>    ; 读取ARTS结构体关键字段（示例：仅读取，可扩展打印逻辑）<br>    ; [ards_buffer+si]     = 基地址低32位<br>    ; [ards_buffer+si+8]   = 长度低32位<br>    ; [ards_buffer+si+16]  = 类型（1=可用内存，2=保留内存）<br>    mov eax, [ards_buffer + si]  ; 读取基地址低32位<br>    mov ebx, [ards_buffer + si + 8] ; 读取长度低32位<br>    mov ecx, [ards_buffer + si + 16] ; 读取内存类型<br>    add si, 20                   ; 偏移量+20（下一个结构体）<br>    loop .show                   ; cx--，直到cx=0<br></code></pre></td></tr></table></figure>
 
+<h3 id="1-8-进入保护模式"><a href="#1-8-进入保护模式" class="headerlink" title="1.8 进入保护模式"></a>1.8 进入保护模式</h3><p>(1) 实模式</p>
+<p>在 bootloader 接手 BIOS 的工作后，当前的 PC 系统处于实模式（16 位模式）运行状态，<strong>在这种状态下软件可访问的物理内存空间不能超过 1MB，且无法发挥 Intel 80386 以上级别的 32 位 CPU 的 4GB 内存管理能力</strong>。</p>
+<p>实模式将整个物理内存看成分段的区域，程序代码和数据位于不同区域，操作系统和用户程序并没有区别对待，而且每一个指针都是指向实际的物理地址。这样，用户程序的一个指针如果指向了操作系统区域或其他用户程序区域，并修改了内容，那么其后果就很可能是灾难性的。通过修改 A20 地址线可以完成从实模式到保护模式的转换。有关 A20 的进一步信息可参考附录“关于 A20 Gate”。</p>
+<p>(2) 保护模式</p>
+<p><strong>只有在保护模式下，80386 的全部 32 根地址线有效，可寻址高达 4G 字节的线性地址空间和物理地址空间，可访问 64TB（有 2^14 个段，每个段最大空间为 2^32 字节）的逻辑地址空间</strong>，可采用分段存储管理机制和分页存储管理机制。这不仅为存储共享和保护提供了硬件支持，而且为实现虚拟存储提供了硬件支持。通过提供 4 个特权级和完善的特权检查机制，既能实现资源共享又能保证代码数据的安全及任务的隔离。</p>
+<blockquote>
+<p>【补充】保护模式下，有两个段表：GDT（Global Descriptor Table）和 LDT（Local Descriptor Table），每一张段表可以包含 8192 (2^13)个描述符[1]，因而最多可以同时存在 2 * 2^13 &#x3D; 2^14 个段。虽然保护模式下可以有这么多段，逻辑地址空间看起来很大，但实际上段并不能扩展物理地址空间，很大程度上各个段的地址空间是相互重叠的。目前所谓的 64TB（2^(14+32)&#x3D;2^46）逻辑地址空间是一个理论值，没有实际意义。在 32 位保护模式下，真正的物理空间仍然只有 2^32 字节那么大。注：在本实验中只用到了 GDT，没有用 LDT。</p>
+<p>Reference: [1] 3.5.1 Segment Descriptor Tables, Intel® 64 and IA-32 Architectures Software Developer’s Manual</p>
+</blockquote>
+<p>(3) 分段存储管理机制</p>
+<p>只有在保护模式下才能使用分段存储管理机制。分段机制将内存划分成以起始地址和长度限制这两个二维参数表示的内存块，这些内存块就称之为段（Segment）。编译器把源程序编译成执行程序时用到的代码段、数据段、堆和栈等概念在这里可以与段联系起来，二者在含义上是一致的。</p>
+<p>分段机制涉及 4 个关键内容：逻辑地址、段描述符（描述段的属性）、段描述符表（包含多个段描述符的“数组”）、段选择子（段寄存器，用于定位段描述符表中表项的索引）。转换逻辑地址（Logical Address,应用程序员看到的地址）到物理地址（Physical Address, 实际的物理内存地址）分以下两步：</p>
+<ul>
+<li>分段地址转换：CPU 把逻辑地址（由段选择子 selector 和段偏移 offset 组成）中的段选择子的内容作为段描述符表的索引，找到表中对应的段描述符，然后把段描述符中保存的段基址加上段偏移值，形成线性地址（Linear Address）。如果不启动分页存储管理机制，则线性地址等于物理地址。 [2] 分页地址转换，这一步中把线性地址转换为物理地址。（注意：这一步是可选的，由操作系统决定是否需要。在后续试验中会涉及。</li>
+</ul>
+<p>上述转换过程对于应用程序员来说是不可见的。线性地址空间由一维的线性地址构成，线性地址空间和物理地址空间对等。线性地址 32 位长，线性地址空间容量为 4G 字节。分段地址转换的基本过程如下图所示。</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image002.png" srcset="/img/loading.gif" lazyload alt="分段地址转换基本过程" style="zoom:150%;">
+
+<p>分段存储管理机制需要在启动保护模式的前提下建立。从上图可以看出，为了使得分段存储管理机制正常运行，需要建立好段描述符和段描述符表。</p>
+<p><strong>段描述符</strong></p>
+<p>在分段存储管理机制的保护模式下，每个段由如下三个参数进行定义：段基地址(Base Address)、段界限(Limit)和段属性(Attributes)。<code>struct segdesc</code> 数据结构中有具体的定义。</p>
+<ul>
+<li>段基地址：规定线性地址空间中段的起始地址。在 80386 保护模式下，段基地址长 32 位。因为基地址长度与寻址地址的长度相同，所以任何一个段都可以从 32 位线性地址空间中的任何一个字节开始，而不象实方式下规定的边界必须被 16 整除。</li>
+<li>段界限：规定段的大小。在 80386 保护模式下，段界限用 20 位表示，而且段界限可以是以字节为单位或以 4K 字节为单位。</li>
+<li>段属性：确定段的各种性质。 - 段属性中的粒度位（Granularity），用符号 G 标记。G&#x3D;0 表示段界限以字节位位单位，20 位的界限可表示的范围是 1 字节至 1M 字节，增量为 1 字节；G&#x3D;1 表示段界限以 4K 字节为单位，于是 20 位的界限可表示的范围是 4K 字节至 4G 字节，增量为 4K 字节。 - 类型（TYPE）：用于区别不同类型的描述符。可表示所描述的段是代码段还是数据段，所描述的段是否可读&#x2F;写&#x2F;执行，段的扩展方向等。 - 描述符特权级（Descriptor Privilege Level）（DPL）：用来实现保护机制。 - 段存在位（Segment-Present bit）：如果这一位为 0，则此描述符为非法的，不能被用来实现地址转换。如果一个非法描述符被加载进一个段寄存器，处理器会立即产生异常。图 5-4 显示了当存在位为 0 时，描述符的格式。操作系统可以任意的使用被标识为可用（AVAILABLE）的位。 - 已访问位（Accessed bit）：当处理器访问该段（当一个指向该段描述符的选择子被加载进一个段寄存器）时，将自动设置访问位。操作系统可清除该位。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">descriptor</span> /* 共 8 个字节 */</span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> limit_low;      <span class="hljs-comment">// 段界限 0 ~ 15 位</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> base_low : <span class="hljs-number">24</span>;    <span class="hljs-comment">// 基地址 0 ~ 23 位 16M</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> type : <span class="hljs-number">4</span>;        <span class="hljs-comment">// 段类型</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> segment : <span class="hljs-number">1</span>;     <span class="hljs-comment">// 1 表示代码段或数据段，0 表示系统段</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> DPL : <span class="hljs-number">2</span>;         <span class="hljs-comment">// Descriptor Privilege Level 描述符特权等级 0 ~ 3</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> present : <span class="hljs-number">1</span>;     <span class="hljs-comment">// 存在位，1 在内存中，0 在磁盘上</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> limit_high : <span class="hljs-number">4</span>;  <span class="hljs-comment">// 段界限 16 ~ 19;</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> available : <span class="hljs-number">1</span>;   <span class="hljs-comment">// 该安排的都安排了，送给操作系统吧</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> long_mode : <span class="hljs-number">1</span>;   <span class="hljs-comment">// 64 位扩展标志</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> big : <span class="hljs-number">1</span>;         <span class="hljs-comment">// 32 位 还是 16 位;</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> granularity : <span class="hljs-number">1</span>; <span class="hljs-comment">// 粒度 4KB 或 1B</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> base_high;       <span class="hljs-comment">// 基地址 24 ~ 31 位</span><br>&#125; __attribute__((packed)) descriptor;<br></code></pre></td></tr></table></figure>
+
+<p>上述参数通过段描述符来表示，段描述符的结构如下图所示：</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/80386-segment descriptor.jpg" srcset="/img/loading.gif" lazyload alt="img" style="zoom: 67%;">
+
+<p><strong>全局描述符表</strong> 全局描述符表的是一个保存多个段描述符的“数组”，其起始地址保存在全局描述符表寄存器 GDTR 中。GDTR 长 48 位，其中高 32 位为基地址，低 16 位为段界限。由于 GDT 不能有 GDT 本身之内的描述符进行描述定义，所以处理器采用 GDTR 为 GDT 这一特殊的系统段。注意，全局描述符表中第一个段描述符设定为空段描述符。GDTR 中的段界限以字节为单位。对于含有 N 个描述符的描述符表的段界限通常可设为 8*N-1。</p>
+<ul>
+<li>gdtr &#x2F; 全局描述符表的起始位置和长度</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">descriptor gdt[8192];<br><span class="hljs-comment"># 0 必须全为 0 - NULL 描述符</span><br><span class="hljs-comment"># 8191 描述符</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">lgdt [gdt_ptr]; 加载 gdt<br>sgdt [gdt_ptr]; 保存 gdt<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pointer</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> limit; <span class="hljs-comment">// size - 1</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> base;<br>&#125; __attribute__((packed)) pointer;<br></code></pre></td></tr></table></figure>
+
+<p><strong>段选择子</strong></p>
+<p>线性地址部分的选择子是用来选择哪个描述符表和在该表中索引一个描述符的。选择子可以做为指针变量的一部分，从而对应用程序员是可见的，但是一般是由连接加载器来设置的。选择子的格式如下图所示：</p>
+<ul>
+<li>索引（Index）：在描述符表中从 8192 个描述符中选择一个描述符。处理器自动将这个索引值乘以 8（描述符的长度），再加上描述符表的基址来索引描述符表，从而选出一个合适的描述符。</li>
+<li>表指示位（Table Indicator，TI）：选择应该访问哪一个描述符表。0 代表应该访问全局描述符表（GDT），1 代表应该访问局部描述符表（LDT）。</li>
+<li>请求特权级（Requested Privilege Level，RPL）：保护机制，在后续试验中会进一步讲解。</li>
+</ul>
+<p>全局描述符表的第一项是不能被 CPU 使用，所以当一个段选择子的索引（Index）部分和表指示位（Table Indicator）都为 0 的时（即段选择子指向全局描述符表的第一项时），可以当做一个空的选择子。当一个段寄存器被加载一个空选择子时，处理器并不会产生一个异常。但是，当用一个空选择子去访问内存时，则会产生异常。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">selector</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> RPL : <span class="hljs-number">2</span>; <span class="hljs-comment">// Request PL </span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> TI : <span class="hljs-number">1</span>; <span class="hljs-comment">// 0  全局描述符 1 局部描述符 LDT Local </span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> index : <span class="hljs-number">13</span>; <span class="hljs-comment">// 全局描述符表索引</span><br>&#125; __attribute__((packed)) selector;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p>代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><code class="hljs assembly">[org 0x1000]<br><br>dw 0x55aa; 魔数, 用于判断读取是否正常<br><br>mov si, loading<br>call print<br><br>detect_memory:<br>    ; 初始化E820调用参数<br>    xor ebx, ebx                 ; ebx=0表示开始新的检测<br>    mov ax, 0<br>    mov es, ax                   ; es=0（结构体存储在es:edi）<br>    mov edi, ards_buffer         ; edi指向缓冲区起始位置<br>    mov edx, 0x534d4150          ; E820固定签名（&#x27;SMAP&#x27;）<br><br>.next:<br>    ; 调用int 0x15的E820子功能检测内存<br>    ; ...................................<br><br>    jmp prepare_protected_mode<br><br><br>prepare_protected_mode:<br>    cli; 关闭中断<br><br>    ; 打开 A20 线<br>    in al,  0x92<br>    or al, 0b10<br>    out 0x92, al<br><br>    lgdt [gdt_ptr]; 加载 gdt<br><br>    ; 启动保护模式<br>    mov eax, cr0<br>    or eax, 1<br>    mov cr0, eax<br><br>    ; 用跳转来刷新缓存，启用保护模式<br>    jmp dword code_selector:protect_mode<br> <br>[bits 32]<br>protect_mode:<br>    mov ax, data_selector<br>    mov ds, ax<br>    mov es, ax<br>    mov fs, ax<br>    mov gs, ax<br>    mov ss, ax; 初始化段寄存器<br><br>    mov esp, 0x10000; 修改栈顶<br><br><br>code_selector equ (1 &lt;&lt; 3) ; 代码段选择子：索引 1，TI=0（GDT），RPL=0<br>data_selector equ (2 &lt;&lt; 3) ; 数据段选择子：索引 2，TI=0（GDT），RPL=0<br><br>memory_base equ 0; 内存开始的位置：基地址<br><br>; 内存界限 4G / 4K - 1<br>memory_limit equ ((1024 * 1024 * 1024 * 4) / (1024 * 4)) - 1<br><br>; 上文中的typedef struct pointer<br>gdt_ptr:<br>    dw (gdt_end - gdt_base) - 1<br>    dd gdt_base<br>gdt_base:<br>    dd 0, 0; NULL 描述符<br>gdt_code:<br>    dw memory_limit &amp; 0xffff; 段界限 0 ~ 15 位<br>    dw memory_base &amp; 0xffff; 基地址 0 ~ 15 位<br>    db (memory_base &gt;&gt; 16) &amp; 0xff; 基地址 16 ~ 23 位<br>    ; 存在 - dlp 0 - S _ 代码 - 非依从 - 可读 - 没有被访问过<br>    db 0b_1_00_1_1_0_1_0;<br>    ; 4k - 32 位 - 不是 64 位 - 段界限 16 ~ 19<br>    db 0b1_1_0_0_0000 | (memory_limit &gt;&gt; 16) &amp; 0xf;<br>    db (memory_base &gt;&gt; 24) &amp; 0xff; 基地址 24 ~ 31 位<br>gdt_data:<br>    dw memory_limit &amp; 0xffff; 段界限 0 ~ 15 位<br>    dw memory_base &amp; 0xffff; 基地址 0 ~ 15 位<br>    db (memory_base &gt;&gt; 16) &amp; 0xff; 基地址 16 ~ 23 位<br>    ; 存在 - dlp 0 - S _ 数据 - 向上 - 可写 - 没有被访问过<br>    db 0b_1_00_1_0_0_1_0;<br>    ; 4k - 32 位 - 不是 64 位 - 段界限 16 ~ 19<br>    db 0b1_1_0_0_0000 | (memory_limit &gt;&gt; 16) &amp; 0xf;<br>    db (memory_base &gt;&gt; 24) &amp; 0xff; 基地址 24 ~ 31 位<br>gdt_end:<br><br>ards_count:<br>    dw 0<br>ards_buffer:<br></code></pre></td></tr></table></figure>
+
+<p>代码解释：</p>
+<p>(1)准备保护模式（关闭中断、打开 A20、加载 GDT）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs assembly">prepare_protected_mode:<br>    cli                  ; 关闭中断（切换模式时避免中断干扰）<br><br>    ; 打开 A20 线<br>    in al, 0x92<br>    or al, 0b10<br>    out 0x92, al<br><br>    lgdt [gdt_ptr]       ; 加载全局描述符表（GDT）<br><br>    ; 启动保护模式（设置 CR0 的 PE 位）<br>    mov eax, cr0<br>    or eax, 1<br>    mov cr0, eax<br><br>    ; 远跳转刷新缓存，正式进入保护模式<br>    jmp dword code_selector:protect_mode<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>**<code>cli</code>**：关闭可屏蔽中断，防止切换模式过程中被中断打断（切换完成后可重新开启）。</li>
+<li><strong>打开 A20 线</strong>：<ul>
+<li>实模式下，A20 地址线默认禁用，导致内存地址超过 1MB 时会 “回绕”（如 0x100000 会变成 0x00000）。</li>
+<li>通过 <code>0x92</code> 端口（PS&#x2F;2 控制器端口）将第 1 位置 1，快速打开 A20 线，从而支持访问 1MB 以上内存</li>
+</ul>
+</li>
+<li><strong><code>lgdt [gdt_ptr]</code><strong>：加载全局描述符表寄存器（GDTR），<code>gdt_ptr</code> 包含 GDT 的</strong>基地址</strong>和<strong>界限（大小 - 1）</strong>。</li>
+<li><strong>设置 CR0 寄存器</strong>：<ul>
+<li>CR0 的第 0 位是 <code>PE</code>（Protection Enable）位，置 1 后处理器进入保护模式。</li>
+<li>先读取 CR0 到 EAX，置位后写回 CR0。</li>
+</ul>
+</li>
+<li><strong>远跳转刷新缓存</strong>：<ul>
+<li>保护模式启用后，处理器流水线中可能仍有实模式的指令，需通过<strong>远跳转</strong>（<code>jmp code_selector:protect_mode</code>）刷新指令预取队列，确保后续指令在保护模式下执行。</li>
+<li><code>code_selector</code> 是代码段选择子，用于从 GDT 中加载代码段描述符到 CS 寄存器。</li>
+</ul>
+</li>
+</ul>
+<p>（2）32 位保护模式初始化</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs assembly">[bits 32]          ; 告诉汇编器，后续代码是 32 位指令<br>protect_mode:<br>    ; 初始化所有段寄存器为数据段选择子<br>    mov ax, data_selector<br>    mov ds, ax<br>    mov es, ax<br>    mov fs, ax<br>    mov gs, ax<br>    mov ss, ax<br><br>    mov esp, 0x10000  ; 设置栈指针（栈顶为 0x10000，向下增长）<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>[bits 32]</code>：指定汇编器生成 32 位指令（保护模式默认 32 位操作数 &#x2F; 地址）。</p>
+</li>
+<li><p><strong>初始化段寄存器</strong>：</p>
+<ul>
+<li>保护模式下，段寄存器（DS&#x2F;ES&#x2F;FS&#x2F;GS&#x2F;SS）不再是实模式的 “段基址”，而是<strong>选择子</strong>，用于指向 GDT 中的段描述符。</li>
+<li>这里将所有数据相关的段寄存器都设置为 <code>data_selector</code>（数据段选择子）。</li>
+</ul>
+</li>
+<li><p><strong>设置栈指针</strong>：将 <code>esp</code>（栈指针）设置为 0x10000，栈从这里向下增长。</p>
+</li>
+</ul>
+<p>（3）选择子与内存参数定义</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs assembly">code_selector equ (1 &lt;&lt; 3)  ; 代码段选择子：索引 1，TI=0（GDT），RPL=0<br>data_selector equ (2 &lt;&lt; 3)  ; 数据段选择子：索引 2，TI=0（GDT），RPL=0<br><br>memory_base equ 0            ; 段基地址：从 0 开始<br>memory_limit equ ((4GB / 4KB) - 1)  ; 段界限：覆盖 4GB 内存（粒度 4KB）<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>选择子结构</strong>：16 位选择子 &#x3D; 索引（13 位） + TI（表指示位，0&#x3D;GDT，1&#x3D;LDT） + RPL（请求特权级，2 位）。</p>
+<ul>
+<li><code>code_selector</code>：索引 1（GDT 第 2 项），TI&#x3D;0，RPL&#x3D;0（最高特权级）。</li>
+<li><code>data_selector</code>：索引 2（GDT 第 3 项），TI&#x3D;0，RPL&#x3D;0。</li>
+</ul>
+</li>
+<li><p><strong>内存参数</strong>：</p>
+<ul>
+<li><code>memory_base=0</code>：段基地址为 0，覆盖整个内存空间。</li>
+<li><code>memory_limit</code>：4GB 内存以 4KB 为粒度（GDT 中 G 位 &#x3D; 1），所以界限为 <code>(4GB/4KB)-1 = 0xFFFFF</code>，对应 4GB 内存范围。</li>
+</ul>
+</li>
+</ul>
+<p>（4）全局描述符表（GDT）定义</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs assembly">gdt_ptr:<br>    dw (gdt_end - gdt_base) - 1  ; GDT 界限（大小-1）<br>    dd gdt_base                    ; GDT 基地址<br><br>gdt_base:<br>    dd 0, 0                        ; NULL 描述符（GDT 第一项必须为空）<br><br>gdt_code:                          ; 代码段描述符<br>    dw memory_limit &amp; 0xffff       ; 段界限 0~15 位<br>    dw memory_base &amp; 0xffff        ; 基地址 0~15 位<br>    db (memory_base &gt;&gt; 16) &amp; 0xff  ; 基地址 16~23 位<br>    db 0b_1_00_1_1_0_1_0          ; 访问权限：P=1（存在）、DPL=0、S=1（代码/数据段）、Type=1（代码）、可读<br>    db 0b1_1_0_0_0000 | (memory_limit &gt;&gt; 16) &amp; 0xf  ; G=1（4KB 粒度）、D=1（32 位）、段界限 16~19 位<br>    db (memory_base &gt;&gt; 24) &amp; 0xff  ; 基地址 24~31 位<br><br>gdt_data:                          ; 数据段描述符<br>    dw memory_limit &amp; 0xffff       ; 段界限 0~15 位<br>    dw memory_base &amp; 0xffff        ; 基地址 0~15 位<br>    db (memory_base &gt;&gt; 16) &amp; 0xff  ; 基地址 16~23 位<br>    db 0b_1_00_1_0_0_1_0          ; 访问权限：Type=0（数据）、可写<br>    db 0b1_1_0_0_0000 | (memory_limit &gt;&gt; 16) &amp; 0xf  ; 同代码段<br>    db (memory_base &gt;&gt; 24) &amp; 0xff  ; 基地址 24~31 位<br><br>gdt_end:<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>**<code>gdt_ptr</code>**：GDTR 的加载结构，包含 GDT 的界限（大小 - 1）和基地址。</li>
+<li><strong>NULL 描述符</strong>：GDT 的第一项必须是全 0，这是 x86 处理器的要求。</li>
+<li><strong>代码段描述符（<code>gdt_code</code>）</strong>：<ul>
+<li>定义了一个从 0 开始、覆盖 4GB 的 32 位代码段，可读、存在、特权级 0</li>
+</ul>
+</li>
+<li><strong>数据段描述符（<code>gdt_data</code>）</strong>：<ul>
+<li>与代码段类似，但定义为数据段，可写、向上扩展。</li>
+</ul>
+</li>
+</ul>
+<p>这段代码完成了保护模式切换的核心步骤：</p>
+<ol>
+<li>关闭中断，打开 A20 线；</li>
+<li>加载 GDT；</li>
+<li>设置 CR0 的 PE 位启用保护模式；</li>
+<li>远跳转刷新缓存，正式进入 32 位保护模式；</li>
+<li>初始化段寄存器和栈指针。</li>
+</ol>
 
                 
               </div>
