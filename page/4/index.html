@@ -86,70 +86,6 @@
 
   
 
-<div class="deng-container left">
-  <div class="deng-box">
-    <div class="deng">
-      <div class="xian"></div>
-      <div class="deng-a">
-        <div class="deng-b">
-          <div class="deng-t">新</div>
-        </div>
-      </div>
-      <div class="shui shui-a">
-        <div class="shui-c"></div>
-        <div class="shui-b"></div>
-      </div>
-    </div>
-  </div>
-  <div class="deng-box">
-    <div class="deng">
-      <div class="xian"></div>
-      <div class="deng-a">
-        <div class="deng-b">
-          <div class="deng-t">春</div>
-        </div>
-      </div>
-      <div class="shui shui-a">
-        <div class="shui-c"></div>
-        <div class="shui-b"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="deng-container right">
-  <div class="deng-box">
-    <div class="deng">
-      <div class="xian"></div>
-      <div class="deng-a">
-        <div class="deng-b">
-          <div class="deng-t">快</div>
-        </div>
-      </div>
-      <div class="shui shui-a">
-        <div class="shui-c"></div>
-        <div class="shui-b"></div>
-      </div>
-    </div>
-  </div>
-  <div class="deng-box">
-    <div class="deng">
-      <div class="xian"></div>
-      <div class="deng-a">
-        <div class="deng-b">
-          <div class="deng-t">乐</div>
-        </div>
-      </div>
-      <div class="shui shui-a">
-        <div class="shui-c"></div>
-        <div class="shui-b"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
   <header>
     
 
@@ -278,6 +214,40 @@
               <div class="col-12 col-md-10 m-auto">
                 
 
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        
+        <a href="/2025/09/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdiscard%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/" target="_self">
+          f2fs文件系统discard流程梳理
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/09/30/f2fs%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Fdiscard%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/" target="_self">
+        <div>
+          f2fs文件系统discard流程梳理🎗️首先，我们来讲一讲discard的意义，当用户态大量的写入删除操作后，磁盘势必碎片化很严重，此时会触发f2fs gc流程，对segment做整理，但这个整理只是文件系统内部的动作，ufs是不知道哪些是无效的，此时就要用到discard命令，经过block层封装到trim指令后下发到ufs器件，告诉器件这些block无效了，你可以GC（器件GC）！ 1.d
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-09-30 20:44" pubdate>
+              2025-09-30
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
 
   <div class="row mx-auto index-card">
     
@@ -576,40 +546,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2025-08-06 20:05" pubdate>
               2025-08-06
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        
-        <a href="/2025/08/04/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8C%82%E8%BD%BD-%E5%8D%B8%E8%BD%BD%E8%B0%83%E7%94%A8%E6%A0%88/" target="_self">
-          文件系统挂载&amp;卸载调用栈
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2025/08/04/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8C%82%E8%BD%BD-%E5%8D%B8%E8%BD%BD%E8%B0%83%E7%94%A8%E6%A0%88/" target="_self">
-        <div>
-          文件系统挂载&amp;卸载调用栈主要记录一下挂载和卸载分别到fill_super和put_super的流程，以exfat为例  挂载调用栈  123456789__arm64_sys_moumtpath_mountdo_new_mountvfs_get_tree	# fc-&gt;ops-&gt;get_tree(fc)  exfat的实现为exfat_get_treeexfat_get_tree
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-08-04 22:40" pubdate>
-              2025-08-04
             </time>
           </div>
         
