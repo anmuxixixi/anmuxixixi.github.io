@@ -36,8 +36,12 @@
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318221102395.png">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318221710361.png">
 <meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318221512556.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318230920684.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318231057140.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318231129485.png">
+<meta property="og:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318230851746.png">
 <meta property="article:published_time" content="2026-02-22T11:14:46.000Z">
-<meta property="article:modified_time" content="2026-03-18T14:23:26.295Z">
+<meta property="article:modified_time" content="2026-03-18T15:15:30.385Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260222161410893-1771758937840-1.png">
@@ -228,7 +232,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          23k 字
+          24k 字
         
       </span>
     
@@ -239,7 +243,7 @@
         
         
         
-          189 分钟
+          203 分钟
         
       </span>
     
@@ -953,6 +957,66 @@
 <p>编译运行，发现真的被0x10000位置的内存真的被修改成K了</p>
 <img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318221512556.png" srcset="/img/loading.gif" lazyload alt="image-20260318221512556" style="zoom:80%;">
 
+<h2 id="第二章-开始内核之旅"><a href="#第二章-开始内核之旅" class="headerlink" title="第二章 开始内核之旅"></a>第二章 开始内核之旅</h2><h3 id="2-1-编译和链接"><a href="#2-1-编译和链接" class="headerlink" title="2.1 编译和链接"></a>2.1 编译和链接</h3><blockquote>
+<p>因为编译链接我已经很熟悉了，就不多赘述这一章节，目的就是熟悉一下start.asm开始进入C语言的世界</p>
+</blockquote>
+<p>创建头文件ainux.h</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318230920684.png" srcset="/img/loading.gif" lazyload alt="image-20260318230920684" style="zoom:80%;">
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> AINUX_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> AINUX_H</span><br><br><span class="hljs-comment">// 内核魔数，用于校验错误</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> AINUX_MAGIC 0x20260318  <span class="hljs-comment">// 今天的时间</span></span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">kernel_init</span><span class="hljs-params">()</span>;<br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+
+<p>在内核创建main.c</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;ainux/ainux.h&gt;</span></span><br><br><span class="hljs-type">char</span> message[] = <span class="hljs-string">&quot;hello amxixixi!!!&quot;</span>;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">kernel_init</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">char</span>* video = (<span class="hljs-type">char</span>*)<span class="hljs-number">0xb8000</span>; <span class="hljs-comment">//文本显示器的内存位置</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-keyword">sizeof</span>(message); i++) &#123;<br>        video[i * <span class="hljs-number">2</span>] = message[i];<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编译main.c文件</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318231057140.png" srcset="/img/loading.gif" lazyload alt="image-20260318231057140" style="zoom: 67%;">
+
+<p>内核代码段加载</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318231129485.png" srcset="/img/loading.gif" lazyload alt="image-20260318231129485" style="zoom:80%;">
+
+<p>编译运行后成功打印hello amxixixi!!!</p>
+<img src="/2026/02/22/%E4%BB%8E0%E5%88%B01%E6%89%8B%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20260318230851746.png" srcset="/img/loading.gif" lazyload alt="image-20260318230851746" style="zoom:80%;">
+
+<hr>
+<p>❓❓❓<strong>有个小疑问还是要解答的，start.asm是如何调用到我的main.c中的kernel_init函数的</strong></p>
+<p>简单来说，<strong>汇编能跳到 C 语言的函数去执行，全靠“链接器（Linker, 就是你 Makefile 里的 <code>ld</code> 命令）”在中间牵线搭桥。</strong></p>
+<p>整个过程可以分为三个关键步骤来理解。我们把你的汇编代码、C 代码和 Makefile 结合起来看：</p>
+<ol>
+<li><strong>汇编端的“寻人启事”：<code>extern</code></strong></li>
+</ol>
+<p>在你的汇编文件（假设叫 <code>start.asm</code>）里，你写了这两行：</p>
+<p>代码段</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs assembly">extern kernel_init<br>...<br>call kernel_init<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>extern kernel_init</code>：这就像是汇编器（NASM）发出的寻人启事。你告诉汇编器：“我在这里要调用一个叫 <code>kernel_init</code> 的家伙，但它的具体代码不在我这个文件里。<strong>请你先在这里留个空白的地址占位符，等会儿会有人来填上的。</strong>”</li>
+<li>所以 NASM 编译出 <code>start.o</code> 时，<code>call</code> 指令后面的地址是空的（或者是一个重定位记录），它在等待最终的地址。</li>
+</ul>
+<ol start="2">
+<li><strong>C 语言端的“真实目标”：编译成对象文件</strong></li>
+</ol>
+<p>在你的 C 文件（假设叫 <code>main.c</code>）里，你肯定定义了一个同名的函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">kernel_init</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-comment">// 你的内核初始化代码</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>当 GCC 把 <code>main.c</code> 编译成 <code>main.o</code> 时（参考你 Makefile 里的 <code>gcc -c $&lt; -o $@</code>），它会在这个对象文件的<strong>符号表（Symbol Table）</strong>中记录下：“这里有一个公开的符号叫 <code>kernel_init</code>，它对应的机器码在这个文件内部的偏移量是 X。”</li>
+</ul>
+<ol start="3">
+<li><strong>见证奇迹的时刻：链接器（<code>ld</code>）</strong></li>
+</ol>
+<p>真正的魔法发生在你的 <code>Makefile</code> 的这一段：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-variable">$(BUILD)</span>/kernel/kernel.bin: <span class="hljs-variable">$(BUILD)</span>/kernel/start.o \<br>	<span class="hljs-variable">$(BUILD)</span>/kernel/main.o<br>	ld -m elf_i386 -static <span class="hljs-variable">$^</span> -o <span class="hljs-variable">$@</span> -Ttext <span class="hljs-variable">$(ENTRYPOINT)</span><br></code></pre></td></tr></table></figure>
+
+<p>当 <code>ld</code> 把 <code>start.o</code> 和 <code>main.o</code> 拼接成最终的 <code>kernel.bin</code> 时，它做了极其核心的两件事：</p>
+<ol>
+<li><strong>排兵布阵（至关重要的顺序！）：</strong> 注意你的依赖顺序是 <code>start.o</code> 在前，<code>main.o</code> 在后（也就是 Makefile 里的 <code>$^</code>）。 结合 <code>-Ttext $(ENTRYPOINT)</code>（也就是 <code>-Ttext 0x10000</code>），链接器会把第一个文件 <code>start.o</code> 中的代码段（<code>.text</code>）精确地塞到最终二进制文件的最开头，并且认定它未来会被加载到物理内存的 <code>0x10000</code> 处。 这就是为什么上一步 Bootloader 一个 <code>jmp 0x10000</code>，能不偏不倚正好砸中 <code>start.asm</code> 里的 <code>_start</code> 标签！</li>
+<li><strong>符号解析与地址回填（重定位）：</strong><ul>
+<li>链接器在排版好 <code>start.o</code> 和 <code>main.o</code> 在内存里的绝对位置后，它突然算出了 <code>main.o</code> 里面的 <code>kernel_init</code> 函数在物理内存中的<strong>绝对真实地址</strong>（比如是 <code>0x10045</code>）。</li>
+<li>然后，链接器回头去查看 <code>start.o</code>，看到了当年 NASM 留下的那个“寻人启事”（重定位记录）。</li>
+<li>链接器毫不犹豫地把计算出的真实地址（或是相对偏移量），硬生生地<strong>填入</strong>了 <code>start.o</code> 里 <code>call kernel_init</code> 那条指令的机器码中。</li>
+</ul>
+</li>
+</ol>
 
                 
               </div>
