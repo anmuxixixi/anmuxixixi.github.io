@@ -33,8 +33,10 @@
 <meta property="og:image" content="http://example.com/2026/03/22/WSL%E8%B7%91%E6%9C%80%E6%96%B0%E5%86%85%E6%A0%B8qemu%E5%AE%9E%E8%B7%B5%E7%AC%94%E8%AE%B0/image-20260322112211143.png">
 <meta property="og:image" content="http://example.com/2026/03/22/WSL%E8%B7%91%E6%9C%80%E6%96%B0%E5%86%85%E6%A0%B8qemu%E5%AE%9E%E8%B7%B5%E7%AC%94%E8%AE%B0/image-20260322112320701.png">
 <meta property="og:image" content="http://example.com/2026/03/22/WSL%E8%B7%91%E6%9C%80%E6%96%B0%E5%86%85%E6%A0%B8qemu%E5%AE%9E%E8%B7%B5%E7%AC%94%E8%AE%B0/image-20260322112606759.png">
+<meta property="og:image" content="http://example.com/2026/03/22/WSL%E8%B7%91%E6%9C%80%E6%96%B0%E5%86%85%E6%A0%B8qemu%E5%AE%9E%E8%B7%B5%E7%AC%94%E8%AE%B0/image-20260322120028219.png">
+<meta property="og:image" content="http://example.com/2026/03/22/WSL%E8%B7%91%E6%9C%80%E6%96%B0%E5%86%85%E6%A0%B8qemu%E5%AE%9E%E8%B7%B5%E7%AC%94%E8%AE%B0/image-20260322120223027.png">
 <meta property="article:published_time" content="2026-03-22T02:58:36.000Z">
-<meta property="article:modified_time" content="2026-03-22T03:26:34.440Z">
+<meta property="article:modified_time" content="2026-03-22T04:02:40.283Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/03/22/WSL%E8%B7%91%E6%9C%80%E6%96%B0%E5%86%85%E6%A0%B8qemu%E5%AE%9E%E8%B7%B5%E7%AC%94%E8%AE%B0/image-20260322110630825.png">
@@ -225,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.7k 字
+          3.1k 字
         
       </span>
     
@@ -236,7 +238,7 @@
         
         
         
-          23 分钟
+          26 分钟
         
       </span>
     
@@ -419,6 +421,29 @@
 <li>df -h</li>
 </ul>
 <img src="/2026/03/22/WSL%E8%B7%91%E6%9C%80%E6%96%B0%E5%86%85%E6%A0%B8qemu%E5%AE%9E%E8%B7%B5%E7%AC%94%E8%AE%B0/image-20260322112606759.png" srcset="/img/loading.gif" lazyload alt="image-20260322112606759" style="zoom:60%;">
+
+<h2 id="3-qemu镜像中如何将自己的二进制设置到系统-x2F-bin中"><a href="#3-qemu镜像中如何将自己的二进制设置到系统-x2F-bin中" class="headerlink" title="3.qemu镜像中如何将自己的二进制设置到系统&#x2F;bin中"></a>3.qemu镜像中如何将自己的二进制设置到系统&#x2F;bin中</h2><p>现在我有个诉求，就是写了一个测试用例，想在qemu里面验证</p>
+<ol>
+<li><p>编写我的测试用例kcsan_race.c</p>
+</li>
+<li><p>编译</p>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">gcc -static -O2 kcsan_race.c -o kcsan_race -lpthread<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>拷贝到busybox的bin目录下</li>
+</ol>
+<img src="/2026/03/22/WSL%E8%B7%91%E6%9C%80%E6%96%B0%E5%86%85%E6%A0%B8qemu%E5%AE%9E%E8%B7%B5%E7%AC%94%E8%AE%B0/image-20260322120028219.png" srcset="/img/loading.gif" lazyload alt="image-20260322120028219" style="zoom:67%;">
+
+<ol start="4">
+<li>启动加载qemu</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">qemu-system-x86_64 \<br>    -kernel kernel/linux-master/arch/x86/boot/bzImage \<br>    -initrd busybox/initramfs.cpio.gz \<br>	-drive file=exfat_disk.img,format=raw,if=virtio \<br>    -nographic \<br>    -append &quot;console=ttyS0&quot;<br></code></pre></td></tr></table></figure>
+
+<p>成功运行起来</p>
+<img src="/2026/03/22/WSL%E8%B7%91%E6%9C%80%E6%96%B0%E5%86%85%E6%A0%B8qemu%E5%AE%9E%E8%B7%B5%E7%AC%94%E8%AE%B0/image-20260322120223027.png" srcset="/img/loading.gif" lazyload alt="image-20260322120223027" style="zoom:67%;">
+
 
                 
               </div>
