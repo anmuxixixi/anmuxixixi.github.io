@@ -1,0 +1,694 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="exfat中的slub缓存exfat中总共有2类slub缓存  exfat_inode_cachep     exfat_cachep      SLUB大小问题如果使用sizeof(exfat_inode_info)查询大小的话，他的大小是960字节，而实际的分配空间的时候是968字节 12# cat &#x2F;proc&#x2F;slabinfo | grep exfat_inode_cacheexfat_in">
+<meta property="og:type" content="article">
+<meta property="og:title" content="exfat中的slub缓存">
+<meta property="og:url" content="http://example.com/2026/05/06/exfat%E4%B8%AD%E7%9A%84slub%E7%BC%93%E5%AD%98/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="exfat中的slub缓存exfat中总共有2类slub缓存  exfat_inode_cachep     exfat_cachep      SLUB大小问题如果使用sizeof(exfat_inode_info)查询大小的话，他的大小是960字节，而实际的分配空间的时候是968字节 12# cat &#x2F;proc&#x2F;slabinfo | grep exfat_inode_cacheexfat_in">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/05/06/exfat%E4%B8%AD%E7%9A%84slub%E7%BC%93%E5%AD%98/image-20260506201134872.png">
+<meta property="og:image" content="http://example.com/2026/05/06/exfat%E4%B8%AD%E7%9A%84slub%E7%BC%93%E5%AD%98/image-20260506201157803.png">
+<meta property="article:published_time" content="2026-05-06T12:07:32.000Z">
+<meta property="article:modified_time" content="2026-05-06T12:35:56.277Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/05/06/exfat%E4%B8%AD%E7%9A%84slub%E7%BC%93%E5%AD%98/image-20260506201134872.png">
+  
+  
+  
+  <title>exfat中的slub缓存 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="exfat中的slub缓存"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-05-06 20:07" pubdate>
+          2026年5月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          38 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">exfat中的slub缓存</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="exfat中的slub缓存"><a href="#exfat中的slub缓存" class="headerlink" title="exfat中的slub缓存"></a>exfat中的slub缓存</h1><p>exfat中总共有2类slub缓存</p>
+<ul>
+<li>exfat_inode_cachep</li>
+</ul>
+<img src="/2026/05/06/exfat%E4%B8%AD%E7%9A%84slub%E7%BC%93%E5%AD%98/image-20260506201134872.png" srcset="/img/loading.gif" lazyload alt="image-20260506201134872" style="zoom:67%;">
+
+<ul>
+<li>exfat_cachep</li>
+</ul>
+<img src="/2026/05/06/exfat%E4%B8%AD%E7%9A%84slub%E7%BC%93%E5%AD%98/image-20260506201157803.png" srcset="/img/loading.gif" lazyload alt="image-20260506201157803" style="zoom:67%;">
+
+
+
+<h3 id="SLUB大小问题"><a href="#SLUB大小问题" class="headerlink" title="SLUB大小问题"></a>SLUB大小问题</h3><p>如果使用sizeof(exfat_inode_info)查询大小的话，他的大小是960字节，而实际的分配空间的时候是968字节</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cat</span> /proc/slabinfo | grep exfat_inode_cache</span><br>exfat_inode_cache    462    462    968   33    8 : tunables    0    0    0 : slabdata     14     14      0<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>这多出来的 8 个字节，是 SLUB 分配器为了保护你的 <code>init_once</code>（构造函数）不被破坏，而强行在结构体尾部外挂的 <code>freelist</code>（空闲链表）指针！</strong></p>
+<p>让我为你揭开 SLUB 分配器底层这段极其巧妙的内存设计：</p>
+<p><strong>1. 常规情况下的“零开销” (0 字节多余)</strong></p>
+<p>在通常情况下，如果你向 SLUB 申请一个 960 字节的结构体（且没有注册构造函数），<code>/proc/slabinfo</code> 里显示的大小通常也就是 960。 为什么？因为当这个对象被 <code>kmem_cache_free</code> 释放回池子时，SLUB 为了节省内存，会<strong>直接霸占这个对象前 8 个字节的物理空间</strong>，用来存放指向下一个空闲对象的指针（即 <code>freelist</code> 指针）。 反正对象已经释放了，里面的业务数据没用了，踩掉前 8 个字节完全没问题。</p>
+<p><strong>2. 带有 <code>ctor</code>（构造函数）的特例</strong></p>
+<p>但是，你的 <code>exfat_inode_cachep</code> 是一个极其特殊的池子——它在创建时，注册了 **<code>exfat_inode_init_once</code> (Constructor 构造函数)**。</p>
+<p>在 Linux 内核的契约里，带有构造函数的池子有一个铁律： <strong>“这块内存在生命周期内，其基础状态（比如里面的自旋锁、List 链表头）必须被永久保留，哪怕它处于 Free（空闲）状态！”</strong></p>
+<p>此时，SLUB 分配器陷入了沉思： 如果它还像以前那样，在对象释放时强行把前 8 个字节改成 <code>freelist</code> 指针，那万一结构体开头刚好是个自旋锁或者 <code>list_head</code> 呢？这不就直接把开发者精心构造的初始状态给毁了吗？</p>
+<p><strong>3. 破局之道：外挂的 8 字节</strong></p>
+<p>为了解决这个矛盾，Linux 的 SLUB 分配器（你可以在内核源码 <code>mm/slub.c</code> 的 <code>calculate_sizes</code> 函数里看到这段逻辑）做了一个决定： <strong>只要这个 Slab 池子带有 <code>ctor</code> (构造函数)，就绝对不去碰对象内部的任何一个字节！</strong></p>
+<p>它怎么维持空闲链表呢？ 它会在你的对象真实大小（960 字节）的<strong>屁股后面，强行追加 8 个字节</strong>的私有空间！ 这 8 个字节完全由 SLUB 分配器自己掌控，专门用来存放 <code>freelist</code> 指针。</p>
+<h3 id="初始化问题"><a href="#初始化问题" class="headerlink" title="初始化问题"></a>初始化问题</h3><p>以exfat_inode_cachep为例，当我们第一次去申请内存的时候，会申请32K的物理页，每个exfat_inode_info大小为928字节，所以会有33个<strong>连续的</strong>inode对象</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cat</span> /proc/slabinfo | grep exfat_inode_cache</span><br>exfat_inode_cache    462    462    968   33    8 : tunables    0    0    0 : slabdata     14     14      0<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>objsize</code> &#x3D; 968</strong>：这是最核心的数据！你的 <code>exfat_inode_info</code> 结构体在内存中的实际大小是 968 字节</p>
+<p><strong><code>pagesperslab</code> &#x3D; 8</strong>：说明底层给这个池子分配物理内存时，每次分配 8 个连续的页（Order-3），也就是 32KB（32768 字节）。</p>
+<p><strong><code>objperslab</code> &#x3D; 33</strong>：做个简单的除法，<code>32768 / 968 = 33.85</code>。说明这 32KB 的物理连续内存里，刚好能严丝合缝地塞下 33 个 Inode 对象。</p>
+<hr>
+<p>有一个值得注意的地方就是当我们使用kmem_cache_create申请内存池的时候，并不会去执行初始化函数<code>exfat_inode_init_once</code>，而是当我们第一次去调用kmem_cache_alloc的时候才会去申请32K的内存页，连续对33个Inode对象执行初始化函数（也就是33个对象一次性调用exfat_inode_init_once初始化完成）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> inode *<span class="hljs-title function_">exfat_alloc_inode</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> super_block *sb)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_inode_info</span> *<span class="hljs-title">ei</span>;</span><br><br>	ei = kmem_cache_alloc(exfat_inode_cachep, GFP_NOFS);<br>	<span class="hljs-keyword">if</span> (!ei)<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br><br>	init_rwsem(&amp;ei-&gt;truncate_lock);<br>	<span class="hljs-keyword">return</span> &amp;ei-&gt;vfs_inode;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以在exfat_inode_init_once加打印佐证上面的说法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">exfat_inode_init_once</span><span class="hljs-params">(<span class="hljs-type">void</span> *foo)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_inode_info</span> *<span class="hljs-title">ei</span> =</span> (<span class="hljs-keyword">struct</span> exfat_inode_info *)foo;<br><br>	spin_lock_init(&amp;ei-&gt;cache_lru_lock);<br>	ei-&gt;nr_caches = <span class="hljs-number">0</span>;<br>	ei-&gt;cache_valid_id = EXFAT_CACHE_VALID + <span class="hljs-number">1</span>;<br>	INIT_LIST_HEAD(&amp;ei-&gt;cache_lru);<br>	INIT_HLIST_NODE(&amp;ei-&gt;i_hash_fat);<br>	inode_init_once(&amp;ei-&gt;vfs_inode);<br>    <br>    pr_err(<span class="hljs-string">&quot;exfat_inode_init_once cache_lru addr:%px\n&quot;</span>, &amp;ei-&gt;cache_lru);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>实验证明是跟我说的一样【❗❗❗仅限Linux5.10，最新的内核我还没看】</p>
+<h3 id="重新分配"><a href="#重新分配" class="headerlink" title="重新分配"></a>重新分配</h3><p>如果上一个inode调用kmem_cache_free把slub缓存交给了缓存池，下一个节点如果再来申请的话，如果slub缓存池发现有空闲的，会直接分配给这次需要alloc的节点，并且不会再调用初始化函数。</p>
+<p>实验证明模块：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// SPDX-License-Identifier: GPL-2.0</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/slab.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/list.h&gt;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mock_inode</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">cache_lru</span>;</span><br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kmem_cache</span> *<span class="hljs-title">trap_cachep</span>;</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> constructor_call_count = <span class="hljs-number">0</span>;<br><br><span class="hljs-comment">/* 模拟原生 exFAT 的 init_once */</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">trap_init_once</span><span class="hljs-params">(<span class="hljs-type">void</span> *foo)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mock_inode</span> *<span class="hljs-title">ei</span> =</span> (<span class="hljs-keyword">struct</span> mock_inode *)foo;<br>	INIT_LIST_HEAD(&amp;ei-&gt;cache_lru);<br>	<br>	constructor_call_count++;<br>	pr_info(<span class="hljs-string">&quot;[PoC] 💡 init_once 被底层触发了！当前总触发次数: %d\n&quot;</span>, constructor_call_count);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">slab_trap_poc_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mock_inode</span> *<span class="hljs-title">obj1</span>, *<span class="hljs-title">obj2</span>;</span><br><br>	pr_info(<span class="hljs-string">&quot;========== SLAB init_once 轮回陷阱真实复现 ==========\n&quot;</span>);<br><br>	trap_cachep = kmem_cache_create(<span class="hljs-string">&quot;mock_inode_cache&quot;</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> mock_inode),<br>					<span class="hljs-number">0</span>, SLAB_RECLAIM_ACCOUNT, trap_init_once);<br>	<span class="hljs-keyword">if</span> (!trap_cachep) <span class="hljs-keyword">return</span> -ENOMEM;<br><br>	<span class="hljs-comment">/* 1. 第一世：全新分配，底层申请新物理页，必定触发 init_once */</span><br>	pr_info(<span class="hljs-string">&quot;[PoC] 1. 第一次分配 obj1 (全新物理页)...\n&quot;</span>);<br>	obj1 = kmem_cache_alloc(trap_cachep, GFP_KERNEL);<br>	pr_info(<span class="hljs-string">&quot;[PoC] obj1-&gt;cache_lru.next = %px (正常双向链表)\n&quot;</span>, obj1-&gt;cache_lru.next);<br><br>	<span class="hljs-comment">/* 2. 释放回二手池。</span><br><span class="hljs-comment">	 * 在这里我们模拟内存被清零（无论是被 init_on_free 机制、还是被其他越界代码写0）</span><br><span class="hljs-comment">	 */</span><br>	pr_info(<span class="hljs-string">&quot;[PoC] 2. 释放 obj1，并在释放前模拟内存被意外清零...\n&quot;</span>);<br>	<span class="hljs-built_in">memset</span>(obj1, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(*obj1));<br>	kmem_cache_free(trap_cachep, obj1); <span class="hljs-comment">/* 带着全 0 交还给 SLUB 二手池 */</span><br><br>	<span class="hljs-comment">/* 3. 第二世：复用对象。见证陷阱的时刻！ */</span><br>	pr_info(<span class="hljs-string">&quot;[PoC] 3. 第二次分配 obj2 (复用刚才的二手内存)...\n&quot;</span>);<br>	obj2 = kmem_cache_alloc(trap_cachep, GFP_KERNEL);<br>	<br>	<span class="hljs-comment">/* 🚨 检验是否触发了 init_once */</span><br>	<span class="hljs-keyword">if</span> (obj2-&gt;cache_lru.next == <span class="hljs-literal">NULL</span>) &#123;<br>		pr_err(<span class="hljs-string">&quot;[PoC] 🚨 惊天大陷阱：obj2 的 cache_lru.next 依然是 0x0！\n&quot;</span>);<br>		pr_err(<span class="hljs-string">&quot;[PoC] 🚨 铁证如山：对于复用对象，内核根本没有触发 init_once 帮我们重新初始化！\n&quot;</span>);<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		pr_info(<span class="hljs-string">&quot;[PoC] (如果看到这行，说明物理学不存在了)\n&quot;</span>);<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">slab_trap_poc_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	kmem_cache_destroy(trap_cachep);<br>	pr_info(<span class="hljs-string">&quot;模块卸载\n&quot;</span>);<br>&#125;<br><br>module_init(slab_trap_poc_init);<br>module_exit(slab_trap_poc_exit);<br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>exfat中的slub缓存</div>
+      <div>http://example.com/2026/05/06/exfat中的slub缓存/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年5月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/29/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%9C%A8menuconfig%E4%B8%AD%E5%BC%80%E5%90%AF%E7%89%B9%E6%80%A7/" title="如何快速在menuconfig中快速开启特性">
+                        <span class="hidden-mobile">如何快速在menuconfig中快速开启特性</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
