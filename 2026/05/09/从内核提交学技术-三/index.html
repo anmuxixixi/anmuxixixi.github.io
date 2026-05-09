@@ -24,7 +24,7 @@
 <meta property="og:description" content="从内核提交学技术(三)主题：文件系统性能测试benchmark工具iozone 最近exfat的maintainer有一笔提交如下：https:&#x2F;&#x2F;lore.kernel.org&#x2F;all&#x2F;20260507124238.7313-1-linkinjeon@kernel.org&#x2F; 12345678910111213This patch series converts the exfat filesys">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-05-09T13:20:12.000Z">
-<meta property="article:modified_time" content="2026-05-09T14:01:43.749Z">
+<meta property="article:modified_time" content="2026-05-09T14:03:47.792Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -225,7 +225,7 @@
         
         
         
-          122 分钟
+          124 分钟
         
       </span>
     
@@ -402,6 +402,15 @@
 <td>可直接输出 Excel 格式，方便生成 3D 性能曲面图</td>
 </tr>
 </tbody></table>
+<h2 id="exfat性能测试备忘"><a href="#exfat性能测试备忘" class="headerlink" title="exfat性能测试备忘"></a>exfat性能测试备忘</h2><ul>
+<li>单线程</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">iozone -i 0 -i 1 -s 1g -r 64k -I -f /mnt/exfat_mount_point/testfile_1<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>多线程</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">iozone -i 0 -i 1 -s 1g -r 64k -I -t 4 -F /mnt/exfat_mount_point/f1 /mnt/exfat_mount_point/f2 /mnt/exfat_mount_point/f3 /mnt/exfat_mount_point/f4<br></code></pre></td></tr></table></figure>
 
                 
               </div>
