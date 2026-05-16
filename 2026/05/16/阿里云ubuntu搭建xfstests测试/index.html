@@ -29,8 +29,11 @@
 <meta property="og:image" content="http://example.com/2026/05/16/%E9%98%BF%E9%87%8C%E4%BA%91ubuntu%E6%90%AD%E5%BB%BAxfstests%E6%B5%8B%E8%AF%95/image-20260516144244179.png">
 <meta property="og:image" content="http://example.com/2026/05/16/%E9%98%BF%E9%87%8C%E4%BA%91ubuntu%E6%90%AD%E5%BB%BAxfstests%E6%B5%8B%E8%AF%95/image-20260516145643757.png">
 <meta property="og:image" content="http://example.com/2026/05/16/%E9%98%BF%E9%87%8C%E4%BA%91ubuntu%E6%90%AD%E5%BB%BAxfstests%E6%B5%8B%E8%AF%95/image-20260516145917009.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E9%98%BF%E9%87%8C%E4%BA%91ubuntu%E6%90%AD%E5%BB%BAxfstests%E6%B5%8B%E8%AF%95/image-20260516161358815.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E9%98%BF%E9%87%8C%E4%BA%91ubuntu%E6%90%AD%E5%BB%BAxfstests%E6%B5%8B%E8%AF%95/image-20260516161518589.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E9%98%BF%E9%87%8C%E4%BA%91ubuntu%E6%90%AD%E5%BB%BAxfstests%E6%B5%8B%E8%AF%95/image-20260516161603010.png">
 <meta property="article:published_time" content="2026-05-16T06:21:05.000Z">
-<meta property="article:modified_time" content="2026-05-16T07:38:02.629Z">
+<meta property="article:modified_time" content="2026-05-16T08:42:32.399Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/05/16/%E9%98%BF%E9%87%8C%E4%BA%91ubuntu%E6%90%AD%E5%BB%BAxfstests%E6%B5%8B%E8%AF%95/image-20260516145442603.png">
@@ -221,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          5.8k 字
+          14k 字
         
       </span>
     
@@ -232,7 +235,7 @@
         
         
         
-          49 分钟
+          117 分钟
         
       </span>
     
@@ -333,7 +336,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo mkdir -p /var/lib/xfstests-img<br>sudo mkdir -p /mnt/xfstests/test<br>sudo mkdir -p /mnt/xfstests/scratch<br><br>sudo fallocate -l 12G /var/lib/xfstests-img/test.img<br>sudo fallocate -l 12G /var/lib/xfstests-img/scratch.img<br><br>TEST_DEV=$(sudo losetup --find --show /var/lib/xfstests-img/test.img)<br>SCRATCH_DEV=$(sudo losetup --find --show /var/lib/xfstests-img/scratch.img)<br><br>echo &quot;TEST_DEV=$TEST_DEV&quot;<br>echo &quot;SCRATCH_DEV=$SCRATCH_DEV&quot;<br></code></pre></td></tr></table></figure>
 
 <p>格式化并挂载 <code>TEST_DEV</code>：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo mkfs.exfat -n TEST &quot;$TEST_DEV&quot;<br><br>sudo mount -t exfat \<br>  -o uid=0,gid=0,fmask=0000,dmask=0000 \<br>  &quot;$TEST_DEV&quot; /mnt/xfstests/test<br><br>mount | grep /mnt/xfstests/test<br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo mkfs.exfat -n TEST &quot;$TEST_DEV&quot;<br><br>sudo mount -t exfat \<br>  -o uid=0,gid=0,fmask=0000,dmask=0000 \<br>  &quot;$TEST_DEV&quot; /mnt/xfstests/test<br><br>mount | grep /mnt/xfstests/test<br><span class="hljs-meta prompt_"># </span><span class="language-bash">结果如下</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">/dev/loop5 on /mnt/xfstests/test <span class="hljs-built_in">type</span> exfat (rw,relatime,fmask=0000,dmask=0000,allow_utime=0022,iocharset=utf8,errors=remount-ro)</span><br></code></pre></td></tr></table></figure>
 
 <p><code>SCRATCH_DEV</code> 不要手动挂载，让 xfstests 自己格式化&#x2F;挂载。</p>
 <h2 id="5-配置local-config"><a href="#5-配置local-config" class="headerlink" title="5.配置local.config"></a>5.配置local.config</h2><p>在xfstests-dev根目录下执行：</p>
@@ -488,6 +491,153 @@
 
 <p>第五步：最后跑 all</p>
 <p><code>all</code> 等你环境、串口日志、dmesg 保存、panic 自动重启都配置好后再考虑测。</p>
+<h2 id="8-如何排除已知错误的案例"><a href="#8-如何排除已知错误的案例" class="headerlink" title="8.如何排除已知错误的案例"></a>8.如何排除已知错误的案例</h2><p>第一次跑exfat的时候错误如下，<code>./check -g quick</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs shell">root@iZuf62iu4ebdrfah86j43wZ:~/xfstest_amx/fs-test/xfstests-dev# ./check -g quick<br>FSTYP         -- exfat<br>PLATFORM      -- Linux/x86_64 iZuf62iu4ebdrfah86j43wZ 5.15.0-177-generic #187-Ubuntu SMP Sat Apr 11 22:54:33 UTC 2026<br>MKFS_OPTIONS  -- /dev/loop4<br>MOUNT_OPTIONS -- -o uid=0,gid=0,fmask=0000,dmask=0000 /dev/loop4 /mnt/xfstests/scratch<br><br>generic/001  4s ...  4s<br>generic/002        [not run] No hardlink support<br>...<br>generic/121        [not run] Dedupe not supported by test filesystem type: exfat<br>generic/122        [not run] Dedupe not supported by test filesystem type: exfat<br>generic/123        - output mismatch (see /root/xfstest_amx/fs-test/xfstests-dev/results/generic/123.out.bad)<br>    --- tests/generic/123.out   2026-05-16 14:19:52.498637607 +0800<br>    +++ /root/xfstest_amx/fs-test/xfstests-dev/results/generic/123.out.bad      2026-05-16 15:07:45.571156451 +0800<br>    @@ -1,7 +1,3 @@<br>     QA output created by 123<br>    -Permission denied<br>    -Permission denied<br>    -Permission denied<br>    -Permission denied<br>    -foo<br>    -bar<br>    ...<br>    (Run &#x27;diff -u /root/xfstest_amx/fs-test/xfstests-dev/tests/generic/123.out /root/xfstest_amx/fs-test/xfstests-dev/results/generic/123.out.bad&#x27;  to see the entire diff)<br>generic/124         3s<br>...<br>generic/392        [not run] exfat does not support shutdown<br>generic/393         1s<br>generic/394        [dumped core]<br>...<br>generic/557        [not run] exfat does not support metadata journaling<br>generic/563        - output mismatch (see /root/xfstest_amx/fs-test/xfstests-dev/results/generic/563.out.bad)<br>    --- tests/generic/563.out   2026-05-16 14:19:52.534638669 +0800<br>    +++ /root/xfstest_amx/fs-test/xfstests-dev/results/generic/563.out.bad      2026-05-16 15:15:34.484914578 +0800<br>    @@ -4,11 +4,13 @@<br>     write is in range<br>     write -&gt; read/write<br>     read is in range<br>    -write is in range<br>    +write has value of 0<br>    +write is NOT in range 15938355.2 .. 17616076.8<br>     read is in range<br>    ...<br>    (Run &#x27;diff -u /root/xfstest_amx/fs-test/xfstests-dev/tests/generic/563.out /root/xfstest_amx/fs-test/xfstests-dev/results/generic/563.out.bad&#x27;  to see the entire diff)<br>generic/564        [not run] exfat does not support mknod/mkfifo<br>...<br>generic/740        - output mismatch (see /root/xfstest_amx/fs-test/xfstests-dev/results/generic/740.out.bad)<br>    --- tests/generic/740.out   2026-05-16 14:19:52.550639141 +0800<br>    +++ /root/xfstest_amx/fs-test/xfstests-dev/results/generic/740.out.bad      2026-05-16 15:20:54.994336339 +0800<br>    @@ -1,2 +1,15 @@<br>     QA output created by 740<br>     Silence is golden.<br>    +Failed - overwrote fs type bfs!<br>    +Failed - overwrote fs type btrfs!<br>    +Failed - overwrote fs type cramfs!<br>    +Failed - overwrote fs type exfat!<br>    +Failed - overwrote fs type ext2!<br>    ...<br>    (Run &#x27;diff -u /root/xfstest_amx/fs-test/xfstests-dev/tests/generic/740.out /root/xfstest_amx/fs-test/xfstests-dev/results/generic/740.out.bad&#x27;  to see the entire diff)<br>generic/741         1s<br>generic/742        [not run] xfs_io fpunch  failed (old kernel/wrong fs?)<br>...<br>generic/761         2s<br>generic/763         0s<br>....<br>Ran: generic/001 generic/002 generic/003 ...<br>Not run: generic/002 generic/004 ...<br>Failures: generic/123 generic/394 generic/563 generic/740<br>Failed 4 of 637 tests<br><br></code></pre></td></tr></table></figure>
+
+<p>这次 <code>quick</code> 跑了 <strong>637 个测试</strong>，其中 <strong>526 个 notrun，107 个通过，4 个失败</strong>。失败项是：</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ada"><span class="hljs-keyword">generic</span>/<span class="hljs-number">123</span><br><span class="hljs-keyword">generic</span>/<span class="hljs-number">394</span><br><span class="hljs-keyword">generic</span>/<span class="hljs-number">563</span><br><span class="hljs-keyword">generic</span>/<span class="hljs-number">740</span><br></code></pre></td></tr></table></figure>
+
+<p>日志最后也明确是：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Failures</span>: generic/<span class="hljs-number">123</span> generic/<span class="hljs-number">394</span> generic/<span class="hljs-number">563</span> generic/<span class="hljs-number">740</span><br><span class="hljs-attribute">Failed</span> <span class="hljs-number">4</span> of <span class="hljs-number">637</span> tests<br></code></pre></td></tr></table></figure>
+
+<p><strong>1. 大量 notrun 正常，不用先管</strong></p>
+<p>你现在测的是 <strong>exFAT</strong>：</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ada">FSTYP <span class="hljs-comment">-- exfat</span><br></code></pre></td></tr></table></figure>
+
+<p>很多 notrun 都是 exFAT 天然不支持的能力，比如：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs angelscript">No hardlink support<br>Require symlinks support<br>ACLs <span class="hljs-keyword">not</span> supported<br>attr <span class="hljs-keyword">namespace</span> <span class="hljs-symbol">user</span> <span class="hljs-symbol">not</span> <span class="hljs-symbol">supported</span><br><span class="hljs-symbol">Reflink</span> <span class="hljs-symbol">not</span> <span class="hljs-symbol">supported</span><br><span class="hljs-symbol">Dedupe</span> <span class="hljs-symbol">not</span> <span class="hljs-symbol">supported</span><br><span class="hljs-symbol">disk</span> <span class="hljs-symbol">quotas</span> <span class="hljs-symbol">not</span> <span class="hljs-symbol">supported</span><br><span class="hljs-symbol">exfat</span> <span class="hljs-symbol">does</span> <span class="hljs-symbol">not</span> <span class="hljs-symbol">support</span> <span class="hljs-symbol">metadata</span> <span class="hljs-symbol">journaling</span><br><span class="hljs-symbol">exfat</span> <span class="hljs-symbol">does</span> <span class="hljs-symbol">not</span> <span class="hljs-symbol">support</span> <span class="hljs-symbol">shutdown</span><br><span class="hljs-symbol">xfs_io</span> <span class="hljs-symbol">falloc</span>/<span class="hljs-symbol">fpunch</span>/<span class="hljs-symbol">fzero</span> <span class="hljs-symbol">failed</span><br></code></pre></td></tr></table></figure>
+
+<p>这些不是失败，是 xfstests 根据文件系统能力主动跳过。exFAT 本身就没有 hardlink、symlink、ACL、xattr、reflink、quota、journal、shutdown&#x2F;freeze 这些能力，所以 notrun 多是正常现象。</p>
+<p>你真正要分析的是 4 个 failure。</p>
+<hr>
+<p><strong>2. generic&#x2F;123：大概率是 mount option 导致的假失败</strong></p>
+<p>失败片段：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">generic/123 - output mismatch<br><span class="hljs-bullet">- </span>Permission denied<br><span class="hljs-bullet">- </span>Permission denied<br><span class="hljs-bullet">- </span>Permission denied<br><span class="hljs-bullet">- </span>Permission denied<br><span class="hljs-bullet">- </span>foo<br><span class="hljs-bullet">- </span>bar<br></code></pre></td></tr></table></figure>
+
+<p>这个测试的目的，是验证 <strong>普通用户不能覆盖、追加、删除、移动 root 创建的文件</strong>；测试脚本里会让非 root 用户去 append、overwrite、rm、mv root 创建的文件。</p>
+<p>你的 mount 参数是：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">-o <span class="hljs-attribute">uid</span>=0,gid=0,fmask=0000,dmask=0000<br></code></pre></td></tr></table></figure>
+
+<p>问题就在这里。</p>
+<p><code>fmask=0000,dmask=0000</code> 会让 exFAT 上的文件&#x2F;目录表现得非常宽松，目录基本会是可写的。这样 fsgqa 这种普通测试用户就可能可以写、删、改 root 创建的文件，所以测试期望看到的 <code>Permission denied</code> 没出现。</p>
+<p>这不是 exFAT 内核 panic，也不一定是 exFAT bug，而是 <strong>测试挂载参数不适合跑权限类用例</strong>。</p>
+<p>建议把 <code>local.config</code> 里的 mount option 改成更接近普通 Linux 权限语义：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-built_in">export</span> <span class="hljs-attribute">MOUNT_OPTIONS</span>=<span class="hljs-string">&quot;-o uid=0,gid=0,fmask=0133,dmask=0022&quot;</span><br><span class="hljs-built_in">export</span> <span class="hljs-attribute">TEST_FS_MOUNT_OPTS</span>=<span class="hljs-string">&quot;-o uid=0,gid=0,fmask=0133,dmask=0022&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>或者用：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-built_in">export</span> <span class="hljs-attribute">MOUNT_OPTIONS</span>=<span class="hljs-string">&quot;-o uid=0,gid=0,umask=022&quot;</span><br><span class="hljs-built_in">export</span> <span class="hljs-attribute">TEST_FS_MOUNT_OPTS</span>=<span class="hljs-string">&quot;-o uid=0,gid=0,umask=022&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>然后单独重跑：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">sudo .<span class="hljs-regexp">/check generic/</span><span class="hljs-number">123</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>3. generic&#x2F;394：用户态 core，不一定是内核问题</strong></p>
+<p>日志是：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">generic</span>/<span class="hljs-number">394</span><span class="hljs-meta"> [dumped core]</span><br></code></pre></td></tr></table></figure>
+
+<p>这个测试的目的，是验证文件系统是否遵守 <strong>file size resource limit</strong>，也就是 <code>ulimit -f</code> 文件大小限制。它会设置 1GB 文件大小限制，然后用 <code>xfs_io truncate</code> 去触发边界行为。</p>
+<p>这个测试天然会触发 <code>SIGXFSZ</code>，也就是 “File size limit exceeded”。脚本里甚至有注释说明默认行为可能是 core dump，并尝试设置：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">ulimit</span> -c <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>所以 <code>generic/394 [dumped core]</code> 更像是 <strong>测试程序 xfs_io 被 SIGXFSZ 打掉了</strong>，不是说内核崩了。</p>
+<p>你需要看这两个文件确认：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gradle">cat results<span class="hljs-regexp">/generic/</span><span class="hljs-number">394</span>.full<br>cat results<span class="hljs-regexp">/generic/</span><span class="hljs-number">394</span>.out.bad <span class="hljs-number">2</span>&gt;<span class="hljs-regexp">/dev/</span><span class="hljs-keyword">null</span> || <span class="hljs-keyword">true</span><br>dmesg -T | tail -n <span class="hljs-number">100</span><br></code></pre></td></tr></table></figure>
+
+<p>如果 dmesg 里面没有：</p>
+<figure class="highlight nestedtext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs nestedtext"><span class="hljs-attribute">BUG</span><span class="hljs-punctuation">:</span><br><span class="hljs-attribute">Oops</span><span class="hljs-punctuation">:</span><br><span class="hljs-attribute">panic</span><span class="hljs-punctuation">:</span><br><span class="hljs-attribute">KASAN</span><span class="hljs-punctuation">:</span><br><span class="hljs-attribute">general protection fault</span><span class="hljs-punctuation">:</span><br><span class="hljs-attribute">NULL pointer dereference</span><span class="hljs-punctuation">:</span><br></code></pre></td></tr></table></figure>
+
+<p>那就不用把它当 exFAT 内核 bug。</p>
+<p><strong>4. generic&#x2F;563：cgroup writeback 记账失败，和 exFAT 数据一致性关系不大</strong></p>
+<p>失败片段：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">write</span> has value of <span class="hljs-number">0</span><br><span class="hljs-attribute">write</span> is NOT in range <span class="hljs-number">15938355</span>.<span class="hljs-number">2</span> .. <span class="hljs-number">17616076</span>.<span class="hljs-number">8</span><br></code></pre></td></tr></table></figure>
+
+<p>这个测试的目的，是验证 <strong>cgroup aware writeback</strong> 能否正确统计 I&#x2F;O。它会在不同 cgroup 里读写文件，然后检查 <code>io.stat</code> 里的 read&#x2F;write bytes 是否落在预期范围内。</p>
+<p>你的失败意思是：某个阶段预期应该统计到大约 16MB write，但是实际统计到的是 0。</p>
+<p>这类失败通常是：</p>
+<ol>
+<li>cgroup v2 I&#x2F;O accounting 环境问题；</li>
+<li>loop 设备上的 writeback 统计不稳定；</li>
+<li>当前内核&#x2F;块设备&#x2F;loop&#x2F;exFAT 组合不符合测试预期；</li>
+<li>不是文件内容损坏，也不是 bitmap 泄漏，也不是 exFAT cache panic。</li>
+</ol>
+<p>建议先单独重跑：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">sudo .<span class="hljs-regexp">/check generic/</span><span class="hljs-number">563</span><br></code></pre></td></tr></table></figure>
+
+<p>然后看：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs gradle">cat results<span class="hljs-regexp">/generic/</span><span class="hljs-number">563</span>.full<br>cat results<span class="hljs-regexp">/generic/</span><span class="hljs-number">563</span>.out.bad<br>mount | <span class="hljs-keyword">grep</span> cgroup<br>cat <span class="hljs-regexp">/sys/</span>fs<span class="hljs-regexp">/cgroup/</span>cgroup.controllers<br>cat <span class="hljs-regexp">/sys/</span>fs<span class="hljs-regexp">/cgroup/</span>cgroup.subtree_control<br></code></pre></td></tr></table></figure>
+
+<p>如果你只是为了抓 exFAT 崩溃、bitmap、buffer_head、cache race，这个用例可以先放到 exclude 里。</p>
+<hr>
+<p><strong>5. generic&#x2F;740：mkfs.exfat 行为问题，不是内核问题</strong></p>
+<p>失败片段：</p>
+<figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs dos">Failed - overwrote <span class="hljs-built_in">fs</span> <span class="hljs-built_in">type</span> bfs!<br>Failed - overwrote <span class="hljs-built_in">fs</span> <span class="hljs-built_in">type</span> btrfs!<br>Failed - overwrote <span class="hljs-built_in">fs</span> <span class="hljs-built_in">type</span> cramfs!<br>Failed - overwrote <span class="hljs-built_in">fs</span> <span class="hljs-built_in">type</span> exfat!<br>Failed - overwrote <span class="hljs-built_in">fs</span> <span class="hljs-built_in">type</span> ext2!<br></code></pre></td></tr></table></figure>
+
+<p>这个测试的目的，是检查当前文件系统的 <code>mkfs</code> 工具是否能识别并拒绝覆盖已有的其他文件系统。测试脚本会先在 <code>SCRATCH_DEV</code> 上创建 bfs&#x2F;btrfs&#x2F;cramfs&#x2F;ext2 等文件系统，然后再尝试用当前 <code>$FSTYP</code> 的 mkfs 去覆盖它。</p>
+<p>你这里当前 <code>$FSTYP=exfat</code>，所以它实际是在测：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">mkfs.exfat <span class="hljs-regexp">/dev/</span>loop4<br></code></pre></td></tr></table></figure>
+
+<p>是否会拒绝覆盖已有文件系统。</p>
+<p>结果显示 <code>mkfs.exfat</code> 直接覆盖了已有 superblock，所以 xfstests 判失败。</p>
+<p>这个属于 <strong>exfatprogs&#x2F;mkfs.exfat 用户态工具行为</strong>，不是 Linux exFAT 内核读写路径的问题。你可以确认版本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">mkfs.exfat -V<br><span class="hljs-built_in">which</span> mkfs.exfat<br></code></pre></td></tr></table></figure>
+
+<p>如果你的目标是测内核 exFAT 稳定性，这个用例可以先排除。</p>
+<hr>
+<p><strong>6. 当前最推荐的处理方式</strong></p>
+<p>先建一个 exclude 文件，把这几个明显不适合你当前目标的用例排掉：</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs ada">cat &gt; exfat.exclude &lt;&lt;<span class="hljs-symbol">&#x27;EOF</span>&#x27;<br><span class="hljs-keyword">generic</span>/<span class="hljs-number">394</span><br><span class="hljs-keyword">generic</span>/<span class="hljs-number">563</span><br><span class="hljs-keyword">generic</span>/<span class="hljs-number">740</span><br>EOF<br></code></pre></td></tr></table></figure>
+
+<p><code>generic/123</code> 我建议先不要排，先改 mount options 验证一下：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lua">vim <span class="hljs-keyword">local</span>.<span class="hljs-built_in">config</span><br></code></pre></td></tr></table></figure>
+
+<p>改成：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-built_in">export</span> <span class="hljs-attribute">MOUNT_OPTIONS</span>=<span class="hljs-string">&quot;-o uid=0,gid=0,fmask=0133,dmask=0022&quot;</span><br><span class="hljs-built_in">export</span> <span class="hljs-attribute">TEST_FS_MOUNT_OPTS</span>=<span class="hljs-string">&quot;-o uid=0,gid=0,fmask=0133,dmask=0022&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>然后：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">sudo .<span class="hljs-regexp">/check generic/</span><span class="hljs-number">123</span><br></code></pre></td></tr></table></figure>
+
+<p>如果 <code>generic/123</code> 通过，再跑：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">sudo ./<span class="hljs-keyword">check</span> -E exfat.<span class="hljs-keyword">exclude</span> -g quick<br></code></pre></td></tr></table></figure>
+
+<p>如果 <code>generic/123</code> 仍失败，再把它也加进去：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">echo generic/<span class="hljs-number">123</span> &gt;&gt; exfat.<span class="hljs-keyword">exclude</span><br>sudo ./<span class="hljs-keyword">check</span> -E exfat.<span class="hljs-keyword">exclude</span> -g quick<br></code></pre></td></tr></table></figure>
+
+<h2 id="9-exfat关于generic-x2F-123报错如何处理"><a href="#9-exfat关于generic-x2F-123报错如何处理" class="headerlink" title="9.exfat关于generic&#x2F;123报错如何处理"></a>9.exfat关于generic&#x2F;123报错如何处理</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sed -i &#x27;s/fmask=0000,dmask=0000/fmask=0133,dmask=0022/g&#x27; local.config<br></code></pre></td></tr></table></figure>
+
+<p>应该变成</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">grep -nE &quot;MOUNT_OPTIONS|TEST_FS_MOUNT_OPTS|fmask|dmask|umask&quot; local.config<br></code></pre></td></tr></table></figure>
+
+<img src="/2026/05/16/%E9%98%BF%E9%87%8C%E4%BA%91ubuntu%E6%90%AD%E5%BB%BAxfstests%E6%B5%8B%E8%AF%95/image-20260516161358815.png" srcset="/img/loading.gif" lazyload alt="image-20260516161358815" style="zoom:80%;">
+
+<p>重新挂载 TEST_DEV</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">source ./local.config<br><br>umount &quot;$TEST_DIR&quot; 2&gt;/dev/null || true<br>mount -t exfat $TEST_FS_MOUNT_OPTS &quot;$TEST_DEV&quot; &quot;$TEST_DIR&quot;<br><br>mount | grep /mnt/xfstests/test<br></code></pre></td></tr></table></figure>
+
+<p>这时候应该看到：</p>
+<img src="/2026/05/16/%E9%98%BF%E9%87%8C%E4%BA%91ubuntu%E6%90%AD%E5%BB%BAxfstests%E6%B5%8B%E8%AF%95/image-20260516161518589.png" srcset="/img/loading.gif" lazyload alt="image-20260516161518589" style="zoom:80%;">
+
+<p>重新跑 generic&#x2F;123</p>
+<img src="/2026/05/16/%E9%98%BF%E9%87%8C%E4%BA%91ubuntu%E6%90%AD%E5%BB%BAxfstests%E6%B5%8B%E8%AF%95/image-20260516161603010.png" srcset="/img/loading.gif" lazyload alt="image-20260516161603010" style="zoom:80%;">
+
+<h2 id="10-最新的配置文件"><a href="#10-最新的配置文件" class="headerlink" title="10.最新的配置文件"></a>10.最新的配置文件</h2><ul>
+<li>环境变量</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell">TEST_DEV=$(sudo losetup --find --show /var/lib/xfstests-img/test.img)<br>SCRATCH_DEV=$(sudo losetup --find --show /var/lib/xfstests-img/scratch.img)<br><br>echo &quot;TEST_DEV=$TEST_DEV&quot;<br>echo &quot;SCRATCH_DEV=$SCRATCH_DEV&quot;<br><br>sudo mount -t exfat \<br>  -o uid=0,gid=0,fmask=0000,dmask=0000 \<br>  &quot;$TEST_DEV&quot; /mnt/xfstests/test<br><br>mount | grep /mnt/xfstests/test<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>local.config</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell">root@iZuf62iu4ebdrfah86j43wZ:~/xfstest_amx/fs-test/xfstests-dev# cat local.config<br>export FSTYP=exfat<br><br>export TEST_DEV=/dev/loop3<br>export TEST_DIR=/mnt/xfstests/test<br><br>export SCRATCH_DEV=/dev/loop4<br>export SCRATCH_MNT=/mnt/xfstests/scratch<br><br>export MOUNT_OPTIONS=&quot;-o uid=0,gid=0,fmask=0133,dmask=0022&quot;<br>export TEST_FS_MOUNT_OPTS=&quot;-o uid=0,gid=0,fmask=0133,dmask=0022&quot;<br><br>export RESULT_BASE=/root/xfstest_amx/fs-test/xfstests-dev/results<br>export REPORT_DIR=/root/xfstest_amx/fs-test/xfstests-dev/results<br><br>export KEEP_DMESG=yes<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>exfat.exclude</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">root@iZuf62iu4ebdrfah86j43wZ:~/xfstest_amx/fs-test/xfstests-dev# cat exfat.exclude<br>generic/394<br>generic/563<br>generic/740<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>执行quick</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./check -E exfat.exclude -g quick<br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
