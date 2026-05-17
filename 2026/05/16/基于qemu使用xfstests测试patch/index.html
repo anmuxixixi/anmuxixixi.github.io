@@ -26,8 +26,20 @@
 <meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260516174238226.png">
 <meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260516174640832.png">
 <meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260516175154213.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260516213921625.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260516214023536.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517231218073.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517231454258.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517230459735.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517230930563.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517231838637.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517232025359.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517232700897.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517233305254.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517233543133.png">
+<meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517233658193.png">
 <meta property="article:published_time" content="2026-05-16T09:38:59.000Z">
-<meta property="article:modified_time" content="2026-05-16T10:23:55.001Z">
+<meta property="article:modified_time" content="2026-05-17T15:41:18.264Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260516174238226.png">
@@ -218,7 +230,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          865 字
+          10k 字
         
       </span>
     
@@ -229,7 +241,7 @@
         
         
         
-          8 分钟
+          85 分钟
         
       </span>
     
@@ -301,6 +313,187 @@
 
 <p>改用南大</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">git clone --depth=1 --single-branch -b fs-next \<br>https://mirror.nju.edu.cn/git/linux-next.git \<br>linux-next-fs<br></code></pre></td></tr></table></figure>
+
+<h3 id="0-4-编译前的准备工作"><a href="#0-4-编译前的准备工作" class="headerlink" title="0.4 编译前的准备工作"></a>0.4 编译前的准备工作</h3><p>1.编译配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">make olddefconfig<br></code></pre></td></tr></table></figure>
+
+<p>2.写配置脚本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat &gt; enable-fsnext-exfat-qemu.sh &lt;&lt;&#x27;EOF&#x27;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>set -e<br><br>enable() &#123;<br>    scripts/config --enable &quot;$1&quot; || true<br>&#125;<br><br>module() &#123;<br>    scripts/config --module &quot;$1&quot; || true<br>&#125;<br><br>disable() &#123;<br>    scripts/config --disable &quot;$1&quot; || true<br>&#125;<br><br>setstr() &#123;<br>    scripts/config --set-str &quot;$1&quot; &quot;$2&quot; || true<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">避免 Ubuntu 配置里的证书路径导致上游内核编译失败</span><br>setstr SYSTEM_TRUSTED_KEYS &quot;&quot;<br>setstr SYSTEM_REVOCATION_KEYS &quot;&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">QEMU root=/dev/vda 无 initramfs 启动所需驱动，必须内建</span><br>enable BLK_DEV<br>enable PCI<br>enable VIRTIO<br>enable VIRTIO_PCI<br>enable VIRTIO_BLK<br>enable VIRTIO_NET<br>enable EXT4_FS<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">基础伪文件系统</span><br>enable DEVTMPFS<br>enable DEVTMPFS_MOUNT<br>enable TMPFS<br>enable PROC_FS<br>enable SYSFS<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">串口控制台</span><br>enable SERIAL_8250<br>enable SERIAL_8250_CONSOLE<br>enable TTY<br>enable VT<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">网络</span><br>enable NET<br>enable INET<br>enable PACKET<br>enable UNIX<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">exFAT 直接编进内核，避免模块路径问题</span><br>enable EXFAT_FS<br>enable NLS<br>enable NLS_UTF8<br>enable NLS_CODEPAGE_437<br>enable NLS_CODEPAGE_936<br>enable NLS_ISO8859_1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">调试能力</span><br>enable IKCONFIG<br>enable IKCONFIG_PROC<br>enable KALLSYMS<br>enable KALLSYMS_ALL<br>enable DEBUG_KERNEL<br>enable DEBUG_LIST<br>enable SLUB_DEBUG<br>enable DEBUG_VM<br>enable BUG_ON_DATA_CORRUPTION<br>enable FRAME_POINTER<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">可选：fault injection，后续可以配合专项测试</span><br>enable FAULT_INJECTION<br>enable FAILSLAB<br>enable FAIL_PAGE_ALLOC<br>enable FAIL_MAKE_REQUEST<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">可选：KCOV，后续接 syzkaller 用</span><br>enable KCOV<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">第一轮建议先不要打开 KASAN，确认能启动、能跑 xfstests 后再打开</span><br>disable KASAN<br>disable KASAN_GENERIC<br>disable KASAN_INLINE<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">避免模块签名强制</span><br>disable MODULE_SIG_ALL<br>disable MODULE_SIG_FORCE<br><br>make olddefconfig<br>EOF<br><br>chmod +x enable-fsnext-exfat-qemu.sh<br>./enable-fsnext-exfat-qemu.sh<br></code></pre></td></tr></table></figure>
+
+<p>检查关键配置：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">grep -E <span class="hljs-string">&quot;CONFIG_EXFAT|CONFIG_VIRTIO_BLK|CONFIG_VIRTIO_PCI|CONFIG_EXT4_FS|CONFIG_DEVTMPFS|CONFIG_SERIAL_8250|CONFIG_DEBUG_LIST|CONFIG_SLUB_DEBUG|CONFIG_KASAN&quot;</span> .config<br></code></pre></td></tr></table></figure>
+
+<p>你至少要看到：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell">CONFIG_EXFAT_FS=y<br>CONFIG_VIRTIO_BLK=y<br>CONFIG_VIRTIO_PCI=y<br>CONFIG_EXT4_FS=y<br>CONFIG_DEVTMPFS=y<br>CONFIG_DEVTMPFS_MOUNT=y<br>CONFIG_SERIAL_8250=y<br>CONFIG_SERIAL_8250_CONSOLE=y<br>CONFIG_DEBUG_LIST=y<br>CONFIG_SLUB_DEBUG=y<br><span class="hljs-meta prompt_"># </span><span class="language-bash">CONFIG_KASAN is not <span class="hljs-built_in">set</span></span><br></code></pre></td></tr></table></figure>
+
+<h3 id="0-5-编译内核"><a href="#0-5-编译内核" class="headerlink" title="0.5 编译内核"></a>0.5 编译内核</h3><p>我的阿里云只有2G，编译gpu驱动的时候会被OOM</p>
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260516213921625.png" srcset="/img/loading.gif" lazyload alt="image-20260516213921625" style="zoom:80%;">
+
+<p>关闭gpu：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">scripts/config --disable DRM_AMDGPU<br>scripts/config --disable DRM_RADEON<br>scripts/config --disable DRM_NOUVEAU<br>scripts/config --disable DRM_I915<br>scripts/config --disable DRM_XE<br>scripts/config --disable DRM_AST<br>scripts/config --disable DRM_QXL<br>scripts/config --disable DRM_VIRTIO_GPU<br>scripts/config --disable DRM_SIMPLEDRM<br>scripts/config --disable DRM<br><br>make olddefconfig<br></code></pre></td></tr></table></figure>
+
+<p>确认关闭：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">grep -E &quot;CONFIG_DRM|CONFIG_DRM_AMDGPU|CONFIG_DRM_I915|CONFIG_DRM_XE|CONFIG_DRM_NOUVEAU&quot; .config<br></code></pre></td></tr></table></figure>
+
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260516214023536.png" srcset="/img/loading.gif" lazyload alt="image-20260516214023536" style="zoom:80%;">
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">make -j$(nproc) bzImage<br></code></pre></td></tr></table></figure>
+
+<p>😭2核2GB，真tm心累啊，我要提升我的配置</p>
+<hr>
+<p>编译成功截图如下：</p>
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517231218073.png" srcset="/img/loading.gif" lazyload alt="image-20260517231218073" style="zoom: 58%;">
+
+<h3 id="0-6-制作qemu-rootfs"><a href="#0-6-制作qemu-rootfs" class="headerlink" title="0.6 制作qemu rootfs"></a>0.6 制作qemu rootfs</h3><p>下面制作一个 Ubuntu 22.04 rootfs 镜像，QEMU 会把它作为 <code>/dev/vda</code> 启动。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> ~/fsnext-exfat<br><br>qemu-img create -f raw rootfs.img 30G<br>mkfs.ext4 -F rootfs.img<br><br><span class="hljs-built_in">mkdir</span> -p /mnt/fsnext-root<br>mount -o loop rootfs.img /mnt/fsnext-root<br></code></pre></td></tr></table></figure>
+
+<p>用 debootstrap 安装 Ubuntu 22.04：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">用 debootstrap 安装 Ubuntu 22.04：<br></code></pre></td></tr></table></figure>
+
+<p>配置 apt 源：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> &gt; /mnt/fsnext-root/etc/apt/sources.list &lt;&lt;<span class="hljs-string">&#x27;EOF&#x27;</span><br>deb http://mirrors.aliyun.com/ubuntu/ jammy main restricted universe multiverse<br>deb http://mirrors.aliyun.com/ubuntu/ jammy-updates main restricted universe multiverse<br>deb http://mirrors.aliyun.com/ubuntu/ jammy-backports main restricted universe multiverse<br>deb http://mirrors.aliyun.com/ubuntu/ jammy-security main restricted universe multiverse<br>EOF<br><br><span class="hljs-built_in">cp</span> /etc/resolv.conf /mnt/fsnext-root/etc/resolv.conf<br></code></pre></td></tr></table></figure>
+
+<p>基础系统配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> &gt; /mnt/fsnext-root/etc/hostname &lt;&lt;<span class="hljs-string">&#x27;EOF&#x27;</span><br>fsnext-exfat<br>EOF<br><br><span class="hljs-built_in">cat</span> &gt; /mnt/fsnext-root/etc/hosts &lt;&lt;<span class="hljs-string">&#x27;EOF&#x27;</span><br>127.0.0.1 localhost<br>127.0.1.1 fsnext-exfat<br>EOF<br><br><span class="hljs-built_in">cat</span> &gt; /mnt/fsnext-root/etc/fstab &lt;&lt;<span class="hljs-string">&#x27;EOF&#x27;</span><br>/dev/vda / ext4 defaults 0 1<br>EOF<br></code></pre></td></tr></table></figure>
+
+<p>挂载 chroot 需要的目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">mount -t proc none /mnt/fsnext-root/proc<br>mount -t sysfs none /mnt/fsnext-root/sys<br>mount --<span class="hljs-built_in">bind</span> /dev /mnt/fsnext-root/dev<br>mount --<span class="hljs-built_in">bind</span> /dev/pts /mnt/fsnext-root/dev/pts<br></code></pre></td></tr></table></figure>
+
+<p>进入 chroot：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">chroot</span> /mnt/fsnext-root /bin/bash<br></code></pre></td></tr></table></figure>
+
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517231454258.png" srcset="/img/loading.gif" lazyload alt="image-20260517231454258" style="zoom:80%;">
+
+<p>可以看到执行完了以后，我来到了qemu的rootfs里面</p>
+<h3 id="0-7-在rootfs里安装xfstests依赖"><a href="#0-7-在rootfs里安装xfstests依赖" class="headerlink" title="0.7 在rootfs里安装xfstests依赖"></a>0.7 在rootfs里安装xfstests依赖</h3><blockquote>
+<p>一定是在qemu的rootfs里面，0.6不成功不要搞0.7</p>
+</blockquote>
+<p>以下命令在 <strong>chroot 里面</strong> 执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">apt update<br><br>apt install -y \<br>  systemd-sysv openssh-server iproute2 iputils-ping net-tools \<br>  ca-certificates git make gcc g++ bc automake autoconf libtool \<br>  libtool-bin m4 pkg-config \<br>  acl attr fio dbench dump e2fsprogs exfatprogs xfsprogs \<br>  libacl1-dev libaio-dev libattr1-dev libcap-dev \<br>  libgdbm-dev libgdbm-compat-dev liburing-dev \<br>  uuid-dev uuid-runtime quota sqlite3 python3 psmisc \<br>  vim less<br></code></pre></td></tr></table></figure>
+
+<p>安装依赖报错：</p>
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517230459735.png" srcset="/img/loading.gif" lazyload alt="image-20260517230459735" style="zoom:75%;">
+
+<blockquote>
+<p>在 chroot 里，直接执行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat &gt; /etc/apt/sources.list &lt;&lt;&#x27;EOF&#x27;<br>deb http://mirrors.aliyun.com/ubuntu/ jammy main restricted universe multiverse<br>deb http://mirrors.aliyun.com/ubuntu/ jammy-updates main restricted universe multiverse<br>deb http://mirrors.aliyun.com/ubuntu/ jammy-backports main restricted universe multiverse<br>deb http://mirrors.aliyun.com/ubuntu/ jammy-security main restricted universe multiverse<br>EOF<br><br>apt clean<br>rm -rf /var/lib/apt/lists/*<br>apt update<br></code></pre></td></tr></table></figure>
+
+<p>重新安装依赖</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">apt install -y \<br>  systemd-sysv openssh-server iproute2 iputils-ping net-tools \<br>  ca-certificates git make gcc g++ bc automake autoconf libtool \<br>  libtool-bin m4 pkg-config \<br>  acl attr fio dbench dump e2fsprogs exfatprogs xfsprogs \<br>  libacl1-dev libaio-dev libattr1-dev libcap-dev \<br>  libgdbm-dev libgdbm-compat-dev liburing-dev \<br>  uuid-dev uuid-runtime quota sqlite3 python3 psmisc \<br>  vim less<br></code></pre></td></tr></table></figure>
+
+<p>OK，一切顺利7</p>
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517230930563.png" srcset="/img/loading.gif" lazyload alt="image-20260517230930563" style="zoom:58%;">
+</blockquote>
+<p>设置 root 密码，方便 SSH 登录。比如设成 <code>root</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;root:root&#x27;</span> | chpasswd<br></code></pre></td></tr></table></figure>
+
+<p>允许 root SSH 登录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">sed -i <span class="hljs-string">&#x27;s/^#PermitRootLogin.*/PermitRootLogin yes/&#x27;</span> /etc/ssh/sshd_config<br>sed -i <span class="hljs-string">&#x27;s/^PermitRootLogin.*/PermitRootLogin yes/&#x27;</span> /etc/ssh/sshd_config<br>sed -i <span class="hljs-string">&#x27;s/^#PasswordAuthentication.*/PasswordAuthentication yes/&#x27;</span> /etc/ssh/sshd_config<br>sed -i <span class="hljs-string">&#x27;s/^PasswordAuthentication.*/PasswordAuthentication yes/&#x27;</span> /etc/ssh/sshd_config<br></code></pre></td></tr></table></figure>
+
+<p>配置 systemd-networkd，让 QEMU 里自动 DHCP：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mkdir</span> -p /etc/systemd/network<br><br><span class="hljs-built_in">cat</span> &gt; /etc/systemd/network/20-wired.network &lt;&lt;<span class="hljs-string">&#x27;EOF&#x27;</span><br>[Match]<br>Name=e* en* eth*<br><br>[Network]<br>DHCP=<span class="hljs-built_in">yes</span><br>EOF<br><br>systemctl <span class="hljs-built_in">enable</span> systemd-networkd<br>systemctl <span class="hljs-built_in">enable</span> ssh<br></code></pre></td></tr></table></figure>
+
+<p>启用串口登录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mkdir</span> -p /etc/systemd/system/getty.target.wants<br><span class="hljs-built_in">ln</span> -sf /lib/systemd/system/serial-getty@.service \<br>  /etc/systemd/system/getty.target.wants/serial-getty@ttyS0.service<br></code></pre></td></tr></table></figure>
+
+<p>创建 xfstests 测试用户：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">useradd -m fsgqa || <span class="hljs-literal">true</span><br>useradd -m fsgqa2 || <span class="hljs-literal">true</span><br>useradd --badname -m 123456-fsgqa || <span class="hljs-literal">true</span><br>groupadd fsgqa || <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
+
+<p>下载并编译 xfstests：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs ba">cd /root<br>git clone https://mirrors.aliyun.com/linux-kernel-git/pub/scm/fs/xfs/xfstests-dev.git<br>cd xfstests-dev<br><br>make -j$(nproc)<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>依旧编译报错：</p>
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517231838637.png" srcset="/img/loading.gif" lazyload alt="image-20260517231838637" style="zoom:80%;">
+
+<p>安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">apt install -y xfslibs-dev xfsprogs<br></code></pre></td></tr></table></figure>
+
+<p>OK，菩萨保佑编过了</p>
+</blockquote>
+<p>退出 chroot：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">exit</span><br></code></pre></td></tr></table></figure>
+
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517232025359.png" srcset="/img/loading.gif" lazyload alt="image-20260517232025359" style="zoom:80%;">
+
+<p>退出后回到了宿主机</p>
+<p>卸载 rootfs：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">umount /mnt/fsnext-root/proc<br>umount /mnt/fsnext-root/sys<br>umount /mnt/fsnext-root/dev/pts<br>umount /mnt/fsnext-root/dev<br>umount /mnt/fsnext-root<br></code></pre></td></tr></table></figure>
+
+<h3 id="0-8-创建-exFAT-测试盘"><a href="#0-8-创建-exFAT-测试盘" class="headerlink" title="0.8 创建 exFAT 测试盘"></a>0.8 创建 exFAT 测试盘</h3><p>在宿主机创建两块独立虚拟盘：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> ~/fsnext-exfat<br><br>qemu-img create -f raw test-exfat.img 16G<br>qemu-img create -f raw scratch-exfat.img 20G<br></code></pre></td></tr></table></figure>
+
+<p>进入 QEMU 后它们会变成：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">/dev/vdb  -&gt; TEST_DEV<br>/dev/vdc  -&gt; SCRATCH_DEV<br></code></pre></td></tr></table></figure>
+
+<p>注意：<code>/dev/vdc</code> 会被 xfstests 反复格式化，数据会被破坏。</p>
+<h3 id="0-8-启动qemu"><a href="#0-8-启动qemu" class="headerlink" title="0.8 启动qemu"></a>0.8 启动qemu</h3><p>先根据是否有 KVM 设置加速参数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-keyword">if</span> [ -e /dev/kvm ]; <span class="hljs-keyword">then</span><br>    ACCEL=<span class="hljs-string">&quot;-enable-kvm -cpu host&quot;</span><br><span class="hljs-keyword">else</span><br>    ACCEL=<span class="hljs-string">&quot;-accel tcg -cpu max&quot;</span><br><span class="hljs-keyword">fi</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$ACCEL</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> ~/fsnext-exfat<br><br>qemu-system-x86_64 \<br>  <span class="hljs-variable">$ACCEL</span> \<br>  -m 4096 \<br>  -smp 4 \<br>  -kernel ~/fsnext-exfat/linux-next-fs/arch/x86/boot/bzImage \<br>  -append <span class="hljs-string">&quot;root=/dev/vda rw console=ttyS0 earlyprintk=serial nokaslr ignore_loglevel oops=panic panic=1 slub_debug=FZPU kasan_multi_shot=1&quot;</span> \<br>  -drive file=rootfs.img,format=raw,<span class="hljs-keyword">if</span>=virtio \<br>  -drive file=test-exfat.img,format=raw,<span class="hljs-keyword">if</span>=virtio \<br>  -drive file=scratch-exfat.img,format=raw,<span class="hljs-keyword">if</span>=virtio \<br>  -net nic,model=virtio \<br>  -net user,hostfwd=tcp::10022-:22 \<br>  -nographic \<br>  2&gt;&amp;1 | <span class="hljs-built_in">tee</span> qemu-console.log<br></code></pre></td></tr></table></figure>
+
+<p>成功拉起QEMU</p>
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517232700897.png" srcset="/img/loading.gif" lazyload alt="image-20260517232700897" style="zoom:80%;">
+
+<p>输入用户名：root，密码：root进入</p>
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517233305254.png" srcset="/img/loading.gif" lazyload alt="image-20260517233305254" style="zoom:67%;">
+
+<blockquote>
+<p>如果提示报错的话</p>
+<p>先按 <code>Ctrl+A</code>，松开后再按 <code>x</code>，退出qemu</p>
+<p>然后在 <strong>宿主机</strong> 执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> ~/fsnext-exfat<br>mount -o loop rootfs.img /mnt/fsnext-root<br></code></pre></td></tr></table></figure>
+
+<p>挂载 chroot 需要的目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">mount -t proc none /mnt/fsnext-root/proc<br>mount -t sysfs none /mnt/fsnext-root/sys<br>mount --<span class="hljs-built_in">bind</span> /dev /mnt/fsnext-root/dev<br>mount --<span class="hljs-built_in">bind</span> /dev/pts /mnt/fsnext-root/dev/pts<br></code></pre></td></tr></table></figure>
+
+<p>进入 chroot：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">chroot</span> /mnt/fsnext-root /bin/bash<br></code></pre></td></tr></table></figure>
+
+<p>现在你已经进入 QEMU rootfs 里面，执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;root:root&#x27;</span> | chpasswd<br>usermod -U root || <span class="hljs-literal">true</span><br>passwd -S root<br></code></pre></td></tr></table></figure>
+
+<p>正常 <code>passwd -S root</code> 应该类似：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">root P ...<br></code></pre></td></tr></table></figure>
+
+<p>其中 <code>P</code> 表示 root 有可用密码。</p>
+<p>再确认 ssh 配置，虽然你现在是串口登录，但后面 SSH 也要用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">sed -i <span class="hljs-string">&#x27;s/^#PermitRootLogin.*/PermitRootLogin yes/&#x27;</span> /etc/ssh/sshd_config<br>sed -i <span class="hljs-string">&#x27;s/^PermitRootLogin.*/PermitRootLogin yes/&#x27;</span> /etc/ssh/sshd_config<br>sed -i <span class="hljs-string">&#x27;s/^#PasswordAuthentication.*/PasswordAuthentication yes/&#x27;</span> /etc/ssh/sshd_config<br>sed -i <span class="hljs-string">&#x27;s/^PasswordAuthentication.*/PasswordAuthentication yes/&#x27;</span> /etc/ssh/sshd_config<br></code></pre></td></tr></table></figure>
+
+<p>退出 chroot：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">exit</span><br></code></pre></td></tr></table></figure>
+
+<p>卸载：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">umount /mnt/fsnext-root/proc<br>umount /mnt/fsnext-root/sys<br>umount /mnt/fsnext-root/dev/pts<br>umount /mnt/fsnext-root/dev<br>umount /mnt/fsnext-root<br></code></pre></td></tr></table></figure>
+
+<p>然后重新启动 QEMU，输入root:root</p>
+</blockquote>
+<hr>
+<p>登录进去后先确认内核：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">uname</span> -a<br><span class="hljs-built_in">cat</span> /root/kernel-commit-oneline.txt<br><span class="hljs-built_in">cat</span> /root/exfat-commits.txt | <span class="hljs-built_in">head</span><br>zgrep CONFIG_EXFAT /proc/config.gz || grep CONFIG_EXFAT /boot/config-$(<span class="hljs-built_in">uname</span> -r) 2&gt;/dev/null || <span class="hljs-literal">true</span><br><span class="hljs-built_in">cat</span> /proc/filesystems | grep exfat<br></code></pre></td></tr></table></figure>
+
+<p>你要确认这里显示的是你刚编译的 linux-next-fs 内核，而不是阿里云宿主机的 <code>5.15.0-177-generic</code>。</p>
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517233543133.png" srcset="/img/loading.gif" lazyload alt="image-20260517233543133" style="zoom:80%;">
+
+<p>✅<strong>确认我今天刚编译的最新内核</strong></p>
+<h2 id="1-QEMU运行xfstest"><a href="#1-QEMU运行xfstest" class="headerlink" title="1.QEMU运行xfstest"></a>1.QEMU运行xfstest</h2><h3 id="1-1-配置xfstest"><a href="#1-1-配置xfstest" class="headerlink" title="1.1 配置xfstest"></a>1.1 配置xfstest</h3><p>以下都在 <strong>QEMU 虚拟机里</strong> 执行。</p>
+<p>创建挂载点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mkdir</span> -p /mnt/xfstests/test<br><span class="hljs-built_in">mkdir</span> -p /mnt/xfstests/scratch<br></code></pre></td></tr></table></figure>
+
+<p>格式化并挂载 TEST_DEV：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">mkfs.exfat -n TEST /dev/vdb<br><br>mount -t exfat -o uid=0,gid=0,fmask=0133,dmask=0022 /dev/vdb /mnt/xfstests/test<br><br>mount | grep xfstests<br></code></pre></td></tr></table></figure>
+
+<img src="/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517233658193.png" srcset="/img/loading.gif" lazyload alt="image-20260517233658193" style="zoom: 67%;">
+
+<p>进入 xfstests：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> /root/xfstests-dev<br></code></pre></td></tr></table></figure>
+
+<p>写 <code>local.config</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> &gt; local.config &lt;&lt;<span class="hljs-string">&#x27;EOF&#x27;</span><br><span class="hljs-built_in">export</span> FSTYP=exfat<br><br><span class="hljs-built_in">export</span> TEST_DEV=/dev/vdb<br><span class="hljs-built_in">export</span> TEST_DIR=/mnt/xfstests/test<br><br><span class="hljs-built_in">export</span> SCRATCH_DEV=/dev/vdc<br><span class="hljs-built_in">export</span> SCRATCH_MNT=/mnt/xfstests/scratch<br><br><span class="hljs-built_in">export</span> MOUNT_OPTIONS=<span class="hljs-string">&quot;-o uid=0,gid=0,fmask=0000,dmask=000&quot;</span><br><span class="hljs-built_in">export</span> TEST_FS_MOUNT_OPTS=<span class="hljs-string">&quot;-o uid=0,gid=0,fmask=0000,dmask=0000&quot;</span><br><br><span class="hljs-built_in">export</span> RESULT_BASE=/root/xfstests-dev/results<br><span class="hljs-built_in">export</span> REPORT_DIR=/root/xfstests-dev/results<br><br><span class="hljs-built_in">export</span> KEEP_DMESG=<span class="hljs-built_in">yes</span><br>EOF<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2-运行最小测试用例"><a href="#1-2-运行最小测试用例" class="headerlink" title="1.2 运行最小测试用例"></a>1.2 运行最小测试用例</h3><p>在 QEMU 里执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> /root/xfstests-dev<br><br>./check generic/001<br></code></pre></td></tr></table></figure>
 
 
                 
