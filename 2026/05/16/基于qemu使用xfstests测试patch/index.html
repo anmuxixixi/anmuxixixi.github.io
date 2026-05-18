@@ -39,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517233543133.png">
 <meta property="og:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260517233658193.png">
 <meta property="article:published_time" content="2026-05-16T09:38:59.000Z">
-<meta property="article:modified_time" content="2026-05-17T15:41:18.264Z">
+<meta property="article:modified_time" content="2026-05-18T14:49:33.636Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/05/16/%E5%9F%BA%E4%BA%8Eqemu%E4%BD%BF%E7%94%A8xfstests%E6%B5%8B%E8%AF%95patch/image-20260516174238226.png">
@@ -241,7 +241,7 @@
         
         
         
-          85 分钟
+          86 分钟
         
       </span>
     
@@ -348,7 +348,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> ~/fsnext-exfat<br><br>qemu-img create -f raw rootfs.img 30G<br>mkfs.ext4 -F rootfs.img<br><br><span class="hljs-built_in">mkdir</span> -p /mnt/fsnext-root<br>mount -o loop rootfs.img /mnt/fsnext-root<br></code></pre></td></tr></table></figure>
 
 <p>用 debootstrap 安装 Ubuntu 22.04：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">用 debootstrap 安装 Ubuntu 22.04：<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">debootstrap --<span class="hljs-built_in">arch</span>=amd64 jammy /mnt/fsnext-root http://mirrors.aliyun.com/ubuntu/<br></code></pre></td></tr></table></figure>
 
 <p>配置 apt 源：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> &gt; /mnt/fsnext-root/etc/apt/sources.list &lt;&lt;<span class="hljs-string">&#x27;EOF&#x27;</span><br>deb http://mirrors.aliyun.com/ubuntu/ jammy main restricted universe multiverse<br>deb http://mirrors.aliyun.com/ubuntu/ jammy-updates main restricted universe multiverse<br>deb http://mirrors.aliyun.com/ubuntu/ jammy-backports main restricted universe multiverse<br>deb http://mirrors.aliyun.com/ubuntu/ jammy-security main restricted universe multiverse<br>EOF<br><br><span class="hljs-built_in">cp</span> /etc/resolv.conf /mnt/fsnext-root/etc/resolv.conf<br></code></pre></td></tr></table></figure>
