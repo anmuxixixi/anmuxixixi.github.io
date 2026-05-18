@@ -16,19 +16,27 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="黑马LangChain学习笔记 💻视频链接：https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV178w1z7EHQ 📒笔记链接：https:&#x2F;&#x2F;my.feishu.cn&#x2F;wiki&#x2F;PAb6wSNnziRrlEk1PtNcH38LnJZ  第2章 LangChain入门2.1 LangChain核心组件2.1.1 认识LangChainLangChain 由 Harrison C">
+    <meta name="description" content="黑马LangChain学习笔记 💻视频链接：https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV178w1z7EHQ 📒笔记链接：https:&#x2F;&#x2F;my.feishu.cn&#x2F;wiki&#x2F;PAb6wSNnziRrlEk1PtNcH38LnJZ 🔉声明：仅用作学习笔记，侵权联系删除  第2章 LangChain入门2.1 LangChain核心组件2.1.1 认识LangChainLa">
 <meta property="og:type" content="article">
 <meta property="og:title" content="黑马LangChain学习笔记">
 <meta property="og:url" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="黑马LangChain学习笔记 💻视频链接：https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV178w1z7EHQ 📒笔记链接：https:&#x2F;&#x2F;my.feishu.cn&#x2F;wiki&#x2F;PAb6wSNnziRrlEk1PtNcH38LnJZ  第2章 LangChain入门2.1 LangChain核心组件2.1.1 认识LangChainLangChain 由 Harrison C">
+<meta property="og:description" content="黑马LangChain学习笔记 💻视频链接：https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV178w1z7EHQ 📒笔记链接：https:&#x2F;&#x2F;my.feishu.cn&#x2F;wiki&#x2F;PAb6wSNnziRrlEk1PtNcH38LnJZ 🔉声明：仅用作学习笔记，侵权联系删除  第2章 LangChain入门2.1 LangChain核心组件2.1.1 认识LangChainLa">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/v2/cover/WfcNbPjeBoCOKjxhwmkceEAUn5e/?fallback_source=1&height=1280&mount_node_token=UNB9dctVeo3nwvxi7EkcB1tYnPc&mount_point=docx_image&policy=equal&width=1280">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518230642868.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518230659801.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231055512.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231112652.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231141295.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231157496.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231213080.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231741317.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231855848.png">
 <meta property="article:published_time" content="2026-05-17T14:49:12.000Z">
-<meta property="article:modified_time" content="2026-05-17T14:52:46.954Z">
+<meta property="article:modified_time" content="2026-05-18T15:23:17.805Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/v2/cover/WfcNbPjeBoCOKjxhwmkceEAUn5e/?fallback_source=1&height=1280&mount_node_token=UNB9dctVeo3nwvxi7EkcB1tYnPc&mount_point=docx_image&policy=equal&width=1280">
+<meta name="twitter:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518230642868.png">
   
   
   
@@ -216,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          401 字
+          11k 字
         
       </span>
     
@@ -227,7 +235,7 @@
         
         
         
-          4 分钟
+          89 分钟
         
       </span>
     
@@ -281,6 +289,7 @@
                 <h1 id="黑马LangChain学习笔记"><a href="#黑马LangChain学习笔记" class="headerlink" title="黑马LangChain学习笔记"></a>黑马LangChain学习笔记</h1><blockquote>
 <p>💻视频链接：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV178w1z7EHQ">https://www.bilibili.com/video/BV178w1z7EHQ</a></p>
 <p>📒笔记链接：<a target="_blank" rel="noopener" href="https://my.feishu.cn/wiki/PAb6wSNnziRrlEk1PtNcH38LnJZ">https://my.feishu.cn/wiki/PAb6wSNnziRrlEk1PtNcH38LnJZ</a></p>
+<p>🔉声明：仅用作学习笔记，侵权联系删除</p>
 </blockquote>
 <h2 id="第2章-LangChain入门"><a href="#第2章-LangChain入门" class="headerlink" title="第2章 LangChain入门"></a>第2章 LangChain入门</h2><h3 id="2-1-LangChain核心组件"><a href="#2-1-LangChain核心组件" class="headerlink" title="2.1 LangChain核心组件"></a>2.1 LangChain核心组件</h3><h4 id="2-1-1-认识LangChain"><a href="#2-1-1-认识LangChain" class="headerlink" title="2.1.1 认识LangChain"></a>2.1.1 认识LangChain</h4><p>LangChain 由 Harrison Chase 创建于2022年10月，是用于开发<strong>智能体工程（Agent Engineering）</strong>的平台<strong>。</strong></p>
 <p>官网地址：<a target="_blank" rel="noopener" href="https://www.langchain.com/">https://www.langchain.com/</a></p>
@@ -288,7 +297,295 @@
 <p><strong>一、架构体系</strong></p>
 <p><strong>LangChain</strong>并不仅仅是一个框架，而是一整个智能体开发平台，包含很多不同的组件。</p>
 <p>其中，包含一系列开源的<strong>智能体（Agent）</strong>开发框架，而且兼容Python和TypeScript两种语言：</p>
-<p><img src="https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/v2/cover/WfcNbPjeBoCOKjxhwmkceEAUn5e/?fallback_source=1&height=1280&mount_node_token=UNB9dctVeo3nwvxi7EkcB1tYnPc&mount_point=docx_image&policy=equal&width=1280" srcset="/img/loading.gif" lazyload alt="飞书文档 - 图片"></p>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518230642868.png" srcset="/img/loading.gif" lazyload alt="image-20260518230642868" style="zoom:80%;">
+
+<ul>
+<li>LangChain：用于快速构建智能体，可兼容任何模型提供商。</li>
+<li>LangGraph：从底层一步步控制智能体的构建，包括记忆（Memory）、人机协同（HITL）等</li>
+<li>Deep Agents：用于构建复杂的、处理多步骤的任务的智能体</li>
+</ul>
+<p>另外，LangChain还包含一套帮助人工智能团队利用实时生产数据进行<strong>持续测试和改进</strong>的平台，叫做LangSmith：</p>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518230659801.png" srcset="/img/loading.gif" lazyload alt="image-20260518230659801" style="zoom:80%;">
+
+<p><strong>总结：</strong>LangChain是智能体开发平台，包含一套各种帮助开发、测试、评估智能体的框架。核心包括：</p>
+<ul>
+<li>LangChain：用于快速构建智能体，可兼容任何模型提供商。</li>
+<li>LangGraph：从底层一步步控制智能体的构建，包括记忆（Memory）、人机协同（HITL）等</li>
+<li>Deep Agents：用于构建复杂的、处理多步骤的任务的智能体</li>
+<li>LangSmith：用于测试、观察、评估、部署智能体</li>
+</ul>
+<p>可以看到，LangChain平台的所有框架都是围绕着构建智能体（Agent）这一目标的，那么问题来了：</p>
+<blockquote>
+<p><strong>什么是智能体（Agent）呢？</strong></p>
+</blockquote>
+<h4 id="2-1-2-什么是Agent"><a href="#2-1-2-什么是Agent" class="headerlink" title="2.1.2 什么是Agent"></a>2.1.2 什么是Agent</h4><p>什么是Agent，这其实没有一个标准的答案，每个人都有自己的理解。</p>
+<p>对于这个问题，LangChain创始人<a target="_blank" rel="noopener" href="https://www.blog.langchain.com/tag/harrison-chase/">Harrison Chase</a>有一个偏向技术性的答案：</p>
+<blockquote>
+<p>An AI agent is a system that uses an LLM to decide the control flow of an application.</p>
+<p>Agent是一种使用大语言模型（LLM）来决定应用程序控制流的系统。</p>
+</blockquote>
+<p>在人工智能领域，<strong>Agent</strong>（通常翻译为<strong>智能体</strong>或<strong>代理</strong>）是指<strong>一种能够感知环境、进行推理、自主决策并采取行动以实现特定目标的智能系统。</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left"><strong>特性</strong></th>
+<th align="left"><strong>传统聊天机器人&#x2F;LLM</strong></th>
+<th align="left"><strong>AI Agent</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>交互模式</strong></td>
+<td align="left">被动响应，问一句答一句</td>
+<td align="left">主动规划，以目标为导向</td>
+</tr>
+<tr>
+<td align="left"><strong>执行力</strong></td>
+<td align="left">停留在文本生成层面</td>
+<td align="left">能操作软件、发送邮件、分析数据</td>
+</tr>
+<tr>
+<td align="left"><strong>自主性</strong></td>
+<td align="left">需要人类给出详细步骤</td>
+<td align="left">只需给定最终目标，自主寻找路径</td>
+</tr>
+</tbody></table>
+<p>如果说大模型（LLM）是“大脑”，那么 Agent 就是<strong>“拥有手脚和思维逻辑的独立个体”</strong>。它不再只是被动地回答问题，而是能主动拆解任务并调用各种工具来完成工作。</p>
+<p>例如：要开发一个《AI旅游助手》的应用。</p>
+<p>如果是<strong>传统LLM应用</strong>，程序流程是这样的：</p>
+<blockquote>
+<ol>
+<li>用户提出需求，例如：帮我计划一个5天的北京之旅，预算8000元，我喜欢历史。</li>
+<li>调用LLM，分析用户需求，直接由LLM生成一个简单旅游计划</li>
+</ol>
+</blockquote>
+<p>这个计划基于它训练数据中的通用知识，可能没有考虑当前的天气、景点是否关闭、门票是否可预订等实时信息。</p>
+<hr>
+<p>如果是<strong>Agent应用</strong>，Agent可以自主规划程序流程：</p>
+<blockquote>
+<ol>
+<li>用户提出需求，例如：帮我计划一个5天的北京之旅，预算8000元，我喜欢历史。</li>
+<li>Agent分析用户需求，分步执行：<ol>
+<li>规划： 将大目标分解为：查询机票酒店价格 -&gt; 查询天气和景点信息 -&gt; 设计每日行程 -&gt; 计算总预算。</li>
+<li>调用工具：<ol>
+<li>调用机票&#x2F;酒店API，查询用户指定日期范围内的价格和可选酒店。</li>
+<li>调用天气预报API，查询未来5天北京的天气，建议携带的衣物。</li>
+<li>调用搜索引擎&#x2F;景点API，查询故宫、国博等热门景点的最新开放时间、预约政策和当前展览。</li>
+</ol>
+</li>
+<li>感知与反馈： 综合感知所有查询到的实时信息，生成一个动态的、可执行的计划。例如：“根据预算和您对历史的兴趣，我推荐入住胡同里的XX酒店。第一天去故宫，但请注意下周一故宫闭馆，所以调整到第二天……总花费预计7500元，还在预算内。需要我现在帮您预订酒店和机票吗？”</li>
+</ol>
+</li>
+</ol>
+</blockquote>
+<p>Agent通过主动规划任务流程，主动使用工具，整合了实时信息，并进行了动态调整，最终产出的是一个真正可落地的方案。</p>
+<p>总结如下：</p>
+<ul>
+<li>LLM &#x3D; 聪明的大脑</li>
+<li>Agent &#x3D; 聪明的大脑 + 手脚</li>
+</ul>
+<p>当然，Agent的模式也是在不断演进的：</p>
+<ul>
+<li>阶段一：ReAct + Tool Calling</li>
+<li>阶段二：Reflection + Long Memory</li>
+<li>阶段三：Multi Agent System，MAS</li>
+</ul>
+<p>接下来，我们会从最简单的Agent开始学习，逐渐升级到更复杂的Agent结构。</p>
+<h4 id="2-1-3-快速入门"><a href="#2-1-3-快速入门" class="headerlink" title="2.1.3 快速入门"></a>2.1.3 快速入门</h4><p>下面，我们通过一个快速入门，了解Agent的定义和工作流程。</p>
+<p><strong>准备工作</strong></p>
+<p>首先，要使用LangChain必须先安装依赖，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">uv add langchain<br></code></pre></td></tr></table></figure>
+
+<p>LangChain支持各种不同的模型，而且提供了对应的兼容SDK，不过也都需要安装对应依赖，你可以按需添加：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">集成 DeepSeek</span><br>uv add langchain-deepseek<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">集成 OpenAI</span><br>uv add langchain-openai<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">集成 Anthropic</span><br>uv add langchain-anthropic<br></code></pre></td></tr></table></figure>
+
+<p><strong>代码示例</strong></p>
+<p>接下来就可以开发Agent了，基本步骤如下：</p>
+<ol>
+<li>加载环境变量</li>
+<li>定义工具</li>
+<li>定义Agent</li>
+<li>调用Agent</li>
+</ol>
+<p>Langchain提供了<strong>create_agent</strong>方法用来快速创建Agent，我们只需要提供好Agent所需的<strong>模型（Models）</strong>、<strong>工具（Tools）</strong>即可。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-comment"># 1.加载环境变量</span><br><span class="hljs-keyword">from</span> dotenv <span class="hljs-keyword">import</span> load_dotenv<br><br>load_dotenv()<br><br><span class="hljs-comment"># 2.定义工具，基础版，通过注释描述工具</span><br><span class="hljs-meta">@tool</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">getWeather</span>(<span class="hljs-params">location: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    Get the weather in a given location.</span><br><span class="hljs-string">    Args:</span><br><span class="hljs-string">        location: city name or coordinates</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;Current weather in <span class="hljs-subst">&#123;location&#125;</span> is sunny&quot;</span><br>    <br><br><span class="hljs-comment"># 3.定义Agent</span><br>agent = create_agent(<br>    <span class="hljs-string">&quot;deepseek-chat&quot;</span>, <span class="hljs-comment"># 模型名称（必须是LangChain支持的模型）</span><br>    tools=[getWeather] <span class="hljs-comment"># 工具集</span><br>)<br><br><span class="hljs-comment"># 4.调用模型</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;🚀 正在调用大模型...&quot;</span>)<br>response = agent.invoke(&#123;<br>    <span class="hljs-string">&quot;messages&quot;</span>: [<br>        &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;杭州今天天气如何?&quot;</span>&#125;<br>    ]<br>&#125;)<br><br><span class="hljs-comment"># 5.打印结果</span><br><span class="hljs-built_in">print</span>(response)<br></code></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">🚀 正在调用大模型...<br>&#123;<span class="hljs-string">&#x27;messages&#x27;</span>: [HumanMessage(content=<span class="hljs-string">&#x27;杭州今天天气如何?&#x27;</span>, additional_kwargs=&#123;&#125;, response_metadata=&#123;&#125;, <span class="hljs-built_in">id</span>=<span class="hljs-string">&#x27;216c9cd1-8ebc-4365-a192-6b1a30ae788c&#x27;</span>), AIMessage(content=<span class="hljs-string">&#x27;我来帮您查询杭州今天的天气情况。&#x27;</span>, additional_kwargs=&#123;<span class="hljs-string">&#x27;refusal&#x27;</span>: <span class="hljs-literal">None</span>&#125;, response_metadata=&#123;<span class="hljs-string">&#x27;token_usage&#x27;</span>: &#123;<span class="hljs-string">&#x27;completion_tokens&#x27;</span>: <span class="hljs-number">51</span>, <span class="hljs-string">&#x27;prompt_tokens&#x27;</span>: <span class="hljs-number">313</span>, <span class="hljs-string">&#x27;total_tokens&#x27;</span>: <span class="hljs-number">364</span>, <span class="hljs-string">&#x27;completion_tokens_details&#x27;</span>: <span class="hljs-literal">None</span>, <span class="hljs-string">&#x27;prompt_tokens_details&#x27;</span>: &#123;<span class="hljs-string">&#x27;audio_tokens&#x27;</span>: <span class="hljs-literal">None</span>, <span class="hljs-string">&#x27;cached_tokens&#x27;</span>: <span class="hljs-number">256</span>&#125;, <span class="hljs-string">&#x27;prompt_cache_hit_tokens&#x27;</span>: <span class="hljs-number">256</span>, <span class="hljs-string">&#x27;prompt_cache_miss_tokens&#x27;</span>: <span class="hljs-number">57</span>&#125;, <span class="hljs-string">&#x27;model_provider&#x27;</span>: <span class="hljs-string">&#x27;deepseek&#x27;</span>, <span class="hljs-string">&#x27;model_name&#x27;</span>: <span class="hljs-string">&#x27;deepseek-chat&#x27;</span>, <span class="hljs-string">&#x27;system_fingerprint&#x27;</span>: <span class="hljs-string">&#x27;fp_eaab8d114b_prod0820_fp8_kvcache&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>: <span class="hljs-string">&#x27;bbeda11e-7653-4c3d-9cc5-9a58491f63f0&#x27;</span>, <span class="hljs-string">&#x27;finish_reason&#x27;</span>: <span class="hljs-string">&#x27;tool_calls&#x27;</span>, <span class="hljs-string">&#x27;logprobs&#x27;</span>: <span class="hljs-literal">None</span>&#125;, <span class="hljs-built_in">id</span>=<span class="hljs-string">&#x27;lc_run--019c92f4-8395-7852-8e36-d4645f86d443-0&#x27;</span>, tool_calls=[&#123;<span class="hljs-string">&#x27;name&#x27;</span>: <span class="hljs-string">&#x27;getWeather&#x27;</span>, <span class="hljs-string">&#x27;args&#x27;</span>: &#123;<span class="hljs-string">&#x27;location&#x27;</span>: <span class="hljs-string">&#x27;杭州&#x27;</span>&#125;, <span class="hljs-string">&#x27;id&#x27;</span>: <span class="hljs-string">&#x27;call_00_H7Yklbf4osnSeFOj3k4TP33N&#x27;</span>, <span class="hljs-string">&#x27;type&#x27;</span>: <span class="hljs-string">&#x27;tool_call&#x27;</span>&#125;], invalid_tool_calls=[], usage_metadata=&#123;<span class="hljs-string">&#x27;input_tokens&#x27;</span>: <span class="hljs-number">313</span>, <span class="hljs-string">&#x27;output_tokens&#x27;</span>: <span class="hljs-number">51</span>, <span class="hljs-string">&#x27;total_tokens&#x27;</span>: <span class="hljs-number">364</span>, <span class="hljs-string">&#x27;input_token_details&#x27;</span>: &#123;<span class="hljs-string">&#x27;cache_read&#x27;</span>: <span class="hljs-number">256</span>&#125;, <span class="hljs-string">&#x27;output_token_details&#x27;</span>: &#123;&#125;&#125;), ToolMessage(content=<span class="hljs-string">&#x27;Current weather in 杭州 is sunny&#x27;</span>, name=<span class="hljs-string">&#x27;getWeather&#x27;</span>, <span class="hljs-built_in">id</span>=<span class="hljs-string">&#x27;911eda0e-a5a8-4375-909d-b8707b3a08a9&#x27;</span>, tool_call_id=<span class="hljs-string">&#x27;call_00_H7Yklbf4osnSeFOj3k4TP33N&#x27;</span>), AIMessage(content=<span class="hljs-string">&#x27;根据查询结果，杭州今天的天气是**晴朗**的。&#x27;</span>, additional_kwargs=&#123;<span class="hljs-string">&#x27;refusal&#x27;</span>: <span class="hljs-literal">None</span>&#125;, response_metadata=&#123;<span class="hljs-string">&#x27;token_usage&#x27;</span>: &#123;<span class="hljs-string">&#x27;completion_tokens&#x27;</span>: <span class="hljs-number">13</span>, <span class="hljs-string">&#x27;prompt_tokens&#x27;</span>: <span class="hljs-number">388</span>, <span class="hljs-string">&#x27;total_tokens&#x27;</span>: <span class="hljs-number">401</span>, <span class="hljs-string">&#x27;completion_tokens_details&#x27;</span>: <span class="hljs-literal">None</span>, <span class="hljs-string">&#x27;prompt_tokens_details&#x27;</span>: &#123;<span class="hljs-string">&#x27;audio_tokens&#x27;</span>: <span class="hljs-literal">None</span>, <span class="hljs-string">&#x27;cached_tokens&#x27;</span>: <span class="hljs-number">320</span>&#125;, <span class="hljs-string">&#x27;prompt_cache_hit_tokens&#x27;</span>: <span class="hljs-number">320</span>, <span class="hljs-string">&#x27;prompt_cache_miss_tokens&#x27;</span>: <span class="hljs-number">68</span>&#125;, <span class="hljs-string">&#x27;model_provider&#x27;</span>: <span class="hljs-string">&#x27;deepseek&#x27;</span>, <span class="hljs-string">&#x27;model_name&#x27;</span>: <span class="hljs-string">&#x27;deepseek-chat&#x27;</span>, <span class="hljs-string">&#x27;system_fingerprint&#x27;</span>: <span class="hljs-string">&#x27;fp_eaab8d114b_prod0820_fp8_kvcache&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>: <span class="hljs-string">&#x27;692c1420-4a06-4080-adf7-54250207e86a&#x27;</span>, <span class="hljs-string">&#x27;finish_reason&#x27;</span>: <span class="hljs-string">&#x27;stop&#x27;</span>, <span class="hljs-string">&#x27;logprobs&#x27;</span>: <span class="hljs-literal">None</span>&#125;, <span class="hljs-built_in">id</span>=<span class="hljs-string">&#x27;lc_run--019c92f4-8d74-7770-89fd-da1e9d67efca-0&#x27;</span>, tool_calls=[], invalid_tool_calls=[], usage_metadata=&#123;<span class="hljs-string">&#x27;input_tokens&#x27;</span>: <span class="hljs-number">388</span>, <span class="hljs-string">&#x27;output_tokens&#x27;</span>: <span class="hljs-number">13</span>, <span class="hljs-string">&#x27;total_tokens&#x27;</span>: <span class="hljs-number">401</span>, <span class="hljs-string">&#x27;input_token_details&#x27;</span>: &#123;<span class="hljs-string">&#x27;cache_read&#x27;</span>: <span class="hljs-number">320</span>&#125;, <span class="hljs-string">&#x27;output_token_details&#x27;</span>: &#123;&#125;&#125;)]&#125;<br></code></pre></td></tr></table></figure>
+
+<p>原本大模型不具备查询天气的能力，所以无法回答天气问题。但是，当我们提供了一个查询添加的Tool以后，它就能自动查询天气来回答问题，是不是很神奇。</p>
+<p>那么，Agent是如何做到的呢？</p>
+<p>传统的LLM应用都是一问一答的形式，模型只能根据自己的训练数据来回答，流程非常简单：</p>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231055512.png" srcset="/img/loading.gif" lazyload alt="image-20260518231055512" style="zoom: 50%;">
+
+<p>而智能体则可以调用工具与外界交互，获取实时信息，工作流程则要复杂很多，是这样的：</p>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231112652.png" srcset="/img/loading.gif" lazyload alt="image-20260518231112652" style="zoom:67%;">
+
+<p>流程如下：</p>
+<ol>
+<li>用户提问（Input）：杭州今天天气如何？</li>
+<li>模型分析（Reasoning）：用户询问杭州天气，我不知道，需要调用查询天气的工具<code>get_weather</code></li>
+<li>调用工具（Action）：调用工具，get_weather，传入城市”杭州”</li>
+<li>分析结果（Observation）：工具返回结果，模型分析结果，判断是否足以回答用户问题<ol>
+<li>是：整理生成响应结果</li>
+<li>否：重复前面步骤</li>
+</ol>
+</li>
+<li>生成结果（Output）：根据工具的结果生成响应给用户</li>
+</ol>
+<p>那么，模型是如何知道工具的信息的呢？</p>
+<p>其实，在大模型提供的API接口中，有一个tools参数，描述了工具的详细信息：</p>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231141295.png" srcset="/img/loading.gif" lazyload alt="image-20260518231141295" style="zoom: 50%;">
+
+<p>所以，LangChain会帮助我们把tool的信息封装为此tool参数，与message一起发送给大模型，大模型就了解tool的详细信息，根据用户需求判断是否需要调用tool，需要调用哪个tool.</p>
+<p>那么问题来了，当大模型决定调用某个tool时，该如何调用呢？毕竟，tool是我们定义的，模型是没有调用能力的。</p>
+<p>模型确实不能直接调用tool，只能返回字符串。但是它可以把要调用的tool信息、参数信息都以Json格式返回：</p>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231157496.png" srcset="/img/loading.gif" lazyload alt="image-20260518231157496" style="zoom: 50%;">
+
+<p>这样一来，LangChain就会帮我们解析响应结果中的Function信息，也就是tool信息，就知道了要调用哪个函数，以及参数是什么了。LangChain就会执行该函数，再把得到的结果再次发送给大模型。</p>
+<p>具体的工作流程如图：</p>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231213080.png" srcset="/img/loading.gif" lazyload alt="image-20260518231213080" style="zoom: 60%;">
+
+<p>OK，弄明白了Agent的原理，我们不难发现，Agent中最重要的两个部分，就是：</p>
+<ul>
+<li>Model：负责推理分析、思考，相当于Agent的大脑</li>
+<li>Tools：负责执行任务，相当于Agent与外界交互的手脚</li>
+</ul>
+<p>当然，Agent中肯定不止这两个部分，接下来，我们就逐一解析Agent创建的各个细节。</p>
+<h4 id="2-1-4-模型"><a href="#2-1-4-模型" class="headerlink" title="2.1.4 模型"></a>2.1.4 模型</h4><p>这里说的模型，完整叫法是大语言模型（LLM）。它能够理解人类语言，使用人类语言生成内容、翻译、提取摘要、回答问题等。</p>
+<p>不仅如此，现在大多数的模型还有一些特别能力：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langchain/models#tool-calling">Tool calling</a> - 调用外部工具（例如查询数据库或调用 API），并在其回复中使用这些工具返回的结果。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langchain/models#structured-output">Structured output</a> - 将模型的响应结果约束为遵循已定义的格式，例如：json</li>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langchain/models#multimodal">Multimodality</a> - 可以处理和返回文本以外的数据，如图像、音频和视频。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langchain/models#reasoning">Reasoning</a> - 模型可以执行多步推理来得出结论。</li>
+</ul>
+<p>可以说LLM就是Agent的大脑，是Agent的推理引擎。它驱动Agent做出每个决定：何时调用工具、调用哪个工具、如何解释结果，以及何时提供最终答案。</p>
+<p>LangChain支持现在市面上大部分的大语言模型（LLM），并且提供了统一的模型调用接口。使您可以轻松访问许多不同的模型提供者，并且在模型之间进行试验和切换也变得很容易。</p>
+<p><strong>初始化模型</strong></p>
+<p>langchain提供了两种常见方法用来初始化模型：</p>
+<ul>
+<li>使用<code>init_chat_model</code>函数，由langchain自动创建模型对象</li>
+<li>使用不同模型对应的Model类，手动创建模型对象</li>
+</ul>
+<ol>
+<li><strong>init_chat_model</strong></li>
+</ol>
+<p>在LangChain中开始使用独立模型的最简单方法是使用<code>init_chat_model</code>函数。</p>
+<p>调用<code>init_chat_model</code>函数时，你需要从langchain支持的<strong>模型提供者</strong>（<strong>Model Provider</strong>）中选择一个模型，而langchain会自动初始化这个模型，非常方便。</p>
+<p>例如，我们要使用Deepseek这个模型。</p>
+<ul>
+<li><strong>首先</strong>，我们需要安装模型依赖：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">uv add langchain-deepseek<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>然后</strong>，我们要确保在项目的**.env<strong>环境中配置好</strong>api_key**:</li>
+</ul>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231741317.png" srcset="/img/loading.gif" lazyload alt="image-20260518231741317" style="zoom:50%;">
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">DEEPSEEK_API_KEY=sk-f362e1ea622c4xxxxxxxxxxxxxxxxxxx<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>最后</strong>，就可以直接使用init_chat_model初始化模型了：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 导入Langchain的初始化模型的函数</span><br><span class="hljs-keyword">from</span> langchain.chat_models <span class="hljs-keyword">import</span> init_chat_model<br><span class="hljs-comment"># 加载环境变量</span><br><span class="hljs-keyword">from</span> dotenv <span class="hljs-keyword">import</span> load_dotenv<br>load_dotenv()<br><br><span class="hljs-comment"># 调用init_chat_model函数初始化模型，参数model用来指定模型名称，Langchain会根据模型名字自动设定base_url，并从环境变量中获取api_key</span><br>model = init_chat_model(model=<span class="hljs-string">&quot;deepseek-chat&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>测试</strong>，我们可以通过打印model的类型，查看生成的结果：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(<span class="hljs-built_in">type</span>(model)) <span class="hljs-comment"># &lt;class &#x27;langchain_deepseek.chat_models.ChatDeepSeek&#x27;&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>可见，采用<code>init_chat_model</code>自动初始化模型时，模型的类型由LangChain通过模型名称自动推断。</p>
+<p>如果要切换其它模型，我们只需要安装其它模型依赖，然后配置API_KEY，改变模型名称即可，其它代码不用动。</p>
+<ol start="2">
+<li><strong>自定义模型及参数</strong></li>
+</ol>
+<p><code>init_chat_model</code>默认会根据模型名称自动确定<strong>模型的提供者</strong>、其<code>base_url</code>，并从env读取<code>api_key</code>，但前提是必须是langchain支持的模型提供者(<a target="_blank" rel="noopener" href="https://reference.langchain.com/python/langchain/chat_models/base/init_chat_model">支持模型参考链接</a>)，例如：</p>
+<ul>
+<li>Openai</li>
+<li>Deepseek</li>
+<li>Google</li>
+<li>Anthropic</li>
+<li>…</li>
+</ul>
+<p>对于其它不支持的模型，我们必须自定义模型参数来访问。</p>
+<p>例如，我们要访问阿里云百炼的qwen-max，它就是不被langchain支持的模型，我们必须自定义模型参数来访问。</p>
+<ul>
+<li>我们需要在环境变量中定义<strong>api_key</strong>和<strong>base_url</strong></li>
+<li>然后在<code>init_chat_model</code>中指定<strong>model</strong>、<strong>model_provider</strong>、<strong>base_url</strong>和<strong>api_key</strong></li>
+</ul>
+<p>具体步骤如下：</p>
+<ul>
+<li><strong>首先，</strong>在.env中配置好<code>api_key</code>和<code>base_url</code>：</li>
+</ul>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518231855848.png" srcset="/img/loading.gif" lazyload alt="image-20260518231855848" style="zoom:50%;">
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">DASHSCOPE_API_KEY=sk-915a82ea621fxxxxxxxxxxxxxx<br>DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>然后，</strong>手动读取环境变量中的<code>api_key</code>和<code>base_url</code>：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 非支持模型无法自动加载环境遍历，我们需要自己加载环境变量中的base_url和api_key</span><br><span class="hljs-keyword">import</span> os<br><br>base_url = os.getenv(<span class="hljs-string">&quot;DASHSCOPE_BASE_URL&quot;</span>)<br>api_key = os.getenv(<span class="hljs-string">&quot;DASHSCOPE_API_KEY&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>最后，</strong>调用init_chat_model，初始化模型：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 初始化模型</span><br>model = init_chat_model(<br>    model=<span class="hljs-string">&quot;qwen-max&quot;</span>, <span class="hljs-comment"># 模型名称，这里可以自定义，我们用的是阿里的qwen-max</span><br>    model_provider=<span class="hljs-string">&quot;openai&quot;</span>, <span class="hljs-comment"># 如果是Langchain不支持的模型，需要指定模型提供者（虽然我们用的是阿里，但是阿里兼容openai，所以这里用openai，就是默认采用openai的API规范）</span><br>    base_url=base_url,<br>    api_key=api_key<br>)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>测试</strong>，查看生成的模型类型：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(<span class="hljs-built_in">type</span>(model)) <span class="hljs-comment"># &lt;class &#x27;langchain_openai.chat_models.base.ChatOpenAI&#x27;&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>可见，通过参数自定义模型时，模型的类型由<code>model_provider</code>参数类决定</p>
+<p>除了修改模型提供者以外，<code>init_chat_model</code>方法允许我们调整模型参数，例如：</p>
+<ul>
+<li>temperature: 控制生成文本的随机性，值越小越确定，值越大越随机</li>
+<li>max_tokens: 控制生成文本的最大长度</li>
+<li>top_p: 控制生成文本的多样性，值越小越多样，值越大越确定</li>
+<li>timeout: 控制生成文本的超时时间</li>
+<li>max_retries: 控制生成文本的最大重试次数</li>
+<li>…</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 调用init_chat_model函数初始化模型，并设定模型参数</span><br>model = init_chat_model(<br>    model=<span class="hljs-string">&quot;qwen-max&quot;</span>, <br>    model_provider=<span class="hljs-string">&quot;openai&quot;</span>,<br>    base_url=base_url,<br>    api_key=api_key,<br>    temperature=<span class="hljs-number">1.5</span>,<br>)<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>使用Model类</strong></li>
+</ol>
+<p>其实<code>init_chat_model</code>方法底层就是帮我们利用Model类创建对象。但只支持有限的模型。而在langchain的社区，除了langchain官方提供的Model，还有些类是社区提供，更丰富多样。</p>
+<p>具体支持的模型，可以查看官网地址：<a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/integrations/chat">https://docs.langchain.com/oss/python/integrations/chat</a></p>
+<p>例如，我们使用社区版本的Model类来访问阿里云百炼的通义千问模型：</p>
+<ul>
+<li>首先，我们需要安装依赖</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># LangChain社区依赖</span><br>uv add langchain-community<br><br><span class="hljs-comment">## 阿里云百炼依赖：</span><br>uv add dashscope<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>然后，我们就可以使用Model类初始化模型了</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain_community.chat_models.tongyi <span class="hljs-keyword">import</span> ChatTongyi<br><br><span class="hljs-comment"># 使用Model类初始化模型</span><br>model = ChatTongyi(<br>    model=<span class="hljs-string">&quot;qwen-plus&quot;</span><br>    <span class="hljs-comment"># 其它模型参数...</span><br>)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>测试，查看生成的模型类型：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(<span class="hljs-built_in">type</span>(model)) <span class="hljs-comment"># &lt;class &#x27;langchain_community.chat_models.tongyi.ChatTongyi&#x27;&gt;</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>访问模型</strong></p>
+<p>LangChain提供了两个不同的方法来访问模型：</p>
+<ul>
+<li>invoke：阻塞式访问</li>
+<li>stream：流式访问</li>
+</ul>
+<p>(1)invoke：阻塞式访问</p>
+<p>invoke方法是阻塞式调用，需要等待模型生成全部结果才会返回，等待时间较长。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-comment"># 调用invoke方法</span><br>response = model.invoke(<span class="hljs-string">&quot;月亮的首都是哪里？&quot;</span>)<br><br><span class="hljs-comment"># 查看响应结果</span><br><span class="hljs-built_in">print</span>(response)<br></code></pre></td></tr></table></figure>
+
+<p>(2)stream：流式访问</p>
+<p>阻塞式调用需要等待较长时间才能看到AI返回的结果，而流式调用则可以实时看到AI返回的一个个词。</p>
+<p>示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-comment"># 通过.stream方法实现流式访问</span><br>stream = model.stream(<span class="hljs-string">&quot;月亮的首都是哪里？&quot;</span>)<br><br><span class="hljs-comment"># stream调用返回的结果是一个generator，方便我们循环获取结果</span><br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">type</span>(stream))<br><br><span class="hljs-comment"># 遍历stream结果，实时打印AI的回复</span><br><span class="hljs-keyword">for</span> chunk <span class="hljs-keyword">in</span> stream:<br>    <span class="hljs-built_in">print</span>(chunk.content, end=<span class="hljs-string">&quot;&quot;</span>, flush=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure>
 
                 
               </div>
