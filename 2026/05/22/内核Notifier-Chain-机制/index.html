@@ -1,0 +1,803 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="内核Notifier Chain 机制 一句话理解 notifier chain 是内核里的“发布-订阅式事件广播机制”：某个子系统发生状态变化时，不需要硬编码调用所有关心者，而是沿着一条回调链逐个通知已注册的消费者。  1.notifier chain 解决了什么问题内核中经常出现这样的问题：  某个子系统发生了状态变化，例如网卡注册、内存热插拔、系统准备 suspend、设备进入 idle、系">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内核Notifier Chain 机制">
+<meta property="og:url" content="http://example.com/2026/05/22/%E5%86%85%E6%A0%B8Notifier-Chain-%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="内核Notifier Chain 机制 一句话理解 notifier chain 是内核里的“发布-订阅式事件广播机制”：某个子系统发生状态变化时，不需要硬编码调用所有关心者，而是沿着一条回调链逐个通知已注册的消费者。  1.notifier chain 解决了什么问题内核中经常出现这样的问题：  某个子系统发生了状态变化，例如网卡注册、内存热插拔、系统准备 suspend、设备进入 idle、系">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/05/22/%E5%86%85%E6%A0%B8Notifier-Chain-%E6%9C%BA%E5%88%B6/image-20260522220021081.png">
+<meta property="article:published_time" content="2026-05-22T13:52:06.000Z">
+<meta property="article:modified_time" content="2026-05-22T14:02:05.198Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/05/22/%E5%86%85%E6%A0%B8Notifier-Chain-%E6%9C%BA%E5%88%B6/image-20260522220021081.png">
+  
+  
+  
+  <title>内核Notifier Chain 机制 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="内核Notifier Chain 机制"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-05-22 21:52" pubdate>
+          2026年5月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          39 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">内核Notifier Chain 机制</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="内核Notifier-Chain-机制"><a href="#内核Notifier-Chain-机制" class="headerlink" title="内核Notifier Chain 机制"></a>内核Notifier Chain 机制</h1><blockquote>
+<p><strong>一句话理解</strong></p>
+<p>notifier chain 是内核里的“发布-订阅式事件广播机制”：某个子系统发生状态变化时，不需要硬编码调用所有关心者，而是沿着一条回调链逐个通知已注册的消费者。</p>
+</blockquote>
+<h2 id="1-notifier-chain-解决了什么问题"><a href="#1-notifier-chain-解决了什么问题" class="headerlink" title="1.notifier chain 解决了什么问题"></a>1.notifier chain 解决了什么问题</h2><p><strong>内核中经常出现这样的问题：</strong></p>
+<ul>
+<li>某个子系统发生了状态变化，例如网卡注册、内存热插拔、系统准备 suspend、设备进入 idle、系统 reboot。</li>
+<li>很多模块都可能关心这个事件，但事件源不应该知道所有消费者的细节。</li>
+<li>消费者可能来自内核核心代码，也可能来自模块；消费者数量也可能随配置变化。</li>
+</ul>
+<p><strong>notifier chain 的核心价值就是解耦。</strong>事件源只负责“广播事件”，消费者只负责“注册回调并处理事件”。事件源不需要硬编码调用 A、B、C 模块。</p>
+<blockquote>
+<p><strong>类比一句话</strong></p>
+<p>事件源像“广播站”，notifier head 像“广播频道”，notifier_block 像“订阅者登记表”，call_chain 像“开始广播”，callback 像“听到广播后的动作”。</p>
+</blockquote>
+<h2 id="2-核心数据结构与接口"><a href="#2-核心数据结构与接口" class="headerlink" title="2.核心数据结构与接口"></a>2.核心数据结构与接口</h2><p>核心结构是 struct notifier_block。它本质上是一个链表节点，里面放着回调函数、next 指针和优先级</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">int</span> <span class="hljs-params">(*<span class="hljs-type">notifier_fn_t</span>)</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> notifier_block *nb,</span><br><span class="hljs-params">                             <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> action,</span><br><span class="hljs-params">                             <span class="hljs-type">void</span> *data)</span>;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">notifier_block</span> &#123;</span><br>        <span class="hljs-type">notifier_fn_t</span> notifier_call;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">notifier_block</span> __<span class="hljs-title">rcu</span> *<span class="hljs-title">next</span>;</span><br>        <span class="hljs-type">int</span> priority;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th><strong>字段</strong></th>
+<th><strong>作用</strong></th>
+<th><strong>理解方式</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>notifier_call</td>
+<td>事件发生时被调用的回调函数</td>
+<td>订阅者接到广播后的处理函数</td>
+</tr>
+<tr>
+<td>next</td>
+<td>指向下一个 notifier_block</td>
+<td>订阅者链表</td>
+</tr>
+<tr>
+<td>priority</td>
+<td>优先级，数值越大越先调用</td>
+<td>VIP 先处理，普通用户后处理</td>
+</tr>
+</tbody></table>
+<h3 id="2-1-三类基础操作"><a href="#2-1-三类基础操作" class="headerlink" title="2.1 三类基础操作"></a>2.1 三类基础操作</h3><table>
+<thead>
+<tr>
+<th><strong>操作</strong></th>
+<th><strong>典型接口</strong></th>
+<th><strong>含义</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>注册</td>
+<td>atomic&#x2F;blocking&#x2F;raw&#x2F;srcu_notifier_chain_register()</td>
+<td>把 notifier_block 插入链表</td>
+</tr>
+<tr>
+<td>注销</td>
+<td>atomic&#x2F;blocking&#x2F;raw&#x2F;srcu_notifier_chain_unregister()</td>
+<td>把 notifier_block 从链表删除</td>
+</tr>
+<tr>
+<td>广播</td>
+<td>atomic&#x2F;blocking&#x2F;raw&#x2F;srcu_notifier_call_chain()</td>
+<td>沿链表逐个调用回调函数</td>
+</tr>
+</tbody></table>
+<h2 id="3-四种notifier-chain的区别"><a href="#3-四种notifier-chain的区别" class="headerlink" title="3.四种notifier chain的区别"></a>3.四种notifier chain的区别</h2><p>Linux 内核中 notifier chain 主要分为四类：atomic、blocking、raw、SRCU。它们的核心差别不是“功能”，而是“上下文约束”和“同步保护方式”。</p>
+<table>
+<thead>
+<tr>
+<th><strong>类型</strong></th>
+<th><strong>回调上下文</strong></th>
+<th><strong>回调能否 sleep</strong></th>
+<th><strong>内部同步</strong></th>
+<th><strong>适合场景</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Atomic</td>
+<td>atomic &#x2F; interrupt 相关上下文</td>
+<td>不能</td>
+<td>注册&#x2F;注销用 spinlock；call_chain 用 RCU</td>
+<td>中断、原子路径、不能阻塞的快速通知</td>
+</tr>
+<tr>
+<td>Blocking</td>
+<td>process context</td>
+<td>可以</td>
+<td>rw_semaphore</td>
+<td>普通内核线程&#x2F;进程上下文，回调可能需要睡眠</td>
+</tr>
+<tr>
+<td>Raw</td>
+<td>由调用者决定</td>
+<td>由调用者保证</td>
+<td>没有内置保护</td>
+<td>调用者已经有自己的锁或上下文规则</td>
+</tr>
+<tr>
+<td>SRCU</td>
+<td>process context</td>
+<td>可以</td>
+<td>注册&#x2F;注销用 mutex；调用用 SRCU</td>
+<td>调用非常频繁、注销很少发生的通知链</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>选择口诀</strong></p>
+<p>能不能 sleep 是第一判断条件：不能 sleep 选 atomic；能 sleep 通常选 blocking；调用特别频繁且注销很少，考虑 SRCU；你完全知道自己在干什么并且外部已有锁，才考虑 raw。</p>
+</blockquote>
+<h2 id="4-返回值语义"><a href="#4-返回值语义" class="headerlink" title="4.返回值语义"></a>4.返回值语义</h2><table>
+<thead>
+<tr>
+<th><strong>返回值</strong></th>
+<th><strong>含义</strong></th>
+<th><strong>是否影响后续回调</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NOTIFY_DONE</td>
+<td>我不关心或没有处理</td>
+<td>不影响，继续</td>
+</tr>
+<tr>
+<td>NOTIFY_OK</td>
+<td>我处理了，结果正常</td>
+<td>不影响，继续</td>
+</tr>
+<tr>
+<td>NOTIFY_STOP</td>
+<td>我处理了，并希望停止继续通知</td>
+<td>停止</td>
+</tr>
+<tr>
+<td>NOTIFY_BAD</td>
+<td>我拒绝&#x2F;否决这个动作，常用于可回滚事件</td>
+<td>停止</td>
+</tr>
+<tr>
+<td>notifier_from_errno(err)</td>
+<td>把负 errno 转成 notifier 返回值</td>
+<td>通常错误会带停止语义</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>关键点</strong></p>
+<p>NOTIFY_BAD 不只是“失败”，它常用于 veto 语义。例如 memory hotplug 的 GOING_ONLINE &#x2F; GOING_OFFLINE 阶段，某个消费者返回 NOTIFY_BAD 可以阻止后续流程。已经完成且不可回滚的阶段，不能随意失败。</p>
+</blockquote>
+<h2 id="5-示例"><a href="#5-示例" class="headerlink" title="5.示例"></a>5.示例</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// demo_notifier_simple.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/notifier.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ROOM_EMPTY      1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ROOM_OCCUPIED   2</span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">room_event_info</span> &#123;</span><br>	<span class="hljs-type">const</span> <span class="hljs-type">char</span> *room_name;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> people;<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-title function_">BLOCKING_NOTIFIER_HEAD</span><span class="hljs-params">(room_event_chain)</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">light_ctrl_notifier</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> notifier_block *nb,</span><br><span class="hljs-params">			       <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> action,</span><br><span class="hljs-params">			       <span class="hljs-type">void</span> *data)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">room_event_info</span> *<span class="hljs-title">info</span> =</span> data;<br><br>	<span class="hljs-keyword">switch</span> (action) &#123;<br>	<span class="hljs-keyword">case</span> ROOM_EMPTY:<br>		pr_info(<span class="hljs-string">&quot;room_demo: light_ctrl: %s empty, turn on energy-saving mode\n&quot;</span>,<br>			info-&gt;room_name);<br>		<span class="hljs-keyword">return</span> NOTIFY_OK;<br><br>	<span class="hljs-keyword">case</span> ROOM_OCCUPIED:<br>		pr_info(<span class="hljs-string">&quot;room_demo: light_ctrl: %s occupied, keep light on\n&quot;</span>,<br>			info-&gt;room_name);<br>		<span class="hljs-keyword">return</span> NOTIFY_OK;<br><br>	<span class="hljs-keyword">default</span>:<br>		<span class="hljs-keyword">return</span> NOTIFY_DONE;<br>	&#125;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">notifier_block</span> <span class="hljs-title">light_ctrl_nb</span> =</span> &#123;<br>	.notifier_call = light_ctrl_notifier,<br>	.priority = <span class="hljs-number">100</span>,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">cleaner_notifier</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> notifier_block *nb,</span><br><span class="hljs-params">			    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> action,</span><br><span class="hljs-params">			    <span class="hljs-type">void</span> *data)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">room_event_info</span> *<span class="hljs-title">info</span> =</span> data;<br><br>	<span class="hljs-keyword">switch</span> (action) &#123;<br>	<span class="hljs-keyword">case</span> ROOM_EMPTY:<br>		pr_info(<span class="hljs-string">&quot;room_demo: cleaner: %s empty, start cleaning\n&quot;</span>,<br>			info-&gt;room_name);<br>		<span class="hljs-keyword">return</span> NOTIFY_OK;<br><br>	<span class="hljs-keyword">case</span> ROOM_OCCUPIED:<br>		pr_info(<span class="hljs-string">&quot;room_demo: cleaner: %s occupied, stop cleaning\n&quot;</span>,<br>			info-&gt;room_name);<br>		<span class="hljs-keyword">return</span> NOTIFY_OK;<br><br>	<span class="hljs-keyword">default</span>:<br>		<span class="hljs-keyword">return</span> NOTIFY_DONE;<br>	&#125;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">notifier_block</span> <span class="hljs-title">cleaner_nb</span> =</span> &#123;<br>	.notifier_call = cleaner_notifier,<br>	.priority = <span class="hljs-number">50</span>,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">room_fire_event</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> event, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> people)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">room_event_info</span> <span class="hljs-title">info</span> =</span> &#123;<br>		.room_name = <span class="hljs-string">&quot;reading-room-A&quot;</span>,<br>		.people = people,<br>	&#125;;<br><br>	blocking_notifier_call_chain(&amp;room_event_chain, event, &amp;info);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">demo_notifier_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	pr_info(<span class="hljs-string">&quot;room_demo: init\n&quot;</span>);<br><br>	blocking_notifier_chain_register(&amp;room_event_chain, &amp;light_ctrl_nb);<br>	blocking_notifier_chain_register(&amp;room_event_chain, &amp;cleaner_nb);<br><br>	pr_info(<span class="hljs-string">&quot;room_demo: fire ROOM_EMPTY\n&quot;</span>);<br>	room_fire_event(ROOM_EMPTY, <span class="hljs-number">0</span>);<br><br>	pr_info(<span class="hljs-string">&quot;room_demo: fire ROOM_OCCUPIED\n&quot;</span>);<br>	room_fire_event(ROOM_OCCUPIED, <span class="hljs-number">3</span>);<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">demo_notifier_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	pr_info(<span class="hljs-string">&quot;room_demo: exit\n&quot;</span>);<br><br>	blocking_notifier_chain_unregister(&amp;room_event_chain, &amp;cleaner_nb);<br>	blocking_notifier_chain_unregister(&amp;room_event_chain, &amp;light_ctrl_nb);<br>&#125;<br><br>module_init(demo_notifier_init);<br>module_exit(demo_notifier_exit);<br><br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL&quot;</span>);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;demo&quot;</span>);<br>MODULE_DESCRIPTION(<span class="hljs-string">&quot;simple blocking notifier chain demo&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs makefile">obj-m += demo_room_notifier.o<br><br>KDIR ?= /lib/modules/<span class="hljs-variable">$(<span class="hljs-built_in">shell</span> uname -r)</span>/build<br>PWD := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span><br><br><span class="hljs-section">all:</span><br>	<span class="hljs-variable">$(MAKE)</span> -C <span class="hljs-variable">$(KDIR)</span> M=<span class="hljs-variable">$(PWD)</span> modules<br><br><span class="hljs-section">clean:</span><br>	<span class="hljs-variable">$(MAKE)</span> -C <span class="hljs-variable">$(KDIR)</span> M=<span class="hljs-variable">$(PWD)</span> clean<br></code></pre></td></tr></table></figure>
+
+<p>执行：<code>insmod demo_room_notifier.ko</code></p>
+<p>结果如下:</p>
+<img src="/2026/05/22/%E5%86%85%E6%A0%B8Notifier-Chain-%E6%9C%BA%E5%88%B6/image-20260522220021081.png" srcset="/img/loading.gif" lazyload alt="image-20260522220021081" style="zoom: 80%;">
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>内核Notifier Chain 机制</div>
+      <div>http://example.com/2026/05/22/内核Notifier-Chain-机制/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年5月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="黑马LangChain学习笔记">
+                        <span class="hidden-mobile">黑马LangChain学习笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
