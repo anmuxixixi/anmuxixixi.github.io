@@ -41,8 +41,11 @@
 <meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/1779631713814-4.png">
 <meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/1779632196098-7.png">
 <meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260524221709452.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260525223807073.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260525223918415.png">
+<meta property="og:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260525224052201.png">
 <meta property="article:published_time" content="2026-05-17T14:49:12.000Z">
-<meta property="article:modified_time" content="2026-05-24T14:20:59.576Z">
+<meta property="article:modified_time" content="2026-05-25T14:42:04.539Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260518230642868.png">
@@ -233,7 +236,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          62k 字
+          65k 字
         
       </span>
     
@@ -244,7 +247,7 @@
         
         
         
-          516 分钟
+          539 分钟
         
       </span>
     
@@ -950,7 +953,7 @@
 </tr>
 </tbody></table>
 <p>接下来，我们先学习LangChain中的短期记忆管理。</p>
-<h3 id="2-6-2-短期记忆"><a href="#2-6-2-短期记忆" class="headerlink" title="2.6.2 短期记忆"></a>2.6.2 短期记忆</h3><p>由于<strong>短期记忆</strong>通常生命周期是当前会话，所以我们也可以称为<strong>会话记忆</strong>。Agent的会话记忆通常包含三部分：</p>
+<h4 id="2-6-2-短期记忆"><a href="#2-6-2-短期记忆" class="headerlink" title="2.6.2 短期记忆"></a>2.6.2 短期记忆</h4><p>由于<strong>短期记忆</strong>通常生命周期是当前会话，所以我们也可以称为<strong>会话记忆</strong>。Agent的会话记忆通常包含三部分：</p>
 <ul>
 <li>对话历史</li>
 <li>查询结果</li>
@@ -1023,6 +1026,61 @@
 
 <p><strong>最后</strong>，创建Agent，并设置checkpointer：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 创建agent</span><br>agent = create_agent(<br>    <span class="hljs-string">&quot;deepseek-chat&quot;</span>,<br>    checkpointer=checkpointer,<br>)<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-6-3-记忆管理策略"><a href="#2-6-3-记忆管理策略" class="headerlink" title="2.6.3 记忆管理策略"></a>2.6.3 记忆管理策略</h4><p>由于会话记忆要保存会话的历史，并且在调用LLM时携带历史消息列表。而当会话越来越长时，历史消息就可能超过LLM的上下文限制。例如，DeepSeek的上下文不能超过128K.</p>
+<p>一旦会话历史超过上下文窗口，就会出现上下文丢失的情况，从而导致丢失记忆。而且即便不丢失，太长的上下文容易让模型出现“注意力分散”问题，模型的响应速度、回答质量会大大降低。</p>
+<p>未来解决这一问题，通常有以下几种手段：</p>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260525223807073.png" srcset="/img/loading.gif" lazyload alt="image-20260525223807073" style="zoom:50%;">
+
+<p>具体可以参考官网：<a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langchain/short-term-memory#common-patterns">https://docs.langchain.com/oss/python/langchain/short-term-memory#common-patterns</a></p>
+<h5 id="1）修剪消息"><a href="#1）修剪消息" class="headerlink" title="1）修剪消息"></a>1）修剪消息</h5><p>修剪消息并不是真正的删除消息，在AgentState中的消息列表依然是完整的，只不过发送给LLM之前会进行修剪，只保留一部分消息。<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260525223918415.png" srcset="/img/loading.gif" lazyload alt="image-20260525223918415" style="zoom:67%;"></p>
+<p>具体示例参考：<a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langchain/short-term-memory#trim-messages">https://docs.langchain.com/oss/python/langchain/short-term-memory#trim-messages</a></p>
+<h5 id="2）删除消息"><a href="#2）删除消息" class="headerlink" title="2）删除消息"></a>2）删除消息</h5><p>删除消息与修剪不同：</p>
+<ul>
+<li>修剪消息：只是从State中选取一部分消息发送给模型</li>
+<li>删除消息：直接删除State中保存的消息，也就是说消息历史中不再存在！</li>
+</ul>
+<p>所以一定要谨慎使用。</p>
+<p>具体参考：<a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langchain/short-term-memory#delete-messages">https://docs.langchain.com/oss/python/langchain/short-term-memory#delete-messages</a></p>
+<h5 id="3）总结消息"><a href="#3）总结消息" class="headerlink" title="3）总结消息"></a>3）总结消息</h5><p>不管是修剪还是删除，都会导致一部分消息丢失，从而丢失记忆。所以就有了第三种策略：<strong>总结消息（Summarize Messages）</strong></p>
+<p>它的思路很简单，就是把历史的消息利用大模型总结出摘要，然后把最新的消息拼接在一起作为新的消息列表发送给大模型，这样既不会超出模型的上下文窗口限制，还能尽量保留所有的记忆。</p>
+<img src="/2026/05/17/%E9%BB%91%E9%A9%ACLangChain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260525224052201.png" srcset="/img/loading.gif" lazyload alt="image-20260525224052201" style="zoom:67%;">
+
+<p>LangChain提供了总结消息的默认实现：<strong>SummarizationMiddleware</strong></p>
+<p>用法很简单</p>
+<ol>
+<li>初始化SummarizationMiddleware和checkpointer</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">rom langchain.agents <span class="hljs-keyword">import</span> create_agent<br><span class="hljs-keyword">from</span> langchain.agents.middleware <span class="hljs-keyword">import</span> SummarizationMiddleware<br><span class="hljs-keyword">from</span> langgraph.checkpoint.memory <span class="hljs-keyword">import</span> InMemorySaver<br><span class="hljs-keyword">from</span> langchain_core.runnables <span class="hljs-keyword">import</span> RunnableConfig<br><br><span class="hljs-comment"># 初始化checkpointer</span><br>checkpointer = InMemorySaver()<br><span class="hljs-comment"># 初始化中间件</span><br>middleware = SummarizationMiddleware(<br>    model=<span class="hljs-string">&quot;deepseek-chat&quot;</span>,<br>    trigger=(<span class="hljs-string">&quot;messages&quot;</span>, <span class="hljs-number">3</span>), <span class="hljs-comment">#  触发时机，当消息数超过3时，进行总结</span><br>    keep=(<span class="hljs-string">&quot;messages&quot;</span>, <span class="hljs-number">1</span>) <span class="hljs-comment">#  保留的会话数，超过2条</span><br>)<br></code></pre></td></tr></table></figure>
+
+<p> 注意这里SummarizationMiddleware的参数（详细内容参考官网链接：<a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langchain/middleware/built-in#summarization">summarization</a>）：</p>
+<ul>
+<li>model：会话摘要时要使用的模型</li>
+<li>trigger：会话摘要的触发时机，有三种设置：<ul>
+<li><code>fraction</code> (float): 模型上下文大小的比例（0-1）</li>
+<li><code>tokens</code> (int): 令牌数量</li>
+<li><code>messages</code> (int): 消息数量</li>
+</ul>
+</li>
+<li>keep：是指触发摘要后要保留的消息<ul>
+<li><code>fraction</code> (float): 要保留的消息占模型上下文大小的比例（0-1）</li>
+<li><code>tokens</code> (int): 要保留的消息的令牌数量</li>
+<li><code>messages</code> (int): 要保留的消息数量</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>创建Agent，设置middleware和checkpointer</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-comment"># 创建agent</span><br>agent = create_agent(<br>    model=<span class="hljs-string">&quot;deepseek-chat&quot;</span>,<br>    middleware=[middleware],<br>    checkpointer=checkpointer,<br>)<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>调用Agent即可</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">config: RunnableConfig = &#123;<span class="hljs-string">&quot;configurable&quot;</span>: &#123;<span class="hljs-string">&quot;thread_id&quot;</span>: <span class="hljs-string">&quot;1&quot;</span>&#125;&#125;<br><span class="hljs-comment"># 制造长会话历史</span><br>agent.invoke(&#123;<span class="hljs-string">&quot;messages&quot;</span>: <span class="hljs-string">&quot;你好，我是虎哥.&quot;</span>&#125;, config)<br>agent.invoke(&#123;<span class="hljs-string">&quot;messages&quot;</span>: <span class="hljs-string">&quot;我最喜欢的运动是乒乓&quot;</span>&#125;, config)<br>agent.invoke(&#123;<span class="hljs-string">&quot;messages&quot;</span>: <span class="hljs-string">&quot;我最喜欢的动物是猫猫&quot;</span>&#125;, config)<br><span class="hljs-comment"># 测试效果</span><br>final_response = agent.invoke(&#123;<span class="hljs-string">&quot;messages&quot;</span>: <span class="hljs-string">&quot;你还记得我吗？&quot;</span>&#125;, config)<br><br><br><span class="hljs-keyword">for</span> message <span class="hljs-keyword">in</span> final_response[<span class="hljs-string">&quot;messages&quot;</span>]:<br>    message.pretty_print()<br></code></pre></td></tr></table></figure>
+
+<p>测试结果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">================================ Human Message =================================<br><br>Here <span class="hljs-keyword">is</span> a summary of the conversation to date:<br><br>用户名为“虎哥”。最喜欢的运动是乒乓球。最喜欢的动物是猫。AI已询问用户打乒乓球的时长、偏好（单打/双打）以及是否有喜欢的运动员。AI也已询问用户是否养猫或“云吸猫”。用户尚未回答关于乒乓球的后续问题。<br>================================ Human Message =================================<br><br>你还记得我吗？<br>================================== Ai Message ==================================<br><br>当然记得，虎哥！你最喜欢的运动是乒乓球，最喜欢的动物是猫。之前我们聊到一半，还在等你分享打乒乓球的细节呢——比如打了多久、喜欢单打还是双打，有没有崇拜的运动员？另外也很好奇你是有自己的猫，还是喜欢“云吸猫”？<br><br>今天想继续聊乒乓球，还是想聊聊猫？或者有其他新话题？ 😄<br></code></pre></td></tr></table></figure>
 
 
                 
