@@ -1,0 +1,740 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="fio报告解读我在我的阿里云上跑了以下命令： 1234567891011121314151617mkdir -p &#x2F;mnt&#x2F;cloud&#x2F;fio-testfio --name&#x3D;randwrite_4k \    --directory&#x3D;&#x2F;mnt&#x2F;cloud&#x2F;fio-test \    --rw&#x3D;randwrite \    --bs&#x3D;4k \    --ioengine&#x3D;libaio \    --">
+<meta property="og:type" content="article">
+<meta property="og:title" content="fio报告解读">
+<meta property="og:url" content="http://example.com/2026/07/08/fio%E6%8A%A5%E5%91%8A%E8%A7%A3%E8%AF%BB/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="fio报告解读我在我的阿里云上跑了以下命令： 1234567891011121314151617mkdir -p &#x2F;mnt&#x2F;cloud&#x2F;fio-testfio --name&#x3D;randwrite_4k \    --directory&#x3D;&#x2F;mnt&#x2F;cloud&#x2F;fio-test \    --rw&#x3D;randwrite \    --bs&#x3D;4k \    --ioengine&#x3D;libaio \    --">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-08T11:38:01.000Z">
+<meta property="article:modified_time" content="2026-07-08T12:39:30.508Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>fio报告解读 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="fio报告解读"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-07-08 19:38" pubdate>
+          2026年7月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          39 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">fio报告解读</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="fio报告解读"><a href="#fio报告解读" class="headerlink" title="fio报告解读"></a>fio报告解读</h1><p>我在我的阿里云上跑了以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mkdir</span> -p /mnt/cloud/fio-test<br><br>fio --name=randwrite_4k \<br>    --directory=/mnt/cloud/fio-test \<br>    --rw=randwrite \<br>    --bs=4k \<br>    --ioengine=libaio \<br>    --iodepth=32 \<br>    --numjobs=4 \<br>    --size=2G \<br>    --direct=1 \<br>    --time_based=1 \<br>    --runtime=180 \<br>    --ramp_time=20 \<br>    --randrepeat=0 \<br>    --norandommap=1 \<br>    --group_reporting<br></code></pre></td></tr></table></figure>
+
+<p>最后测试结果为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs bash">fio-3.28<br>Starting 4 processes<br>randwrite_4k: Laying out IO file (1 file / 2048MiB)<br>randwrite_4k: Laying out IO file (1 file / 2048MiB)<br>randwrite_4k: Laying out IO file (1 file / 2048MiB)<br>randwrite_4k: Laying out IO file (1 file / 2048MiB)<br>Jobs: 4 (f=4): [w(4)][100.0%][w=8480KiB/s][w=2120 IOPS][eta 00m:00s]<br>randwrite_4k: (groupid=0, <span class="hljs-built_in">jobs</span>=4): err= 0: pid=98561: Wed Jul  8 19:35:00 2026<br>  write: IOPS=2076, BW=8310KiB/s (8510kB/s)(1461MiB/180061msec); 0 zone resets<br>    slat (usec): min=3, max=153495, avg=68.25, stdev=2059.38<br>    clat (usec): min=545, max=340200, avg=61549.71, stdev=13414.14<br>     lat (usec): min=573, max=340211, avg=61618.10, stdev=13500.56<br>    clat percentiles (msec):<br>     |  1.00th=[   47],  5.00th=[   61], 10.00th=[   61], 20.00th=[   61],<br>     | 30.00th=[   61], 40.00th=[   61], 50.00th=[   61], 60.00th=[   61],<br>     | 70.00th=[   61], 80.00th=[   61], 90.00th=[   61], 95.00th=[   69],<br>     | 99.00th=[  142], 99.50th=[  167], 99.90th=[  207], 99.95th=[  230],<br>     | 99.99th=[  271]<br>   bw (  KiB/s): min= 2772, max= 9088, per=100.00%, avg=8314.81, stdev=153.60, samples=1440<br>   iops        : min=  692, max= 2272, avg=2078.58, stdev=38.46, samples=1440<br>  lat (usec)   : 750=0.02%, 1000=0.02%<br>  lat (msec)   : 2=0.01%, 4=0.01%, 10=0.18%, 20=0.24%, 50=0.67%<br>  lat (msec)   : 100=97.27%, 250=1.59%, 500=0.03%<br>  cpu          : usr=0.29%, sys=1.00%, ctx=214638, majf=0, minf=233<br>  IO depths    : 1=0.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=100.0%, &gt;=64=0.0%<br>     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%<br>     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, &gt;=64=0.0%<br>     issued rwts: total=0,373956,0,0 short=0,0,0,0 dropped=0,0,0,0<br>     latency   : target=0, window=0, percentile=100.00%, depth=32<br><br>Run status group 0 (all <span class="hljs-built_in">jobs</span>):<br>  WRITE: bw=8310KiB/s (8510kB/s), 8310KiB/s-8310KiB/s (8510kB/s-8510kB/s), io=1461MiB (1532MB), run=180061-180061msec<br><br>Disk stats (<span class="hljs-built_in">read</span>/write):<br>  vda: ios=0/426304, merge=0/72548, ticks=0/25745767, in_queue=25746025, util=99.95%<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="IOPS和带宽"><a href="#IOPS和带宽" class="headerlink" title="IOPS和带宽"></a>IOPS和带宽</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">write: IOPS=2076, BW=8310KiB/s (8510kB/s)(1461MiB/180061msec)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>每秒完成大约2076次4K随机写IO</li>
+<li>随机写带宽大约8310KiB&#x2F;s，也就是8.1 MiB&#x2F;s</li>
+</ul>
+<blockquote>
+<p>这个带宽和IOPS是对应的：2076 IOPS * 4 KiB ≈ 8304 KiB&#x2F;s</p>
+</blockquote>
+<ul>
+<li>1461MiB&#x2F;180061msec：表示 180 秒内总共完成了大约 <strong>1461 MiB 写入</strong>。</li>
+</ul>
+<blockquote>
+<p>注意：虽然每个测试文件是 2GiB，4 个 job 总测试空间是 8GiB，但因为你用了 <code>time_based=1</code>，fio 是在 8GiB 范围内随机覆盖写，跑满 180 秒就结束，所以最终实际完成写入量是 1461MiB，而不是必须写满 8GiB。</p>
+</blockquote>
+<h2 id="延迟指标：slat-x2F-clat-x2F-lat"><a href="#延迟指标：slat-x2F-clat-x2F-lat" class="headerlink" title="延迟指标：slat&#x2F;clat&#x2F;lat"></a>延迟指标：slat&#x2F;clat&#x2F;lat</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">slat (usec): min=3, max=153495, avg=68.25<br>clat (usec): min=545, max=340200, avg=61549.71<br>lat  (usec): min=573, max=340211, avg=61618.10<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>slat（submission latency）：fio 从用户态提交 IO 到内核队列所花的时间【平均耗时68.25 us】</li>
+<li>clat（completion latency）：IO 从提交到真正完成的时间，主要反映磁盘&#x2F;块层&#x2F;云盘后端的耗时【平均耗时61.5ms】</li>
+<li>lat &#x3D; slat + clat：为两者的总延迟</li>
+</ul>
+<h2 id="p99-x2F-p99-9指标"><a href="#p99-x2F-p99-9指标" class="headerlink" title="p99&#x2F;p99.9指标"></a>p99&#x2F;p99.9指标</h2><p>这部分最重要：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">clat percentiles (msec):<br> | 50.00th=[   61]<br> | 95.00th=[   69]<br> | 99.00th=[  142]<br> | 99.50th=[  167]<br> | 99.90th=[  207]<br> | 99.95th=[  230]<br> | 99.99th=[  271]<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>50.00th&#x3D;[   61]：一半IO延迟低于61ms，也就是 p50</li>
+<li>95.00th&#x3D;[   69]：95%的IO延迟低于69ms</li>
+<li>99.00th&#x3D;[  142]：99%的IO延迟低于142ms</li>
+<li>…</li>
+<li>99.90th&#x3D;[  207]：99.9%的IO延迟低于207ms</li>
+</ul>
+<blockquote>
+<p>极端尾延迟已经接近 271ms，对于 4K 随机写来说，这个尾延迟偏高</p>
+</blockquote>
+<h2 id="latency-bucket"><a href="#latency-bucket" class="headerlink" title="latency bucket"></a>latency bucket</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">lat (usec)   : 750=0.02%, 1000=0.02%<br>lat (msec)   : 2=0.01%, 4=0.01%, 10=0.18%, 20=0.24%, 50=0.67%<br>lat (msec)   : 100=97.27%, 250=1.59%, 500=0.03%<br></code></pre></td></tr></table></figure>
+
+<p>表示不同延迟区间内的 IO 占比。</p>
+<ul>
+<li>关键是：<code>lat (msec): 100=97.27%</code>，说明绝大多数 IO 落在 <strong>50ms 到 100ms</strong> 这个范围附近。</li>
+<li><code>lat (msec): 250=1.59%</code>：说明还有一部分 IO 延迟落到 <strong>100ms 到 250ms</strong> 这个范围。（这和前面的 p99&#x3D;142ms、p99.9&#x3D;207ms 是匹配的。）</li>
+</ul>
+<h2 id="IO-Depth"><a href="#IO-Depth" class="headerlink" title="IO Depth"></a>IO Depth</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">IO depths    : 32=100.0%<br></code></pre></td></tr></table></figure>
+
+<p>说明fio的每个job 基本都维持在 <code>iodepth=32</code>。</p>
+<p>你有4个job，所以总outstanding IO 大概是：<code>4 * 32 = 128</code></p>
+<blockquote>
+<p><strong>Q：什么叫 outstanding IO？</strong></p>
+<p>如果没有异步队列，流程可能是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">发出 1 个 4K 写<br>等待完成<br>再发下一个 4K 写<br>再等待完成<br></code></pre></td></tr></table></figure>
+
+<p>这种情况下，队列深度大约是：iodepth ≈ 1</p>
+<hr>
+<p>但是当前fio使用了：<code>--ioengine=libaio --iodepth=32</code></p>
+<p>fio 会变成：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">连续提交 32 个 4K 写<br>不等第 1 个完成，继续让队列保持满<br>哪个 IO 完成了，就立刻补一个新的 IO<br></code></pre></td></tr></table></figure>
+
+<p>所以某个 job 内部的状态大概是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">队列里一直挂着 32 个未完成写请求<br>完成 1 个 -&gt; 立刻补 1 个<br>完成 1 个 -&gt; 立刻补 1 个<br></code></pre></td></tr></table></figure>
+
+<p>这就是：<code>IO depths : 32=100.0%</code>的含义。</p>
+</blockquote>
+<p>用 Little’s Law 也能验证：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">IOPS * 平均延迟 ≈ 队列深度<br>2076 * 0.0615 ≈ 127.7<br></code></pre></td></tr></table></figure>
+
+<p>非常接近 128。</p>
+<p>这说明测试是有效的：fio 确实把队列压满了，磁盘已经达到当前条件下的瓶颈。</p>
+<h2 id="磁盘状态Disk-stats"><a href="#磁盘状态Disk-stats" class="headerlink" title="磁盘状态Disk stats"></a>磁盘状态Disk stats</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">Disk stats (<span class="hljs-built_in">read</span>/write):<br>  vda: ios=0/426304, merge=0/72548, ticks=0/25745767, in_queue=25746025, util=99.95%<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>util&#x3D;99.95%：<strong>设备繁忙率</strong>；说明这块盘几乎100% 忙。fio已经把盘打满了</li>
+<li>ios&#x3D;0&#x2F;426304：读IO是0，写IO是426304【<code>vda</code>上<strong>块层</strong>统计到了<strong>426304 次写 IO</strong>，没有读 IO】<ul>
+<li><code>issued rwts: total=0,373956,0,0 short=0,0,0,0 dropped=0,0,0,0</code></li>
+<li><code>ios=0/426304, merge=0/72548, ticks=0/25745767, in_queue=25746025, util=99.95%</code></li>
+<li><strong>fio issued</strong>是fio线程发出的逻辑IO数量（373956）</li>
+<li><strong>Disk stats</strong>是<strong>块设备层</strong>最终看到的设备IO数量（426304）</li>
+<li>两者不一样是正常的，中间可能多出：文件系统元数据写入、journal写入、系统盘上其他进程的后台IO、块层拆分或重新组织后的IO</li>
+</ul>
+</li>
+<li>merge&#x3D;0&#x2F;72548：有一部分写请求在块层发生了合并（读合并次数 &#x3D; 0；写合并次数 &#x3D; 72548）</li>
+<li>in_queue&#x3D;25746025(ms)：总的队列等待&#x2F;服务时间很高，也印证了磁盘处于饱和状态。<ul>
+<li><code>in_queue</code>对应Linux块设备统计里的<code>weighted time spent doing I/Os</code></li>
+<li>它统计的是：<u>某一时刻有多少个IO正在队列中等待或被服务</u> 乘以 <u>这段时间持续了多久</u></li>
+<li>in_queue最有用的是用它反推<strong>平均队列深度</strong>【平均队列深度 ≈ in_queue &#x2F; fio运行时间】</li>
+<li>代入数据：<code>25746025 / 180061 ≈ 143</code>,也就是说，这次fio测试期间，<code>vda</code>块设备层平均大约有143个IO处于等待；这和fio参数outstanding IO &#x3D; 128基本吻合；</li>
+<li>设备层看到143，比128稍高，可能来自：文件系统元数据写入、系统盘其他后台 IO、请求合并&#x2F;拆分</li>
+</ul>
+</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>fio报告解读</div>
+      <div>http://example.com/2026/07/08/fio报告解读/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年7月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/05/SKILL-Steam%E8%8B%B1%E6%96%87%E6%88%90%E5%B0%B1%E7%BF%BB%E8%AF%91/" title="SKILL-Steam英文成就翻译">
+                        <span class="hidden-mobile">SKILL-Steam英文成就翻译</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
