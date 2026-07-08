@@ -24,7 +24,7 @@
 <meta property="og:description" content="fio报告解读我在我的阿里云上跑了以下命令： 1234567891011121314151617mkdir -p &#x2F;mnt&#x2F;cloud&#x2F;fio-testfio --name&#x3D;randwrite_4k \    --directory&#x3D;&#x2F;mnt&#x2F;cloud&#x2F;fio-test \    --rw&#x3D;randwrite \    --bs&#x3D;4k \    --ioengine&#x3D;libaio \    --">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-07-08T11:38:01.000Z">
-<meta property="article:modified_time" content="2026-07-08T12:39:30.508Z">
+<meta property="article:modified_time" content="2026-07-08T12:47:13.693Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -214,7 +214,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.7k 字
+          5.3k 字
         
       </span>
     
@@ -225,7 +225,7 @@
         
         
         
-          39 分钟
+          44 分钟
         
       </span>
     
@@ -317,6 +317,97 @@
 <blockquote>
 <p>极端尾延迟已经接近 271ms，对于 4K 随机写来说，这个尾延迟偏高</p>
 </blockquote>
+<h2 id="带宽和IOPS周期采样"><a href="#带宽和IOPS周期采样" class="headerlink" title="带宽和IOPS周期采样"></a>带宽和IOPS周期采样</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">bw (  KiB/s): min= 2772, max= 9088, per=100.00%, avg=8314.81, stdev=153.60, samples=1440<br>iops        : min=  692, max= 2272, avg=2078.58, stdev=38.46, samples=1440<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>bw (KiB/s)</code>：带宽采样统计</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>bw</code></td>
+<td>bandwidth，带宽</td>
+<td>单位 KiB&#x2F;s</td>
+</tr>
+<tr>
+<td><code>min</code></td>
+<td>采样窗口里的最低带宽</td>
+<td>2772 KiB&#x2F;s</td>
+</tr>
+<tr>
+<td><code>max</code></td>
+<td>采样窗口里的最高带宽</td>
+<td>9088 KiB&#x2F;s</td>
+</tr>
+<tr>
+<td><code>per</code></td>
+<td>这组 job 占总带宽比例</td>
+<td>100.00%</td>
+</tr>
+<tr>
+<td><code>avg</code></td>
+<td>平均采样带宽</td>
+<td>8314.81 KiB&#x2F;s</td>
+</tr>
+<tr>
+<td><code>stdev</code></td>
+<td>标准差，表示波动程度</td>
+<td>153.60 KiB&#x2F;s</td>
+</tr>
+<tr>
+<td><code>samples</code></td>
+<td>采样点数量</td>
+<td>1440</td>
+</tr>
+</tbody></table>
+<ul>
+<li><code>iops</code>：IOPS 采样统计</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>iops</code></td>
+<td>每秒完成的 IO 数</td>
+<td>单位 次&#x2F;s</td>
+</tr>
+<tr>
+<td><code>min</code></td>
+<td>某个采样窗口里的最低 IOPS</td>
+<td>692</td>
+</tr>
+<tr>
+<td><code>max</code></td>
+<td>某个采样窗口里的最高 IOPS</td>
+<td>2272</td>
+</tr>
+<tr>
+<td><code>avg</code></td>
+<td>平均 IOPS</td>
+<td>2078.58</td>
+</tr>
+<tr>
+<td><code>stdev</code></td>
+<td>标准差，表示 IOPS 波动</td>
+<td>38.46</td>
+</tr>
+<tr>
+<td><code>samples</code></td>
+<td>采样点数量</td>
+<td>1440</td>
+</tr>
+</tbody></table>
 <h2 id="latency-bucket"><a href="#latency-bucket" class="headerlink" title="latency bucket"></a>latency bucket</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">lat (usec)   : 750=0.02%, 1000=0.02%<br>lat (msec)   : 2=0.01%, 4=0.01%, 10=0.18%, 20=0.24%, 50=0.67%<br>lat (msec)   : 100=97.27%, 250=1.59%, 500=0.03%<br></code></pre></td></tr></table></figure>
 
 <p>表示不同延迟区间内的 IO 占比。</p>
@@ -370,6 +461,13 @@
 <li>设备层看到143，比128稍高，可能来自：文件系统元数据写入、系统盘其他后台 IO、请求合并&#x2F;拆分</li>
 </ul>
 </li>
+</ul>
+<h2 id="【总结】FIO-3-28版本随机写速率关注什么"><a href="#【总结】FIO-3-28版本随机写速率关注什么" class="headerlink" title="【总结】FIO 3.28版本随机写速率关注什么"></a>【总结】FIO 3.28版本随机写速率关注什么</h2><p>看<strong>随机写入速率</strong>，主要看 fio 输出里的这一行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">write: IOPS=2076, BW=8310KiB/s (8510kB/s)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>随机写入速率：8510kB&#x2F;s</li>
+<li>每秒完成大约2076次4K随机写IO</li>
 </ul>
 
                 
