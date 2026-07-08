@@ -1,0 +1,1266 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="cgroup初学笔记【Linux cgroup与Block IO子系统原理详解：从进程分组到block层限流】 本文面向内核存储方向学习，重点解释 cgroup 的核心原理，以及它如何与 Block IO 子系统配合，实现按进程组统计、限速、权重分配和延迟保护。代码路径以 mainline Linux 6.x 思路为主，Android&#x2F;common kernel 或 5.10 厂商内核可">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cgroup初学笔记">
+<meta property="og:url" content="http://example.com/2026/07/08/cgroup%E5%88%9D%E5%AD%A6%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="cgroup初学笔记【Linux cgroup与Block IO子系统原理详解：从进程分组到block层限流】 本文面向内核存储方向学习，重点解释 cgroup 的核心原理，以及它如何与 Block IO 子系统配合，实现按进程组统计、限速、权重分配和延迟保护。代码路径以 mainline Linux 6.x 思路为主，Android&#x2F;common kernel 或 5.10 厂商内核可">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-08T14:02:25.000Z">
+<meta property="article:modified_time" content="2026-07-08T14:03:34.841Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>cgroup初学笔记 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="cgroup初学笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-07-08 22:02" pubdate>
+          2026年7月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          128 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">cgroup初学笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="cgroup初学笔记【Linux-cgroup与Block-IO子系统原理详解：从进程分组到block层限流】"><a href="#cgroup初学笔记【Linux-cgroup与Block-IO子系统原理详解：从进程分组到block层限流】" class="headerlink" title="cgroup初学笔记【Linux cgroup与Block IO子系统原理详解：从进程分组到block层限流】"></a>cgroup初学笔记【Linux cgroup与Block IO子系统原理详解：从进程分组到block层限流】</h1><blockquote>
+<p>本文面向内核存储方向学习，重点解释 <strong>cgroup 的核心原理</strong>，以及它如何与 <strong>Block IO 子系统</strong>配合，实现按进程组统计、限速、权重分配和延迟保护。<br>代码路径以 mainline Linux 6.x 思路为主，Android&#x2F;common kernel 或 5.10 厂商内核可能有裁剪或实现差异。</p>
+</blockquote>
+<hr>
+<h1 id="1-cgroup-是什么"><a href="#1-cgroup-是什么" class="headerlink" title="1. cgroup 是什么"></a>1. cgroup 是什么</h1><p><code>cgroup</code> 全称是 <strong>control group</strong>，中文通常叫 <strong>控制组</strong>。</p>
+<p>Linux 官方文档对 cgroup 的定义是：cgroup 是一种把进程按层级组织起来，并沿这个层级以可控、可配置方式分配系统资源的机制。cgroup 由两部分组成：<strong>cgroup core</strong> 和 <strong>controller</strong>；core 负责组织进程层级，controller 负责具体资源分配。</p>
+<p>简单说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">cgroup = 进程分组 + 资源控制 + 资源统计<br></code></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">前台应用进程      -&gt; foreground cgroup<br>后台应用进程      -&gt; background cgroup<br>系统服务进程      -&gt; system cgroup<br>容器内进程        -&gt; container cgroup<br></code></pre></td></tr></table></figure>
+
+<p>然后内核可以对这些组分别做：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">CPU 权重控制<br>内存限制<br>进程数限制<br>IO 带宽限制<br>IO 延迟保护<br>IO 统计<br>IO pressure 统计<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="1-1-cgroup-解决的问题"><a href="#1-1-cgroup-解决的问题" class="headerlink" title="1.1 cgroup 解决的问题"></a>1.1 cgroup 解决的问题</h2><p>没有 cgroup 时，内核只能比较自然地以“单个进程”为单位做资源调度。但实际系统里，一个业务通常是一组进程。</p>
+<p>例如 Android 应用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">App A<br> ├── main process<br> ├── render process<br> ├── webview process<br> └── background service<br></code></pre></td></tr></table></figure>
+
+<p>如果没有 cgroup，很难回答这些问题：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">App A 总共用了多少内存？<br>App A 总共发了多少 IO？<br>App A 能不能整体降低 IO 权重？<br>后台应用能不能被统一限速？<br>前台应用能不能获得更低 IO 延迟？<br></code></pre></td></tr></table></figure>
+
+<p>cgroup 的核心价值就是：<strong>把资源控制从“进程粒度”提升到“业务组粒度”。</strong></p>
+<hr>
+<h1 id="2-cgroup-的核心设计"><a href="#2-cgroup-的核心设计" class="headerlink" title="2. cgroup 的核心设计"></a>2. cgroup 的核心设计</h1><p>cgroup 的设计可以抽象成三层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">task_struct<br>    ↓<br>css_set<br>    ↓<br>cgroup_subsys_state<br>    ↓<br>cgroup controller private data<br></code></pre></td></tr></table></figure>
+
+<p>画成图是这样：</p>
+<pre><code class=" mermaid">flowchart TD
+    A[task_struct&lt;br/&gt;进程/线程] --&gt; B[css_set&lt;br/&gt;一组 subsystem state]
+    B --&gt; C1[cgroup_subsys_state&lt;br/&gt;cpu]
+    B --&gt; C2[cgroup_subsys_state&lt;br/&gt;memory]
+    B --&gt; C3[cgroup_subsys_state&lt;br/&gt;io / blkio]
+    C1 --&gt; D1[cpu controller 私有数据]
+    C2 --&gt; D2[memory controller 私有数据]
+    C3 --&gt; D3[blkcg&lt;br/&gt;Block IO cgroup 私有数据]
+</code></pre>
+
+<p>官方 cgroup v1 文档描述了这个基本实现：每个 task 有一个引用计数的 <code>css_set</code> 指针；<code>css_set</code> 里保存每个 cgroup subsystem 对应的 <code>cgroup_subsys_state</code> 指针；task 不直接指向每个 hierarchy 里的 cgroup，而是通过 <code>css_set -&gt; cgroup_subsys_state</code> 间接找到。</p>
+<hr>
+<h2 id="2-1-为什么要有-css-set？"><a href="#2-1-为什么要有-css-set？" class="headerlink" title="2.1 为什么要有 css_set？"></a>2.1 为什么要有 css_set？</h2><p>如果 task 直接保存每个 controller 的 cgroup 指针，那么每次访问 controller 状态都需要处理复杂的 hierarchy 关系。</p>
+<p>内核选择了 <code>css_set</code> 作为中间层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs text">task_struct<br>    -&gt; css_set<br>        -&gt; subsys[cpu]<br>        -&gt; subsys[memory]<br>        -&gt; subsys[io]<br>        -&gt; ...<br></code></pre></td></tr></table></figure>
+
+<p>这样做的好处是：</p>
+<ol>
+<li><strong>访问快</strong>：性能关键路径可以快速拿到某个 controller 的状态。</li>
+<li><strong>共享状态</strong>：多个 task 如果属于完全相同的一组 cgroup，可以共享同一个 <code>css_set</code>。</li>
+<li><strong>迁移清晰</strong>：移动 task 到新 cgroup 时，本质上是切换 task 的 <code>css_set</code>。</li>
+</ol>
+<hr>
+<h1 id="3-cgroup-v1-与-cgroup-v2-的区别"><a href="#3-cgroup-v1-与-cgroup-v2-的区别" class="headerlink" title="3. cgroup v1 与 cgroup v2 的区别"></a>3. cgroup v1 与 cgroup v2 的区别</h1><h2 id="3-1-cgroup-v1：多个-controller-可以挂多棵树"><a href="#3-1-cgroup-v1：多个-controller-可以挂多棵树" class="headerlink" title="3.1 cgroup v1：多个 controller 可以挂多棵树"></a>3.1 cgroup v1：多个 controller 可以挂多棵树</h2><p>cgroup v1 中，不同 controller 可以挂载到不同 hierarchy。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">/sys/fs/cgroup/cpu/<br>/sys/fs/cgroup/memory/<br>/sys/fs/cgroup/blkio/<br></code></pre></td></tr></table></figure>
+
+<p>可能出现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">CPU 分组结构是一棵树<br>Memory 分组结构是另一棵树<br>Block IO 分组结构又是一棵树<br></code></pre></td></tr></table></figure>
+
+<p>这带来的问题是：<strong>同一个进程在不同资源维度上的组织方式可能不一致</strong>。</p>
+<hr>
+<h2 id="3-2-cgroup-v2：统一-hierarchy"><a href="#3-2-cgroup-v2：统一-hierarchy" class="headerlink" title="3.2 cgroup v2：统一 hierarchy"></a>3.2 cgroup v2：统一 hierarchy</h2><p>cgroup v2 使用统一层级结构。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">/sys/fs/cgroup/<br> ├── foreground/<br> │   ├── cpu.max<br> │   ├── memory.max<br> │   ├── io.max<br> │   └── io.stat<br> └── background/<br>     ├── cpu.max<br>     ├── memory.max<br>     ├── io.max<br>     └── io.stat<br></code></pre></td></tr></table></figure>
+
+<p>所有 controller 在同一棵树上工作。</p>
+<pre><code class=" mermaid">flowchart TD
+    R[/sys/fs/cgroup/] --&gt; F[foreground]
+    R --&gt; B[background]
+    R --&gt; S[system]
+
+    F --&gt; F1[cpu controller]
+    F --&gt; F2[memory controller]
+    F --&gt; F3[io controller]
+
+    B --&gt; B1[cpu controller]
+    B --&gt; B2[memory controller]
+    B --&gt; B3[io controller]
+</code></pre>
+
+<p>cgroup v2 文档里明确说明，<code>io</code> controller 用于调节 IO 资源分配，并提供权重、绝对带宽&#x2F;IOPS 限制、统计等接口。</p>
+<hr>
+<h1 id="4-cgroup-内核数据结构"><a href="#4-cgroup-内核数据结构" class="headerlink" title="4. cgroup 内核数据结构"></a>4. cgroup 内核数据结构</h1><p>下面只保留和理解机制相关的字段，不完整等同于源码。</p>
+<hr>
+<h2 id="4-1-task-struct"><a href="#4-1-task-struct" class="headerlink" title="4.1 task_struct"></a>4.1 task_struct</h2><p>进程通过 <code>task_struct</code> 持有 cgroup 归属信息。</p>
+<p>简化理解：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">task_struct</span> &#123;</span><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * 指向当前 task 所属的 css_set。</span><br><span class="hljs-comment">     * css_set 内部保存每个 subsystem 的 css。</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">css_set</span> __<span class="hljs-title">rcu</span> *<span class="hljs-title">cgroups</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>关系：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">task_struct -&gt; css_set -&gt; cgroup_subsys_state -&gt; controller state<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4-2-css-set"><a href="#4-2-css-set" class="headerlink" title="4.2 css_set"></a>4.2 css_set</h2><p><code>css_set</code> 表示一组 subsystem state 的集合。</p>
+<p>简化结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">css_set</span> &#123;</span><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * 每个 subsystem 一个 css。</span><br><span class="hljs-comment">     * 例如 cpu、memory、io。</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup_subsys_state</span> *<span class="hljs-title">subsys</span>[<span class="hljs-title">CGROUP_SUBSYS_COUNT</span>];</span><br><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * 属于这个 css_set 的 task 链表。</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">tasks</span>;</span><br><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * 引用计数。</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-type">refcount_t</span> refcount;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>一个 <code>css_set</code> 可以被多个 task 共享：</p>
+<pre><code class=" mermaid">flowchart LR
+    T1[task A] --&gt; C[css_set X]
+    T2[task B] --&gt; C
+    T3[task C] --&gt; C
+
+    C --&gt; CPU[cpu css]
+    C --&gt; MEM[memory css]
+    C --&gt; IO[io css]
+</code></pre>
+
+<hr>
+<h2 id="4-3-cgroup-subsys-state"><a href="#4-3-cgroup-subsys-state" class="headerlink" title="4.3 cgroup_subsys_state"></a>4.3 cgroup_subsys_state</h2><p>每个 controller 在每个 cgroup 上都有自己的状态对象，统一抽象为 <code>cgroup_subsys_state</code>，简称 <code>css</code>。</p>
+<p>简化结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup_subsys_state</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup</span> *<span class="hljs-title">cgroup</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup_subsys</span> *<span class="hljs-title">ss</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">percpu_ref</span> <span class="hljs-title">refcnt</span>;</span><br>    <span class="hljs-type">int</span> id;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>对于 Block IO controller 来说，<code>cgroup_subsys_state</code> 会嵌入到 <code>struct blkcg</code> 中。</p>
+<p>可以理解成：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkcg</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup_subsys_state</span> <span class="hljs-title">css</span>;</span><br>    ...<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>也就是说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">cgroup_subsys_state 是通用壳<br>blkcg 是 Block IO controller 的私有实现<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4-4-cgroup"><a href="#4-4-cgroup" class="headerlink" title="4.4 cgroup"></a>4.4 cgroup</h2><p><code>struct cgroup</code> 表示 cgroup 树上的一个节点。</p>
+<p>简化结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup</span> &#123;</span><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * 这个 cgroup 自身的 css。</span><br><span class="hljs-comment">     * 对 cgroup core 来说，每个 cgroup 自己也是一个 css。</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup_subsys_state</span> <span class="hljs-title">self</span>;</span><br><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * 父子关系。</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup_root</span> *<span class="hljs-title">root</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">children</span>;</span><br><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * v2 中控制子树启用哪些 controller。</span><br><span class="hljs-comment">     */</span><br>    u16 subtree_control;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>cgroup core 里有两个非常重要的锁：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">cgroup_mutex<br>css_set_lock<br></code></pre></td></tr></table></figure>
+
+<p>mainline <code>kernel/cgroup/cgroup.c</code> 的注释说明，<code>cgroup_mutex</code> 是 cgroup 层级修改的主锁；<code>css_set_lock</code> 保护 <code>task-&gt;cgroups</code> 指针、<code>css_set</code> 列表以及每个 <code>css_set</code> 上的 task 链。</p>
+<hr>
+<h1 id="5-进程是如何加入-cgroup-的"><a href="#5-进程是如何加入-cgroup-的" class="headerlink" title="5. 进程是如何加入 cgroup 的"></a>5. 进程是如何加入 cgroup 的</h1><p>用户态通常通过写 <code>cgroup.procs</code> 把进程加入 cgroup。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> &lt;pid&gt; &gt; /sys/fs/cgroup/background/cgroup.procs<br></code></pre></td></tr></table></figure>
+
+<p>内核侧逻辑可以抽象成：</p>
+<pre><code class=" mermaid">sequenceDiagram
+    participant User as 用户态
+    participant Kernfs as kernfs/cgroupfs
+    participant Core as cgroup core
+    participant Task as task_struct
+    participant CSS as css_set
+
+    User-&gt;&gt;Kernfs: write(pid, cgroup.procs)
+    Kernfs-&gt;&gt;Core: cgroup_procs_write()
+    Core-&gt;&gt;Core: 解析 pid，找到 task
+    Core-&gt;&gt;Core: 检查 controller attach 规则
+    Core-&gt;&gt;CSS: 找到/创建新的 css_set
+    Core-&gt;&gt;Task: RCU 更新 task-&gt;cgroups
+    Core-&gt;&gt;Core: 更新 tasks 链表和引用计数
+</code></pre>
+
+<p>关键思想：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">移动进程到 cgroup<br>不是修改每个 controller 的状态<br>而是给 task 换一个 css_set<br></code></pre></td></tr></table></figure>
+
+<p>迁移前：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">task-&gt;cgroups = css_set_A<br></code></pre></td></tr></table></figure>
+
+<p>迁移后：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">task-&gt;cgroups = css_set_B<br></code></pre></td></tr></table></figure>
+
+<p>而 <code>css_set_B</code> 里保存了这个 task 在 cpu、memory、io 等 subsystem 下的新归属。</p>
+<hr>
+<h1 id="6-Block-IO-controller-是什么"><a href="#6-Block-IO-controller-是什么" class="headerlink" title="6. Block IO controller 是什么"></a>6. Block IO controller 是什么</h1><p>Block IO controller 是 cgroup 中负责 <strong>块设备 IO 统计和控制</strong> 的 controller。</p>
+<p>在不同 cgroup 版本中名字不同：</p>
+<table>
+<thead>
+<tr>
+<th>cgroup 版本</th>
+<th>名称</th>
+<th>常见接口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>cgroup v1</td>
+<td><code>blkio</code> controller</td>
+<td><code>blkio.throttle.*</code>, <code>blkio.weight</code>, <code>blkio.io_service_bytes</code></td>
+</tr>
+<tr>
+<td>cgroup v2</td>
+<td><code>io</code> controller</td>
+<td><code>io.stat</code>, <code>io.max</code>, <code>io.weight</code>, <code>io.latency</code>, <code>io.cost.qos</code>, <code>io.pressure</code></td>
+</tr>
+</tbody></table>
+<p>本文后面主要用 <strong>blkcg</strong> 表示内核里的 Block IO cgroup 机制。</p>
+<hr>
+<h2 id="6-1-Block-IO-controller-能做什么？"><a href="#6-1-Block-IO-controller-能做什么？" class="headerlink" title="6.1 Block IO controller 能做什么？"></a>6.1 Block IO controller 能做什么？</h2><p>主要能力：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs text">1. 统计某个 cgroup 在某个块设备上的 IO<br>2. 限制某个 cgroup 的读写带宽<br>3. 限制某个 cgroup 的读写 IOPS<br>4. 按权重分配设备 IO 时间<br>5. 做延迟保护<br>6. 统计 IO pressure<br></code></pre></td></tr></table></figure>
+
+<p>在 cgroup v2 中，<code>io.stat</code> 会暴露读写与 discard 统计，<code>io.max</code> 可以限制 BPS&#x2F;IOPS，<code>io.weight</code> 可以设置权重，<code>io.latency</code> 可以做 IO workload protection。</p>
+<hr>
+<h1 id="7-blkcg-与-blkg：Block-IO-cgroup-的核心对象"><a href="#7-blkcg-与-blkg：Block-IO-cgroup-的核心对象" class="headerlink" title="7. blkcg 与 blkg：Block IO cgroup 的核心对象"></a>7. blkcg 与 blkg：Block IO cgroup 的核心对象</h1><p>Block IO controller 的核心对象有两个：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">blkcg      = block cgroup<br>blkg       = blkcg_gq，也就是 blkcg 与 request_queue 的关联对象<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="7-1-blkcg：某个-cgroup-在-Block-IO-controller-下的状态"><a href="#7-1-blkcg：某个-cgroup-在-Block-IO-controller-下的状态" class="headerlink" title="7.1 blkcg：某个 cgroup 在 Block IO controller 下的状态"></a>7.1 blkcg：某个 cgroup 在 Block IO controller 下的状态</h2><p><code>blkcg</code> 可以理解成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">某个 cgroup 节点对应的 Block IO controller 状态<br></code></pre></td></tr></table></figure>
+
+<p>简化结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkcg</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup_subsys_state</span> <span class="hljs-title">css</span>;</span><br><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * 这个 blkcg 在不同 block device/request_queue 上</span><br><span class="hljs-comment">     * 都会有一个对应的 blkg。</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">radix_tree_root</span> <span class="hljs-title">blkg_tree</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>也就是说，一个 cgroup 只有一个 <code>blkcg</code>，但是它可能访问多个块设备。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">background cgroup<br>    -&gt; 对 sda 有一份 blkg<br>    -&gt; 对 sdb 有一份 blkg<br>    -&gt; 对 dm-0 有一份 blkg<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="7-2-blkg：blkcg-与-request-queue-的绑定关系"><a href="#7-2-blkg：blkcg-与-request-queue-的绑定关系" class="headerlink" title="7.2 blkg：blkcg 与 request_queue 的绑定关系"></a>7.2 blkg：blkcg 与 request_queue 的绑定关系</h2><p><code>blkg</code> 全称通常写作 <code>blkcg_gq</code>，可以理解成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">一个 blkcg 和一个 request_queue 的关联对象<br></code></pre></td></tr></table></figure>
+
+<p>也就是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">blkg = blkcg × request_queue<br></code></pre></td></tr></table></figure>
+
+<p>源码注释里也明确说明：一个 <code>blkcg_gq</code> 是 block cgroup 和 request_queue 之间的 association，blkcg policy 会用它记录每个 blkcg-queue 组合的信息。</p>
+<p>图示：</p>
+<pre><code class=" mermaid">flowchart TD
+    C1[foreground blkcg] --&gt; B11[blkg&lt;br/&gt;foreground + sda]
+    C1 --&gt; B12[blkg&lt;br/&gt;foreground + dm-0]
+
+    C2[background blkcg] --&gt; B21[blkg&lt;br/&gt;background + sda]
+    C2 --&gt; B22[blkg&lt;br/&gt;background + dm-0]
+
+    B11 --&gt; Q1[request_queue sda]
+    B21 --&gt; Q1
+    B12 --&gt; Q2[request_queue dm-0]
+    B22 --&gt; Q2
+</code></pre>
+
+<p>为什么需要 <code>blkg</code>？</p>
+<p>因为 IO 控制不是只和 cgroup 有关，也和设备有关。</p>
+<p>同一个 cgroup：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">对 UFS 设备的 IO 统计是一份<br>对 SD 卡设备的 IO 统计又是一份<br>对 dm-crypt 设备的 IO 统计又是一份<br></code></pre></td></tr></table></figure>
+
+<p>所以必须用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">cgroup + block device<br></code></pre></td></tr></table></figure>
+
+<p>作为统计和控制的基本单位。</p>
+<hr>
+<h2 id="7-3-blkg-policy-data"><a href="#7-3-blkg-policy-data" class="headerlink" title="7.3 blkg_policy_data"></a>7.3 blkg_policy_data</h2><p>Block IO 下不同策略会给每个 <code>blkg</code> 挂自己的私有数据。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">blk-throttle   -&gt; throttle policy data<br>io.latency     -&gt; latency policy data<br>io.cost        -&gt; cost policy data<br></code></pre></td></tr></table></figure>
+
+<p>抽象结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkcg_gq</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request_queue</span> *<span class="hljs-title">q</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkcg</span> *<span class="hljs-title">blkcg</span>;</span><br><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * 各个 blkcg policy 的私有数据。</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkg_policy_data</span> *<span class="hljs-title">pd</span>[<span class="hljs-title">BLKCG_MAX_POLS</span>];</span><br><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     * IO 统计。</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkg_iostat_set</span> __<span class="hljs-title">percpu</span> *<span class="hljs-title">iostat_cpu</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>mainline <code>blk-cgroup.c</code> 注释说明，新的 IO stats 存在 <code>blkcg_gq</code> 的 per-cpu <code>iostat_cpu</code> 中；每个 <code>blkcg</code> 会关联多个 <code>blkg</code>，即每个 block device 一份。</p>
+<hr>
+<h1 id="8-BIO-如何携带-cgroup-信息"><a href="#8-BIO-如何携带-cgroup-信息" class="headerlink" title="8. BIO 如何携带 cgroup 信息"></a>8. BIO 如何携带 cgroup 信息</h1><h2 id="8-1-BIO-是-block-层的基本-IO-描述"><a href="#8-1-BIO-是-block-层的基本-IO-描述" class="headerlink" title="8.1 BIO 是 block 层的基本 IO 描述"></a>8.1 BIO 是 block 层的基本 IO 描述</h2><p>文件系统或上层提交 IO 时，会构造 <code>struct bio</code>。</p>
+<p>简化关系：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs text">file write/read<br>    ↓<br>filesystem<br>    ↓<br>submit_bio()<br>    ↓<br>bio<br>    ↓<br>block layer<br>    ↓<br>request<br>    ↓<br>driver<br></code></pre></td></tr></table></figure>
+
+<p>Block IO controller 要对 IO 做统计和控制，必须知道：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">这个 bio 是哪个 cgroup 发出来的？<br>这个 bio 要发到哪个 block device？<br></code></pre></td></tr></table></figure>
+
+<p>因此 BIO 需要关联到 <code>blkg</code>。</p>
+<hr>
+<h2 id="8-2-BIO-与-blkg-的关系"><a href="#8-2-BIO-与-blkg-的关系" class="headerlink" title="8.2 BIO 与 blkg 的关系"></a>8.2 BIO 与 blkg 的关系</h2><p>抽象字段：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bio</span> &#123;</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_BLK_CGROUP</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkcg_gq</span> *<span class="hljs-title">bi_blkg</span>;</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>当 BIO 进入 block 层时，内核会把当前 task 的 blkcg 和目标设备的 request_queue 结合起来，找到对应 <code>blkg</code>，然后关联到 BIO 上。</p>
+<p>抽象流程：</p>
+<pre><code class=" mermaid">sequenceDiagram
+    participant Task as current task
+    participant CG as cgroup/css_set
+    participant BIO as struct bio
+    participant BLKCG as blkcg
+    participant BLKG as blkcg_gq
+    participant Q as request_queue
+
+    Task-&gt;&gt;CG: task_css(current, io_cgrp_id)
+    CG-&gt;&gt;BLKCG: css_to_blkcg(css)
+    BIO-&gt;&gt;Q: bio-&gt;bi_bdev-&gt;bd_disk-&gt;queue
+    BLKCG-&gt;&gt;BLKG: blkg_lookup_create(blkcg, q)
+    BLKG--&gt;&gt;BIO: bio-&gt;bi_blkg = blkg
+</code></pre>
+
+<p>Android common kernel 的 <code>bio.c</code> 可以看到 BIO 分配&#x2F;初始化路径中会调用 <code>bio_associate_blkg(bio)</code>，在启用 IOCOST 时还会初始化 BIO 的 iocost 相关字段。</p>
+<hr>
+<h2 id="8-3-为什么不直接把-cgroup-指针存在-bio-里？"><a href="#8-3-为什么不直接把-cgroup-指针存在-bio-里？" class="headerlink" title="8.3 为什么不直接把 cgroup 指针存在 bio 里？"></a>8.3 为什么不直接把 cgroup 指针存在 bio 里？</h2><p>因为 Block IO 控制是以：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">blkcg + request_queue<br></code></pre></td></tr></table></figure>
+
+<p>为单位进行的。</p>
+<p>如果 BIO 只保存 cgroup，那么每次统计或控制时还要重新查：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">这个 cgroup 在这个 request_queue 上的统计对象是谁？<br></code></pre></td></tr></table></figure>
+
+<p>而 <code>blkg</code> 已经把这两个维度绑定好了：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">bio-&gt;bi_blkg<br>    -&gt; blkcg<br>    -&gt; request_queue<br>    -&gt; policy data<br>    -&gt; io stats<br></code></pre></td></tr></table></figure>
+
+<p>所以 BIO 保存 <code>blkg</code> 更高效。</p>
+<hr>
+<h1 id="9-Block-IO-cgroup-的主要策略"><a href="#9-Block-IO-cgroup-的主要策略" class="headerlink" title="9. Block IO cgroup 的主要策略"></a>9. Block IO cgroup 的主要策略</h1><p>Block IO controller 并不是单一策略，而是多个策略的集合。</p>
+<hr>
+<h2 id="9-1-统计：io-stat"><a href="#9-1-统计：io-stat" class="headerlink" title="9.1 统计：io.stat"></a>9.1 统计：io.stat</h2><p>cgroup v2 下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> /sys/fs/cgroup/&lt;group&gt;/io.stat<br></code></pre></td></tr></table></figure>
+
+<p>可能输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">8:0 rbytes=1048576 wbytes=2097152 rios=10 wios=20 dbytes=0 dios=0<br></code></pre></td></tr></table></figure>
+
+<p>含义：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>rbytes</code></td>
+<td>读字节数</td>
+</tr>
+<tr>
+<td><code>wbytes</code></td>
+<td>写字节数</td>
+</tr>
+<tr>
+<td><code>rios</code></td>
+<td>读 IO 数</td>
+</tr>
+<tr>
+<td><code>wios</code></td>
+<td>写 IO 数</td>
+</tr>
+<tr>
+<td><code>dbytes</code></td>
+<td>discard 字节数</td>
+</tr>
+<tr>
+<td><code>dios</code></td>
+<td>discard IO 数</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="9-2-限速：io-max-x2F-blk-throttle"><a href="#9-2-限速：io-max-x2F-blk-throttle" class="headerlink" title="9.2 限速：io.max &#x2F; blk-throttle"></a>9.2 限速：io.max &#x2F; blk-throttle</h2><p><code>io.max</code> 用于限制某个 cgroup 在某个块设备上的最大 IO 带宽或 IOPS。</p>
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;8:0 rbps=10485760 wbps=10485760&quot;</span> &gt; /sys/fs/cgroup/bg/io.max<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;8:0 riops=100 wiops=100&quot;</span> &gt; /sys/fs/cgroup/bg/io.max<br></code></pre></td></tr></table></figure>
+
+<p>它背后的核心策略是 <strong>blk-throttle</strong>。</p>
+<p>简化逻辑：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs text">BIO 进入 block 层<br>    ↓<br>找到 bio-&gt;bi_blkg<br>    ↓<br>找到这个 blkg 对应的 throttle group<br>    ↓<br>判断是否超过 rbps/wbps/riops/wiops<br>    ↓<br>没超过：放行<br>超过：挂到 throttle 队列，等 token/时间窗口恢复后再放行<br></code></pre></td></tr></table></figure>
+
+<p>图示：</p>
+<pre><code class=" mermaid">flowchart TD
+    A[submit_bio] --&gt; B[关联 bio-&gt;bi_blkg]
+    B --&gt; C[blk-throttle 检查]
+    C --&gt; D&#123;是否超过 io.max?&#125;
+    D -- 否 --&gt; E[继续提交到 block layer]
+    D -- 是 --&gt; F[加入 throttle queue]
+    F --&gt; G[等待时间窗口/token]
+    G --&gt; E
+</code></pre>
+
+<hr>
+<h2 id="9-3-权重：io-weight"><a href="#9-3-权重：io-weight" class="headerlink" title="9.3 权重：io.weight"></a>9.3 权重：io.weight</h2><p><code>io.weight</code> 用于表示 sibling cgroup 之间的相对 IO 权重。</p>
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;8:0 1000&quot;</span> &gt; /sys/fs/cgroup/foreground/io.weight<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;8:0 100&quot;</span>  &gt; /sys/fs/cgroup/background/io.weight<br></code></pre></td></tr></table></figure>
+
+<p>含义不是“前台一定得到 10 倍带宽”，而是在设备竞争时，前台拥有更高权重。</p>
+<p>权重控制通常需要具体策略配合，例如 BFQ 或 iocost。</p>
+<hr>
+<h2 id="9-4-延迟保护：io-latency"><a href="#9-4-延迟保护：io-latency" class="headerlink" title="9.4 延迟保护：io.latency"></a>9.4 延迟保护：io.latency</h2><p><code>io.latency</code> 是 cgroup v2 的 IO workload protection 机制。配置一个目标延迟后，如果受保护 group 的平均延迟超过目标，controller 会 throttle 低优先级 peer group。官方文档对 <code>io.latency</code> 的描述正是：给 group 设置 latency target，如果平均延迟超过 target，就限制延迟目标更低优先级的 peer。</p>
+<p>抽象逻辑：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">foreground 设置 target=20ms<br>    ↓<br>foreground IO 平均延迟 &gt; 20ms<br>    ↓<br>说明设备被竞争拖慢<br>    ↓<br>throttle sibling cgroup<br>    ↓<br>释放设备队列资源<br>    ↓<br>foreground 延迟下降<br></code></pre></td></tr></table></figure>
+
+<p>图示：</p>
+<pre><code class=" mermaid">flowchart TD
+    F[foreground&lt;br/&gt;target=20ms] --&gt; L&#123;avg_lat &gt; target?&#125;
+    B[background] --&gt; Q[request_queue]
+    F --&gt; Q
+
+    L -- 否 --&gt; N[不干预]
+    L -- 是 --&gt; T[throttle background]
+    T --&gt; R[foreground 获得更低延迟]
+</code></pre>
+
+<hr>
+<h2 id="9-5-成本模型：io-cost-x2F-blk-iocost"><a href="#9-5-成本模型：io-cost-x2F-blk-iocost" class="headerlink" title="9.5 成本模型：io.cost &#x2F; blk-iocost"></a>9.5 成本模型：io.cost &#x2F; blk-iocost</h2><p><code>io.cost</code> 背后的策略是 <code>blk-iocost</code>。</p>
+<p>它不是简单按照 bytes 或 IOPS 分配资源，而是估算每个 IO 对设备造成的“成本”。</p>
+<p>为什么需要 cost？</p>
+<p>因为下面两个 IO 虽然 bytes 可能一样，但设备成本不同：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">顺序 1MB 写<br>随机 1MB 写<br></code></pre></td></tr></table></figure>
+
+<p>再比如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">4KB 随机读<br>128KB 顺序读<br>4KB 同步写<br>大范围 discard<br></code></pre></td></tr></table></figure>
+
+<p>这些 IO 对设备队列、FTL、cache、GC 的影响完全不同。</p>
+<p><code>blk-iocost</code> 的思想是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">每个 IO 估算一个 cost<br>每个 cgroup 按权重获得虚拟时间份额<br>如果某个 cgroup 超前消费了设备时间，就需要等待<br></code></pre></td></tr></table></figure>
+
+<p>图示：</p>
+<pre><code class=" mermaid">flowchart LR
+    A[BIO] --&gt; B[估算 IO cost]
+    B --&gt; C[转换成 cgroup vtime 消耗]
+    C --&gt; D&#123;是否超过该 cgroup 可用份额?&#125;
+    D -- 否 --&gt; E[允许下发]
+    D -- 是 --&gt; F[等待 device vtime 追上]
+</code></pre>
+
+<hr>
+<h1 id="10-源码解读：从进程到-BIO-到-block-层-QoS"><a href="#10-源码解读：从进程到-BIO-到-block-层-QoS" class="headerlink" title="10. 源码解读：从进程到 BIO 到 block 层 QoS"></a>10. 源码解读：从进程到 BIO 到 block 层 QoS</h1><p>下面按实际路径拆解。</p>
+<hr>
+<h2 id="10-1-进程如何找到自己的-blkcg"><a href="#10-1-进程如何找到自己的-blkcg" class="headerlink" title="10.1 进程如何找到自己的 blkcg"></a>10.1 进程如何找到自己的 blkcg</h2><p>关键路径：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">current<br>    ↓<br>task_struct-&gt;cgroups<br>    ↓<br>css_set<br>    ↓<br>subsys[io_cgrp_id]<br>    ↓<br>cgroup_subsys_state<br>    ↓<br>blkcg<br></code></pre></td></tr></table></figure>
+
+<p>抽象代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup_subsys_state</span> *<span class="hljs-title">css</span>;</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkcg</span> *<span class="hljs-title">blkcg</span>;</span><br><br>css = task_css(current, io_cgrp_id);<br>blkcg = css_to_blkcg(css);<br></code></pre></td></tr></table></figure>
+
+<p><code>task_css()</code> 的核心作用就是：从 task 当前的 <code>css_set</code> 中取出某个 subsystem 对应的 <code>cgroup_subsys_state</code>。Google common kernel 的 <code>include/linux/cgroup.h</code> 中也能看到 <code>task_css()</code>、<code>task_get_css()</code>、<code>task_cgroup()</code> 这一类 helper，用于根据 task 和 subsystem id 获取 css 或 cgroup。</p>
+<hr>
+<h2 id="10-2-BIO-如何关联-blkg"><a href="#10-2-BIO-如何关联-blkg" class="headerlink" title="10.2 BIO 如何关联 blkg"></a>10.2 BIO 如何关联 blkg</h2><p>抽象代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">bio_associate_blkg</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bio *bio)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request_queue</span> *<span class="hljs-title">q</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cgroup_subsys_state</span> *<span class="hljs-title">css</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkcg</span> *<span class="hljs-title">blkcg</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkcg_gq</span> *<span class="hljs-title">blkg</span>;</span><br><br>    q = bdev_get_queue(bio-&gt;bi_bdev);<br><br>    css = task_css(current, io_cgrp_id);<br>    blkcg = css_to_blkcg(css);<br><br>    blkg = blkg_lookup_create(blkcg, q);<br><br>    bio-&gt;bi_blkg = blkg;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>核心不是具体函数名，而是这几个动作：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">1. 从 current 找到 blkcg<br>2. 从 bio 找到 request_queue<br>3. 用 blkcg + request_queue 找到 blkg<br>4. 把 blkg 记录到 bio<br></code></pre></td></tr></table></figure>
+
+<p>图示：</p>
+<pre><code class=" mermaid">flowchart TD
+    A[current task] --&gt; B[task-&gt;cgroups]
+    B --&gt; C[css_set]
+    C --&gt; D[io css]
+    D --&gt; E[blkcg]
+
+    X[bio-&gt;bi_bdev] --&gt; Y[request_queue]
+
+    E --&gt; Z[blkg_lookup_create]
+    Y --&gt; Z
+    Z --&gt; R[bio-&gt;bi_blkg]
+</code></pre>
+
+<hr>
+<h2 id="10-3-BIO-提交后-Block-IO-controller-如何参与"><a href="#10-3-BIO-提交后-Block-IO-controller-如何参与" class="headerlink" title="10.3 BIO 提交后 Block IO controller 如何参与"></a>10.3 BIO 提交后 Block IO controller 如何参与</h2><p>当 BIO 进入 block 层后，多个策略可能依次参与：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs text">submit_bio()<br>    ↓<br>blkcg association<br>    ↓<br>blk-throttle<br>    ↓<br>rq-qos: iolatency / iocost<br>    ↓<br>bio merge / request allocation<br>    ↓<br>blk-mq<br>    ↓<br>driver<br></code></pre></td></tr></table></figure>
+
+<p>图示：</p>
+<pre><code class=" mermaid">sequenceDiagram
+    participant FS as FileSystem
+    participant BIO as BIO
+    participant BLKCG as blkcg/blkg
+    participant THR as blk-throttle
+    participant RQOS as rq-qos
+    participant MQ as blk-mq
+    participant DEV as Device
+
+    FS-&gt;&gt;BIO: submit_bio()
+    BIO-&gt;&gt;BLKCG: associate bio-&gt;bi_blkg
+    BIO-&gt;&gt;THR: check io.max / throttle
+    BIO-&gt;&gt;RQOS: iolatency / iocost throttle
+    BIO-&gt;&gt;MQ: build/merge request
+    MQ-&gt;&gt;DEV: issue request
+    DEV--&gt;&gt;MQ: complete
+    MQ--&gt;&gt;RQOS: update latency/cost
+    MQ--&gt;&gt;BLKCG: update io.stat
+</code></pre>
+
+<hr>
+<h2 id="10-4-rq-qos-与-blkcg-的关系"><a href="#10-4-rq-qos-与-blkcg-的关系" class="headerlink" title="10.4 rq-qos 与 blkcg 的关系"></a>10.4 rq-qos 与 blkcg 的关系</h2><p><code>blk-throttle</code> 更多是 BIO 层的限速策略，而 <code>io.latency</code>、<code>io.cost</code> 会通过 <code>rq-qos</code> 框架参与 request queue 的限流和反馈。</p>
+<p><code>rq-qos</code> 挂在 <code>request_queue</code> 上：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request_queue</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rq_qos</span> *<span class="hljs-title">rq_qos</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>多个策略以链表方式挂载：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">request_queue-&gt;rq_qos<br>    -&gt; RQ_QOS_COST<br>    -&gt; RQ_QOS_LATENCY<br>    -&gt; RQ_QOS_WBT<br></code></pre></td></tr></table></figure>
+
+<p>当 BIO&#x2F;request 经过 block 层时，rq-qos 会执行 hook：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">throttle<br>track<br>issue<br>done<br></code></pre></td></tr></table></figure>
+
+<p>与 blkcg 的配合点是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">bio/request 能通过 bio-&gt;bi_blkg 找到对应 cgroup/queue 组合<br>rq-qos policy 再根据该 blkg 的 policy data 做控制<br></code></pre></td></tr></table></figure>
+
+<p>图示：</p>
+<pre><code class=" mermaid">flowchart LR
+    A[BIO] --&gt; B[bio-&gt;bi_blkg]
+    B --&gt; C[blkcg]
+    B --&gt; D[request_queue]
+    B --&gt; E[policy data]
+
+    E --&gt; F[iolatency data]
+    E --&gt; G[iocost data]
+    E --&gt; H[throttle data]
+
+    D --&gt; I[rq_qos chain]
+    I --&gt; J[throttle / issue / done]
+</code></pre>
+
+<hr>
+<h1 id="11-io-stat-是如何统计出来的"><a href="#11-io-stat-是如何统计出来的" class="headerlink" title="11. io.stat 是如何统计出来的"></a>11. io.stat 是如何统计出来的</h1><h2 id="11-1-统计维度"><a href="#11-1-统计维度" class="headerlink" title="11.1 统计维度"></a>11.1 统计维度</h2><p><code>io.stat</code> 的统计维度是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">cgroup + block device<br></code></pre></td></tr></table></figure>
+
+<p>也就是 <code>blkg</code>。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">background cgroup + sda<br>foreground cgroup + sda<br>background cgroup + dm-0<br>foreground cgroup + dm-0<br></code></pre></td></tr></table></figure>
+
+<p>每个组合都有自己的统计。</p>
+<hr>
+<h2 id="11-2-per-cpu-统计"><a href="#11-2-per-cpu-统计" class="headerlink" title="11.2 per-cpu 统计"></a>11.2 per-cpu 统计</h2><p>为了降低高频 IO 路径上的锁竞争，block cgroup 统计通常使用 per-cpu 计数。</p>
+<p>抽象结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkcg_gq</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">blkg_iostat_set</span> __<span class="hljs-title">percpu</span> *<span class="hljs-title">iostat_cpu</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>每个 CPU 更新自己的本地统计，读取 <code>io.stat</code> 时再聚合。</p>
+<p>mainline <code>blk-cgroup.c</code> 的注释说明，新 IO stats 存储在 <code>blkcg_gq</code> 的 per-cpu <code>iostat_cpu</code> 中；一个 <code>blkcg</code> 会关联多个 <code>blkg</code>，每个 block device 一份；rstat 代码会跟踪哪些 CPU 上有 IO stats 更新。</p>
+<hr>
+<h2 id="11-3-统计更新路径"><a href="#11-3-统计更新路径" class="headerlink" title="11.3 统计更新路径"></a>11.3 统计更新路径</h2><p>抽象流程：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">BIO 完成<br>    ↓<br>根据 bio-&gt;bi_blkg 找到 blkg<br>    ↓<br>根据 op 判断 read/write/discard<br>    ↓<br>更新 per-cpu iostat<br>    ↓<br>标记 rstat updated<br>    ↓<br>用户读取 io.stat 时 flush/聚合<br></code></pre></td></tr></table></figure>
+
+<p>图示：</p>
+<pre><code class=" mermaid">flowchart TD
+    A[bio complete] --&gt; B[bio-&gt;bi_blkg]
+    B --&gt; C[当前 CPU 的 iostat_cpu]
+    C --&gt; D&#123;bio op 类型&#125;
+    D --&gt; R[rbytes / rios]
+    D --&gt; W[wbytes / wios]
+    D --&gt; X[dbytes / dios]
+    R --&gt; F[rstat flush]
+    W --&gt; F
+    X --&gt; F
+    F --&gt; G[用户读取 io.stat]
+</code></pre>
+
+<hr>
+<h1 id="12-常见误区"><a href="#12-常见误区" class="headerlink" title="12. 常见误区"></a>12. 常见误区</h1><h2 id="12-1-cgroup-不是调度器本身"><a href="#12-1-cgroup-不是调度器本身" class="headerlink" title="12.1 cgroup 不是调度器本身"></a>12.1 cgroup 不是调度器本身</h2><p>cgroup 负责：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">分组<br>配置<br>记账<br>资源归属<br></code></pre></td></tr></table></figure>
+
+<p>真正执行调度&#x2F;限速的是各个 controller 或 block 层策略。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">cpu controller 影响 CFS/RT 调度<br>memory controller 影响 reclaim/OOM<br>io controller 影响 blk-throttle/rq-qos/blk-mq 路径<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="12-2-blkio-x2F-io-controller-不是只控制用户态直接-IO"><a href="#12-2-blkio-x2F-io-controller-不是只控制用户态直接-IO" class="headerlink" title="12.2 blkio&#x2F;io controller 不是只控制用户态直接 IO"></a>12.2 blkio&#x2F;io controller 不是只控制用户态直接 IO</h2><p>很多 IO 不是当前进程直接同步发下去的。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">buffered write<br>    -&gt; 先写 page cache<br>    -&gt; 后续由 writeback 线程下发 BIO<br></code></pre></td></tr></table></figure>
+
+<p>这类 IO 的 cgroup 归属可能受到 writeback attribution、memcg、inode&#x2F;page ownership 等机制影响。分析 IO 归属时不能只看“哪个线程正在 submit_bio”。</p>
+<hr>
+<h2 id="12-3-cgroup-v1-blkio-和-cgroup-v2-io-不完全等价"><a href="#12-3-cgroup-v1-blkio-和-cgroup-v2-io-不完全等价" class="headerlink" title="12.3 cgroup v1 blkio 和 cgroup v2 io 不完全等价"></a>12.3 cgroup v1 blkio 和 cgroup v2 io 不完全等价</h2><p>常见差异：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>cgroup v1 blkio</th>
+<th>cgroup v2 io</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>层级</td>
+<td>可独立 hierarchy</td>
+<td>统一 hierarchy</td>
+</tr>
+<tr>
+<td>接口</td>
+<td><code>blkio.*</code></td>
+<td><code>io.*</code></td>
+</tr>
+<tr>
+<td>限速</td>
+<td><code>blkio.throttle.*</code></td>
+<td><code>io.max</code></td>
+</tr>
+<tr>
+<td>权重</td>
+<td><code>blkio.weight</code></td>
+<td><code>io.weight</code></td>
+</tr>
+<tr>
+<td>延迟保护</td>
+<td>较弱&#x2F;依赖具体实现</td>
+<td><code>io.latency</code></td>
+</tr>
+<tr>
+<td>pressure</td>
+<td>无统一 PSI 接口</td>
+<td><code>io.pressure</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="12-4-dm-设备、UFS、loop、分区会影响观察结果"><a href="#12-4-dm-设备、UFS、loop、分区会影响观察结果" class="headerlink" title="12.4 dm 设备、UFS、loop、分区会影响观察结果"></a>12.4 dm 设备、UFS、loop、分区会影响观察结果</h2><p>Block IO 统计以 block device 的 <code>major:minor</code> 为单位。</p>
+<p>如果系统中有：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">dm-crypt<br>dm-linear<br>loop<br>分区<br>UFS host<br></code></pre></td></tr></table></figure>
+
+<p>你看到的 <code>io.stat</code> 可能对应的是上层 dm 设备，而不是最终物理 UFS 设备。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">/data -&gt; /dev/block/dm-48 -&gt; /dev/block/sdaXX -&gt; UFS<br></code></pre></td></tr></table></figure>
+
+<p>此时：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">dm-48 有自己的 request_queue / blkg<br>sda 也可能有自己的 request_queue / blkg<br></code></pre></td></tr></table></figure>
+
+<p>分析时要确认你观察的是哪一层。</p>
+<hr>
+<h1 id="13-总结"><a href="#13-总结" class="headerlink" title="13. 总结"></a>13. 总结</h1><p>cgroup 的核心是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">把进程组织成树状层级<br>每个 controller 在每个 cgroup 上维护自己的状态<br>task 通过 css_set 找到各个 controller 的 cgroup_subsys_state<br></code></pre></td></tr></table></figure>
+
+<p>Block IO controller 的核心是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">blkcg = 某个 cgroup 的 block IO 状态<br>blkg  = blkcg + request_queue 的组合<br>BIO   = 通过 bio-&gt;bi_blkg 关联到具体 cgroup 和设备<br></code></pre></td></tr></table></figure>
+
+<p>Block IO 控制的完整路径可以总结为：</p>
+<pre><code class=" mermaid">flowchart TD
+    A[进程 current] --&gt; B[task-&gt;cgroups]
+    B --&gt; C[css_set]
+    C --&gt; D[io css]
+    D --&gt; E[blkcg]
+
+    F[文件系统 submit_bio] --&gt; G[BIO]
+    G --&gt; H[request_queue]
+    E --&gt; I[blkg_lookup_create]
+    H --&gt; I
+    I --&gt; J[bio-&gt;bi_blkg]
+
+    J --&gt; K[blk-throttle&lt;br/&gt;io.max]
+    J --&gt; L[rq-qos iolatency&lt;br/&gt;io.latency]
+    J --&gt; M[rq-qos iocost&lt;br/&gt;io.cost]
+
+    K --&gt; N[blk-mq]
+    L --&gt; N
+    M --&gt; N
+    N --&gt; O[driver/device]
+
+    O --&gt; P[complete]
+    P --&gt; Q[update io.stat]
+</code></pre>
+
+<p>一句话理解：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">cgroup 负责告诉内核“这个 IO 属于哪个业务组”，<br>blkcg/blkg 负责把“业务组”和“块设备队列”绑定起来，<br>Block IO controller 再基于这个绑定做统计、限速、权重分配和延迟保护。<br></code></pre></td></tr></table></figure>
+
+<p>如果你要继续深入源码，建议按这个顺序看：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs text">1. include/linux/cgroup-defs.h<br>2. include/linux/cgroup.h<br>3. kernel/cgroup/cgroup.c<br>4. include/linux/blk-cgroup.h<br>5. block/blk-cgroup.c<br>6. block/bio.c<br>7. block/blk-throttle.c<br>8. block/blk-iolatency.c<br>9. block/blk-iocost.c<br>10. block/blk-rq-qos.c<br></code></pre></td></tr></table></figure>
+
+<p>核心学习路线：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">task 如何找到 cgroup<br>    ↓<br>cgroup 如何找到 controller state<br>    ↓<br>blkcg 如何绑定 request_queue<br>    ↓<br>bio 如何关联 blkg<br>    ↓<br>block controller 如何统计/限流<br>    ↓<br>rq-qos 如何在 request 生命周期中反馈控制<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>cgroup初学笔记</div>
+      <div>http://example.com/2026/07/08/cgroup初学笔记/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年7月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/08/fio%E6%8A%A5%E5%91%8A%E8%A7%A3%E8%AF%BB/" title="fio报告解读">
+                        <span class="hidden-mobile">fio报告解读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
