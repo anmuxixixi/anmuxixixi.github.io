@@ -1,0 +1,974 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Linux inode-&gt;i_nlink：何时为 0，何时不为 0 范围：Linux VFS 的 struct inode::i_nlink。本文按“语义类别”穷举状态，而不是枚举内核中每一种文件系统的每一个赋值点。具体文件系统可以按自己的磁盘格式设置 i_nlink，也可以在 getattr() 中另外设置返回给用户态的 st_nlink。  1. 先给出准确结论i_nlink 是由具体文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文件系统inode-&gt;i_nlink语义笔记">
+<meta property="og:url" content="http://example.com/2026/07/20/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Finode-i-nlink%E8%AF%AD%E4%B9%89%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="Linux inode-&gt;i_nlink：何时为 0，何时不为 0 范围：Linux VFS 的 struct inode::i_nlink。本文按“语义类别”穷举状态，而不是枚举内核中每一种文件系统的每一个赋值点。具体文件系统可以按自己的磁盘格式设置 i_nlink，也可以在 getattr() 中另外设置返回给用户态的 st_nlink。  1. 先给出准确结论i_nlink 是由具体文">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-20T14:56:15.000Z">
+<meta property="article:modified_time" content="2026-07-20T14:57:14.692Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>文件系统inode-&gt;i_nlink语义笔记 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="文件系统inode-&gt;i_nlink语义笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-07-20 22:56" pubdate>
+          2026年7月20日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          19k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          162 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">文件系统inode-&gt;i_nlink语义笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Linux-inode-gt-i-nlink：何时为-0，何时不为-0"><a href="#Linux-inode-gt-i-nlink：何时为-0，何时不为-0" class="headerlink" title="Linux inode-&gt;i_nlink：何时为 0，何时不为 0"></a>Linux <code>inode-&gt;i_nlink</code>：何时为 0，何时不为 0</h1><blockquote>
+<p>范围：Linux VFS 的 <code>struct inode::i_nlink</code>。本文按“语义类别”穷举状态，而不是枚举内核中每一种文件系统的每一个赋值点。具体文件系统可以按自己的磁盘格式设置 <code>i_nlink</code>，也可以在 <code>getattr()</code> 中另外设置返回给用户态的 <code>st_nlink</code>。</p>
+</blockquote>
+<h2 id="1-先给出准确结论"><a href="#1-先给出准确结论" class="headerlink" title="1. 先给出准确结论"></a>1. 先给出准确结论</h2><p><code>i_nlink</code> 是由具体文件系统维护、由 VFS 使用的<strong>链接计数字段</strong>。只看它是 0 还是非 0，不能无条件推出 inode 在当前命名空间中是否存在可见路径。</p>
+<p>只有同时满足以下前提时，才能把它直接理解为目录项数量：</p>
+<ol>
+<li>inode 是已经完成创建并发布的、路径可命名的非目录对象；</li>
+<li>文件系统采用传统 Unix 硬链接语义；</li>
+<li>文件系统把该值作为实际链接数精确维护；</li>
+<li>观察期间没有并发的 <code>link</code>、<code>unlink</code> 或 <code>rename</code>。</li>
+</ol>
+<p>在这些前提下，非目录 inode 的 <code>i_nlink == N</code> 表示文件系统中有 N 个硬链接目录项关联到它。超出这些前提时：</p>
+<ul>
+<li><code>i_nlink &gt; 0</code> 只表示当前链接计数字段是正数；它可能是实际链接数，也可能是 inode 初始化时设置的 1，或者是具体文件系统按自身规则设置的值；</li>
+<li><code>i_nlink == 0</code> 只表示当前链接计数字段为零；常见原因是最后一个硬链接已删除，或者 inode 原本就是匿名临时对象；</li>
+<li><code>i_nlink == 0</code> <strong>不等于 inode 已释放</strong>。打开的文件描述符、内存映射、cwd 等引用仍可使 inode 和数据存活。</li>
+</ul>
+<p>用户态的 <code>stat.st_nlink</code> &#x2F; <code>statx.stx_nlink</code> 通常就是这个值。VFS 的 <code>generic_fillattr()</code> 将 <code>inode-&gt;i_nlink</code> 填入 <code>kstat.nlink</code>；文件系统也可以在自己的 <code>getattr</code> 中覆盖它。</p>
+<h3 id="这些例外具体指什么"><a href="#这些例外具体指什么" class="headerlink" title="这些例外具体指什么"></a>这些例外具体指什么</h3><p>这些情况应直接按照文件系统代码的实际处理来理解：</p>
+<ol>
+<li><strong>ext4</strong>：启用 <code>DIR_NLINK</code> 后，如果目录的链接数无法继续由 16 位 <code>i_links_count</code> 精确表示，ext4 可以把该字段设为 <strong>1</strong>，用 1 表示“链接数未知”。这里的 1 不是实际链接数。</li>
+<li><strong>FAT</strong>：FAT 磁盘格式没有 Unix <code>i_nlink</code> 字段。Linux FAT 驱动读取目录 inode 时调用 <code>fat_subdirs(inode)</code> 统计子目录，再把结果传给 <code>set_nlink()</code>；根目录使用 <code>fat_subdirs(inode) + 2</code>。因此这个 <code>i_nlink</code> 是 FAT 驱动按 VFS 需要设置的，不是从磁盘上的同名字段读取的。</li>
+<li><strong>overlayfs</strong>：对 merged directory，overlayfs 可以在 <code>getattr()</code> 中执行 <code>stat-&gt;nlink = 1</code>。这改变的是本次返回给用户态的 <code>st_nlink</code>，不能据此断言 <code>inode-&gt;i_nlink</code> 也等于 1。</li>
+</ol>
+<p>所以阅读代码时应分别检查：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">文件系统在创建或读入 inode 时怎样调用 set_nlink()<br>文件系统在 link/unlink/rmdir/rename 时怎样增减 i_nlink<br>文件系统是否在 getattr() 中覆盖返回给用户态的 st_nlink<br></code></pre></td></tr></table></figure>
+
+<p>必须与以下概念分开：</p>
+<table>
+<thead>
+<tr>
+<th>量</th>
+<th>回答的问题</th>
+<th align="right">打开文件会增加吗</th>
+<th align="right">删除最后一个硬链接后</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>i_nlink</code></td>
+<td>文件系统当前维护的链接计数是多少？</td>
+<td align="right">否</td>
+<td align="right">传统语义下变成 0</td>
+</tr>
+<tr>
+<td>inode 引用计数（内核当前使用 <code>i_count</code>&#x2F;专用 helper 管理）</td>
+<td>内存中的 inode 是否仍被引用？</td>
+<td align="right">会间接保持引用</td>
+<td align="right">可以仍大于 0</td>
+</tr>
+<tr>
+<td><code>struct file</code> 的引用计数</td>
+<td>一个打开文件描述是否仍被 fd、dup、传递等引用？</td>
+<td align="right">是</td>
+<td align="right">不受名字删除直接影响</td>
+</tr>
+<tr>
+<td>dentry 引用</td>
+<td>路径缓存对象是否仍被引用？</td>
+<td align="right">打开文件会保持其 path</td>
+<td align="right">可保留一个带 <code>(deleted)</code> 的 dentry</td>
+</tr>
+</tbody></table>
+<h2 id="2-内核中的基本规则"><a href="#2-内核中的基本规则" class="headerlink" title="2. 内核中的基本规则"></a>2. 内核中的基本规则</h2><p>当前内核源码给出了四个关键事实：</p>
+<ol>
+<li><code>inode_init_always_gfp()</code> 初始化新分配的内存 inode 时，先令 <code>__i_nlink = 1</code>。因此“刚分配、尚未发布到目录”的短暂内部状态也可能是 1；不能把 <code>i_nlink &gt; 0</code> 无条件解释成用户已经能通过路径找到它。</li>
+<li>文件系统只能直接读取 <code>i_nlink</code>，修改应使用 <code>set_nlink()</code>、<code>clear_nlink()</code>、<code>inc_nlink()</code>、<code>drop_nlink()</code>、<code>inode_inc_link_count()</code> 或 <code>inode_dec_link_count()</code>。</li>
+<li><code>drop_nlink()</code> 做减一；<code>clear_nlink()</code> 直接置零。首次到达零时，VFS 同时更新 superblock 的待删除 inode 计数。</li>
+<li>内核明确允许某些文件系统把链接数从 0 改回非 0；<code>inc_nlink()</code> 对 0 → 1 要求 inode 带有 <code>I_LINKABLE</code>。<code>O_TMPFILE</code> 后用 <code>linkat(..., AT_EMPTY_PATH)</code> 发布文件就是用户可见的典型路径。</li>
+</ol>
+<p>因此，准确的判断是：</p>
+<blockquote>
+<p>先把 <code>i_nlink</code> 当作文件系统维护的一个数值，再结合 inode 生命周期、对象类型和文件系统实现解释它。零值通常驱动“已解除链接、等待回收”的语义；正值不保证当前命名空间中存在可见或可达路径。</p>
+</blockquote>
+<h2 id="3-非目录-inode：所有通用状态变化"><a href="#3-非目录-inode：所有通用状态变化" class="headerlink" title="3. 非目录 inode：所有通用状态变化"></a>3. 非目录 inode：所有通用状态变化</h2><p>这里的“非目录”包括常规文件、符号链接本身、FIFO、Unix 域 socket 的路径节点和设备节点。下表描述<strong>采用精确传统链接计数的本地文件系统</strong>上的正常 VFS 变化；初始化、匿名对象和异常路径已单独标明。是否允许创建或硬链接还受权限及具体文件系统限制。</p>
+<table>
+<thead>
+<tr>
+<th>操作或状态</th>
+<th align="right">目标 inode 的 <code>i_nlink</code></th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>VFS 刚分配内存 inode</td>
+<td align="right">默认 1</td>
+<td>内部初始化值；尚不保证目录项已经发布</td>
+</tr>
+<tr>
+<td>成功创建并发布一个具名对象</td>
+<td align="right">通常 1</td>
+<td>传统语义下有一个硬链接目录项</td>
+</tr>
+<tr>
+<td><code>link(old, new)</code> 成功</td>
+<td align="right">加 1</td>
+<td>两个名字的 <code>(st_dev, st_ino)</code> 相同</td>
+</tr>
+<tr>
+<td>删除多个硬链接中的一个</td>
+<td align="right">减 1，仍大于 0</td>
+<td>该文件系统中仍有其他硬链接；不保证它们在当前命名空间中可见或可达</td>
+</tr>
+<tr>
+<td>删除最后一个硬链接</td>
+<td align="right">变为 0</td>
+<td>若仍打开，可继续 <code>fstat/read/write</code></td>
+</tr>
+<tr>
+<td><code>rename(old, new)</code>，<code>new</code> 不存在</td>
+<td align="right">源 inode 不变</td>
+<td>只是换名字；不是先 unlink 再 link 的可见中间态</td>
+</tr>
+<tr>
+<td><code>rename(old, new)</code> 覆盖已有文件</td>
+<td align="right">源 inode 不变；旧 <code>new</code> inode 减 1，可能为 0</td>
+<td>打开的旧 <code>new</code> fd 仍指向被覆盖的 inode</td>
+</tr>
+<tr>
+<td><code>RENAME_EXCHANGE</code></td>
+<td align="right">两边通常都不变</td>
+<td>两个名字交换指向</td>
+</tr>
+<tr>
+<td><code>O_TMPFILE</code> 创建成功</td>
+<td align="right">0</td>
+<td>从一开始没有目录项，但 fd 持有它</td>
+</tr>
+<tr>
+<td>可链接的 <code>O_TMPFILE</code> 经 <code>linkat(AT_EMPTY_PATH)</code> 发布</td>
+<td align="right">0 → 1</td>
+<td><code>O_EXCL</code> 会禁止这种发布</td>
+</tr>
+<tr>
+<td><code>memfd_create()</code> 等匿名临时文件</td>
+<td align="right">通常 0</td>
+<td>无目录名字；具体伪文件系统决定其 <code>st_nlink</code></td>
+</tr>
+<tr>
+<td>创建流程失败并回滚</td>
+<td align="right">最终清零并回收</td>
+<td>可在文件系统错误路径或内核探针中看到，通常不是稳定用户态状态</td>
+</tr>
+<tr>
+<td>从磁盘读入已删除&#x2F;损坏的 inode</td>
+<td align="right">可能为 0</td>
+<td>文件系统恢复、孤儿链表和一致性检查场景；不能当成正常可达文件</td>
+</tr>
+</tbody></table>
+<h3 id="不会改变-i-nlink-的操作"><a href="#不会改变-i-nlink-的操作" class="headerlink" title="不会改变 i_nlink 的操作"></a>不会改变 <code>i_nlink</code> 的操作</h3><ul>
+<li><code>open()</code>、<code>dup()</code>、<code>fork()</code> 后继承 fd、通过 Unix socket 传递 fd；</li>
+<li><code>mmap()</code>、把文件作为可执行文件运行；</li>
+<li>创建符号链接：增加的是“符号链接 inode”自身的链接数，<strong>不会</strong>增加目标文件的链接数；</li>
+<li>bind mount、不同 mount namespace 中出现路径别名；</li>
+<li>reflink、普通复制：它们创建不同 inode，通常各自为 1；</li>
+<li>修改内容、权限、属主、xattr、时间戳。</li>
+</ul>
+<h3 id="常规具名对象失去最后一个硬链接后的生命周期"><a href="#常规具名对象失去最后一个硬链接后的生命周期" class="headerlink" title="常规具名对象失去最后一个硬链接后的生命周期"></a>常规具名对象失去最后一个硬链接后的生命周期</h3><pre><code class=" mermaid">stateDiagram-v2
+    [*] --&gt; Published: 创建并发布，通常 i_nlink=1
+    Published --&gt; Published: link/unlink，计数仍大于 0
+    Published --&gt; ZeroLinkLive: 删除最后一个硬链接，i_nlink=0
+    [*] --&gt; ZeroLinkLive: O_TMPFILE，i_nlink=0
+    ZeroLinkLive --&gt; Published: linkat 发布可链接的 O_TMPFILE
+    ZeroLinkLive --&gt; Reclaimed: 最后一个内核引用释放
+    Reclaimed --&gt; [*]
+</code></pre>
+
+<p>例如，进程打开文件后执行 <code>unlink()</code>：</p>
+<ol>
+<li>最后一个硬链接目录项被移除，文件系统把 <code>i_nlink</code> 降为 0；</li>
+<li>fd 仍通过 <code>struct file -&gt; path/dentry -&gt; inode</code> 保持引用；</li>
+<li><code>/proc/&lt;pid&gt;/fd/&lt;n&gt;</code> 常显示 <code>原路径 (deleted)</code>，<code>fstat(fd)</code> 仍返回原 inode 且 <code>st_nlink == 0</code>；</li>
+<li>最后一个相关引用释放后，文件系统的 <code>evict_inode</code>&#x2F;删除路径截断数据并释放 inode。</li>
+</ol>
+<h2 id="4-目录-inode"><a href="#4-目录-inode" class="headerlink" title="4. 目录 inode"></a>4. 目录 inode</h2><p>传统 Unix 目录不能由普通用户调用 <code>link()</code> 创建任意硬链接，否则会破坏目录树无环约束。目录链接数由 <code>mkdir</code>、<code>rmdir</code>、目录 <code>rename</code> 自动维护。</p>
+<p>对精确维护传统计数的文件系统：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">目录 i_nlink = 2 + 直接子目录数<br></code></pre></td></tr></table></figure>
+
+<p>“2”可理解为目录自身的 <code>.</code> 和父目录中指向它的名字；每个直接子目录的 <code>..</code> 再贡献一个链接。根目录的 <code>.</code> 和 <code>..</code> 都指向根，结果也遵循 <code>2 + 直接子目录数</code>。</p>
+<table>
+<thead>
+<tr>
+<th>操作或状态</th>
+<th>相关变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>新建空目录</td>
+<td>新目录通常为 2；父目录加 1</td>
+</tr>
+<tr>
+<td>在目录内创建普通文件&#x2F;符号链接&#x2F;FIFO</td>
+<td>父目录不变</td>
+</tr>
+<tr>
+<td>在目录内新建直接子目录</td>
+<td>父目录加 1</td>
+</tr>
+<tr>
+<td>删除空子目录</td>
+<td>被删目录通常直接清为 0；父目录减 1</td>
+</tr>
+<tr>
+<td>将目录改名到同一父目录且不覆盖</td>
+<td>源目录和父目录均不变</td>
+</tr>
+<tr>
+<td>跨父目录移动目录且不覆盖</td>
+<td>源目录不变；旧父目录减 1，新父目录加 1</td>
+</tr>
+<tr>
+<td>用目录覆盖同一父目录中的空目录</td>
+<td>被覆盖目录变 0；父目录减 1</td>
+</tr>
+<tr>
+<td>跨父目录移动并覆盖空目录</td>
+<td>被覆盖目录变 0；旧父目录减 1；新父目录通常净变化 0</td>
+</tr>
+<tr>
+<td>已打开的目录被 <code>rmdir</code></td>
+<td>fd 上 <code>fstat</code> 可看到 0，直到引用释放</td>
+</tr>
+</tbody></table>
+<p>注意：上述算式是常见语义，不是所有文件系统对用户态的承诺。应用不应依赖目录 <code>st_nlink - 2</code> 来准确计算子目录数。</p>
+<h2 id="5-零值与非零值的语义分类"><a href="#5-零值与非零值的语义分类" class="headerlink" title="5. 零值与非零值的语义分类"></a>5. 零值与非零值的语义分类</h2><p>对 Linux 中具有链接语义的 inode，零值的常见来源可以归纳为：</p>
+<ol>
+<li><strong>最后一个链接已删除</strong>：<code>unlink</code>、<code>rmdir</code> 或覆盖式 <code>rename</code> 使旧 inode 的链接计数降为零；它可能因为 fd、mmap、cwd、内核内部引用等继续存活。</li>
+<li><strong>天生匿名</strong>：<code>O_TMPFILE</code>、memfd 以及部分伪文件系统&#x2F;内核内部匿名 inode 没有普通目录项。</li>
+<li><strong>尚未完成或正在回滚的内部状态</strong>：创建、链接、重命名的错误恢复路径可能先清零，再由 <code>iput</code> 回收。</li>
+<li><strong>文件系统恢复或异常状态</strong>：磁盘上的孤儿 inode、崩溃恢复中的待删除 inode、损坏元数据或网络文件系统的短暂不一致。</li>
+</ol>
+<p><code>i_nlink != 0</code> 的来源包括：</p>
+<ol>
+<li><strong>精确的普通文件计数</strong>：对正常、已发布的具名非目录对象，通常等于该文件系统记录的硬链接数；</li>
+<li><strong>精确的目录计数</strong>：采用传统规则的目录通常为 <code>2 + 直接子目录数</code>；</li>
+<li><strong>初始化值</strong>：尚未发布的 inode 也可能因 <code>inode_init_always_gfp()</code> 而暂时为 1；</li>
+<li><strong>文件系统自己的处理规则</strong>：ext4 大目录可用 1 表示“链接数未知”；FAT、网络文件系统和伪文件系统按各自实现设置 <code>i_nlink</code>；</li>
+<li><strong>实现细节中的隐藏链接</strong>：NFS “silly rename”等机制可能保留隐藏目录项，原路径消失后计数仍不为零。</li>
+</ol>
+<p>因此不能从非零值单独推出以下任一结论：</p>
+<ul>
+<li>当前进程可以构造出访问该 inode 的路径；</li>
+<li>当前 mount namespace 中存在可见名称；</li>
+<li>数值等于用户态遍历目录后能数出的路径数；</li>
+<li>inode 已经完成创建并对用户态发布。</li>
+</ul>
+<h2 id="6-文件系统特例"><a href="#6-文件系统特例" class="headerlink" title="6. 文件系统特例"></a>6. 文件系统特例</h2><h3 id="ext4-的-DIR-NLINK"><a href="#ext4-的-DIR-NLINK" class="headerlink" title="ext4 的 DIR_NLINK"></a>ext4 的 <code>DIR_NLINK</code></h3><p>ext4 的磁盘字段 <code>i_links_count</code> 只有 16 位。启用 <code>DIR_NLINK</code> 后，拥有极多子目录的目录可以把该字段设成 <strong>1</strong>，表示“真实链接数未知”，而不是只有一个硬链接。因此：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">i_nlink == 1 对 ext4 大目录可能表示“链接数未知”，不可反推子目录数。<br></code></pre></td></tr></table></figure>
+
+<h3 id="overlayfs"><a href="#overlayfs" class="headerlink" title="overlayfs"></a>overlayfs</h3><p>overlayfs 必须把上下层内容作为一个视图提供给用户。对 merged directory，它可在 <code>getattr()</code> 中把用户态 <code>stat.st_nlink</code> 设为 1，因为逐个计算整个视图的子目录链接数不值得。这里改的是 <code>stat-&gt;nlink</code>，不能据此断言 overlay inode 内部的 <code>i_nlink</code> 也被设成 1。带 index 的非目录硬链接另有联合计数逻辑。所以在容器里看到 <code>st_nlink == 1</code> 的目录不一定异常。</p>
+<h3 id="FAT-x2F-VFAT"><a href="#FAT-x2F-VFAT" class="headerlink" title="FAT&#x2F;VFAT"></a>FAT&#x2F;VFAT</h3><p>FAT 磁盘格式没有 Unix inode 和硬链接；Linux FAT 驱动在内存中构造 VFS 所需的 <code>struct inode</code>：</p>
+<ul>
+<li>普通文件沿用新 inode 的链接数 1，文件系统不提供 <code>.link</code> 操作，因此 <code>link(2)</code> 返回不支持；</li>
+<li>新目录显式设为 2，并维护父目录计数；重新读取目录时调用 <code>fat_subdirs()</code> 统计子目录并设置计数；</li>
+<li><code>vfat_unlink()</code> &#x2F; <code>vfat_rmdir()</code> 删除成功后调用 <code>clear_nlink(inode)</code>，所以打开但已删除的 FAT 文件仍可在内存中看到 0；</li>
+<li>FAT 的目录项删除标记不是一个持久的 Unix <code>i_nlink=0</code> 字段。零值主要是 Linux VFS 内存状态，不能在 FAT 磁盘目录项中寻找同名字段。</li>
+</ul>
+<h3 id="NFS-和其他网络文件系统"><a href="#NFS-和其他网络文件系统" class="headerlink" title="NFS 和其他网络文件系统"></a>NFS 和其他网络文件系统</h3><p>协议和缓存会使观察时序不同。经典 NFS 客户端可能把仍打开的文件改名为 <code>.nfs...</code>（silly rename），等关闭后再删除；这时“原名字已 unlink”不等于服务器 inode 已经没有名字。不要用单次 <code>stat</code> 推断远端回收时刻。</p>
+<h2 id="7-实验：逐项验证"><a href="#7-实验：逐项验证" class="headerlink" title="7. 实验：逐项验证"></a>7. 实验：逐项验证</h2><p>仓库中的 <a href="experiments/nlink_lab.c"><code>experiments/nlink_lab.c</code></a> 是自校验实验。它验证：</p>
+<ul>
+<li>普通文件 <code>1 → 2 → 1 → 0</code>；</li>
+<li>链接数为 0 时 fd 仍可读写；</li>
+<li>覆盖式 <code>rename</code> 令旧目标到 0，而源 inode 计数不变；</li>
+<li>目录 <code>mkdir/rmdir</code> 对子目录和父目录的影响；</li>
+<li>目录跨父目录并覆盖空目录时，源目录、两个父目录和旧目标的变化；</li>
+<li><code>O_TMPFILE</code> 的 <code>0 → 1 → 0</code>；</li>
+<li>符号链接、FIFO、Unix socket 路径节点都有自己的链接数；</li>
+<li>可用时额外观察 <code>memfd_create()</code>。</li>
+</ul>
+<p>在 Linux 本地文件系统（推荐 ext4 或 tmpfs）执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">cc -std=c11 -Wall -Wextra -O2 experiments/nlink_lab.c -o /tmp/nlink_lab<br>/tmp/nlink_lab<br></code></pre></td></tr></table></figure>
+
+<p>程序用 <code>fstat()</code> 观察已删除对象，而不是对已不存在的路径调用 <code>stat()</code>；每个核心结论都有断言。若文件系统不支持 <code>O_TMPFILE</code>，该项会显示 <code>SKIP</code>。在 overlayfs、NFS 或 FAT 上，目录精确计数的测试可能跳过或体现上述特例。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _GNU_SOURCE</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;assert.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;errno.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;inttypes.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stddef.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/mman.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/socket.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/stat.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/un.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">die</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *what)</span><br>&#123;<br>    perror(what);<br>    <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> stat <span class="hljs-title function_">xstat</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *path, <span class="hljs-type">int</span> nofollow)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">st</span>;</span><br>    <span class="hljs-type">int</span> rc = nofollow ? lstat(path, &amp;st) : stat(path, &amp;st);<br>    <span class="hljs-keyword">if</span> (rc == <span class="hljs-number">-1</span>)<br>        die(path);<br>    <span class="hljs-keyword">return</span> st;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> stat <span class="hljs-title function_">xfstat</span><span class="hljs-params">(<span class="hljs-type">int</span> fd)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">st</span>;</span><br>    <span class="hljs-keyword">if</span> (fstat(fd, &amp;st) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;fstat&quot;</span>);<br>    <span class="hljs-keyword">return</span> st;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">show</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *label, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> stat *st)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%-38s dev=%ju ino=%ju nlink=%ju mode=%#o\n&quot;</span>,<br>           label, (<span class="hljs-type">uintmax_t</span>)st-&gt;st_dev, (<span class="hljs-type">uintmax_t</span>)st-&gt;st_ino,<br>           (<span class="hljs-type">uintmax_t</span>)st-&gt;st_nlink, st-&gt;st_mode &amp; S_IFMT);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">join</span><span class="hljs-params">(<span class="hljs-type">char</span> *out, <span class="hljs-type">size_t</span> cap, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *dir, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name)</span><br>&#123;<br>    <span class="hljs-type">int</span> n = <span class="hljs-built_in">snprintf</span>(out, cap, <span class="hljs-string">&quot;%s/%s&quot;</span>, dir, name);<br>    <span class="hljs-keyword">if</span> (n &lt; <span class="hljs-number">0</span> || (<span class="hljs-type">size_t</span>)n &gt;= cap) &#123;<br>        <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>, <span class="hljs-string">&quot;path too long\n&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">experiment_regular</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *dir)</span><br>&#123;<br>    <span class="hljs-type">char</span> a[<span class="hljs-number">512</span>], b[<span class="hljs-number">512</span>];<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">s1</span>, <span class="hljs-title">s2</span>;</span><br>    <span class="hljs-type">char</span> byte = <span class="hljs-string">&#x27;X&#x27;</span>;<br><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\n[1] regular file: 1 -&gt; 2 -&gt; 1 -&gt; 0, fd remains usable&quot;</span>);<br>    join(a, <span class="hljs-keyword">sizeof</span>(a), dir, <span class="hljs-string">&quot;regular-a&quot;</span>);<br>    join(b, <span class="hljs-keyword">sizeof</span>(b), dir, <span class="hljs-string">&quot;regular-b&quot;</span>);<br><br>    <span class="hljs-type">int</span> fd = open(a, O_CREAT | O_EXCL | O_RDWR, <span class="hljs-number">0600</span>);<br>    <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;open regular-a&quot;</span>);<br>    s1 = xfstat(fd);<br>    show(<span class="hljs-string">&quot;after create&quot;</span>, &amp;s1);<br>    assert(s1.st_nlink == <span class="hljs-number">1</span>);<br><br>    <span class="hljs-keyword">if</span> (link(a, b) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;link&quot;</span>);<br>    s2 = xstat(b, <span class="hljs-number">0</span>);<br>    show(<span class="hljs-string">&quot;after link&quot;</span>, &amp;s2);<br>    assert(s2.st_dev == s1.st_dev &amp;&amp; s2.st_ino == s1.st_ino);<br>    assert(s2.st_nlink == <span class="hljs-number">2</span>);<br><br>    <span class="hljs-keyword">if</span> (unlink(a) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;unlink first name&quot;</span>);<br>    s2 = xfstat(fd);<br>    show(<span class="hljs-string">&quot;after unlink first name&quot;</span>, &amp;s2);<br>    assert(s2.st_nlink == <span class="hljs-number">1</span>);<br><br>    <span class="hljs-keyword">if</span> (unlink(b) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;unlink last name&quot;</span>);<br>    s2 = xfstat(fd);<br>    show(<span class="hljs-string">&quot;after unlink last name&quot;</span>, &amp;s2);<br>    assert(s2.st_nlink == <span class="hljs-number">0</span>);<br><br>    <span class="hljs-keyword">if</span> (write(fd, &amp;byte, <span class="hljs-number">1</span>) != <span class="hljs-number">1</span>)<br>        die(<span class="hljs-string">&quot;write unlinked file&quot;</span>);<br>    <span class="hljs-keyword">if</span> (lseek(fd, <span class="hljs-number">0</span>, SEEK_SET) == (<span class="hljs-type">off_t</span>)<span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;lseek&quot;</span>);<br>    byte = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">if</span> (read(fd, &amp;byte, <span class="hljs-number">1</span>) != <span class="hljs-number">1</span>)<br>        die(<span class="hljs-string">&quot;read unlinked file&quot;</span>);<br>    assert(byte == <span class="hljs-string">&#x27;X&#x27;</span>);<br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;fd read/write after final unlink: PASS&quot;</span>);<br>    close(fd);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">experiment_rename_overwrite</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *dir)</span><br>&#123;<br>    <span class="hljs-type">char</span> src[<span class="hljs-number">512</span>], dst[<span class="hljs-number">512</span>];<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">ss</span>, <span class="hljs-title">old</span>, <span class="hljs-title">now</span>;</span><br><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\n[2] rename overwrite: old destination reaches 0&quot;</span>);<br>    join(src, <span class="hljs-keyword">sizeof</span>(src), dir, <span class="hljs-string">&quot;rename-src&quot;</span>);<br>    join(dst, <span class="hljs-keyword">sizeof</span>(dst), dir, <span class="hljs-string">&quot;rename-dst&quot;</span>);<br>    <span class="hljs-type">int</span> sfd = open(src, O_CREAT | O_EXCL | O_RDWR, <span class="hljs-number">0600</span>);<br>    <span class="hljs-type">int</span> dfd = open(dst, O_CREAT | O_EXCL | O_RDWR, <span class="hljs-number">0600</span>);<br>    <span class="hljs-keyword">if</span> (sfd == <span class="hljs-number">-1</span> || dfd == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;open rename files&quot;</span>);<br>    ss = xfstat(sfd);<br>    old = xfstat(dfd);<br>    assert(ss.st_nlink == <span class="hljs-number">1</span> &amp;&amp; old.st_nlink == <span class="hljs-number">1</span>);<br><br>    <span class="hljs-keyword">if</span> (rename(src, dst) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;rename overwrite&quot;</span>);<br>    now = xstat(dst, <span class="hljs-number">0</span>);<br>    old = xfstat(dfd);<br>    show(<span class="hljs-string">&quot;source inode now named dst&quot;</span>, &amp;now);<br>    show(<span class="hljs-string">&quot;opened old dst after overwrite&quot;</span>, &amp;old);<br>    assert(now.st_dev == ss.st_dev &amp;&amp; now.st_ino == ss.st_ino);<br>    assert(now.st_nlink == <span class="hljs-number">1</span> &amp;&amp; old.st_nlink == <span class="hljs-number">0</span>);<br>    close(sfd);<br>    close(dfd);<br>    unlink(dst);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">experiment_directories</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *dir)</span><br>&#123;<br>    <span class="hljs-type">char</span> parent[<span class="hljs-number">512</span>], child[<span class="hljs-number">512</span>], file[<span class="hljs-number">512</span>];<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">before</span>, <span class="hljs-title">after</span>, <span class="hljs-title">cs</span>;</span><br><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\n[3] directory: child directory changes parent; regular file does not&quot;</span>);<br>    join(parent, <span class="hljs-keyword">sizeof</span>(parent), dir, <span class="hljs-string">&quot;parent&quot;</span>);<br>    join(child, <span class="hljs-keyword">sizeof</span>(child), parent, <span class="hljs-string">&quot;child&quot;</span>);<br>    join(file, <span class="hljs-keyword">sizeof</span>(file), parent, <span class="hljs-string">&quot;file&quot;</span>);<br>    <span class="hljs-keyword">if</span> (mkdir(parent, <span class="hljs-number">0700</span>) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;mkdir parent&quot;</span>);<br>    before = xstat(parent, <span class="hljs-number">0</span>);<br>    show(<span class="hljs-string">&quot;empty parent&quot;</span>, &amp;before);<br><br>    <span class="hljs-keyword">if</span> (mkdir(child, <span class="hljs-number">0700</span>) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;mkdir child&quot;</span>);<br>    after = xstat(parent, <span class="hljs-number">0</span>);<br>    cs = xstat(child, <span class="hljs-number">0</span>);<br>    show(<span class="hljs-string">&quot;parent after mkdir child&quot;</span>, &amp;after);<br>    show(<span class="hljs-string">&quot;new empty child&quot;</span>, &amp;cs);<br><br>    <span class="hljs-comment">/* Some filesystems return approximate/sentinel directory nlink values. */</span><br>    <span class="hljs-keyword">if</span> (after.st_nlink == before.st_nlink + <span class="hljs-number">1</span> &amp;&amp; cs.st_nlink == <span class="hljs-number">2</span>)<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;traditional exact directory counts detected: PASS&quot;</span>);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;directory counts are synthetic/approximate on this filesystem: SKIP exact assertions&quot;</span>);<br><br>    <span class="hljs-type">int</span> fd = open(file, O_CREAT | O_EXCL | O_WRONLY, <span class="hljs-number">0600</span>);<br>    <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;create parent/file&quot;</span>);<br>    close(fd);<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">after_file</span> =</span> xstat(parent, <span class="hljs-number">0</span>);<br>    show(<span class="hljs-string">&quot;parent after regular file&quot;</span>, &amp;after_file);<br>    assert(after_file.st_nlink == after.st_nlink);<br>    unlink(file);<br><br>    <span class="hljs-type">int</span> dfd = open(child, O_RDONLY | O_DIRECTORY);<br>    <span class="hljs-keyword">if</span> (dfd == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;open child directory&quot;</span>);<br>    <span class="hljs-keyword">if</span> (rmdir(child) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;rmdir child&quot;</span>);<br>    cs = xfstat(dfd);<br>    after = xstat(parent, <span class="hljs-number">0</span>);<br>    show(<span class="hljs-string">&quot;opened child after rmdir&quot;</span>, &amp;cs);<br>    show(<span class="hljs-string">&quot;parent after rmdir&quot;</span>, &amp;after);<br>    assert(cs.st_nlink == <span class="hljs-number">0</span>);<br>    assert(after.st_nlink == before.st_nlink);<br>    close(dfd);<br>    rmdir(parent);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">experiment_tmpfile</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *dir)</span><br>&#123;<br>    <span class="hljs-type">char</span> published[<span class="hljs-number">512</span>];<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">st</span>;</span><br><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\n[4] O_TMPFILE: 0 -&gt; 1 -&gt; 0&quot;</span>);<br>    join(published, <span class="hljs-keyword">sizeof</span>(published), dir, <span class="hljs-string">&quot;published-tmpfile&quot;</span>);<br>    <span class="hljs-type">int</span> fd = open(dir, O_TMPFILE | O_RDWR, <span class="hljs-number">0600</span>);<br>    <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>) &#123;<br>        <span class="hljs-keyword">if</span> (errno == EOPNOTSUPP || errno == EISDIR || errno == EINVAL ||<br>            errno == ENOENT || errno == EPERM) &#123;<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;O_TMPFILE unsupported here (%s): SKIP\n&quot;</span>, strerror(errno));<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>        die(<span class="hljs-string">&quot;open O_TMPFILE&quot;</span>);<br>    &#125;<br>    st = xfstat(fd);<br>    show(<span class="hljs-string">&quot;anonymous O_TMPFILE&quot;</span>, &amp;st);<br>    assert(st.st_nlink == <span class="hljs-number">0</span>);<br><br>    <span class="hljs-keyword">if</span> (linkat(fd, <span class="hljs-string">&quot;&quot;</span>, AT_FDCWD, published, AT_EMPTY_PATH) == <span class="hljs-number">-1</span>) &#123;<br>        <span class="hljs-type">int</span> first_errno = errno;<br>        <span class="hljs-type">char</span> procfd[<span class="hljs-number">64</span>];<br>        <span class="hljs-built_in">snprintf</span>(procfd, <span class="hljs-keyword">sizeof</span>(procfd), <span class="hljs-string">&quot;/proc/self/fd/%d&quot;</span>, fd);<br><br>        <span class="hljs-comment">/* AT_EMPTY_PATH may require CAP_DAC_READ_SEARCH.  The documented</span><br><span class="hljs-comment">         * /proc/self/fd fallback works for an unprivileged owner. */</span><br>        <span class="hljs-keyword">if</span> (linkat(AT_FDCWD, procfd, AT_FDCWD, published,<br>                   AT_SYMLINK_FOLLOW) == <span class="hljs-number">-1</span>) &#123;<br>            <span class="hljs-keyword">if</span> (first_errno == EPERM || errno == EPERM ||<br>                errno == EOPNOTSUPP || errno == ENOENT) &#123;<br>                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;O_TMPFILE publication not permitted (%s): SKIP publication\n&quot;</span>,<br>                       strerror(errno));<br>                close(fd);<br>                <span class="hljs-keyword">return</span>;<br>            &#125;<br>            die(<span class="hljs-string">&quot;linkat O_TMPFILE&quot;</span>);<br>        &#125;<br>    &#125;<br>    st = xfstat(fd);<br>    show(<span class="hljs-string">&quot;after linkat publication&quot;</span>, &amp;st);<br>    assert(st.st_nlink == <span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">if</span> (unlink(published) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;unlink published tmpfile&quot;</span>);<br>    st = xfstat(fd);<br>    show(<span class="hljs-string">&quot;after unlink publication&quot;</span>, &amp;st);<br>    assert(st.st_nlink == <span class="hljs-number">0</span>);<br>    close(fd);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">experiment_directory_rename</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *dir)</span><br>&#123;<br>    <span class="hljs-type">char</span> p1[<span class="hljs-number">512</span>], p2[<span class="hljs-number">512</span>], src[<span class="hljs-number">512</span>], dst[<span class="hljs-number">512</span>];<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">p1_before</span>, <span class="hljs-title">p2_before</span>, <span class="hljs-title">src_before</span>, <span class="hljs-title">old_dst</span>, <span class="hljs-title">st</span>;</span><br><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\n[5] cross-parent directory rename with overwrite&quot;</span>);<br>    join(p1, <span class="hljs-keyword">sizeof</span>(p1), dir, <span class="hljs-string">&quot;rename-parent-1&quot;</span>);<br>    join(p2, <span class="hljs-keyword">sizeof</span>(p2), dir, <span class="hljs-string">&quot;rename-parent-2&quot;</span>);<br>    join(src, <span class="hljs-keyword">sizeof</span>(src), p1, <span class="hljs-string">&quot;source-dir&quot;</span>);<br>    join(dst, <span class="hljs-keyword">sizeof</span>(dst), p2, <span class="hljs-string">&quot;destination-dir&quot;</span>);<br>    <span class="hljs-keyword">if</span> (mkdir(p1, <span class="hljs-number">0700</span>) == <span class="hljs-number">-1</span> || mkdir(p2, <span class="hljs-number">0700</span>) == <span class="hljs-number">-1</span> ||<br>        mkdir(src, <span class="hljs-number">0700</span>) == <span class="hljs-number">-1</span> || mkdir(dst, <span class="hljs-number">0700</span>) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;mkdir directory rename setup&quot;</span>);<br><br>    p1_before = xstat(p1, <span class="hljs-number">0</span>);<br>    p2_before = xstat(p2, <span class="hljs-number">0</span>);<br>    src_before = xstat(src, <span class="hljs-number">0</span>);<br>    <span class="hljs-type">int</span> oldfd = open(dst, O_RDONLY | O_DIRECTORY);<br>    <span class="hljs-keyword">if</span> (oldfd == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;open destination directory&quot;</span>);<br><br>    <span class="hljs-keyword">if</span> (rename(src, dst) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;rename directory overwrite&quot;</span>);<br><br>    st = xstat(dst, <span class="hljs-number">0</span>);<br>    show(<span class="hljs-string">&quot;moved source directory&quot;</span>, &amp;st);<br>    assert(st.st_dev == src_before.st_dev &amp;&amp; st.st_ino == src_before.st_ino);<br>    assert(st.st_nlink == src_before.st_nlink);<br><br>    old_dst = xfstat(oldfd);<br>    show(<span class="hljs-string">&quot;overwritten destination directory&quot;</span>, &amp;old_dst);<br>    assert(old_dst.st_nlink == <span class="hljs-number">0</span>);<br><br>    st = xstat(p1, <span class="hljs-number">0</span>);<br>    show(<span class="hljs-string">&quot;old parent&quot;</span>, &amp;st);<br>    <span class="hljs-keyword">if</span> (p1_before.st_nlink &gt;= <span class="hljs-number">2</span>)<br>        assert(st.st_nlink + <span class="hljs-number">1</span> == p1_before.st_nlink);<br>    st = xstat(p2, <span class="hljs-number">0</span>);<br>    show(<span class="hljs-string">&quot;new parent (net unchanged)&quot;</span>, &amp;st);<br>    assert(st.st_nlink == p2_before.st_nlink);<br><br>    close(oldfd);<br>    rmdir(dst);<br>    rmdir(p1);<br>    rmdir(p2);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">verify_two_links</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *label, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *path, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *alias)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">a</span> =</span> xstat(path, <span class="hljs-number">1</span>);<br>    show(label, &amp;a);<br>    assert(a.st_nlink == <span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">if</span> (link(path, alias) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;link special node&quot;</span>);<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">b</span> =</span> xstat(alias, <span class="hljs-number">1</span>);<br>    assert(a.st_dev == b.st_dev &amp;&amp; a.st_ino == b.st_ino);<br>    assert(b.st_nlink == <span class="hljs-number">2</span>);<br>    unlink(alias);<br>    unlink(path);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">experiment_special_nodes</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *dir)</span><br>&#123;<br>    <span class="hljs-type">char</span> path[<span class="hljs-number">512</span>], alias[<span class="hljs-number">512</span>];<br><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\n[6] symlink, FIFO and Unix socket path have their own nlink&quot;</span>);<br>    join(path, <span class="hljs-keyword">sizeof</span>(path), dir, <span class="hljs-string">&quot;a-symlink&quot;</span>);<br>    join(alias, <span class="hljs-keyword">sizeof</span>(alias), dir, <span class="hljs-string">&quot;a-symlink-link&quot;</span>);<br>    <span class="hljs-keyword">if</span> (symlink(<span class="hljs-string">&quot;missing-target&quot;</span>, path) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;symlink&quot;</span>);<br>    verify_two_links(<span class="hljs-string">&quot;symlink itself&quot;</span>, path, alias);<br><br>    join(path, <span class="hljs-keyword">sizeof</span>(path), dir, <span class="hljs-string">&quot;a-fifo&quot;</span>);<br>    join(alias, <span class="hljs-keyword">sizeof</span>(alias), dir, <span class="hljs-string">&quot;a-fifo-link&quot;</span>);<br>    <span class="hljs-keyword">if</span> (mkfifo(path, <span class="hljs-number">0600</span>) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;mkfifo&quot;</span>);<br>    verify_two_links(<span class="hljs-string">&quot;FIFO inode&quot;</span>, path, alias);<br><br>    join(path, <span class="hljs-keyword">sizeof</span>(path), dir, <span class="hljs-string">&quot;a-socket&quot;</span>);<br>    join(alias, <span class="hljs-keyword">sizeof</span>(alias), dir, <span class="hljs-string">&quot;a-socket-link&quot;</span>);<br>    <span class="hljs-type">int</span> s = socket(AF_UNIX, SOCK_STREAM, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">if</span> (s == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;socket&quot;</span>);<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sockaddr_un</span> <span class="hljs-title">un</span> =</span> &#123; .sun_family = AF_UNIX &#125;;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">strlen</span>(path) &gt;= <span class="hljs-keyword">sizeof</span>(un.sun_path)) &#123;<br>        <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>, <span class="hljs-string">&quot;Unix socket path too long: SKIP socket node\n&quot;</span>);<br>        close(s);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-built_in">strcpy</span>(un.sun_path, path);<br>    <span class="hljs-keyword">if</span> (bind(s, (<span class="hljs-keyword">struct</span> sockaddr *)&amp;un,<br>             offsetof(<span class="hljs-keyword">struct</span> sockaddr_un, sun_path) + <span class="hljs-built_in">strlen</span>(path) + <span class="hljs-number">1</span>) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;bind unix socket&quot;</span>);<br>    verify_two_links(<span class="hljs-string">&quot;Unix socket path inode&quot;</span>, path, alias);<br>    close(s);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">experiment_memfd</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> MFD_CLOEXEC</span><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\n[7] memfd (filesystem-defined anonymous inode)&quot;</span>);<br>    <span class="hljs-type">int</span> fd = memfd_create(<span class="hljs-string">&quot;nlink-lab&quot;</span>, MFD_CLOEXEC);<br>    <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;memfd_create unavailable (%s): SKIP\n&quot;</span>, strerror(errno));<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">st</span> =</span> xfstat(fd);<br>    show(<span class="hljs-string">&quot;memfd&quot;</span>, &amp;st);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;observed memfd nlink=%ju (anonymous-object value is filesystem-defined)\n&quot;</span>,<br>           (<span class="hljs-type">uintmax_t</span>)st.st_nlink);<br>    close(fd);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">char</span> template[] = <span class="hljs-string">&quot;/tmp/nlink-lab-XXXXXX&quot;</span>;<br>    <span class="hljs-type">char</span> *dir = mkdtemp(template);<br>    <span class="hljs-keyword">if</span> (!dir)<br>        die(<span class="hljs-string">&quot;mkdtemp&quot;</span>);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;workspace: %s\n&quot;</span>, dir);<br>    experiment_regular(dir);<br>    experiment_rename_overwrite(dir);<br>    experiment_directories(dir);<br>    experiment_tmpfile(dir);<br>    experiment_directory_rename(dir);<br>    experiment_special_nodes(dir);<br>    experiment_memfd();<br><br>    <span class="hljs-keyword">if</span> (rmdir(dir) == <span class="hljs-number">-1</span>)<br>        die(<span class="hljs-string">&quot;final rmdir&quot;</span>);<br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\nAll mandatory assertions passed.&quot;</span>);<br>    <span class="hljs-keyword">return</span> EXIT_SUCCESS;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="手工实验-A：打开后删除"><a href="#手工实验-A：打开后删除" class="headerlink" title="手工实验 A：打开后删除"></a>手工实验 A：打开后删除</h3><p>终端 1：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">exec</span> 9&lt;&gt; /tmp/nlink-open-demo<br><span class="hljs-built_in">stat</span> -Lc <span class="hljs-string">&#x27;before: dev=%d ino=%i nlink=%h&#x27;</span> /proc/self/fd/9<br><span class="hljs-built_in">rm</span> /tmp/nlink-open-demo<br><span class="hljs-built_in">stat</span> -Lc <span class="hljs-string">&#x27;after:  dev=%d ino=%i nlink=%h&#x27;</span> /proc/self/fd/9<br><span class="hljs-built_in">printf</span> <span class="hljs-string">&#x27;still writable\n&#x27;</span> &gt;&amp;9<br><span class="hljs-built_in">cat</span> /proc/self/fd/9<br><span class="hljs-built_in">read</span> -r _<br></code></pre></td></tr></table></figure>
+
+<p>删除后预期 <code>nlink=0</code>，而 inode 号不变、读写仍成功。等待输入时，在终端 2 查看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ls</span> -l /proc/$(pgrep -n bash)/fd/9<br>lsof +L1<br></code></pre></td></tr></table></figure>
+
+<p>注意 <code>pgrep -n bash</code> 在多终端环境可能选错 PID；最可靠的方法是在终端 1 先执行 <code>echo $$</code>。</p>
+<h3 id="手工实验-B：硬链接不是复制"><a href="#手工实验-B：硬链接不是复制" class="headerlink" title="手工实验 B：硬链接不是复制"></a>手工实验 B：硬链接不是复制</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">tmp=$(<span class="hljs-built_in">mktemp</span> -d)<br><span class="hljs-built_in">printf</span> x &gt; <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/a&quot;</span><br><span class="hljs-built_in">ln</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/a&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/b&quot;</span><br><span class="hljs-built_in">stat</span> -c <span class="hljs-string">&#x27;name=%n dev=%d ino=%i nlink=%h&#x27;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/a&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/b&quot;</span><br><span class="hljs-built_in">rm</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/a&quot;</span><br><span class="hljs-built_in">stat</span> -c <span class="hljs-string">&#x27;name=%n dev=%d ino=%i nlink=%h&#x27;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/b&quot;</span><br><span class="hljs-built_in">rm</span> -rf -- <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>预期 <code>a</code>、<code>b</code> 的设备号和 inode 号相同，计数先为 2，删除一个名字后为 1。</p>
+<h3 id="手工实验-C：目录计数"><a href="#手工实验-C：目录计数" class="headerlink" title="手工实验 C：目录计数"></a>手工实验 C：目录计数</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">tmp=$(<span class="hljs-built_in">mktemp</span> -d)<br><span class="hljs-built_in">stat</span> -c <span class="hljs-string">&#x27;root: %h&#x27;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>&quot;</span><br><span class="hljs-built_in">mkdir</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/d1&quot;</span><br><span class="hljs-built_in">stat</span> -c <span class="hljs-string">&#x27;after mkdir: parent=%h&#x27;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>&quot;</span><br><span class="hljs-built_in">stat</span> -c <span class="hljs-string">&#x27;new dir: %h&#x27;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/d1&quot;</span><br><span class="hljs-built_in">touch</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/file&quot;</span><br><span class="hljs-built_in">stat</span> -c <span class="hljs-string">&#x27;after regular file: parent=%h&#x27;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>&quot;</span><br><span class="hljs-built_in">mkdir</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>/d2&quot;</span><br><span class="hljs-built_in">stat</span> -c <span class="hljs-string">&#x27;after second dir: parent=%h&#x27;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>&quot;</span><br><span class="hljs-built_in">rm</span> -rf -- <span class="hljs-string">&quot;<span class="hljs-variable">$tmp</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>在精确维护传统计数的文件系统上，父目录每新增一个直接子目录加 1；新增普通文件不改变父目录链接数。</p>
+<h3 id="手工实验-D：直接证明-stat-与内核字段的关系"><a href="#手工实验-D：直接证明-stat-与内核字段的关系" class="headerlink" title="手工实验 D：直接证明 stat 与内核字段的关系"></a>手工实验 D：直接证明 <code>stat</code> 与内核字段的关系</h3><p>用户态实验观察的是 <code>st_nlink</code>。要把它和 <code>inode-&gt;i_nlink</code> 串起来，可对照内核源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* fs/stat.c: generic_fillattr() 的核心赋值 */</span><br>stat-&gt;nlink = inode-&gt;i_nlink;<br></code></pre></td></tr></table></figure>
+
+<p>若需要运行时直接观察字段，可以在有 BTF 的调试机上使用 <code>drgn</code> 或编写 CO-RE eBPF 程序，在文件系统的 <code>unlink</code>&#x2F;<code>rmdir</code> 实现返回前读取目标 inode；不建议把依赖具体内核函数参数布局的单行 kprobe 当作可移植实验。本文的 <code>fstat</code> 断言加上述 VFS 数据通路，已经能稳定验证用户可见语义。</p>
+<h2 id="8-常见误区"><a href="#8-常见误区" class="headerlink" title="8. 常见误区"></a>8. 常见误区</h2><ol>
+<li><strong>“<code>i_nlink == 0</code> 就能 <code>kfree(inode)</code>”——错。</strong> 还要等所有引用消失，并走文件系统的回收流程。</li>
+<li><strong>“fd 数量会反映到 <code>i_nlink</code>”——错。</strong> 多次打开、<code>dup</code> 都不增加硬链接数。</li>
+<li><strong>“删掉符号链接会减少目标的 <code>i_nlink</code>”——错。</strong> 删除的是符号链接自己的 inode。</li>
+<li><strong>“目录的链接数就是目录项总数”——错。</strong> 传统公式只关心直接子目录，不含普通文件；ext4 还可能用 1 表示“链接数未知”。</li>
+<li><strong>“原路径消失就一定是 0”——错。</strong> 可能还有其他硬链接或 NFS 为仍打开文件保留的隐藏名字；overlayfs 还可能在 <code>getattr()</code> 中另行设置 <code>st_nlink</code>。</li>
+<li><strong>“<code>i_nlink &gt; 0</code> 就一定能在当前 namespace 找到路径”——错。</strong> 链接可能位于当前 namespace 不可达的位置；该值也可能处于 inode 初始化窗口，或由具体文件系统按自身规则设置。</li>
+<li><strong>“磁盘字段永远等于内存 <code>i_nlink</code>”——错。</strong> 日志、延迟写回、恢复过程和网络缓存都会影响两者的观察时刻；FAT 磁盘格式则根本没有同名的 Unix 链接数字段。</li>
+</ol>
+<h2 id="9-源码阅读路线与参考资料"><a href="#9-源码阅读路线与参考资料" class="headerlink" title="9. 源码阅读路线与参考资料"></a>9. 源码阅读路线与参考资料</h2><p>以下均为内核源码或官方手册类一手资料（访问日期：2026-07-20）：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/include/linux/fs.h"><code>struct inode</code> 与修改 helper 的约束</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/fs/inode.c"><code>inode_init_always_gfp()</code>、<code>drop_nlink()</code>、<code>clear_nlink()</code>、<code>set_nlink()</code>、<code>inc_nlink()</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/fs/stat.c"><code>generic_fillattr()</code>：<code>i_nlink</code> 到 <code>stat.nlink</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/filesystems/vfs.html">Linux VFS 概览：inode、dentry 与打开文件的引用关系</a></li>
+<li><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/inode.7.html"><code>inode(7)</code>：<code>st_nlink</code> 的用户态定义</a></li>
+<li><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/unlink.2.html"><code>unlink(2)</code>：最后一个链接删除后，打开文件继续存在</a></li>
+<li><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/open.2.html"><code>open(2)</code>：<code>O_TMPFILE</code> 及后续 <code>linkat</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/filesystems/ext4/inodes.html">ext4 inode 格式与 <code>DIR_NLINK</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/fs/overlayfs/inode.c">overlayfs 对目录及 indexed inode 的链接数处理</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/fs/fat/inode.c">FAT inode 构造与链接数设置</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/fs/fat/namei_vfat.c">VFAT 的 create&#x2F;unlink&#x2F;rmdir&#x2F;rename 链接数维护</a></li>
+</ol>
+<h2 id="10-最终判断表"><a href="#10-最终判断表" class="headerlink" title="10. 最终判断表"></a>10. 最终判断表</h2><p>排查一个 inode 时按此顺序判断：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs text">先确认 inode 处于哪个生命周期阶段：<br>├─ 刚初始化/创建中/回滚中：数值可能只是内部过渡状态<br>└─ 已发布或稳定存在：再确认对象类型和文件系统语义<br>   ├─ 非目录 + 精确传统计数：i_nlink 等于文件系统记录的硬链接数<br>   ├─ 目录 + 精确传统计数：通常为 2 + 直接子目录数<br>   └─ ext4 DIR_NLINK/FAT/网络/伪文件系统：只能按具体实现解释<br><br>最后再解释数值：<br>├─ i_nlink == 0：链接计数字段为零；常见于已解除链接或匿名 inode<br>└─ i_nlink &gt; 0：链接计数字段为正；不能单独推出当前命名空间存在可见路径<br><br>inode 是否仍存活要另查打开 fd、mmap、cwd、dentry 和其他内核引用。<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>文件系统inode-&gt;i_nlink语义笔记</div>
+      <div>http://example.com/2026/07/20/文件系统inode-i-nlink语义笔记/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年7月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/12/Vibe-Coding%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-ClaudeCode%E7%89%88/" title="Vibe Coding学习笔记(ClaudeCode版)">
+                        <span class="hidden-mobile">Vibe Coding学习笔记(ClaudeCode版)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
