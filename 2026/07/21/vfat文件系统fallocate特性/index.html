@@ -16,17 +16,19 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="喝口白桃呜龙学习笔记">
+    <meta name="description" content="vfat文件系统fallocate特性预分配函数123456789101112131415161718192021222324252627282930313233343536373839404142434445464748static long fat_fallocate(struct file *file, int mode,			  loff_t offset, loff_t len)&amp;#12">
 <meta property="og:type" content="article">
 <meta property="og:title" content="vfat文件系统fallocate特性">
 <meta property="og:url" content="http://example.com/2026/07/21/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Ffallocate%E7%89%B9%E6%80%A7/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="喝口白桃呜龙学习笔记">
+<meta property="og:description" content="vfat文件系统fallocate特性预分配函数123456789101112131415161718192021222324252627282930313233343536373839404142434445464748static long fat_fallocate(struct file *file, int mode,			  loff_t offset, loff_t len)&amp;#12">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/07/21/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Ffallocate%E7%89%B9%E6%80%A7/image-20260722225841351.png">
 <meta property="article:published_time" content="2026-07-21T14:24:10.000Z">
-<meta property="article:modified_time" content="2026-07-21T14:24:10.629Z">
+<meta property="article:modified_time" content="2026-07-22T15:12:00.091Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/07/21/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Ffallocate%E7%89%B9%E6%80%A7/image-20260722225841351.png">
   
   
   
@@ -214,7 +216,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 字
+          2.3k 字
         
       </span>
     
@@ -225,7 +227,7 @@
         
         
         
-          1 分钟
+          20 分钟
         
       </span>
     
@@ -276,7 +278,37 @@
             
               <div class="markdown-body">
                 
-                
+                <h1 id="vfat文件系统fallocate特性"><a href="#vfat文件系统fallocate特性" class="headerlink" title="vfat文件系统fallocate特性"></a>vfat文件系统fallocate特性</h1><h2 id="预分配函数"><a href="#预分配函数" class="headerlink" title="预分配函数"></a>预分配函数</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">long</span> <span class="hljs-title function_">fat_fallocate</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">int</span> mode,</span><br><span class="hljs-params">			  <span class="hljs-type">loff_t</span> offset, <span class="hljs-type">loff_t</span> len)</span><br>&#123;<br>	<span class="hljs-type">int</span> nr_cluster; <span class="hljs-comment">/* Number of clusters to be allocated */</span><br>	<span class="hljs-type">loff_t</span> mm_bytes; <span class="hljs-comment">/* Number of bytes to be allocated for file */</span><br>	<span class="hljs-type">loff_t</span> ondisksize; <span class="hljs-comment">/* block aligned on-disk size in bytes*/</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">inode</span> *<span class="hljs-title">inode</span> =</span> file-&gt;f_mapping-&gt;host;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">super_block</span> *<span class="hljs-title">sb</span> =</span> inode-&gt;i_sb;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">msdos_sb_info</span> *<span class="hljs-title">sbi</span> =</span> MSDOS_SB(sb);<br>	<span class="hljs-type">int</span> err = <span class="hljs-number">0</span>;<br><br>	<span class="hljs-comment">/* No support for hole punch or other fallocate flags. */</span><br>	<span class="hljs-keyword">if</span> (mode &amp; ~FALLOC_FL_KEEP_SIZE)<br>		<span class="hljs-keyword">return</span> -EOPNOTSUPP;<br><br>	<span class="hljs-comment">/* No support for dir */</span><br>	<span class="hljs-keyword">if</span> (!S_ISREG(inode-&gt;i_mode))<br>		<span class="hljs-keyword">return</span> -EOPNOTSUPP;<br><br>	inode_lock(inode);<br>	<span class="hljs-keyword">if</span> (mode &amp; FALLOC_FL_KEEP_SIZE) &#123;<br>		ondisksize = inode-&gt;i_blocks &lt;&lt; <span class="hljs-number">9</span>;<br>		<span class="hljs-keyword">if</span> ((offset + len) &lt;= ondisksize)<br>			<span class="hljs-keyword">goto</span> error;<br><br>		<span class="hljs-comment">/* First compute the number of clusters to be allocated */</span><br>		mm_bytes = offset + len - ondisksize;<br>		nr_cluster = (mm_bytes + (sbi-&gt;cluster_size - <span class="hljs-number">1</span>)) &gt;&gt;<br>			sbi-&gt;cluster_bits;<br><br>		<span class="hljs-comment">/* Start the allocation.We are not zeroing out the clusters */</span><br>		<span class="hljs-keyword">while</span> (nr_cluster-- &gt; <span class="hljs-number">0</span>) &#123;<br>			err = fat_add_cluster(inode);<br>			<span class="hljs-keyword">if</span> (err)<br>				<span class="hljs-keyword">goto</span> error;<br>		&#125;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-keyword">if</span> ((offset + len) &lt;= i_size_read(inode))<br>			<span class="hljs-keyword">goto</span> error;<br><br>		<span class="hljs-comment">/* This is just an expanding truncate */</span><br>		err = fat_cont_expand(inode, (offset + len));<br>	&#125;<br><br>error:<br>	inode_unlock(inode);<br>	<span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这段 <code>fat_fallocate()</code> 是 FAT 文件系统对 <code>fallocate(2)</code> 的实现。它的核心目标是：</p>
+<ul>
+<li>普通模式：把文件扩展到 <code>offset + len</code>，同时更新文件逻辑大小。</li>
+<li><code>FALLOC_FL_KEEP_SIZE</code> 模式：提前分配足够的磁盘簇，但保持 <code>i_size</code> 不变。</li>
+<li>FAT 不支持真正的稀疏文件，因此当目标位置远离文件尾时，中间的空间也需要对应的簇链。</li>
+</ul>
+<h3 id="KEEP-SIZE模式"><a href="#KEEP-SIZE模式" class="headerlink" title="KEEP_SIZE模式"></a>KEEP_SIZE模式</h3><blockquote>
+<p>假设 FAT 文件系统和文件当前状态如下：</p>
+<ul>
+<li>簇大小 cluster_size &#x3D; 4096 字节</li>
+<li>cluster_bits        &#x3D; 12</li>
+<li>文件逻辑大小 i_size &#x3D; 6000 字节</li>
+<li>inode-&gt;i_blocks     &#x3D; 16</li>
+</ul>
+<p>因为 <code>i_blocks</code> 的单位固定是512字节，所以文件实际已经分配：16 × 512 &#x3D; 8192 字节</p>
+<p>即两个 FAT 簇：簇1：0～4095   簇2：4096～8191</p>
+</blockquote>
+<p>假如，当前用户态调用fallocate如下：<code>fallocate(fd, FALLOC_FL_KEEP_SIZE, 10000, 5000)</code></p>
+<img src="/2026/07/21/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Ffallocate%E7%89%B9%E6%80%A7/image-20260722225841351.png" srcset="/img/loading.gif" lazyload alt="image-20260722225841351" style="zoom:67%;">
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (mode &amp; FALLOC_FL_KEEP_SIZE) &#123;<br>	ondisksize = inode-&gt;i_blocks &lt;&lt; <span class="hljs-number">9</span>;  <span class="hljs-comment">// 计算文件实际占用磁盘空间ondisksize: 16 &lt;&lt; 9 = 8192</span><br><br>	<span class="hljs-comment">/* 为使已分配空间覆盖到 offset + len，当前还缺少的字节数。 */</span><br>	mm_bytes = offset + len - ondisksize; <span class="hljs-comment">// mm_bytes = 10000 + 5000 - 8192 = 6808</span><br>        <span class="hljs-comment">/* 将缺少的字节数按簇大小向上取整，得到需要追加的簇数。*/</span><br>	nr_cluster = (mm_bytes + (sbi-&gt;cluster_size - <span class="hljs-number">1</span>)) &gt;&gt;<br>		sbi-&gt;cluster_bits; <span class="hljs-comment">// nr_cluster = (6808 + 4096 - 1) &gt;&gt; 12 = 10903 &gt;&gt; 12 = 2</span><br><br>	<span class="hljs-comment">/* 分配需要新追加的簇，最终该文件有4个簇 */</span><br>	<span class="hljs-keyword">while</span> (nr_cluster-- &gt; <span class="hljs-number">0</span>) &#123;<br>		err = fat_add_cluster(inode);<br>		<span class="hljs-keyword">if</span> (err)<br>			<span class="hljs-keyword">goto</span> error;<br>	&#125;<br></code></pre></td></tr></table></figure>
+
+<p>两个簇追加成功后：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">i_size     = 6000<br>磁盘容量    = 16384<br>err        = 0<br></code></pre></td></tr></table></figure>
+
+<p>因为指定了 <code>KEEP_SIZE</code>，所以逻辑文件大小仍为6000：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">0           6000                              16384<br>| 文件内容   | 已预分配但位于逻辑 EOF 之后的空间 |<br>            ↑ i_size                         ↑ 簇链容量<br></code></pre></td></tr></table></figure>
+
+
                 
               </div>
             
