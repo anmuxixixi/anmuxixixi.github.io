@@ -1,0 +1,725 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="【马克工坊版】RAG学习笔记理论实验源仓地址：https:&#x2F;&#x2F;github.com&#x2F;MarkTechStation&#x2F;VideoCode&#x2F;blob&#x2F;main&#x2F;%E4%BD%BF%E7%94%A8Python%E6%9E%84%E5%BB%BARAG%E7%B3%BB%E7%BB%9F&#x2F;rag&#x2F;main.ipynb 分片123456789101112from typing import Listdef">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【马克工坊版】RAG学习笔记">
+<meta property="og:url" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="【马克工坊版】RAG学习笔记理论实验源仓地址：https:&#x2F;&#x2F;github.com&#x2F;MarkTechStation&#x2F;VideoCode&#x2F;blob&#x2F;main&#x2F;%E4%BD%BF%E7%94%A8Python%E6%9E%84%E5%BB%BARAG%E7%B3%BB%E7%BB%9F&#x2F;rag&#x2F;main.ipynb 分片123456789101112from typing import Listdef">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722210924764.png">
+<meta property="og:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722211245505.png">
+<meta property="article:published_time" content="2026-07-22T13:02:41.000Z">
+<meta property="article:modified_time" content="2026-07-22T13:30:03.065Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722210924764.png">
+  
+  
+  
+  <title>【马克工坊版】RAG学习笔记 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【马克工坊版】RAG学习笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-07-22 21:02" pubdate>
+          2026年7月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          66 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【马克工坊版】RAG学习笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="【马克工坊版】RAG学习笔记"><a href="#【马克工坊版】RAG学习笔记" class="headerlink" title="【马克工坊版】RAG学习笔记"></a>【马克工坊版】RAG学习笔记</h1><h2 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h2><h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>源仓地址：<a target="_blank" rel="noopener" href="https://github.com/MarkTechStation/VideoCode/blob/main/%E4%BD%BF%E7%94%A8Python%E6%9E%84%E5%BB%BARAG%E7%B3%BB%E7%BB%9F/rag/main.ipynb">https://github.com/MarkTechStation/VideoCode/blob/main/%E4%BD%BF%E7%94%A8Python%E6%9E%84%E5%BB%BARAG%E7%B3%BB%E7%BB%9F/rag/main.ipynb</a></p>
+<h3 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">split_into_chunks</span>(<span class="hljs-params">doc_file: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-built_in">str</span>]:<br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(doc_file, <span class="hljs-string">&#x27;r&#x27;</span>, encoding=<span class="hljs-string">&#x27;utf-8&#x27;</span>) <span class="hljs-keyword">as</span> file:<br>        content = file.read()<br><br>    <span class="hljs-keyword">return</span> [chunk <span class="hljs-keyword">for</span> chunk <span class="hljs-keyword">in</span> content.split(<span class="hljs-string">&quot;\n\n&quot;</span>)]<br><br>chunks = split_into_chunks(<span class="hljs-string">&quot;doc.md&quot;</span>)<br><br><span class="hljs-keyword">for</span> i, chunk <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(chunks):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;[<span class="hljs-subst">&#123;i&#125;</span>] <span class="hljs-subst">&#123;chunk&#125;</span>\n&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>输出结果</p>
+<p>[0] # 哆啦A梦与超级赛亚人：时空之战</p>
+<p>[1] 在一个寻常的午后，大雄依旧坐在书桌前发呆，作业堆得像山，连第一页都没动。哆啦A梦在一旁翻着漫画，时不时叹口气，觉得这孩子还是一如既往的不靠谱。正当他们的生活照常进行时，一道强光突然从天而降，整个房间震动不已。光芒中走出一名金发少年，身披战甲、气势惊人，他就是来自未来的超级赛亚人——特兰克斯。他一出现便说出了惊人的话：未来的地球即将被黑暗势力摧毁，他来此是为了寻求哆啦A梦的帮助。</p>
+<p>[2] 哆啦A梦与大雄听后大惊，但也从特兰克斯坚定的眼神中读出了不容拒绝的决心。特兰克斯解释说，未来的敌人并非普通反派，而是一个名叫“黑暗赛亚人”的存在，他由邪恶科学家复制了贝吉塔的基因并加以改造，实力超乎想象。这个敌人不仅拥有赛亚人战斗力，还能操纵扭曲的时间能量，几乎无人可敌。特兰克斯已经独自战斗多年，但每一次都以惨败告终。他说：“科技，是我那个时代唯一缺失的武器，而你们，正好拥有它。”</p>
+<p>[3] 于是，哆啦A梦带着特兰克斯与大雄启动时光机，穿越到了那个即将崩溃的未来世界。眼前的景象令人震撼：城市沦为废墟，大地裂痕纵横，天空中浮动着压抑的黑雾。特兰克斯说，这正是黑暗赛亚人带来的结果，一切生命几乎都被抹杀，只剩他在苦苦支撑。大雄虽感到恐惧，但看到无辜的人类遭殃，内心逐渐燃起斗志。哆啦A梦则冷静地分析局势，决定使用他最强的三样秘密道具来对抗黑暗势力。</p>
+<p>[4] 三件秘密道具分别是：可以临时赋予超级战力的“复制斗篷”，能暂停时间五秒的“时间停止手表”，以及可在一分钟中完成一年修行的“精神与时光屋便携版”。大雄被推进精神屋内，在其中接受密集的训练，虽然只有几分钟现实时间，他却经历了整整一年的苦修。刚开始他依旧软弱，想放弃、想逃跑，但当他想起静香、父母，还有哆啦A梦那坚定的眼神时，他终于咬牙坚持了下来。出来之后，他的身体与精神都焕然一新，眼神中多了一份成熟与自信。</p>
+<p>[5] 最终战在黑暗赛亚人的空中要塞前爆发，特兰克斯率先出击，释放全力与敌人正面对决。哆啦A梦则用任意门和道具支援，从各个方向制造混乱，尽量压制敌人的时空能力。但黑暗赛亚人太过强大，仅凭特兰克斯一人根本无法压制，更别说击败。就在特兰克斯即将被击倒之际，大雄披上复制斗篷、冲破恐惧从高空跃下。他的拳头燃烧着金色光焰，目标直指敌人心脏。</p>
+<p>[6] 时间停止装置在关键时刻启动，世界陷入静止，大雄用这个短短五秒接近了敌人的盲点。他集中全力，一记重拳击穿了黑暗赛亚人的能量核心，引发巨大的能量反冲。黑暗赛亚人尖叫着化为碎光，天空中的黑雾瞬间散去，阳光重新洒落大地。特兰克斯倒在地上，看着眼前这个曾经懦弱的少年，露出了欣慰的笑容。他知道，这一次，是大雄救了世界。</p>
+<p>[7] 战后，未来世界开始恢复，植物重新生长，人类重建家园。特兰克斯告别时紧紧握住大雄的手，说：“你是我见过最特别的战士。”哆啦A梦也为大雄感到骄傲，说他终于真正成长了一次。三人站在山丘上，看着远方重新明亮的地平线，心中感受到从未有过的安宁。随后，哆啦A梦与大雄乘坐时光机返回了属于他们的那个年代，一切仿佛又恢复平静。</p>
+<p>[8] 回到现代后，大雄仿佛变了一个人，不再轻易抱怨、不再逃避责任。他认真写完作业，帮妈妈买菜，甚至主动练习体育，哆啦A梦惊讶得说不出话来。他知道，这不是一时兴起，而是大雄真正内心成长的结果。大雄有时会望着天空出神，仿佛还能看见未来世界的那一片废墟与重生的希望。他不会说出来，但他心中永远铭记那一战。</p>
+<p>[9] 几天后，电视新闻中突然出现一则画面：一位金发少年在街头击退了失控的机器人，引发市民围观与猜测。大雄放下手中的课本，望向哆啦A梦，两人心照不宣地笑了。也许，特兰克斯又回来了，也许，新的敌人正在逼近。冒险从未真正结束，而他们，早已准备好了。无论时空如何动荡，他们将永远并肩作战。</p>
+<h3 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sentence_transformers <span class="hljs-keyword">import</span> SentenceTransformer<br><br><span class="hljs-comment"># 加载中文向量模型[这里加载的是中文文本向量模型shibing624/text2vec-base-chinese]</span><br>embedding_model = SentenceTransformer(<span class="hljs-string">&quot;shibing624/text2vec-base-chinese&quot;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">embed_chunk</span>(<span class="hljs-params">chunk: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-built_in">float</span>]:<br>    <span class="hljs-comment"># encode() 会调用模型，把文本转换成向量[normalize_embeddings=True表示对生成的向量执行 L2 归一化]</span><br>    embedding = embedding_model.encode(chunk, normalize_embeddings=<span class="hljs-literal">True</span>)<br>    <span class="hljs-keyword">return</span> embedding.tolist()<br><br><span class="hljs-comment"># 这里只是测试一下embed_chunk函数，试一下embeding文本化向量效果</span><br>embedding = embed_chunk(<span class="hljs-string">&quot;测试内容&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">len</span>(embedding))<br><span class="hljs-built_in">print</span>(embedding)<br></code></pre></td></tr></table></figure>
+
+<img src="/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722210924764.png" srcset="/img/loading.gif" lazyload alt="image-20260722210924764" style="zoom:67%;">
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 将分片后的片段都向量化</span><br>embeddings = [embed_chunk(chunk) <span class="hljs-keyword">for</span> chunk <span class="hljs-keyword">in</span> chunks]<br><br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">len</span>(embeddings))<br><span class="hljs-built_in">print</span>(embeddings[<span class="hljs-number">0</span>])<br></code></pre></td></tr></table></figure>
+
+<img src="/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722211245505.png" srcset="/img/loading.gif" lazyload alt="image-20260722211245505" style="zoom:67%;">
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> chromadb<br><br><span class="hljs-comment"># EphemeralClient 会创建一个内存型临时数据库</span><br><span class="hljs-comment"># 如果需要持久化: chromadb_client = chromadb.PersistentClient(path=&quot;./chroma_db&quot;)</span><br>chromadb_client = chromadb.EphemeralClient()<br><span class="hljs-comment"># 创建一个default的表</span><br>chromadb_collection = chromadb_client.get_or_create_collection(name=<span class="hljs-string">&quot;default&quot;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">save_embeddings</span>(<span class="hljs-params">chunks: <span class="hljs-type">List</span>[<span class="hljs-built_in">str</span>], embeddings: <span class="hljs-type">List</span>[<span class="hljs-type">List</span>[<span class="hljs-built_in">float</span>]]</span>) -&gt; <span class="hljs-literal">None</span>:<br>    <span class="hljs-keyword">for</span> i, (chunk, embedding) <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(<span class="hljs-built_in">zip</span>(chunks, embeddings)):<br>        chromadb_collection.add(<br>            documents=[chunk],<br>            embeddings=[embedding],<br>            ids=[<span class="hljs-built_in">str</span>(i)]<br>        )<br><br>save_embeddings(chunks, embeddings)<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这段代码的作用是：<strong>把分块后的文本 <code>chunks</code> 和对应的向量 <code>embeddings</code> 保存到 ChromaDB 向量数据库中</strong>，后续可以根据查询向量检索语义最相近的文本片段。</p>
+</blockquote>
+<h3 id="召回"><a href="#召回" class="headerlink" title="召回"></a>召回</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">retrieve</span>(<span class="hljs-params">query: <span class="hljs-built_in">str</span>, top_k: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-built_in">str</span>]:<br>    <span class="hljs-comment"># 将用户的问题转出查询向量</span><br>    query_embedding = embed_chunk(query)<br>    <span class="hljs-comment"># chromadb_collection.query() 会执行向量相似度检索，返回距离查询向量最近的记录。Chroma 官方将其定义为最近邻相似度搜索</span><br>    results = chromadb_collection.query(<br>        query_embeddings=[query_embedding],<br>        n_results=top_k<br>    )<br>    <span class="hljs-keyword">return</span> results[<span class="hljs-string">&#x27;documents&#x27;</span>][<span class="hljs-number">0</span>]<br><br>query = <span class="hljs-string">&quot;哆啦A梦使用的3个秘密道具分别是什么？&quot;</span><br><span class="hljs-comment"># 检索最相关的5个片段</span><br>retrieved_chunks = retrieve(query, <span class="hljs-number">5</span>)<br><br><span class="hljs-comment"># 将最相似的片段召回</span><br><span class="hljs-keyword">for</span> i, chunk <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(retrieved_chunks):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;[<span class="hljs-subst">&#123;i&#125;</span>] <span class="hljs-subst">&#123;chunk&#125;</span>\n&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>[0] # 哆啦A梦与超级赛亚人：时空之战</p>
+<p>[1] 三件秘密道具分别是：可以临时赋予超级战力的“复制斗篷”，能暂停时间五秒的“时间停止手表”，以及可在一分钟中完成一年修行的“精神与时光屋便携版”。大雄被推进精神屋内，在其中接受密集的训练，虽然只有几分钟现实时间，他却经历了整整一年的苦修。刚开始他依旧软弱，想放弃、想逃跑，但当他想起静香、父母，还有哆啦A梦那坚定的眼神时，他终于咬牙坚持了下来。出来之后，他的身体与精神都焕然一新，眼神中多了一份成熟与自信。</p>
+<p>[2] 最终战在黑暗赛亚人的空中要塞前爆发，特兰克斯率先出击，释放全力与敌人正面对决。哆啦A梦则用任意门和道具支援，从各个方向制造混乱，尽量压制敌人的时空能力。但黑暗赛亚人太过强大，仅凭特兰克斯一人根本无法压制，更别说击败。就在特兰克斯即将被击倒之际，大雄披上复制斗篷、冲破恐惧从高空跃下。他的拳头燃烧着金色光焰，目标直指敌人心脏。</p>
+<p>[3] 战后，未来世界开始恢复，植物重新生长，人类重建家园。特兰克斯告别时紧紧握住大雄的手，说：“你是我见过最特别的战士。”哆啦A梦也为大雄感到骄傲，说他终于真正成长了一次。三人站在山丘上，看着远方重新明亮的地平线，心中感受到从未有过的安宁。随后，哆啦A梦与大雄乘坐时光机返回了属于他们的那个年代，一切仿佛又恢复平静。</p>
+<p>[4] 哆啦A梦与大雄听后大惊，但也从特兰克斯坚定的眼神中读出了不容拒绝的决心。特兰克斯解释说，未来的敌人并非普通反派，而是一个名叫“黑暗赛亚人”的存在，他由邪恶科学家复制了贝吉塔的基因并加以改造，实力超乎想象。这个敌人不仅拥有赛亚人战斗力，还能操纵扭曲的时间能量，几乎无人可敌。特兰克斯已经独自战斗多年，但每一次都以惨败告终。他说：“科技，是我那个时代唯一缺失的武器，而你们，正好拥有它。”</p>
+<h3 id="重排"><a href="#重排" class="headerlink" title="重排"></a>重排</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sentence_transformers <span class="hljs-keyword">import</span> CrossEncoder<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">rerank</span>(<span class="hljs-params">query: <span class="hljs-built_in">str</span>, retrieved_chunks: <span class="hljs-type">List</span>[<span class="hljs-built_in">str</span>], top_k: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-built_in">str</span>]:<br>    <span class="hljs-comment"># 加载一个用于文本相关性排序的 CrossEncoder 模型</span><br>    cross_encoder = CrossEncoder(<span class="hljs-string">&#x27;cross-encoder/mmarco-mMiniLMv2-L12-H384-v1&#x27;</span>)<br>    <span class="hljs-comment"># 构造问题和刚刚召回的结果</span><br>    pairs = [(query, chunk) <span class="hljs-keyword">for</span> chunk <span class="hljs-keyword">in</span> retrieved_chunks]<br>    <span class="hljs-comment"># 对所有文本对进行打分</span><br>    <span class="hljs-comment"># predict() 会把 pairs 送入 CrossEncoder 模型，返回每一对文本的相关性分数</span><br>    scores = cross_encoder.predict(pairs)<br><br>    <span class="hljs-comment"># 把片段和对应的评分组合起来</span><br>    scored_chunks = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">zip</span>(retrieved_chunks, scores))<br>    <span class="hljs-comment"># 按相关性分数降序排列</span><br>    scored_chunks.sort(key=<span class="hljs-keyword">lambda</span> x: x[<span class="hljs-number">1</span>], reverse=<span class="hljs-literal">True</span>)<br><br>    <span class="hljs-keyword">return</span> [chunk <span class="hljs-keyword">for</span> chunk, _ <span class="hljs-keyword">in</span> scored_chunks][:top_k]<br><br>reranked_chunks = rerank(query, retrieved_chunks, <span class="hljs-number">3</span>)<br><br><span class="hljs-keyword">for</span> i, chunk <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(reranked_chunks):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;[<span class="hljs-subst">&#123;i&#125;</span>] <span class="hljs-subst">&#123;chunk&#125;</span>\n&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>[0] 三件秘密道具分别是：可以临时赋予超级战力的“复制斗篷”，能暂停时间五秒的“时间停止手表”，以及可在一分钟中完成一年修行的“精神与时光屋便携版”。大雄被推进精神屋内，在其中接受密集的训练，虽然只有几分钟现实时间，他却经历了整整一年的苦修。刚开始他依旧软弱，想放弃、想逃跑，但当他想起静香、父母，还有哆啦A梦那坚定的眼神时，他终于咬牙坚持了下来。出来之后，他的身体与精神都焕然一新，眼神中多了一份成熟与自信。</p>
+<p>[1] 最终战在黑暗赛亚人的空中要塞前爆发，特兰克斯率先出击，释放全力与敌人正面对决。哆啦A梦则用任意门和道具支援，从各个方向制造混乱，尽量压制敌人的时空能力。但黑暗赛亚人太过强大，仅凭特兰克斯一人根本无法压制，更别说击败。就在特兰克斯即将被击倒之际，大雄披上复制斗篷、冲破恐惧从高空跃下。他的拳头燃烧着金色光焰，目标直指敌人心脏。</p>
+<p>[2] 战后，未来世界开始恢复，植物重新生长，人类重建家园。特兰克斯告别时紧紧握住大雄的手，说：“你是我见过最特别的战士。”哆啦A梦也为大雄感到骄傲，说他终于真正成长了一次。三人站在山丘上，看着远方重新明亮的地平线，心中感受到从未有过的安宁。随后，哆啦A梦与大雄乘坐时光机返回了属于他们的那个年代，一切仿佛又恢复平静。</p>
+</blockquote>
+<h3 id="生成"><a href="#生成" class="headerlink" title="生成"></a>生成</h3><p>这里我没用视频里面的gemini，发现那个网站不用了了，直接用deepseek把</p>
+<blockquote>
+<p>在项目根目录下创建<code>.env</code>文件，输出：<code>DEEPSEEK_API_KEY=sk-xxxx</code>【填入实际deeepseek的api key】</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span><br><br><span class="hljs-keyword">from</span> dotenv <span class="hljs-keyword">import</span> load_dotenv<br><span class="hljs-keyword">from</span> openai <span class="hljs-keyword">import</span> OpenAI<br><span class="hljs-keyword">from</span> openai.types.chat <span class="hljs-keyword">import</span> ChatCompletionMessageParam<br><br><br>load_dotenv()<br><br>deepseek_client = OpenAI(<br>    api_key=os.getenv(<span class="hljs-string">&quot;DEEPSEEK_API_KEY&quot;</span>),<br>    base_url=<span class="hljs-string">&quot;https://api.deepseek.com&quot;</span>,<br>)<br><br><span class="hljs-comment"># 调用d标准的api调用，不解释</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate</span>(<span class="hljs-params">query: <span class="hljs-built_in">str</span>, chunks: <span class="hljs-type">List</span>[<span class="hljs-built_in">str</span>]</span>) -&gt; <span class="hljs-built_in">str</span>:<br>    prompt = <span class="hljs-string">f&quot;&quot;&quot;你是一位知识助手，请根据用户的问题和下列片段生成准确的回答。</span><br><span class="hljs-string"></span><br><span class="hljs-string">用户问题: <span class="hljs-subst">&#123;query&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string">相关片段:</span><br><span class="hljs-string"><span class="hljs-subst">&#123;<span class="hljs-string">&quot;\n\n&quot;</span>.join(chunks)&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string">请基于上述内容作答，不要编造信息。&quot;&quot;&quot;</span><br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;prompt&#125;</span>\n\n---\n&quot;</span>)<br><br>    messages: <span class="hljs-type">List</span>[ChatCompletionMessageParam] = [&#123;<span class="hljs-string">&#x27;role&#x27;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&#x27;content&#x27;</span>: prompt&#125;]<br><br>    response = deepseek_client.chat.completions.create(<br>        model=<span class="hljs-string">&quot;deepseek-v4-flash&quot;</span>,<br>        messages=messages,<br>        stream=<span class="hljs-literal">False</span>,<br>        extra_body=&#123;<br>            <span class="hljs-string">&quot;thinking&quot;</span>: &#123;<br>                <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;disabled&quot;</span>,<br>            &#125;,<br>        &#125;,<br>    )<br><br>    <span class="hljs-keyword">return</span> response.choices[<span class="hljs-number">0</span>].message.content <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span><br><br><br>answer = generate(query, reranked_chunks)<br><span class="hljs-built_in">print</span>(answer)<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>你是一位知识助手，请根据用户的问题和下列片段生成准确的回答。</p>
+<p>用户问题: 哆啦A梦使用的3个秘密道具分别是什么？</p>
+<p>相关片段:<br>三件秘密道具分别是：可以临时赋予超级战力的“复制斗篷”，能暂停时间五秒的“时间停止手表”，以及可在一分钟中完成一年修行的“精神与时光屋便携版”。大雄被推进精神屋内，在其中接受密集的训练，虽然只有几分钟现实时间，他却经历了整整一年的苦修。刚开始他依旧软弱，想放弃、想逃跑，但当他想起静香、父母，还有哆啦A梦那坚定的眼神时，他终于咬牙坚持了下来。出来之后，他的身体与精神都焕然一新，眼神中多了一份成熟与自信。</p>
+<p>最终战在黑暗赛亚人的空中要塞前爆发，特兰克斯率先出击，释放全力与敌人正面对决。哆啦A梦则用任意门和道具支援，从各个方向制造混乱，尽量压制敌人的时空能力。但黑暗赛亚人太过强大，仅凭特兰克斯一人根本无法压制，更别说击败。就在特兰克斯即将被击倒之际，大雄披上复制斗篷、冲破恐惧从高空跃下。他的拳头燃烧着金色光焰，目标直指敌人心脏。</p>
+<p>战后，未来世界开始恢复，植物重新生长，人类重建家园。特兰克斯告别时紧紧握住大雄的手，说：“你是我见过最特别的战士。”哆啦A梦也为大雄感到骄傲，说他终于真正成长了一次。三人站在山丘上，看着远方重新明亮的地平线，心中感受到从未有过的安宁。随后，哆啦A梦与大雄乘坐时光机返回了属于他们的那个年代，一切仿佛又恢复平静。</p>
+<p>请基于上述内容作答，不要编造信息。</p>
+<hr>
+<p>根据您提供的片段，哆啦A梦使用的3个秘密道具分别是：  </p>
+<ol>
+<li><strong>复制斗篷</strong>——可以临时赋予超级战力。  </li>
+<li><strong>时间停止手表</strong>——能暂停时间五秒。  </li>
+<li><strong>精神与时光屋便携版</strong>——可在一分钟中完成一年修行。</li>
+</ol>
+</blockquote>
+<h3 id="完整RAG流程"><a href="#完整RAG流程" class="headerlink" title="完整RAG流程"></a>完整RAG流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">原始文档<br>   ↓<br>切分成 chunks<br>   ↓<br>生成 embedding<br>   ↓<br>保存到 ChromaDB<br>   ↓<br>用户提问<br>   ↓<br>向量检索 retrieve()<br>   ↓<br>得到 5～20 个候选片段<br>   ↓<br>CrossEncoder rerank()       ← 当前代码<br>   ↓<br>得到最相关的 3～5 个片段<br>   ↓<br>传给 DeepSeek<br>   ↓<br>生成最终答案<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【马克工坊版】RAG学习笔记</div>
+      <div>http://example.com/2026/07/22/【马克工坊版】RAG学习笔记/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年7月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/21/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Ffallocate%E7%89%B9%E6%80%A7/" title="vfat文件系统fallocate特性">
+                        <span class="hidden-mobile">vfat文件系统fallocate特性</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
