@@ -16,20 +16,25 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="【马克工坊版】RAG学习笔记理论实验源仓地址：https:&#x2F;&#x2F;github.com&#x2F;MarkTechStation&#x2F;VideoCode&#x2F;blob&#x2F;main&#x2F;%E4%BD%BF%E7%94%A8Python%E6%9E%84%E5%BB%BARAG%E7%B3%BB%E7%BB%9F&#x2F;rag&#x2F;main.ipynb 分片123456789101112from typing import Listdef">
+    <meta name="description" content="【马克工坊版】RAG学习笔记理论 视频：RAG 工作机制详解——一个高质量知识库背后的技术全流程作者：马克的技术工作坊时长：17:02主题：从分片、索引、召回、重排到最终生成，拆解 RAG 的完整工作机制。  RAG（Retrieval-Augmented Generation，检索增强生成）不是让大模型“记住”整套知识库，而是在用户提问时，先从知识库里找出少量最相关的内容，再把这些内容连同问题一">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【马克工坊版】RAG学习笔记">
 <meta property="og:url" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="【马克工坊版】RAG学习笔记理论实验源仓地址：https:&#x2F;&#x2F;github.com&#x2F;MarkTechStation&#x2F;VideoCode&#x2F;blob&#x2F;main&#x2F;%E4%BD%BF%E7%94%A8Python%E6%9E%84%E5%BB%BARAG%E7%B3%BB%E7%BB%9F&#x2F;rag&#x2F;main.ipynb 分片123456789101112from typing import Listdef">
+<meta property="og:description" content="【马克工坊版】RAG学习笔记理论 视频：RAG 工作机制详解——一个高质量知识库背后的技术全流程作者：马克的技术工作坊时长：17:02主题：从分片、索引、召回、重排到最终生成，拆解 RAG 的完整工作机制。  RAG（Retrieval-Augmented Generation，检索增强生成）不是让大模型“记住”整套知识库，而是在用户提问时，先从知识库里找出少量最相关的内容，再把这些内容连同问题一">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722213925170.png">
+<meta property="og:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722213954165.png">
+<meta property="og:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722214216068.png">
+<meta property="og:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722214225828.png">
+<meta property="og:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722214253247.png">
 <meta property="og:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722210924764.png">
 <meta property="og:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722211245505.png">
 <meta property="article:published_time" content="2026-07-22T13:02:41.000Z">
-<meta property="article:modified_time" content="2026-07-22T13:30:03.065Z">
+<meta property="article:modified_time" content="2026-07-22T13:43:14.551Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722210924764.png">
+<meta name="twitter:image" content="http://example.com/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722213925170.png">
   
   
   
@@ -217,7 +222,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.8k 字
+          9.3k 字
         
       </span>
     
@@ -228,7 +233,7 @@
         
         
         
-          66 分钟
+          78 分钟
         
       </span>
     
@@ -279,7 +284,72 @@
             
               <div class="markdown-body">
                 
-                <h1 id="【马克工坊版】RAG学习笔记"><a href="#【马克工坊版】RAG学习笔记" class="headerlink" title="【马克工坊版】RAG学习笔记"></a>【马克工坊版】RAG学习笔记</h1><h2 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h2><h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>源仓地址：<a target="_blank" rel="noopener" href="https://github.com/MarkTechStation/VideoCode/blob/main/%E4%BD%BF%E7%94%A8Python%E6%9E%84%E5%BB%BARAG%E7%B3%BB%E7%BB%9F/rag/main.ipynb">https://github.com/MarkTechStation/VideoCode/blob/main/%E4%BD%BF%E7%94%A8Python%E6%9E%84%E5%BB%BARAG%E7%B3%BB%E7%BB%9F/rag/main.ipynb</a></p>
+                <h1 id="【马克工坊版】RAG学习笔记"><a href="#【马克工坊版】RAG学习笔记" class="headerlink" title="【马克工坊版】RAG学习笔记"></a>【马克工坊版】RAG学习笔记</h1><h2 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h2><blockquote>
+<p>视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1JLN2z4EZQ">RAG 工作机制详解——一个高质量知识库背后的技术全流程</a><br>作者：马克的技术工作坊<br>时长：17:02<br>主题：从分片、索引、召回、重排到最终生成，拆解 RAG 的完整工作机制。</p>
+</blockquote>
+<p>RAG（Retrieval-Augmented Generation，检索增强生成）不是让大模型“记住”整套知识库，而是在用户提问时，先从知识库里找出少量最相关的内容，再把这些内容连同问题一起交给大模型生成答案。</p>
+<p>完整链路可以压缩成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">离线准备：原始文档 → 分片 → Embedding → 写入向量数据库<br>在线回答：用户问题 → Embedding → 召回 → 重排 → 拼接上下文 → 大模型生成<br></code></pre></td></tr></table></figure>
+
+<h3 id="为什么需要RAG"><a href="#为什么需要RAG" class="headerlink" title="为什么需要RAG"></a>为什么需要RAG</h3><p>假设企业有一份很长的产品手册，直接把整份手册和问题一起发给大模型，会遇到三个问题：</p>
+<ol>
+<li><strong>模型无法读取所有内容</strong>：上下文窗口有限，文档可能远超模型单次可处理的长度。</li>
+<li><strong>推理成本高</strong>：输入 Token 越多，调用成本通常越高。</li>
+<li><strong>推理速度慢</strong>：超长上下文会增加预填充和推理延迟。</li>
+</ol>
+<p>RAG 的思路是：不要把所有资料都交给模型，而是先检索出与问题最相关的小部分资料。这样既减少上下文，也降低成本和延迟。</p>
+<h3 id="RAG的两大阶段"><a href="#RAG的两大阶段" class="headerlink" title="RAG的两大阶段"></a>RAG的两大阶段</h3><ul>
+<li><strong>准备阶段（提问前）</strong>：分片 → 索引。</li>
+<li><strong>回答阶段（提问后）</strong>：召回 → 重排 → 生成。</li>
+</ul>
+<img src="/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722213925170.png" srcset="/img/loading.gif" lazyload alt="image-20260722213925170" style="zoom:67%;">
+
+<h3 id="分片：Chrunking"><a href="#分片：Chrunking" class="headerlink" title="分片：Chrunking"></a>分片：Chrunking</h3><p>分片是把长文档拆成模型和检索系统更容易处理的小段文本。视频给出三种常见方法：</p>
+<ul>
+<li><strong>按字数分</strong>：例如每 1000 字切一段，实现简单，但可能把一个完整语义切断。</li>
+<li><strong>按段落分</strong>：尽量保持段落语义完整，片段长度可能不均匀。</li>
+<li><strong>按章节分</strong>：保留文档结构和主题边界，适合手册、书籍等层次清楚的资料。</li>
+</ul>
+<img src="/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722213954165.png" srcset="/img/loading.gif" lazyload alt="image-20260722213954165" style="zoom:67%;">
+
+<p>分片质量会直接影响后续召回：切得太大，会夹带大量无关信息；切得太小，又可能丢失回答问题所需的上下文。</p>
+<h3 id="索引：Embedding-与向量数据库"><a href="#索引：Embedding-与向量数据库" class="headerlink" title="索引：Embedding 与向量数据库"></a>索引：Embedding 与向量数据库</h3><p>索引阶段做两件事：</p>
+<ol>
+<li>使用 <strong>Embedding 模型</strong>把每个文本片段转换成一组数字，也就是向量。</li>
+<li>把“片段原文 + 片段向量”一起存入<strong>向量数据库</strong>。</li>
+</ol>
+<blockquote>
+<p>Embedding 模型决定了语义表示的质量。视频提到可参考 <a target="_blank" rel="noopener" href="https://huggingface.co/spaces/mteb/leaderboard">MTEB 排行榜</a> 对候选模型做比较，但实际选择还需要结合语言、领域、向量维度、最大输入长度、推理成本和部署条件</p>
+</blockquote>
+<h3 id="召回：Retrieval"><a href="#召回：Retrieval" class="headerlink" title="召回：Retrieval"></a>召回：Retrieval</h3><p>用户提问后，系统首先用<strong>同一个 Embedding 模型</strong>把问题转换为向量，然后在向量数据库里计算问题向量与各片段向量的相似度，取出分数最高的一批候选片段。</p>
+<p>视频示例中，召回先选出约 10 个候选片段。常见的向量相似度或距离计算方法包括：</p>
+<ul>
+<li><strong>余弦相似度</strong>：关注两个向量方向是否一致；</li>
+<li><strong>欧氏距离</strong>：关注两个向量在空间中的直线距离；</li>
+<li><strong>点积</strong>：把两个向量对应维度相乘后求和。</li>
+</ul>
+<p>召回的目标是“先尽量别漏掉正确材料”。它速度快、成本低，适合从大量片段中做第一轮粗筛，但只依赖向量相似度时，排序精度通常有限。</p>
+<h3 id="重排：Reranking"><a href="#重排：Reranking" class="headerlink" title="重排：Reranking"></a>重排：Reranking</h3><p>重排是在召回候选集上进行第二轮、更精细的相关性判断。视频示例把召回的 10 个片段重新排序，再挑出最相关的 3 个片段。</p>
+<img src="/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722214216068.png" srcset="/img/loading.gif" lazyload alt="image-20260722214216068" style="zoom:67%;">
+
+<p>重排通常使用 <strong>Cross-Encoder</strong>：把“用户问题 + 候选片段”成对输入模型，让模型直接输出相关性分数。它比单独比较两个向量更准确，但每个候选都要重新计算，因此更慢、成本更高。</p>
+<img src="/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722214225828.png" srcset="/img/loading.gif" lazyload alt="image-20260722214225828" style="zoom:67%;">
+
+<p>可以把二者类比为招聘：</p>
+<ul>
+<li><strong>召回</strong>像简历初筛：处理量大、速度快，尽量把可能合适的人选找出来。</li>
+<li><strong>重排</strong>像精挑细选：对少量候选深入判断，选出最合适的结果。</li>
+</ul>
+<p>因此，召回和重排不是互相替代，而是“粗筛 + 精排”的配合关系。</p>
+<h3 id="生成：Generation"><a href="#生成：Generation" class="headerlink" title="生成：Generation"></a>生成：Generation</h3><p>最后，系统把两部分内容一起交给大模型：</p>
+<ol>
+<li>用户的原始问题；</li>
+<li>重排后选出的少量高相关片段。</li>
+</ol>
+<p>大模型以这些片段为上下文生成最终答案。此时“增强”的含义，就是把外部知识库中检索到的证据补充进模型输入。</p>
+<img src="/2026/07/22/%E3%80%90%E9%A9%AC%E5%85%8B%E5%B7%A5%E5%9D%8A%E7%89%88%E3%80%91RAG%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20260722214253247.png" srcset="/img/loading.gif" lazyload alt="image-20260722214253247" style="zoom:67%;">
+
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>源仓地址：<a target="_blank" rel="noopener" href="https://github.com/MarkTechStation/VideoCode/blob/main/%E4%BD%BF%E7%94%A8Python%E6%9E%84%E5%BB%BARAG%E7%B3%BB%E7%BB%9F/rag/main.ipynb">https://github.com/MarkTechStation/VideoCode/blob/main/%E4%BD%BF%E7%94%A8Python%E6%9E%84%E5%BB%BARAG%E7%B3%BB%E7%BB%9F/rag/main.ipynb</a></p>
 <h3 id="分片"><a href="#分片" class="headerlink" title="分片"></a>分片</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">split_into_chunks</span>(<span class="hljs-params">doc_file: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-built_in">str</span>]:<br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(doc_file, <span class="hljs-string">&#x27;r&#x27;</span>, encoding=<span class="hljs-string">&#x27;utf-8&#x27;</span>) <span class="hljs-keyword">as</span> file:<br>        content = file.read()<br><br>    <span class="hljs-keyword">return</span> [chunk <span class="hljs-keyword">for</span> chunk <span class="hljs-keyword">in</span> content.split(<span class="hljs-string">&quot;\n\n&quot;</span>)]<br><br>chunks = split_into_chunks(<span class="hljs-string">&quot;doc.md&quot;</span>)<br><br><span class="hljs-keyword">for</span> i, chunk <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(chunks):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;[<span class="hljs-subst">&#123;i&#125;</span>] <span class="hljs-subst">&#123;chunk&#125;</span>\n&quot;</span>)<br></code></pre></td></tr></table></figure>
 
 <p>输出结果</p>
@@ -324,7 +394,7 @@
 <blockquote>
 <p>在项目根目录下创建<code>.env</code>文件，输出：<code>DEEPSEEK_API_KEY=sk-xxxx</code>【填入实际deeepseek的api key】</p>
 </blockquote>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span><br><br><span class="hljs-keyword">from</span> dotenv <span class="hljs-keyword">import</span> load_dotenv<br><span class="hljs-keyword">from</span> openai <span class="hljs-keyword">import</span> OpenAI<br><span class="hljs-keyword">from</span> openai.types.chat <span class="hljs-keyword">import</span> ChatCompletionMessageParam<br><br><br>load_dotenv()<br><br>deepseek_client = OpenAI(<br>    api_key=os.getenv(<span class="hljs-string">&quot;DEEPSEEK_API_KEY&quot;</span>),<br>    base_url=<span class="hljs-string">&quot;https://api.deepseek.com&quot;</span>,<br>)<br><br><span class="hljs-comment"># 调用d标准的api调用，不解释</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate</span>(<span class="hljs-params">query: <span class="hljs-built_in">str</span>, chunks: <span class="hljs-type">List</span>[<span class="hljs-built_in">str</span>]</span>) -&gt; <span class="hljs-built_in">str</span>:<br>    prompt = <span class="hljs-string">f&quot;&quot;&quot;你是一位知识助手，请根据用户的问题和下列片段生成准确的回答。</span><br><span class="hljs-string"></span><br><span class="hljs-string">用户问题: <span class="hljs-subst">&#123;query&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string">相关片段:</span><br><span class="hljs-string"><span class="hljs-subst">&#123;<span class="hljs-string">&quot;\n\n&quot;</span>.join(chunks)&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string">请基于上述内容作答，不要编造信息。&quot;&quot;&quot;</span><br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;prompt&#125;</span>\n\n---\n&quot;</span>)<br><br>    messages: <span class="hljs-type">List</span>[ChatCompletionMessageParam] = [&#123;<span class="hljs-string">&#x27;role&#x27;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&#x27;content&#x27;</span>: prompt&#125;]<br><br>    response = deepseek_client.chat.completions.create(<br>        model=<span class="hljs-string">&quot;deepseek-v4-flash&quot;</span>,<br>        messages=messages,<br>        stream=<span class="hljs-literal">False</span>,<br>        extra_body=&#123;<br>            <span class="hljs-string">&quot;thinking&quot;</span>: &#123;<br>                <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;disabled&quot;</span>,<br>            &#125;,<br>        &#125;,<br>    )<br><br>    <span class="hljs-keyword">return</span> response.choices[<span class="hljs-number">0</span>].message.content <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span><br><br><br>answer = generate(query, reranked_chunks)<br><span class="hljs-built_in">print</span>(answer)<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span><br><br><span class="hljs-keyword">from</span> dotenv <span class="hljs-keyword">import</span> load_dotenv<br><span class="hljs-keyword">from</span> openai <span class="hljs-keyword">import</span> OpenAI<br><span class="hljs-keyword">from</span> openai.types.chat <span class="hljs-keyword">import</span> ChatCompletionMessageParam<br><br><br>load_dotenv()<br><br>deepseek_client = OpenAI(<br>    api_key=os.getenv(<span class="hljs-string">&quot;DEEPSEEK_API_KEY&quot;</span>),<br>    base_url=<span class="hljs-string">&quot;https://api.deepseek.com&quot;</span>,<br>)<br><br><span class="hljs-comment"># 调用deepseek大模型: 标准的api调用，不解释</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate</span>(<span class="hljs-params">query: <span class="hljs-built_in">str</span>, chunks: <span class="hljs-type">List</span>[<span class="hljs-built_in">str</span>]</span>) -&gt; <span class="hljs-built_in">str</span>:<br>    prompt = <span class="hljs-string">f&quot;&quot;&quot;你是一位知识助手，请根据用户的问题和下列片段生成准确的回答。</span><br><span class="hljs-string"></span><br><span class="hljs-string">用户问题: <span class="hljs-subst">&#123;query&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string">相关片段:</span><br><span class="hljs-string"><span class="hljs-subst">&#123;<span class="hljs-string">&quot;\n\n&quot;</span>.join(chunks)&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string">请基于上述内容作答，不要编造信息。&quot;&quot;&quot;</span><br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;prompt&#125;</span>\n\n---\n&quot;</span>)<br><br>    messages: <span class="hljs-type">List</span>[ChatCompletionMessageParam] = [&#123;<span class="hljs-string">&#x27;role&#x27;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&#x27;content&#x27;</span>: prompt&#125;]<br><br>    response = deepseek_client.chat.completions.create(<br>        model=<span class="hljs-string">&quot;deepseek-v4-flash&quot;</span>,<br>        messages=messages,<br>        stream=<span class="hljs-literal">False</span>,<br>        extra_body=&#123;<br>            <span class="hljs-string">&quot;thinking&quot;</span>: &#123;<br>                <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;disabled&quot;</span>,<br>            &#125;,<br>        &#125;,<br>    )<br><br>    <span class="hljs-keyword">return</span> response.choices[<span class="hljs-number">0</span>].message.content <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span><br><br><br>answer = generate(query, reranked_chunks)<br><span class="hljs-built_in">print</span>(answer)<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>你是一位知识助手，请根据用户的问题和下列片段生成准确的回答。</p>
