@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2026/07/21/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Ffallocate%E7%89%B9%E6%80%A7/image-20260722225841351.png">
 <meta property="article:published_time" content="2026-07-21T14:24:10.000Z">
-<meta property="article:modified_time" content="2026-07-22T15:12:00.091Z">
+<meta property="article:modified_time" content="2026-07-23T14:45:14.082Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/07/21/vfat%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9Ffallocate%E7%89%B9%E6%80%A7/image-20260722225841351.png">
@@ -216,7 +216,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.3k 字
+          2.8k 字
         
       </span>
     
@@ -227,7 +227,7 @@
         
         
         
-          20 分钟
+          24 分钟
         
       </span>
     
@@ -308,6 +308,32 @@
 <p>因为指定了 <code>KEEP_SIZE</code>，所以逻辑文件大小仍为6000：</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">0           6000                              16384<br>| 文件内容   | 已预分配但位于逻辑 EOF 之后的空间 |<br>            ↑ i_size                         ↑ 簇链容量<br></code></pre></td></tr></table></figure>
 
+<h3 id="普通模式"><a href="#普通模式" class="headerlink" title="普通模式"></a>普通模式</h3><blockquote>
+<p>假设 FAT 文件系统和文件当前状态如下：</p>
+<ul>
+<li>簇大小 cluster_size &#x3D; 4096 字节</li>
+<li>cluster_bits        &#x3D; 12</li>
+<li>文件逻辑大小 i_size &#x3D; 6000 字节</li>
+<li>inode-&gt;i_blocks     &#x3D; 16</li>
+</ul>
+<p>因为 <code>i_blocks</code> 的单位固定是512字节，所以文件实际已经分配：16 × 512 &#x3D; 8192 字节</p>
+<p>即两个 FAT 簇：簇1：0～4095   簇2：4096～8191</p>
+</blockquote>
+<p>假如，当前用户态调用fallocate如下：<code>fallocate(fd, 0, 10000, 5000)</code>，传入的参数为：【mode：0，offset：10000，len：5000】</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 执行fat_cont_expand(inode, 15000);</span><br>err = fat_cont_expand(inode, (offset + len));<br></code></pre></td></tr></table></figure>
+
+<p><code>fat_cont_expand()</code> 把文件扩展到15000字节。</p>
+<p>扩展前：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">逻辑大小：6000</span><br><span class="hljs-string">已分配：</span>  <span class="hljs-number">8192</span><br></code></pre></td></tr></table></figure>
+
+<p>扩展后通常为：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs">逻辑大小：15000<br>已分配：  16384<br></code></pre></td></tr></table></figure>
+
+<p>也就是：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">i_size</span> = <span class="hljs-number">15000</span><br></code></pre></td></tr></table></figure>
+
+<p>需要四个簇</p>
+<h2 id="回收预分配的簇"><a href="#回收预分配的簇" class="headerlink" title="回收预分配的簇"></a>回收预分配的簇</h2><p>当系统kswapd和</p>
 
                 
               </div>
