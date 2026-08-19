@@ -26,7 +26,7 @@
 <meta property="og:image" content="http://example.com/2025/11/23/%E6%9D%82%E8%AE%B0%E9%9A%8F%E4%BE%BF%E5%86%99%E5%86%99/image-20251215222121157.png">
 <meta property="og:image" content="http://example.com/2025/11/23/%E6%9D%82%E8%AE%B0%E9%9A%8F%E4%BE%BF%E5%86%99%E5%86%99/image-20251215222227310.png">
 <meta property="article:published_time" content="2025-11-23T13:36:53.000Z">
-<meta property="article:modified_time" content="2026-08-17T15:22:05.046Z">
+<meta property="article:modified_time" content="2026-08-19T13:19:04.673Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2025/11/23/%E6%9D%82%E8%AE%B0%E9%9A%8F%E4%BE%BF%E5%86%99%E5%86%99/image-20251215222121157.png">
@@ -217,7 +217,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          25k 字
+          31k 字
         
       </span>
     
@@ -228,7 +228,7 @@
         
         
         
-          206 分钟
+          256 分钟
         
       </span>
     
@@ -325,7 +325,10 @@
 <p>Then：</p>
 <figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs diff"><span class="hljs-comment">diff --git a/fs/exfat/cache.c b/fs/exfat/cache.c</span><br><span class="hljs-comment">index XXXXXXX..YYYYYYY 100644</span><br><span class="hljs-comment">--- a/fs/exfat/cache.c</span><br><span class="hljs-comment">+++ b/fs/exfat/cache.c</span><br><span class="hljs-meta">@@ -180,6 +180,7 @@</span> static void exfat_cache_add(struct inode *inode,<br>        struct exfat_inode_info *ei = EXFAT_I(inode);<br>        struct exfat_cache *cache, *tmp;<br><br><span class="hljs-addition">+retry:</span><br>        if (new-&gt;fcluster == EXFAT_EOF_CLUSTER) /* dummy cache */<br>                return;<br><br><span class="hljs-meta">@@ -226,6 +227,16 @@</span> static void exfat_cache_add(struct inode *inode,<br>                &#125;<br>                cache = tmp;<br>        &#125; else &#123;<br><span class="hljs-addition">+               /*</span><br><span class="hljs-addition">+                * nr_caches is expected to reflect the cache_lru list state.</span><br><span class="hljs-addition">+                * However, concurrent cache invalidation may temporarily</span><br><span class="hljs-addition">+                * break this invariant. Bail out safely if the list is empty.</span><br><span class="hljs-addition">+                */</span><br><span class="hljs-addition">+               if (unlikely(list_empty(&amp;ei-&gt;cache_lru))) &#123;</span><br><span class="hljs-addition">+                       spin_unlock(&amp;ei-&gt;cache_lru_lock);</span><br><span class="hljs-addition">+                       goto retry;</span><br><span class="hljs-addition">+               &#125;</span><br>                struct list_head *p = ei-&gt;cache_lru.prev;<br><br>                cache = list_entry(p,<br><br></code></pre></td></tr></table></figure>
 
-<h2 id="exFAT-Vendor-Allocation-Directory-Entry：xfstests-回归测试与内核修复"><a href="#exFAT-Vendor-Allocation-Directory-Entry：xfstests-回归测试与内核修复" class="headerlink" title="exFAT Vendor Allocation Directory Entry：xfstests 回归测试与内核修复"></a>exFAT Vendor Allocation Directory Entry：xfstests 回归测试与内核修复</h2><h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>exFAT 的一个文件由一组连续的 32 字节目录项描述。常规文件至少包含一个 File Directory Entry（0x85）、一个 Stream Extension Entry（0xC0）和一个或多个 File Name Entry（0xC1）。File Directory Entry 中的 <code>SecondaryCount</code> 记录紧随其后的 secondary entries 数量，整个 entry set 还受 16 位 checksum 保护。</p>
+<h2 id="exFAT-Vendor-Allocation-Directory-Entry：rename-x2F-move-上游补丁复现"><a href="#exFAT-Vendor-Allocation-Directory-Entry：rename-x2F-move-上游补丁复现" class="headerlink" title="exFAT Vendor Allocation Directory Entry：rename&#x2F;move 上游补丁复现"></a>exFAT Vendor Allocation Directory Entry：rename&#x2F;move 上游补丁复现</h2><blockquote>
+<p>更正：本节 <code>exfat/002</code> 复现的是 Vendor Allocation entry 在 rename&#x2F;move<br>中丢失的问题；对应内核修改并非本文新提出的补丁，而是 Rochan Avlur<br>已提交并进入上游的提交 <code>942296784b2a</code>（<code>exfat: preserve benign secondary entries during rename and move</code>）。下面保留失败日志和通过结果作为该上游<br>补丁的复现记录。本文针对 Vendor Allocation Directory Entry 新增的独立修改<br>是后文的“字段合法性校验”，不要将两者混为一谈。</p>
+</blockquote>
+<h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>exFAT 的一个文件由一组连续的 32 字节目录项描述。常规文件至少包含一个 File Directory Entry（0x85）、一个 Stream Extension Entry（0xC0）和一个或多个 File Name Entry（0xC1）。File Directory Entry 中的 <code>SecondaryCount</code> 记录紧随其后的 secondary entries 数量，整个 entry set 还受 16 位 checksum 保护。</p>
 <p>Vendor Allocation Directory Entry 的 <code>EntryType</code> 是 0xE1，属于 benign secondary entry。它不是文件名的一部分，但必须跟着文件的 entry set 一起保存。其核心布局如下：</p>
 <table>
 <thead>
@@ -448,6 +451,146 @@
 
 <p><code>clocksource: Watchdog remote CPU 2 read timed out</code> 是测试机的 clocksource watchdog 警告，没有导致 I&#x2F;O 错误或用例失败。最终 <code>Passed all 1 tests</code> 说明两种 Vendor Allocation 布局均正确经历了原地 rename、扩容 rename、跨目录 move 和 unlink：前三种操作保留了 entry 原始字节、allocation bitmap、FAT chain 和 payload，unlink 则最终释放了相关簇。</p>
 <h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>这个问题的本质是内核把“由文件名决定的基础 entry 数”错当成了“完整 entry-set 数”，并把 rename&#x2F;move 的目录项搬迁误当成了文件删除。修复后，benign secondary entries 作为 entry set 的一部分参与容量计算、复制、checksum 更新和生命周期管理，Vendor Allocation 的数据簇也只在真正删除文件时才会被释放。</p>
+<h2 id="exFAT-Vendor-Allocation-Directory-Entry-字段合法性校验"><a href="#exFAT-Vendor-Allocation-Directory-Entry-字段合法性校验" class="headerlink" title="exFAT Vendor Allocation Directory Entry 字段合法性校验"></a>exFAT Vendor Allocation Directory Entry 字段合法性校验</h2><h3 id="与-rename-x2F-move-上游补丁的区别"><a href="#与-rename-x2F-move-上游补丁的区别" class="headerlink" title="与 rename&#x2F;move 上游补丁的区别"></a>与 rename&#x2F;move 上游补丁的区别</h3><p>本节处理的是另一个问题：Linux 已经能识别 <code>EXFAT_VENDOR_ALLOC</code>（0xE1），也会在删除文件时解释其中的分配信息并释放关联簇，但读取 entry set 时只校验了 secondary entry 的排列和大类，没有校验 0xE1 自身的字段是否合法。前一节的 <code>942296784b2a</code> 解决的是合法 benign secondary entry 在 rename&#x2F;move 中被丢弃；本节解决的是畸形 Vendor Allocation entry 被内核接受、甚至可能进入后续释放路径的问题。</p>
+<p>Microsoft exFAT 1.00 规范第 6.2、6.4 和 7.9 节对 0xE1 有以下强制约束：</p>
+<ol>
+<li><code>AllocationPossible</code> 必须为 1。</li>
+<li><code>VendorGuid</code> 不得为全零 GUID。</li>
+<li><code>FirstCluster</code> 只能为 0，或位于 <code>[2, ClusterCount + 1]</code>。</li>
+<li><code>FirstCluster == 0</code> 时，<code>DataLength</code> 必须为 0，并且 <code>NoFatChain</code> 必须为 0。</li>
+<li><code>NoFatChain == 1</code> 时，<code>FirstCluster</code> 必须有效且 <code>DataLength</code> 不得为 0。</li>
+<li><code>DataLength</code> 不得超过整个 Cluster Heap 的字节数。</li>
+<li>对 NoFatChain 连续分配，按 <code>DataLength</code> 向上取整得到的最后一个簇不得越过 Cluster Heap。</li>
+</ol>
+<p><code>GeneralSecondaryFlags</code> 的 bit 2～7 在 Vendor Allocation 中属于 reserved&#x2F;custom-defined 区域。规范对 reserved 内容的原则是初始化为零、读取方不解释、修改周边内容时保留，因此本补丁不把这些位非零直接判为损坏，避免过度校验破坏兼容性。</p>
+<h3 id="旧代码为什么漏掉校验"><a href="#旧代码为什么漏掉校验" class="headerlink" title="旧代码为什么漏掉校验"></a>旧代码为什么漏掉校验</h3><p><code>exfat_get_entry_type()</code> 会把 0xE1 映射为 <code>TYPE_VENDOR_ALLOC</code>，但是旧的 <code>exfat_validate_entry()</code> 只接收抽象后的 <code>type</code> 和状态机 <code>mode</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title function_">exfat_validate_entry</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> type,</span><br><span class="hljs-params">		<span class="hljs-keyword">enum</span> exfat_validate_dentry_mode *mode)</span><br></code></pre></td></tr></table></figure>
+
+<p>它只能判断 Stream、Filename、benign secondary 的顺序，拿不到原始 <code>struct exfat_dentry</code>，也没有 <code>super_block</code> 中的 Cluster Heap 边界，因此无法检查 flags、GUID、FirstCluster 和 DataLength。</p>
+<p>另一个绕过点在 <code>exfat_find()</code>。旧代码找到文件名后只读取 File 和 Stream 两项：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">exfat_get_dentry_set(&amp;es, sb, &amp;cdir, dentry, ES_2_ENTRIES)<br></code></pre></td></tr></table></figure>
+
+<p>即使完整 entry-set 读取路径加入 0xE1 校验，直接 <code>stat/open</code> 仍可能完全不读取尾部的 Vendor Allocation entry。为使路径查找、readdir、rename 和 unlink 对同一 entry set 得出一致结论，查找路径也必须读取并校验 <code>ES_ALL_ENTRIES</code>。</p>
+<h3 id="内核修改"><a href="#内核修改" class="headerlink" title="内核修改"></a>内核修改</h3><p>补丁基于 <code>fs/exfat/dir.c</code> blob <code>561fd2349218334e97f6e4c635b7cd0676c1003b</code> 生成，只修改 <code>fs/exfat/dir.c</code> 和 <code>fs/exfat/namei.c</code>，没有包含前一节的 rename&#x2F;move 上游补丁。</p>
+<p>核心新增函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title function_">exfat_validate_vendor_alloc</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> super_block *sb,</span><br><span class="hljs-params">		<span class="hljs-keyword">struct</span> exfat_dentry *ep)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_sb_info</span> *<span class="hljs-title">sbi</span> =</span> EXFAT_SB(sb);<br>	u8 flags = ep-&gt;dentry.vendor_alloc.flags;<br>	u32 start_clu = le32_to_cpu(ep-&gt;dentry.vendor_alloc.start_clu);<br>	u64 size = le64_to_cpu(ep-&gt;dentry.vendor_alloc.size);<br>	u64 max_size = EXFAT_CLU_TO_B((u64)EXFAT_DATA_CLUSTER_COUNT(sbi), sbi);<br>	u64 num_clusters;<br><br>	<span class="hljs-keyword">if</span> (!(flags &amp; ALLOC_POSSIBLE))<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br><br>	<span class="hljs-keyword">if</span> (!memchr_inv(ep-&gt;dentry.vendor_alloc.vendor_guid, <span class="hljs-number">0</span>,<br>			<span class="hljs-keyword">sizeof</span>(ep-&gt;dentry.vendor_alloc.vendor_guid)))<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br><br>	<span class="hljs-keyword">if</span> (!start_clu)<br>		<span class="hljs-keyword">return</span> !size &amp;&amp; !(flags &amp;<br>				(ALLOC_NO_FAT_CHAIN ^ ALLOC_FAT_CHAIN));<br><br>	<span class="hljs-keyword">if</span> (!is_valid_cluster(sbi, start_clu) || size &gt; max_size)<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br><br>	<span class="hljs-keyword">if</span> ((flags &amp; ALLOC_NO_FAT_CHAIN) == ALLOC_NO_FAT_CHAIN) &#123;<br>		<span class="hljs-keyword">if</span> (!size)<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br><br>		num_clusters = DIV_ROUND_UP_ULL(size, sbi-&gt;cluster_size);<br>		<span class="hljs-keyword">if</span> (num_clusters &gt; sbi-&gt;num_clusters - start_clu)<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>随后把 <code>exfat_validate_entry()</code> 改为接收 <code>sb</code> 和原始 <code>ep</code>，当类型为 <code>TYPE_VENDOR_ALLOC</code> 时调用上述字段校验；<code>exfat_find()</code> 则由 <code>ES_2_ENTRIES</code> 改为 <code>ES_ALL_ENTRIES</code>，堵住直接路径查找的绕过。</p>
+<p>这里做的是目录项结构和范围校验，不试图在每次 lookup 时执行全卷簇所有权扫描。FAT 链环、两个目录项引用同一簇等跨结构一致性问题仍属于 fsck 的检查范围。</p>
+<h3 id="xfstests：exfat-003"><a href="#xfstests：exfat-003" class="headerlink" title="xfstests：exfat/003"></a>xfstests：<code>exfat/003</code></h3><p>新增用例 <code>exfat/003</code>。Python helper 在文件系统卸载时为不同文件注入一个 0xE1 entry，并同步更新 <code>SecondaryCount</code> 和 entry-set checksum。重新挂载后，合法项必须能被 <code>stat</code>，畸形项必须被拒绝。</p>
+<p>合法基线只有一种：</p>
+<ul>
+<li><code>valid-empty</code>：<code>flags=ALLOC_FAT_CHAIN</code>、非零 GUID、<code>FirstCluster=0</code>、<code>DataLength=0</code>。</li>
+</ul>
+<p>畸形矩阵包括：</p>
+<table>
+<thead>
+<tr>
+<th>case</th>
+<th>畸形内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>allocation-impossible</code></td>
+<td><code>AllocationPossible=0</code></td>
+</tr>
+<tr>
+<td><code>null-guid</code></td>
+<td>16 字节 GUID 全零</td>
+</tr>
+<tr>
+<td><code>zero-start-with-data</code></td>
+<td><code>FirstCluster=0</code> 但 <code>DataLength=1</code></td>
+</tr>
+<tr>
+<td><code>zero-start-nofat</code></td>
+<td>无分配却置 <code>NoFatChain=1</code></td>
+</tr>
+<tr>
+<td><code>invalid-start-low</code></td>
+<td><code>FirstCluster=1</code></td>
+</tr>
+<tr>
+<td><code>invalid-start-high</code></td>
+<td><code>FirstCluster=ClusterCount+2</code></td>
+</tr>
+<tr>
+<td><code>oversized-length</code></td>
+<td><code>DataLength</code> 比整个 Cluster Heap 大 1 字节</td>
+</tr>
+<tr>
+<td><code>empty-nofat</code></td>
+<td>NoFatChain 分配的 <code>DataLength=0</code></td>
+</tr>
+<tr>
+<td><code>nofat-overflow</code></td>
+<td>连续分配从最后一簇继续跨出 Cluster Heap</td>
+</tr>
+</tbody></table>
+<p>旧内核的 <code>exfat_find()</code> 只取前两个 entries，上述畸形文件仍能通过 <code>stat</code>，用例会报告 <code>malformed Vendor Allocation entry was accepted</code>。打补丁后，<code>stat</code> 触发完整 entry-set 校验，合法基线可访问，九种畸形项均被拒绝，最终期望输出为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">QA output created by 003<br>Silence is golden<br></code></pre></td></tr></table></figure>
+
+<p>helper 的合成镜像单元测试覆盖十种注入场景，所有 entry-set checksum 均正确，结果为 <code>Ran 2 tests ... OK</code>。</p>
+<h3 id="测试结束时恢复-scratch"><a href="#测试结束时恢复-scratch" class="headerlink" title="测试结束时恢复 scratch"></a>测试结束时恢复 scratch</h3><p>第一版 <code>exfat/003</code> 在验证结束后仍把九个畸形 0xE1 entries 留在 <code>/dev/vdc</code>。字段校验本身虽然已经完成，但 xfstests 随后的 <code>_check_generic_filesystem</code> 会对 scratch 运行 fsck，于是将这些故意构造的目录项报告为文件系统不一致：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">_check_generic_filesystem: filesystem on /dev/vdc is inconsistent<br></code></pre></td></tr></table></figure>
+
+<p>这不是内核补丁失败，而是破坏性元数据测试没有恢复测试设备。修正版在报告测试结果前执行以下流程：</p>
+<ol>
+<li>先记录合法项被拒绝或畸形项被接受的错误，不立即 <code>_fail</code>。</li>
+<li>卸载 scratch 文件系统。</li>
+<li>对 scratch 重新执行 mkfs，使测试后的通用 fsck 面对干净文件系统。</li>
+<li>恢复完成后再调用 <code>_fail</code> 或输出 <code>Silence is golden</code>。</li>
+<li><code>_cleanup()</code> 也通过 <code>reformat_scratch</code> 状态兜底；如果注入或挂载阶段提前退出，同样尝试卸载并重新格式化 scratch。</li>
+</ol>
+<p>核心逻辑如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">_scratch_unmount || _fail <span class="hljs-string">&quot;failed to unmount scratch after validation&quot;</span><br>_scratch_mkfs &gt;&gt;<span class="hljs-variable">$seqres</span>.full 2&gt;&amp;1 || \<br>	_fail <span class="hljs-string">&quot;failed to restore scratch exFAT filesystem&quot;</span><br>reformat_scratch=<span class="hljs-literal">false</span><br><br>[ -z <span class="hljs-string">&quot;<span class="hljs-variable">$failure</span>&quot;</span> ] || _fail <span class="hljs-string">&quot;<span class="hljs-variable">$failure</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>修正后，无论测试通过还是内核接受了畸形项，都不会再遗留一个预期损坏的 <code>/dev/vdc</code>。</p>
+<h3 id="带补丁与无补丁内核的-A-x2F-B-验证"><a href="#带补丁与无补丁内核的-A-x2F-B-验证" class="headerlink" title="带补丁与无补丁内核的 A&#x2F;B 验证"></a>带补丁与无补丁内核的 A&#x2F;B 验证</h3><p>测试使用同一份 <code>exfat/003</code> 和同一套 QEMU 磁盘，只切换内核代码。</p>
+<h4 id="带补丁内核：-7"><a href="#带补丁内核：-7" class="headerlink" title="带补丁内核：#7"></a>带补丁内核：#7</h4><p>在 <code>dir.c</code> 加入 <code>exfat_validate_vendor_alloc()</code>，并将 <code>namei.c</code> 的 lookup 改为 <code>ES_ALL_ENTRIES</code> 后，通过 <code>new_make_kernel.sh</code> 编译得到 #7 内核。测试结果为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">exfat/003          [   48.584713] run fstests exfat/003 at 2026-08-19 13:12:47<br> 21s<br>Ran: exfat/003<br>Passed all 1 tests<br></code></pre></td></tr></table></figure>
+
+<p>这说明合法的空分配形式仍可访问，而 <code>AllocationPossible</code>、GUID、FirstCluster、DataLength 和 NoFatChain 的九种非法组合全部被内核拒绝。</p>
+<h4 id="无补丁内核：-8"><a href="#无补丁内核：-8" class="headerlink" title="无补丁内核：#8"></a>无补丁内核：#8</h4><p>随后用 <code>git stash</code> 暂存 <code>fs/exfat/dir.c</code>、<code>exfat_fs.h</code> 和 <code>namei.c</code> 的全部修改，确认源码恢复为 <code>ES_2_ENTRIES</code> 且不存在 <code>exfat_validate_vendor_alloc()</code>，再编译得到干净的 #8 内核：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">PLATFORM      -- Linux/x86_64 fsnext-exfat 7.1.0-rc2-ga873694dd37c #8<br></code></pre></td></tr></table></figure>
+
+<p>同一用例稳定失败在第一个畸形场景：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs diff"> QA output created by 003<br><span class="hljs-deletion">-Silence is golden</span><br><span class="hljs-addition">+malformed Vendor Allocation entry was accepted: allocation-impossible</span><br><span class="hljs-addition">+(see /root/xfstests-dev/results//exfat/003.full for details)</span><br></code></pre></td></tr></table></figure>
+
+<p>完整结尾为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">Ran: exfat/003<br>Failures: exfat/003<br>Failed 1 of 1 tests<br></code></pre></td></tr></table></figure>
+
+<p>新版测试已经先恢复 scratch，因此这次负向验证没有再出现 <code>/dev/vdc is inconsistent</code>。A&#x2F;B 结果证明失败来自原始内核缺少 0xE1 字段校验，而不是测试镜像、mkfs 输出或测试后 fsck 的噪声。</p>
+<table>
+<thead>
+<tr>
+<th>内核</th>
+<th>Vendor Allocation 字段校验</th>
+<th><code>exfat/003</code> 结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>#7 dirty</td>
+<td>有</td>
+<td><code>Passed all 1 tests</code></td>
+</tr>
+<tr>
+<td>#8 clean</td>
+<td>无</td>
+<td>在 <code>allocation-impossible</code> 处失败</td>
+</tr>
+</tbody></table>
+<h3 id="测试环境中的-ext4-故障"><a href="#测试环境中的-ext4-故障" class="headerlink" title="测试环境中的 ext4 故障"></a>测试环境中的 ext4 故障</h3><p>调试期间还出现过如下根文件系统错误：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">EXT4-fs error (device vda): ext4_lookup: deleted inode referenced<br></code></pre></td></tr></table></figure>
+
+<p>检查发现 QEMU 正在以 <code>rootfs.img</code> 作为 <code>/dev/vda</code> 运行时，宿主机又将同一个镜像通过 loop 设备以读写方式挂载到 <code>/mnt/fsnext-root</code>。两个 ext4 实例并发写同一块设备会破坏元数据，这与 exFAT 代码无关。关闭 QEMU 后执行离线 e2fsck，修复了损坏的 <code>.git/index</code>、<code>tests/exfat/003.out</code> 引用以及块位图计数；随后重建 Git index、恢复测试文件，最终只读 e2fsck 五个阶段全部通过。</p>
+<p>后续操作必须遵守：宿主机挂载 <code>rootfs.img</code> 时不要启动 QEMU；启动 QEMU 前先正常卸载 <code>/mnt/fsnext-root</code>。</p>
+<p>生成文件：</p>
+<ul>
+<li><code>exfat-vendor-allocation-validation.diff</code>：内核字段校验补丁。</li>
+<li><code>xfstests-exfat-vendor-allocation-validation.diff</code>：基于已有 <code>exfat/002</code> helper 的增量 xfstests 补丁，新增 <code>exfat/003</code>。</li>
+<li><code>xfstests-exfat-003-scratch-cleanup.diff</code>：让破坏性测试在退出前恢复 scratch 的后续修正。</li>
+</ul>
 
                 
               </div>
