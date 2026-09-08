@@ -1,0 +1,928 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="f2fs atomic write与sqlite的紧密联系F2FS 使用 COW inode 承接事务新块，COMMIT 再将块映射转交给原文件并执行原子同步。本文结合具体源码、维测日志和测试程序，说明数据库页写入如何形成一次文件原子事务。 1. 事务流程以一个转账事务为例。数据库中已有 account 表和 transfer_log 表，应用执行： 1234567891011121314BEGI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="f2fs atomic write与sqlite的紧密联系">
+<meta property="og:url" content="http://example.com/2026/09/08/f2fs-atomic-write%E4%B8%8Esqlite%E7%9A%84%E7%B4%A7%E5%AF%86%E8%81%94%E7%B3%BB/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="f2fs atomic write与sqlite的紧密联系F2FS 使用 COW inode 承接事务新块，COMMIT 再将块映射转交给原文件并执行原子同步。本文结合具体源码、维测日志和测试程序，说明数据库页写入如何形成一次文件原子事务。 1. 事务流程以一个转账事务为例。数据库中已有 account 表和 transfer_log 表，应用执行： 1234567891011121314BEGI">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-09-08T14:57:55.000Z">
+<meta property="article:modified_time" content="2026-09-08T15:04:35.461Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>f2fs atomic write与sqlite的紧密联系 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="f2fs atomic write与sqlite的紧密联系"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-09-08 22:57" pubdate>
+          2026年9月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          25k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          213 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">f2fs atomic write与sqlite的紧密联系</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="f2fs-atomic-write与sqlite的紧密联系"><a href="#f2fs-atomic-write与sqlite的紧密联系" class="headerlink" title="f2fs atomic write与sqlite的紧密联系"></a>f2fs atomic write与sqlite的紧密联系</h1><p>F2FS 使用 COW inode 承接事务新块，COMMIT 再将块映射转交给原文件并执行原子同步。本文结合具体源码、维测日志和测试程序，说明数据库页写入如何形成一次文件原子事务。</p>
+<h2 id="1-事务流程"><a href="#1-事务流程" class="headerlink" title="1. 事务流程"></a>1. 事务流程</h2><p>以一个转账事务为例。数据库中已有 <code>account</code> 表和 <code>transfer_log</code> 表，应用执行：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">BEGIN</span> IMMEDIATE;<br><br><span class="hljs-keyword">UPDATE</span> account<br><span class="hljs-keyword">SET</span> balance <span class="hljs-operator">=</span> balance <span class="hljs-operator">-</span> <span class="hljs-number">100</span><br><span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;<br><br><span class="hljs-keyword">UPDATE</span> account<br><span class="hljs-keyword">SET</span> balance <span class="hljs-operator">=</span> balance <span class="hljs-operator">+</span> <span class="hljs-number">100</span><br><span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">=</span> <span class="hljs-number">2</span>;<br><br><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> transfer_log(from_id, to_id, amount)<br><span class="hljs-keyword">VALUES</span> (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">100</span>);<br><br><span class="hljs-keyword">COMMIT</span>;<br></code></pre></td></tr></table></figure>
+
+<p>两条 <code>UPDATE</code> 和一条 <code>INSERT</code> 先修改 SQLite Pager 缓存中的数据库页。例如，它们可能改动 <code>account</code> 表的 B-tree 叶子页、<code>transfer_log</code> 的叶子页、相关索引页以及数据库头所在的第 1 页。这里的具体页数由表布局、索引、空闲空间和 <code>page_size</code> 决定，不能根据三条 SQL 固定推算。</p>
+<p>当 SQLite 编译时启用了 <code>SQLITE_ENABLE_BATCH_ATOMIC_WRITE</code>，文件系统又报告支持批量原子写，而且当前事务满足 SQLite 的使用条件时，Pager 在提交阶段设置 <code>bBatch</code>。随后 SQLite 对主数据库文件发出 <code>SQLITE_FCNTL_BEGIN_ATOMIC_WRITE</code>，Unix VFS 将其转换为 <code>F2FS_IOC_START_ATOMIC_WRITE</code>。因此，SQL 的 <code>BEGIN IMMEDIATE</code> 只是在 SQLite 层开启写事务和取得锁；它不直接触发 F2FS 的 START ioctl。</p>
+<p>START 成功后，SQLite 通过 <code>pager_write_pagelist()</code> 把本次事务的脏页写到主数据库文件。例如 SQLite 页大小为 4096 字节时，第 1、3、6 页的文件偏移分别为 0、8192 和 20480。写入仍表现为主数据库文件上的 <code>pwrite()</code>，但 F2FS 会为这些 atomic folio 准备 COW 映射。页面发生写回时，新内容写到 COW inode 所管理的新块，原数据库 inode 的持久块映射仍然指向旧数据。</p>
+<p>所有待提交页写入成功后，SQLite 发出 <code>SQLITE_FCNTL_COMMIT_ATOMIC_WRITE</code>，Unix VFS 将其转换为 <code>F2FS_IOC_COMMIT_ATOMIC_WRITE</code>。F2FS 等待事务页写回，逐个把 COW 新块转交给原数据库 inode，再同步 node 和恢复信息。ioctl 返回 0 后，SQLite 才继续完成 Pager 的提交状态转换。如果 START、页面写入或 COMMIT 失败，SQLite 会发出回滚原子写请求，并按错误类型决定是否退回普通 journal 路径。</p>
+<p>这条路径属于 rollback-journal Pager 的批量原子写优化，不是 WAL 写入流程。它可以避免为当前事务实际写出普通 rollback journal，但 SQLite 是否选择它仍由 SQLite 自身的编译选项、设备能力和事务条件共同决定。</p>
+<p>事务时序如下：</p>
+<pre><code class=" mermaid">sequenceDiagram
+    participant SQL as SQLite SQL 执行层
+    participant Pager as SQLite Pager / Unix VFS
+    participant IO as F2FS ioctl
+    participant Cache as 原文件 page cache
+    participant Cow as COW inode
+    participant Meta as 原 inode 与恢复信息
+    participant Disk as 块设备
+    SQL-&gt;&gt;Pager: BEGIN IMMEDIATE
+    SQL-&gt;&gt;Pager: UPDATE account(id=1)
+    SQL-&gt;&gt;Pager: UPDATE account(id=2)
+    SQL-&gt;&gt;Pager: INSERT transfer_log
+    Note over Pager: 生成数据库脏页集合
+    SQL-&gt;&gt;Pager: COMMIT
+    Pager-&gt;&gt;IO: START_ATOMIC_WRITE
+    IO-&gt;&gt;Cow: 创建或复用临时 inode
+    IO-&gt;&gt;Meta: 保存原大小，设置 FI_ATOMIC_FILE
+    IO--&gt;&gt;Pager: 返回 0
+    loop pager_write_pagelist 写出每个脏页
+        Pager-&gt;&gt;Cache: pwrite(数据库文件, 页内容, 页偏移)
+        Cache-&gt;&gt;Cow: 查询或预留 COW 块映射
+        Cache-&gt;&gt;Cache: 标脏并设置 atomic folio
+    end
+    opt 提交前发生数据写回
+        Cache-&gt;&gt;Cow: 使用 COW dnode
+        Cow-&gt;&gt;Disk: OPU 写入新块
+        Note over Meta: 原文件持久映射尚未提交
+    end
+    alt 所有页写入成功
+        Pager-&gt;&gt;IO: COMMIT_ATOMIC_WRITE
+        IO-&gt;&gt;Cache: filemap_write_and_wait_range
+        Cache-&gt;&gt;Cow: 写出剩余 atomic folio
+        Cow-&gt;&gt;Disk: OPU 写入并等待完成
+        IO-&gt;&gt;Meta: __f2fs_commit_atomic_write
+        loop COW 中的有效逻辑块
+            Cow-&gt;&gt;Meta: 转交新块映射，保存旧地址用于撤销
+            Cow-&gt;&gt;Cow: 清除已转交的映射
+        end
+        IO-&gt;&gt;Meta: f2fs_do_sync_file(atomic=true)
+        Meta-&gt;&gt;Disk: 同步恢复信息，必要时执行 checkpoint
+        IO-&gt;&gt;Meta: f2fs_abort_atomic_write(clean=false)
+        Note over Meta: 成功收尾，保留已提交内容
+        IO--&gt;&gt;Pager: 返回 0
+        Pager--&gt;&gt;SQL: COMMIT 成功
+    else 写入或提交失败
+        Pager-&gt;&gt;IO: ROLLBACK_ATOMIC_WRITE
+        IO-&gt;&gt;Cache: 清理事务缓存
+        IO-&gt;&gt;Meta: 清除原子状态，恢复原大小
+        Note over Meta: 保留原数据映射
+        Pager--&gt;&gt;SQL: 返回事务错误
+    end
+</code></pre>
+
+<p>COW_WRITE 之后，新数据已经有块设备地址，但还不等于事务提交。映射转交也不是一条硬件原子指令：文件系统还依赖同步、node 恢复信息和持久化顺序。源码的 node 写入路径包含 REQ_PREFLUSH &#x2F; REQ_FUA 处理；本次提交后重启实际观察到了 fsynced dnode 的 roll-forward 恢复。</p>
+<p>这里讨论的是掉电恢复语义，不是为其他进程提供数据库隔离。SQLite 仍需要自己的锁和事务控制。F2FS checkpoint 与 SQLite WAL checkpoint 也是不同机制，本程序没有采用 WAL。</p>
+<p>涉及的主要源码文件是 <code>file.c</code>、<code>data.c</code>、<code>segment.c</code> 和 <code>node.c</code>。</p>
+<h2 id="2-具体代码逻辑"><a href="#2-具体代码逻辑" class="headerlink" title="2. 具体代码逻辑"></a>2. 具体代码逻辑</h2><p>下面按一次普通 START → 写页 → COMMIT 展开，代码片段取自本次实际测试的源码。省略处只在文字中说明，不把简化流程当作完整函数。</p>
+<h3 id="2-1-初始化原子写"><a href="#2-1-初始化原子写" class="headerlink" title="2.1 初始化原子写"></a>2.1 初始化原子写</h3><p><code>f2fs_ioc_start_atomic_write()</code> 先检查写权限、文件类型及 <code>O_DIRECT</code> 等条件，再通过 <code>filemap_write_and_wait_range()</code> 清理原文件此前的普通脏页，避免把旧写入混入新事务。</p>
+<p>没有 COW inode 时创建临时文件，并建立它与原 inode 的关联：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 为本次原子写创建一个没有目录项的 COW inode。 */</span><br>	ret = f2fs_get_tmpfile(idmap, dir, &amp;fi-&gt;cow_inode);<br>	<span class="hljs-keyword">if</span> (ret)<br>		<span class="hljs-keyword">goto</span> out_unlock;<br><br><span class="hljs-comment">/* COW inode 只保存事务新块，不使用 inline data。 */</span><br>	set_inode_flag(fi-&gt;cow_inode, FI_COW_FILE);<br>	clear_inode_flag(fi-&gt;cow_inode, FI_INLINE_DATA);<br><br>	<span class="hljs-comment">/* 建立反向关系，写回时可由 COW inode 找到原数据库 inode。 */</span><br>	F2FS_I(fi-&gt;cow_inode)-&gt;<span class="hljs-type">atomic_inode</span> = inode;<br></code></pre></td></tr></table></figure>
+
+<p>已有 COW inode 时，代码清理其旧缓存和块映射后复用。随后设置 FI_ATOMIC_FILE，保存 original_i_size，并让 COW inode 的大小与原文件一致。这里记录的是事务起点的状态，没有复制整个数据库文件。普通 START 的 truncate&#x3D;false；本程序没有使用 ATOMIC_REPLACE。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 从这一刻起，后续写入按 atomic folio 处理。 */</span><br>set_inode_flag(inode, FI_ATOMIC_FILE);<br><br><span class="hljs-comment">/* 保存事务开始时的文件大小，取消事务时用它回退扩展写。 */</span><br>isize = i_size_read(inode);<br>fi-&gt;original_i_size = isize;<br><br><span class="hljs-comment">/* COW inode 采用相同的逻辑地址范围，但不复制原文件数据块。 */</span><br>f2fs_i_size_write(fi-&gt;cow_inode, isize);<br>fi-&gt;atomic_write_task = current;<br>fi-&gt;atomic_write_cnt = <span class="hljs-number">0</span>;<br></code></pre></td></tr></table></figure>
+
+<p>三个字段分别承担不同职责：FI_ATOMIC_FILE 表示原文件处于原子写事务；cow_inode 保存事务新块映射；original_i_size 用于取消后恢复文件大小。</p>
+<h3 id="2-2-页面写入与-COW-写回"><a href="#2-2-页面写入与-COW-写回" class="headerlink" title="2.2 页面写入与 COW 写回"></a>2.2 页面写入与 COW 写回</h3><p><code>prepare_atomic_write_begin()</code> 按文件逻辑页索引寻找 COW 块。若已经预留或写过该页，则复用 COW 映射并设置 <code>use_cow</code>；否则查询原文件块，为 COW 预留新块。原块地址可用于部分页写入时读取未修改的旧内容。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 同一逻辑页在本事务中已经写过时，继续使用现有 COW 映射。 */</span><br>err = __find_data_block(cow_inode, index, blk_addr);<br><span class="hljs-keyword">if</span> (err) &#123;<br>	<span class="hljs-keyword">return</span> err;<br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (*blk_addr != NULL_ADDR) &#123;<br>	*use_cow = <span class="hljs-literal">true</span>;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">reserve_block:<br><span class="hljs-comment">/* 首次修改这个逻辑页：在 COW inode 中预留新块。 */</span><br>err = __reserve_data_block(cow_inode, index, blk_addr, node_changed);<br><span class="hljs-keyword">if</span> (err)<br>	<span class="hljs-keyword">return</span> err;<br><br><span class="hljs-comment">/* 计数的是新预留的文件系统块，不是 pwrite() 调用次数。 */</span><br>inc_atomic_write_cnt(inode);<br><br><span class="hljs-comment">/* 部分页写入仍可从原块读出未覆盖的字节。 */</span><br><span class="hljs-keyword">if</span> (ori_blk_addr != NULL_ADDR)<br>	*blk_addr = ori_blk_addr;<br><span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br></code></pre></td></tr></table></figure>
+
+<p>inc_atomic_write_cnt 在新预留处增加计数。因此本次重复写同一页没有增加不同逻辑块数量；它不是 pwrite 调用计数。</p>
+<p>复制完成后，<code>f2fs_write_end()</code> 先调用 <code>folio_mark_dirty()</code>，再对原子文件设置 <code>folio_set_f2fs_atomic()</code>。扩展文件时更新原 inode 和 COW inode 的内存大小，<code>original_i_size</code> 仍保留事务起始值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 数据已经进入原文件的 page cache，先按普通 folio 标脏。 */</span><br>folio_mark_dirty(folio);<br><br><span class="hljs-keyword">if</span> (f2fs_is_atomic_file(inode)) &#123;<br>	<span class="hljs-comment">/* 这个标志使后续写回改用 COW inode 的 dnode。 */</span><br>	folio_set_f2fs_atomic(folio);<br>	f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;WRITE_END pos=%lld copied=%u index=%lu&quot;</span>,<br>			pos, copied, folio-&gt;index);<br>&#125;<br><br><span class="hljs-keyword">if</span> (pos + copied &gt; i_size_read(inode) &amp;&amp;<br>    !f2fs_verity_in_progress(inode)) &#123;<br>	<span class="hljs-comment">/* 扩展写同时推进两个 inode 的内存大小；取消时再恢复原大小。 */</span><br>	f2fs_i_size_write(inode, pos + copied);<br>	<span class="hljs-keyword">if</span> (f2fs_is_atomic_file(inode))<br>		f2fs_i_size_write(F2FS_I(inode)-&gt;cow_inode,<br>				pos + copied);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>真正写回时，<code>f2fs_do_write_data_page()</code> 选择映射所属 inode：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* atomic folio 的数据块地址记录到 COW inode，而不是原数据库 inode。 */</span><br><span class="hljs-type">atomic_commit</span> = f2fs_is_atomic_file(inode) &amp;&amp;<br>			folio_test_f2fs_atomic(folio);<br><span class="hljs-keyword">if</span> (<span class="hljs-type">atomic_commit</span>)<br>	set_new_dnode(&amp;dn, F2FS_I(inode)-&gt;cow_inode, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>);<br><span class="hljs-keyword">else</span><br>	set_new_dnode(&amp;dn, inode, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
+
+<p>这里的 atomic_commit 是局部条件变量，表示“当前 folio 应使用 COW 映射”，不意味着用户此刻已经发出 COMMIT ioctl。数据仍在原文件的 page cache 中，改变的是写回时使用的 dnode。随后 f2fs_outplace_write_data 为 COW 写入新块；COMMIT 前的后台写回也可以走这条路径。</p>
+<h3 id="2-3-提交映射与同步"><a href="#2-3-提交映射与同步" class="headerlink" title="2.3 提交映射与同步"></a>2.3 提交映射与同步</h3><p><code>f2fs_commit_atomic_write()</code> 先等待原文件缓存中的事务数据写回：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 先把所有 atomic folio 写入 COW 新块并等待完成。 */</span><br>err = filemap_write_and_wait_range(inode-&gt;i_mapping, <span class="hljs-number">0</span>, LLONG_MAX);<br>f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;COW_WRITEBACK_DONE ret=%d&quot;</span>, err);<br><span class="hljs-keyword">if</span> (err)<br>	<span class="hljs-keyword">return</span> err;<br><br><span class="hljs-comment">/* 锁住 GC 和文件系统操作，避免转交映射时观察到中间状态。 */</span><br>f2fs_down_write(&amp;fi-&gt;i_gc_rwsem[WRITE]);<br>f2fs_lock_op(sbi, &amp;lc);<br><br>err = __f2fs_commit_atomic_write(inode);<br></code></pre></td></tr></table></figure>
+
+<p>数据完成后，__f2fs_commit_atomic_write 按逻辑索引扫描 COW 映射，跳过无有效数据块的条目，对有效块调用 __replace_atomic_write_block。随后清除该 COW 条目的地址，并把逻辑索引及旧地址挂入 revoke_list，用于当前提交阶段失败时的撤销。</p>
+<p><code>__replace_atomic_write_block()</code> 的核心操作是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 保存原数据库块地址，供本次提交失败时反向恢复。 */</span><br>*old_addr = dn.data_blkaddr;<br><br><span class="hljs-comment">/* 从原 inode 移除旧映射，并把 COW 块的有效块归属转给原 inode。 */</span><br>f2fs_truncate_data_blocks_range(&amp;dn, <span class="hljs-number">1</span>);<br>dec_valid_block_count(sbi, F2FS_I(inode)-&gt;cow_inode, count);<br><br><span class="hljs-comment">/* new_addr 已有新页内容；这里转交映射，不再复制页数据。 */</span><br>f2fs_replace_block(sbi, &amp;dn, dn.data_blkaddr, new_addr,<br>			ni.version, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>);<br></code></pre></td></tr></table></figure>
+
+<p>此处 dn 属于原文件：保存原块地址，移除旧映射及相应计数，再将 new_addr 指向的新块交给原文件。新块内容此前已经在 COW 写回阶段写出，映射转交不要求再把整页数据复制一遍。映射成功后设置 FI_ATOMIC_COMMITTED，并将需要持久化的 inode 状态标脏。</p>
+<p>最后回到 <code>f2fs_ioc_commit_atomic_write()</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 第一阶段：写回 COW 数据，并把新块映射转交给原 inode。 */</span><br>ret = f2fs_commit_atomic_write(inode);<br>f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;COMMIT_MAP_DONE ret=%d&quot;</span>, ret);<br><span class="hljs-keyword">if</span> (!ret) &#123;<br>	<span class="hljs-comment">/* 第二阶段：持久化 node 和恢复边界。 */</span><br>	ret = f2fs_do_sync_file(filp, <span class="hljs-number">0</span>, LLONG_MAX, <span class="hljs-number">0</span>, <span class="hljs-literal">true</span>);<br>	f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;COMMIT_SYNC_DONE ret=%d&quot;</span>, ret);<br>&#125;<br><br><span class="hljs-comment">/* ret==0 时 clean=false，这是成功提交后的状态清理。 */</span><br>f2fs_abort_atomic_write(inode, ret);<br>f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;COMMIT_END ret=%d&quot;</span>, ret);<br></code></pre></td></tr></table></figure>
+
+<p>只有映射阶段返回 0 才继续原子同步。f2fs_do_sync_file(…, atomic&#x3D;true) 负责文件及恢复信息同步，可能走 fsync node 路径，也可能因条件需要走 checkpoint。<strong>COMMIT_MAP_DONE 只是映射阶段成功；应结合 COMMIT_SYNC_DONE 和 ioctl 最终返回值判断提交结果。</strong></p>
+<h3 id="2-4-取消与状态清理"><a href="#2-4-取消与状态清理" class="headerlink" title="2.4 取消与状态清理"></a>2.4 取消与状态清理</h3><p><code>f2fs_abort_atomic_write()</code> 的 <code>clean</code> 参数决定是否清理事务缓存并恢复文件大小。成功提交传入 <code>ret=0</code>，转换为 <code>clean=false</code>；显式 ABORT 传入 <code>true</code>。</p>
+<ul>
+<li>clean&#x3D;false：清除 FI_ATOMIC_FILE、FI_ATOMIC_COMMITTED 等状态，保留刚提交的数据和大小。</li>
+<li>clean&#x3D;true：先清理原文件页缓存，再把大小恢复为 original_i_size，避免未提交扩展成为最终文件大小。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* clean=true 表示取消或失败：先丢弃可能看到事务新内容的缓存。 */</span><br><span class="hljs-keyword">if</span> (clean)<br>	truncate_inode_pages_final(inode-&gt;i_mapping);<br><br>release_atomic_write_cnt(inode);<br>clear_inode_flag(inode, FI_ATOMIC_COMMITTED);<br>clear_inode_flag(inode, FI_ATOMIC_REPLACE);<br>clear_inode_flag(inode, FI_ATOMIC_FILE);<br><br><span class="hljs-keyword">if</span> (clean) &#123;<br>	<span class="hljs-comment">/* 未提交的扩展不能改变原数据库文件大小。 */</span><br>	f2fs_i_size_write(inode, fi-&gt;original_i_size);<br>	fi-&gt;original_i_size = <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>该函数同时承担成功收尾和取消清理，因此不能仅凭函数名判断回滚。提交映射阶段失败时还有 revoke_list 撤销路径，错误处理不能简化为“调用 abort 就一定撤销所有持久化操作”。本次验证的是正常提交、显式取消及单打开实例的未提交关闭，没有注入映射或同步错误。</p>
+<h2 id="3-实验"><a href="#3-实验" class="headerlink" title="3. 实验"></a>3. 实验</h2><h3 id="3-1-测试程序"><a href="#3-1-测试程序" class="headerlink" title="3.1 测试程序"></a>3.1 测试程序</h3><p>本实验模拟 SQLite Pager 的文件 I&#x2F;O 事务协议，不执行 SQL，也不生成可由 SQLite 打开的数据库。程序使用单进程和整个文件的 POSIX 写锁，验证页写入、提交与取消；不模拟 B-tree、并发读者及 SQLite 的日志回退。</p>
+<p>每个文件初始化 8 页，写入 generation&#x3D;0 的确定性数据，并 fsync 文件和父目录，建立持久化基线。每页包含校验用页号、代数和尺寸，其余字节也按确定规则填充。验证比较完整页面内容和文件大小，不只比较头部标记。</p>
+<p>事务修改程序页索引 0、2、5，类比数据库头、表数据、索引页；然后重复写一次索引 2。程序页索引从 0 开始，类比 SQLite 页号 1、3、6，偏移为 index × page_size。</p>
+<p>完整测试程序如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* Synthetic SQLite-style pager workload, not a valid SQLite database. */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> _GNU_SOURCE</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;errno.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;inttypes.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/f2fs.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/magic.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/ioctl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/stat.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/vfs.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NPAGES 8</span><br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">die</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *operation)</span><br>&#123;<br>	perror(operation);<br>	<span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>&#125;<br><br><span class="hljs-comment">/* 页号、代数和页大小写入页头，其余字节使用确定性模式填充。 */</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">page_image</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *buffer, <span class="hljs-type">size_t</span> size,</span><br><span class="hljs-params">			       <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> page, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> generation)</span><br>&#123;<br>	<span class="hljs-type">uint64_t</span> header[<span class="hljs-number">4</span>] = &#123;<br>		UINT64_C(<span class="hljs-number">0x41544f4d49434c42</span>), page, generation, size<br>	&#125;;<br>	<span class="hljs-type">size_t</span> i;<br><br>	<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; size; i++)<br>		buffer[i] = (<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span>)((i * <span class="hljs-number">17</span> + page * <span class="hljs-number">31</span> +<br>				generation * <span class="hljs-number">73</span>) ^ <span class="hljs-number">0xa5</span>);<br>	<span class="hljs-built_in">memcpy</span>(buffer, header, <span class="hljs-keyword">sizeof</span>(header));<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">open_db</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *path, <span class="hljs-type">int</span> flags)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">flock</span> <span class="hljs-title">lock</span> =</span> &#123;<br>		.l_type = F_WRLCK,<br>		.l_whence = SEEK_SET,<br>	&#125;;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">statfs</span> <span class="hljs-title">statfs_buffer</span>;</span><br>	<span class="hljs-type">int</span> fd;<br><br>	fd = open(path, flags | O_CLOEXEC, <span class="hljs-number">0600</span>);<br>	<span class="hljs-keyword">if</span> (fd &lt; <span class="hljs-number">0</span>)<br>		die(<span class="hljs-string">&quot;open&quot;</span>);<br><br>	<span class="hljs-comment">/* 防止程序误写到非 F2FS 文件系统。 */</span><br>	<span class="hljs-keyword">if</span> (fstatfs(fd, &amp;statfs_buffer))<br>		die(<span class="hljs-string">&quot;fstatfs&quot;</span>);<br>	<span class="hljs-keyword">if</span> ((<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>)statfs_buffer.f_type != F2FS_SUPER_MAGIC) &#123;<br>		<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>, <span class="hljs-string">&quot;FAIL: target must be F2FS\n&quot;</span>);<br>		<span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (fcntl(fd, F_SETLK, &amp;lock))<br>		die(<span class="hljs-string">&quot;lock&quot;</span>);<br>	<span class="hljs-keyword">return</span> fd;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">write_page</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">size_t</span> size, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> page,</span><br><span class="hljs-params">			       <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> generation)</span><br>&#123;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *buffer;<br>	<span class="hljs-type">size_t</span> done = <span class="hljs-number">0</span>;<br><br>	buffer = <span class="hljs-built_in">malloc</span>(size);<br>	<span class="hljs-keyword">if</span> (!buffer)<br>		die(<span class="hljs-string">&quot;malloc&quot;</span>);<br>	page_image(buffer, size, page, generation);<br><br>	<span class="hljs-keyword">while</span> (done &lt; size) &#123;<br>		<span class="hljs-type">ssize_t</span> written = pwrite(fd, buffer + done, size - done,<br>					 (<span class="hljs-type">off_t</span>)page * size + done);<br><br>		<span class="hljs-keyword">if</span> (written &lt; <span class="hljs-number">0</span> &amp;&amp; errno == EINTR)<br>			<span class="hljs-keyword">continue</span>;<br>		<span class="hljs-keyword">if</span> (written &lt;= <span class="hljs-number">0</span>)<br>			die(<span class="hljs-string">&quot;pwrite&quot;</span>);<br>		done += (<span class="hljs-type">size_t</span>)written;<br>	&#125;<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;WRITE pg=%u offset=%zu bytes=%zu generation=%u\n&quot;</span>,<br>	       page, page * size, size, generation);<br>	<span class="hljs-built_in">free</span>(buffer);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">init_db</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *path, <span class="hljs-type">size_t</span> size)</span><br>&#123;<br>	<span class="hljs-type">char</span> *directory;<br>	<span class="hljs-type">char</span> *slash;<br>	<span class="hljs-type">int</span> directory_fd;<br>	<span class="hljs-type">int</span> fd;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> page;<br><br>	fd = open_db(path, O_CREAT | O_EXCL | O_RDWR);<br>	<span class="hljs-keyword">for</span> (page = <span class="hljs-number">0</span>; page &lt; NPAGES; page++)<br>		write_page(fd, size, page, <span class="hljs-number">0</span>);<br><br>	<span class="hljs-comment">/* 先建立可持久恢复的 generation=0 基线。 */</span><br>	<span class="hljs-keyword">if</span> (fsync(fd))<br>		die(<span class="hljs-string">&quot;baseline fsync&quot;</span>);<br>	<span class="hljs-keyword">if</span> (close(fd))<br>		die(<span class="hljs-string">&quot;close&quot;</span>);<br><br>	directory = strdup(path);<br>	<span class="hljs-keyword">if</span> (!directory)<br>		die(<span class="hljs-string">&quot;strdup&quot;</span>);<br>	slash = <span class="hljs-built_in">strrchr</span>(directory, <span class="hljs-string">&#x27;/&#x27;</span>);<br>	<span class="hljs-keyword">if</span> (!slash)<br>		<span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>	*slash = <span class="hljs-string">&#x27;\0&#x27;</span>;<br><br>	directory_fd = open(directory, O_RDONLY | O_DIRECTORY);<br>	<span class="hljs-keyword">if</span> (directory_fd &lt; <span class="hljs-number">0</span>)<br>		die(<span class="hljs-string">&quot;open dir&quot;</span>);<br>	<span class="hljs-keyword">if</span> (fsync(directory_fd))<br>		die(<span class="hljs-string">&quot;directory fsync&quot;</span>);<br>	close(directory_fd);<br>	<span class="hljs-built_in">free</span>(directory);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;BASELINE_DURABLE path=%s page_size=%zu\n&quot;</span>, path, size);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">atomic_ioctl</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> request, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name)</span><br>&#123;<br>	<span class="hljs-type">int</span> saved_errno;<br>	<span class="hljs-type">int</span> ret;<br><br>	errno = <span class="hljs-number">0</span>;<br>	ret = ioctl(fd, request);<br>	saved_errno = errno;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;IOCTL %s ret=%d errno=%d\n&quot;</span>, name, ret, saved_errno);<br>	<span class="hljs-keyword">if</span> (ret) &#123;<br>		errno = saved_errno;<br>		die(name);<br>	&#125;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">verify</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *path, <span class="hljs-type">size_t</span> size, <span class="hljs-type">int</span> committed)</span><br>&#123;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *actual;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *expected;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">stat_buffer</span>;</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> page;<br>	<span class="hljs-type">int</span> fd;<br><br>	fd = open_db(path, O_RDWR);<br>	<span class="hljs-keyword">if</span> (fstat(fd, &amp;stat_buffer))<br>		die(<span class="hljs-string">&quot;fstat&quot;</span>);<br>	<span class="hljs-keyword">if</span> (stat_buffer.st_size != (<span class="hljs-type">off_t</span>)(NPAGES * size)) &#123;<br>		<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>, <span class="hljs-string">&quot;FAIL size=%jd\n&quot;</span>,<br>			(<span class="hljs-type">intmax_t</span>)stat_buffer.st_size);<br>		<span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>	&#125;<br><br>	actual = <span class="hljs-built_in">malloc</span>(size);<br>	expected = <span class="hljs-built_in">malloc</span>(size);<br>	<span class="hljs-keyword">if</span> (!actual || !expected)<br>		die(<span class="hljs-string">&quot;malloc&quot;</span>);<br><br>	<span class="hljs-keyword">for</span> (page = <span class="hljs-number">0</span>; page &lt; NPAGES; page++) &#123;<br>		<span class="hljs-comment">/* 只有成功提交时，页 0、2、5 才应为 generation=1。 */</span><br>		<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> generation = committed &amp;&amp;<br>			(page == <span class="hljs-number">0</span> || page == <span class="hljs-number">2</span> || page == <span class="hljs-number">5</span>);<br>		<span class="hljs-type">size_t</span> done = <span class="hljs-number">0</span>;<br><br>		page_image(expected, size, page, generation);<br>		<span class="hljs-keyword">while</span> (done &lt; size) &#123;<br>			<span class="hljs-type">ssize_t</span> read_bytes = pread(fd, actual + done,<br>						   size - done,<br>						   (<span class="hljs-type">off_t</span>)page * size + done);<br><br>			<span class="hljs-keyword">if</span> (read_bytes &lt; <span class="hljs-number">0</span> &amp;&amp; errno == EINTR)<br>				<span class="hljs-keyword">continue</span>;<br>			<span class="hljs-keyword">if</span> (read_bytes &lt;= <span class="hljs-number">0</span>)<br>				die(<span class="hljs-string">&quot;pread&quot;</span>);<br>			done += (<span class="hljs-type">size_t</span>)read_bytes;<br>		&#125;<br>		<span class="hljs-keyword">if</span> (<span class="hljs-built_in">memcmp</span>(actual, expected, size)) &#123;<br>			<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>,<br>				<span class="hljs-string">&quot;FAIL page=%u expected_generation=%u\n&quot;</span>,<br>				page, generation);<br>			<span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-built_in">free</span>(actual);<br>	<span class="hljs-built_in">free</span>(expected);<br>	close(fd);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;VERIFY_PASS path=%s page_size=%zu committed=%d pages=%d\n&quot;</span>,<br>	       path, size, committed, NPAGES);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">transaction</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *path, <span class="hljs-type">size_t</span> size, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *action)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">stat</span> <span class="hljs-title">stat_buffer</span>;</span><br>	<span class="hljs-type">int</span> fd = open_db(path, O_RDWR);<br><br>	<span class="hljs-keyword">if</span> (fstat(fd, &amp;stat_buffer))<br>		die(<span class="hljs-string">&quot;fstat&quot;</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;TX_BEGIN action=%s inode=%ju page_size=%zu\n&quot;</span>,<br>	       action, (<span class="hljs-type">uintmax_t</span>)stat_buffer.st_ino, size);<br><br>	<span class="hljs-comment">/* 模拟 SQLite Pager 的 BEGIN_ATOMIC_WRITE 文件控制操作。 */</span><br>	<span class="hljs-type">atomic_ioctl</span>(fd, F2FS_IOC_START_ATOMIC_WRITE, <span class="hljs-string">&quot;START&quot;</span>);<br><br>	<span class="hljs-comment">/* 页 0、2、5 分别模拟数据库头页、表页和索引页。 */</span><br>	write_page(fd, size, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);<br>	write_page(fd, size, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>);<br>	write_page(fd, size, <span class="hljs-number">5</span>, <span class="hljs-number">1</span>);<br>	write_page(fd, size, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>); <span class="hljs-comment">/* 重复写同一逻辑页。 */</span><br><br>	<span class="hljs-comment">/* 用 EOF 后的额外页面验证取消时文件大小也能恢复。 */</span><br>	<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strcmp</span>(action, <span class="hljs-string">&quot;abort&quot;</span>) || !<span class="hljs-built_in">strcmp</span>(action, <span class="hljs-string">&quot;close&quot;</span>))<br>		write_page(fd, size, NPAGES, <span class="hljs-number">1</span>);<br><br>	<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strcmp</span>(action, <span class="hljs-string">&quot;pre-crash&quot;</span>)) &#123;<br>		<span class="hljs-comment">/* 只促使 COW 数据写回，不提交原文件块映射。 */</span><br>		<span class="hljs-keyword">if</span> (sync_file_range(fd, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>,<br>			SYNC_FILE_RANGE_WAIT_BEFORE |<br>			SYNC_FILE_RANGE_WRITE |<br>			SYNC_FILE_RANGE_WAIT_AFTER))<br>			die(<span class="hljs-string">&quot;COW writeback&quot;</span>);<br>		<span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;COW_WRITEBACK_REQUEST_DONE&quot;</span>);<br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strcmp</span>(action, <span class="hljs-string">&quot;abort&quot;</span>)) &#123;<br>		<span class="hljs-type">atomic_ioctl</span>(fd, F2FS_IOC_ABORT_ATOMIC_WRITE, <span class="hljs-string">&quot;ABORT&quot;</span>);<br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-built_in">strcmp</span>(action, <span class="hljs-string">&quot;close&quot;</span>)) &#123;<br>		<span class="hljs-type">atomic_ioctl</span>(fd, F2FS_IOC_COMMIT_ATOMIC_WRITE, <span class="hljs-string">&quot;COMMIT&quot;</span>);<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strcmp</span>(action, <span class="hljs-string">&quot;pre-crash&quot;</span>) ||<br>	    !<span class="hljs-built_in">strcmp</span>(action, <span class="hljs-string">&quot;post-crash&quot;</span>)) &#123;<br>		<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;CRASH_READY action=%s\n&quot;</span>, action);<br>		<span class="hljs-keyword">for</span> (;;)<br>			pause(); <span class="hljs-comment">/* Host 在标记出现后终止专用 QEMU。 */</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (close(fd))<br>		die(<span class="hljs-string">&quot;close&quot;</span>);<br>	verify(path, size, !<span class="hljs-built_in">strcmp</span>(action, <span class="hljs-string">&quot;commit&quot;</span>));<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv)</span><br>&#123;<br>	<span class="hljs-type">const</span> <span class="hljs-type">char</span> *actions[] = &#123; <span class="hljs-string">&quot;commit&quot;</span>, <span class="hljs-string">&quot;abort&quot;</span>, <span class="hljs-string">&quot;close&quot;</span> &#125;;<br>	<span class="hljs-type">const</span> <span class="hljs-type">size_t</span> sizes[] = &#123; <span class="hljs-number">4096</span>, <span class="hljs-number">16384</span> &#125;;<br>	<span class="hljs-type">char</span> path[<span class="hljs-number">4096</span>];<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> action;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> size_index;<br><br>	setvbuf(<span class="hljs-built_in">stdout</span>, <span class="hljs-literal">NULL</span>, _IONBF, <span class="hljs-number">0</span>);<br>	<span class="hljs-keyword">if</span> (argc != <span class="hljs-number">3</span>) &#123;<br>		<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>,<br>			<span class="hljs-string">&quot;usage: %s suite|verify-suite|pre-crash|post-crash|&quot;</span><br>			<span class="hljs-string">&quot;verify-old|verify-new MOUNTDIR\n&quot;</span>,<br>			argv[<span class="hljs-number">0</span>]);<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">2</span>;<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strcmp</span>(argv[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;suite&quot;</span>) ||<br>	    !<span class="hljs-built_in">strcmp</span>(argv[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;verify-suite&quot;</span>)) &#123;<br>		<span class="hljs-keyword">for</span> (size_index = <span class="hljs-number">0</span>; size_index &lt; <span class="hljs-number">2</span>; size_index++) &#123;<br>			<span class="hljs-keyword">for</span> (action = <span class="hljs-number">0</span>; action &lt; <span class="hljs-number">3</span>; action++) &#123;<br>				<span class="hljs-type">int</span> length = <span class="hljs-built_in">snprintf</span>(path, <span class="hljs-keyword">sizeof</span>(path),<br>					<span class="hljs-string">&quot;%s/%s-%zu.db&quot;</span>, argv[<span class="hljs-number">2</span>],<br>					actions[action], sizes[size_index]);<br><br>				<span class="hljs-keyword">if</span> (length &lt; <span class="hljs-number">0</span> || (<span class="hljs-type">size_t</span>)length &gt;= <span class="hljs-keyword">sizeof</span>(path))<br>					<span class="hljs-keyword">return</span> <span class="hljs-number">2</span>;<br>				<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strcmp</span>(argv[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;suite&quot;</span>)) &#123;<br>					init_db(path, sizes[size_index]);<br>					transaction(path, sizes[size_index],<br>						    actions[action]);<br>				&#125; <span class="hljs-keyword">else</span> &#123;<br>					verify(path, sizes[size_index], action == <span class="hljs-number">0</span>);<br>				&#125;<br>			&#125;<br>		&#125;<br>		<span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;ALL_PASS&quot;</span>);<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> (<span class="hljs-built_in">snprintf</span>(path, <span class="hljs-keyword">sizeof</span>(path), <span class="hljs-string">&quot;%s/crash.db&quot;</span>, argv[<span class="hljs-number">2</span>]) &gt;=<br>	    (<span class="hljs-type">int</span>)<span class="hljs-keyword">sizeof</span>(path))<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">2</span>;<br><br>	<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strcmp</span>(argv[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;verify-old&quot;</span>)) &#123;<br>		verify(path, <span class="hljs-number">4096</span>, <span class="hljs-number">0</span>);<br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strcmp</span>(argv[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;verify-new&quot;</span>)) &#123;<br>		verify(path, <span class="hljs-number">4096</span>, <span class="hljs-number">1</span>);<br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strcmp</span>(argv[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;pre-crash&quot;</span>) ||<br>		   !<span class="hljs-built_in">strcmp</span>(argv[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;post-crash&quot;</span>)) &#123;<br>		init_db(path, <span class="hljs-number">4096</span>);<br>		transaction(path, <span class="hljs-number">4096</span>, argv[<span class="hljs-number">1</span>]);<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">2</span>;<br>	&#125;<br><br>	<span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;ALL_PASS&quot;</span>);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>程序检查 ioctl 返回值，处理短读写和 <code>EINTR</code>，验证目标必须为 F2FS，并使用 <code>O_EXCL</code> 防止覆盖已有测试文件。</p>
+<table>
+<thead>
+<tr>
+<th>结束方式</th>
+<th>程序行为与校验</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>提交</td>
+<td>COMMIT 成功后关闭、重开；三个指定页为 generation&#x3D;1，其余页保持 0</td>
+</tr>
+<tr>
+<td>取消及关闭</td>
+<td>额外在 EOF 后写一页，再 ABORT 或直接 close；检查所有旧页和原大小恢复</td>
+</tr>
+<tr>
+<td>提交边界中断</td>
+<td>START 后写页；提交前等待 COW 数据写回，或 COMMIT 返回成功后等待；Host 看到标记后 SIGKILL 本次 QEMU，再启动验证</td>
+</tr>
+</tbody></table>
+<p>提交前中断组特意执行 sync_file_range(WAIT_BEFORE | WRITE | WAIT_AFTER)，是为了证明“即使 COW 新数据已经写出，仍未提交”。这是诊断探针，不是宣称 SQLite 平常必定如此调用，也不把 sync_file_range 当作 fsync。提交后中断组在 COMMIT 返回后没有额外 fsync、close 或卸载。</p>
+<p>SIGKILL 只作用于脚本创建的 QEMU 子进程，不是杀服务器或已有进程。程序输出 CRASH_READY 后暂停，脚本检测周期为 0.2 秒；因此测试的是 COMMIT 前后明确边界，不是精确中断提交内部某条指令。</p>
+<h3 id="3-2-维测日志"><a href="#3-2-维测日志" class="headerlink" title="3.2 维测日志"></a>3.2 维测日志</h3><p>补丁只增加默认关闭的日志，不修改原子写的判断和数据路径。修改五个文件，共 38 行新增、2 行删除；通过内核编译和 checkpatch（0 errors、0 warnings）。</p>
+<p>维测开关及日志宏如下。模块参数默认为 0，不开启时不会输出逐页日志。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* super.c：提供启动参数 f2fs.atomic_debug=1 和 sysfs 动态开关。 */</span><br><span class="hljs-type">bool</span> f2fs_atomic_debug;<br>module_param_named(<span class="hljs-type">atomic_debug</span>, f2fs_atomic_debug, <span class="hljs-type">bool</span>, <span class="hljs-number">0644</span>);<br>MODULE_PARM_DESC(<span class="hljs-type">atomic_debug</span>,<br>		 <span class="hljs-string">&quot;Log atomic-write lifecycle and COW block mappings&quot;</span>);<br><br><span class="hljs-comment">/* f2fs.h：所有维测信息使用原数据库 inode 作为关联键。 */</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">bool</span> f2fs_atomic_debug;<br><span class="hljs-meta">#<span class="hljs-keyword">define</span> f2fs_atomic_dbg(inode, fmt, ...)                              \</span><br><span class="hljs-meta">do &#123;                                                                  \</span><br><span class="hljs-meta">	<span class="hljs-keyword">if</span> (READ_ONCE(f2fs_atomic_debug))                               \</span><br><span class="hljs-meta">		f2fs_info(F2FS_I_SB(inode),                               \</span><br><span class="hljs-meta">			  <span class="hljs-string">&quot;atomic_lab ino=%llu &quot;</span> fmt,                         \</span><br><span class="hljs-meta">			  (unsigned long long)(inode)-&gt;i_ino, ##__VA_ARGS__); \</span><br><span class="hljs-meta">&#125; while (0)</span><br></code></pre></td></tr></table></figure>
+
+<p>在 <code>file.c</code> 的 START 成功点和 COMMIT 主阶段记录事务边界：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* START 已完成 COW inode、文件大小和原子状态初始化。 */</span><br>f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;START cow=%llu size=%lld replace=%d&quot;</span>,<br>		(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span>)fi-&gt;cow_inode-&gt;i_ino, isize, truncate);<br><br><span class="hljs-comment">/* COMMIT 分别记录映射转交和持久化同步结果。 */</span><br>f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;COMMIT_BEGIN cow=%llu blocks=%u&quot;</span>,<br>		(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span>)F2FS_I(inode)-&gt;cow_inode-&gt;i_ino,<br>		F2FS_I(inode)-&gt;atomic_write_cnt);<br>ret = f2fs_commit_atomic_write(inode);<br>f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;COMMIT_MAP_DONE ret=%d&quot;</span>, ret);<br><span class="hljs-keyword">if</span> (!ret) &#123;<br>	ret = f2fs_do_sync_file(filp, <span class="hljs-number">0</span>, LLONG_MAX, <span class="hljs-number">0</span>, <span class="hljs-literal">true</span>);<br>	f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;COMMIT_SYNC_DONE ret=%d&quot;</span>, ret);<br>&#125;<br>f2fs_abort_atomic_write(inode, ret);<br>f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;COMMIT_END ret=%d&quot;</span>, ret);<br></code></pre></td></tr></table></figure>
+
+<p>在 <code>data.c</code> 中记录进入缓存的页以及写到 COW 的新块：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* f2fs_write_end()：一次用户页写入已经进入 page cache。 */</span><br><span class="hljs-keyword">if</span> (f2fs_is_atomic_file(inode)) &#123;<br>	folio_set_f2fs_atomic(folio);<br>	f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;WRITE_END pos=%lld copied=%u index=%lu&quot;</span>,<br>			pos, copied, folio-&gt;index);<br>&#125;<br><br><span class="hljs-comment">/* f2fs_do_write_data_page()：只在 atomic folio 的 COW OPU 后记录地址。 */</span><br>f2fs_outplace_write_data(&amp;dn, fio);<br><span class="hljs-keyword">if</span> (<span class="hljs-type">atomic_commit</span>)<br>	f2fs_atomic_dbg(inode,<br>		<span class="hljs-string">&quot;COW_WRITE cow=%llu index=%lu old=%u new=%u&quot;</span>,<br>		(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-type">long</span>)F2FS_I(inode)-&gt;cow_inode-&gt;i_ino,<br>		folio-&gt;index, fio-&gt;old_blkaddr, fio-&gt;new_blkaddr);<br></code></pre></td></tr></table></figure>
+
+<p>在 <code>segment.c</code> 中记录数据写回、映射转交和最后清理：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 等待 COW 页写回的返回值。 */</span><br>err = filemap_write_and_wait_range(inode-&gt;i_mapping, <span class="hljs-number">0</span>, LLONG_MAX);<br>f2fs_atomic_dbg(inode, <span class="hljs-string">&quot;COW_WRITEBACK_DONE ret=%d&quot;</span>, err);<br><br><span class="hljs-comment">/* 每个有效 COW 块转交给原 inode 后记录新旧地址。 */</span><br>f2fs_atomic_dbg(inode,<br>		<span class="hljs-string">&quot;MAP_REPLACE index=%lu old=%u new=%u recover=%d&quot;</span>,<br>		index, old_addr ? *old_addr : <span class="hljs-number">0</span>, new_addr, recover);<br><br><span class="hljs-comment">/* 区分成功收尾 clean=0 与取消清理 clean=1。 */</span><br>f2fs_atomic_dbg(inode,<br>		<span class="hljs-string">&quot;CLEANUP clean=%d committed=%d size=%lld original=%lld&quot;</span>,<br>		clean, is_inode_flag_set(inode, FI_ATOMIC_COMMITTED),<br>		i_size_read(inode), fi-&gt;original_i_size);<br></code></pre></td></tr></table></figure>
+
+<p>启用方式：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 内核启动参数：本次 QEMU 使用此方式</span><br>f2fs.atomic_debug=1<br><br><span class="hljs-comment"># Guest 中动态打开或关闭；默认值为 0</span><br> <span class="hljs-built_in">echo</span> 1 &gt; /sys/module/f2fs/parameters/atomic_debug<br> <span class="hljs-built_in">echo</span> 0 &gt; /sys/module/f2fs/parameters/atomic_debug<br><br><span class="hljs-comment"># 查阅维测输出</span><br> dmesg | grep atomic_lab<br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>日志标记</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>START</td>
+<td>原文件 inode、cow inode、开始时大小和 replace 标志；仅在成功完成初始化处记录</td>
+</tr>
+<tr>
+<td>WRITE_END</td>
+<td>文件字节偏移、实际复制长度、4 KiB folio 索引；不表示设备写入完成</td>
+</tr>
+<tr>
+<td>COW_WRITE</td>
+<td>OPU 路径已分配&#x2F;提交的新地址；本身不是设备完成通知</td>
+</tr>
+<tr>
+<td>COMMIT_BEGIN</td>
+<td>进入原子提交时的 COW inode 及 atomic_write_cnt</td>
+</tr>
+<tr>
+<td>COW_WRITEBACK_DONE</td>
+<td>filemap_write_and_wait_range 返回值</td>
+</tr>
+<tr>
+<td>MAP_REPLACE</td>
+<td>原 inode 的逻辑块索引、原块地址、新块地址；recover&#x3D;1 表示撤销恢复方向</td>
+</tr>
+<tr>
+<td>COMMIT_MAP_DONE</td>
+<td>映射阶段返回值</td>
+</tr>
+<tr>
+<td>COMMIT_SYNC_DONE</td>
+<td>原子同步返回值</td>
+</tr>
+<tr>
+<td>CLEANUP</td>
+<td>clean、committed、当前大小与原大小</td>
+</tr>
+<tr>
+<td>COMMIT_END</td>
+<td>此原子提交分支最终返回值</td>
+</tr>
+</tbody></table>
+<p>日志以设备名和原文件 inode 关联一次 START&#x2F;COMMIT，不打印数据库内容。逐页日志可能很多，适合小规模维测，不用于性能基准；默认关闭，未添加故障注入。早期权限检查失败等路径不一定产生 START 日志，因此仍需检查用户态 ioctl 返回值。</p>
+<p>特别注意两个字段：</p>
+<ul>
+<li>COW_WRITE 的 old&#x3D;4294967295 是 NEW_ADDR（已预留但尚未有真实块地址），它来自 COW 映射，不是数据库原块。数据库的旧物理块应看 MAP_REPLACE.old。</li>
+<li>成功时 CLEANUP clean&#x3D;0 committed&#x3D;1 是保留提交结果并清除原子状态；ABORT 或本实验关闭时 clean&#x3D;1 committed&#x3D;0，才是清理未提交修改。</li>
+</ul>
+<h3 id="3-3-执行与结果"><a href="#3-3-执行与结果" class="headerlink" title="3.3 执行与结果"></a>3.3 执行与结果</h3><p>将 3.1 节的 C 代码保存为 atomic_txn.c。initramfs 的 &#x2F;init 内容如下，它从内核命令行读取测试模式、挂载 F2FS 镜像并运行测试程序：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-meta">#!/bin/busybox sh</span><br>/bin/busybox --install -s /bin<br>mount -t proc proc /proc<br>mount -t sysfs sysfs /sys<br>mount -t devtmpfs devtmpfs /dev<br><span class="hljs-built_in">mkdir</span> -p /mnt/test<br><br>MODE=suite<br><span class="hljs-keyword">for</span> arg <span class="hljs-keyword">in</span> $(<span class="hljs-built_in">cat</span> /proc/cmdline); <span class="hljs-keyword">do</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&quot;<span class="hljs-variable">$arg</span>&quot;</span> <span class="hljs-keyword">in</span><br>		atomic_mode=*) MODE=<span class="hljs-variable">$&#123;arg#atomic_mode=&#125;</span> ;;<br>	<span class="hljs-keyword">esac</span><br><span class="hljs-keyword">done</span><br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;GUEST_BEGIN mode=<span class="hljs-variable">$MODE</span>&quot;</span><br>mount -t f2fs -o background_gc=off,nodiscard /dev/vda /mnt/test ||<br>	poweroff -f<br><br>/bin/atomic_txn <span class="hljs-string">&quot;<span class="hljs-variable">$MODE</span>&quot;</span> /mnt/test<br>ret=$?<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;TEST_EXIT=<span class="hljs-variable">$ret</span>&quot;</span><br><span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;<span class="hljs-variable">$ret</span>&quot;</span> != 0 ]; <span class="hljs-keyword">then</span><br>	<span class="hljs-built_in">echo</span> GUEST_FAIL<br>	poweroff -f<br><span class="hljs-keyword">fi</span><br><br>umount /mnt/test || poweroff -f<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;GUEST_PASS mode=<span class="hljs-variable">$MODE</span>&quot;</span><br>poweroff -f<br></code></pre></td></tr></table></figure>
+
+<p>编译程序并构造 initramfs：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs sh">WORK=/root/f2fs-atomic-note-run<br>KERNEL_SRC=/root/fsnext-exfat/linux-next-fs<br>KERNEL_IMAGE=/root/kernel-build/next/arch/x86/boot/bzImage<br><br><span class="hljs-built_in">mkdir</span> -p <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs/bin&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs/dev&quot;</span> \<br>	<span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs/proc&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs/sys&quot;</span> \<br>	<span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs/mnt/test&quot;</span><br><br>gcc -O2 -Wall -Wextra -Werror -static \<br>	-I<span class="hljs-string">&quot;<span class="hljs-variable">$KERNEL_SRC</span>/include/uapi&quot;</span> atomic_txn.c -o <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/atomic_txn&quot;</span><br><span class="hljs-built_in">cp</span> /bin/busybox <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs/bin/&quot;</span><br><span class="hljs-built_in">cp</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/atomic_txn&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs/bin/&quot;</span><br><span class="hljs-built_in">cp</span> init <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs/init&quot;</span><br><span class="hljs-built_in">chmod</span> 755 <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs/init&quot;</span><br><br>(<span class="hljs-built_in">cd</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs&quot;</span> &amp;&amp;<br>	find . -print0 | cpio --null -o --format=newc | gzip -1) \<br>	&gt; <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs.cpio.gz&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>下面的函数使用一个全新的 F2FS 镜像启动 Guest。维测开关通过 f2fs.atomic_debug&#x3D;1 启用：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-function"><span class="hljs-title">run_guest</span></span>()<br>&#123;<br>	mode=<span class="hljs-variable">$1</span><br>	image=<span class="hljs-variable">$2</span><br>	<span class="hljs-built_in">log</span>=<span class="hljs-variable">$3</span><br><br>	qemu-system-x86_64 \<br>		-accel tcg -cpu max -m 1024 -smp 2 \<br>		-kernel <span class="hljs-string">&quot;<span class="hljs-variable">$KERNEL_IMAGE</span>&quot;</span> \<br>		-initrd <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/initramfs.cpio.gz&quot;</span> \<br>		-append <span class="hljs-string">&quot;console=ttyS0 rdinit=/init nokaslr loglevel=7 f2fs.atomic_debug=1 atomic_mode=<span class="hljs-variable">$mode</span>&quot;</span> \<br>		-drive <span class="hljs-string">&quot;file=<span class="hljs-variable">$image</span>,format=raw,if=virtio,cache=directsync&quot;</span> \<br>		-display none -serial stdio -monitor none -nic none -no-reboot \<br>		&gt; <span class="hljs-string">&quot;<span class="hljs-variable">$log</span>&quot;</span> 2&gt;&amp;1 &amp;<br>	QEMU_PID=$!<br>&#125;<br><br><span class="hljs-built_in">truncate</span> -s 256M <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/normal.img&quot;</span><br>mkfs.f2fs -f <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/normal.img&quot;</span><br><br>run_guest suite <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/normal.img&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/01-suite.log&quot;</span><br><span class="hljs-built_in">wait</span> <span class="hljs-string">&quot;<span class="hljs-variable">$QEMU_PID</span>&quot;</span><br><br><span class="hljs-comment"># 重新启动并再次逐字节校验提交、ABORT 和未提交 close 的结果。</span><br>run_guest verify-suite <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/normal.img&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/02-reopen.log&quot;</span><br><span class="hljs-built_in">wait</span> <span class="hljs-string">&quot;<span class="hljs-variable">$QEMU_PID</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>提交前中断使用独立镜像。程序先让 COW 页发生写回，再输出 CRASH_READY；Host 看到标记后终止该 QEMU，重启时验证旧数据：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">truncate</span> -s 256M <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/before-commit.img&quot;</span><br>mkfs.f2fs -f <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/before-commit.img&quot;</span><br><br>run_guest pre-crash <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/before-commit.img&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/03-before-kill.log&quot;</span><br>until grep -q <span class="hljs-string">&#x27;CRASH_READY action=pre-crash&#x27;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/03-before-kill.log&quot;</span>; <span class="hljs-keyword">do</span><br>	<span class="hljs-built_in">sleep</span> 0.2<br><span class="hljs-keyword">done</span><br><span class="hljs-built_in">kill</span> -9 <span class="hljs-string">&quot;<span class="hljs-variable">$QEMU_PID</span>&quot;</span><br><span class="hljs-built_in">wait</span> <span class="hljs-string">&quot;<span class="hljs-variable">$QEMU_PID</span>&quot;</span> || <span class="hljs-literal">true</span><br><br>run_guest verify-old <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/before-commit.img&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/04-before-recover.log&quot;</span><br><span class="hljs-built_in">wait</span> <span class="hljs-string">&quot;<span class="hljs-variable">$QEMU_PID</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>提交后中断同样使用独立镜像。COMMIT_ATOMIC_WRITE 已返回 0，但程序没有再执行 fsync()、close() 或卸载；重启时验证新数据：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">truncate</span> -s 256M <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/after-commit.img&quot;</span><br>mkfs.f2fs -f <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/after-commit.img&quot;</span><br><br>run_guest post-crash <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/after-commit.img&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/05-after-kill.log&quot;</span><br>until grep -q <span class="hljs-string">&#x27;CRASH_READY action=post-crash&#x27;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/05-after-kill.log&quot;</span>; <span class="hljs-keyword">do</span><br>	<span class="hljs-built_in">sleep</span> 0.2<br><span class="hljs-keyword">done</span><br><span class="hljs-built_in">kill</span> -9 <span class="hljs-string">&quot;<span class="hljs-variable">$QEMU_PID</span>&quot;</span><br><span class="hljs-built_in">wait</span> <span class="hljs-string">&quot;<span class="hljs-variable">$QEMU_PID</span>&quot;</span> || <span class="hljs-literal">true</span><br><br>run_guest verify-new <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/after-commit.img&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$WORK</span>/06-after-recover.log&quot;</span><br><span class="hljs-built_in">wait</span> <span class="hljs-string">&quot;<span class="hljs-variable">$QEMU_PID</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>以下结果均来自最终代码的复验。最终控制脚本退出 0，六次 QEMU 启动全部达到预期；两次主动终止的返回值为 -9，表示预期 SIGKILL，恢复验证在其后独立启动中完成。</p>
+<table>
+<thead>
+<tr>
+<th>验证内容</th>
+<th>结果</th>
+<th>日志</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>4 KiB &#x2F; 16 KiB 提交、ABORT、未提交 close</td>
+<td>六个文件逐字节及大小校验全部通过</td>
+<td><code>01-suite.log</code></td>
+</tr>
+<tr>
+<td>正常卸载后重新启动</td>
+<td>六个文件再次全部通过</td>
+<td><code>02-reopen.log</code></td>
+</tr>
+<tr>
+<td>COMMIT 前 COW 写回后终止 QEMU</td>
+<td>重启后 8 页全部为旧版本</td>
+<td><code>03-before-kill.log</code>、<code>04-before-recover.log</code></td>
+</tr>
+<tr>
+<td>COMMIT 成功后终止 QEMU</td>
+<td>重启后指定三页为新版本，其余五页为旧版本</td>
+<td><code>05-after-kill.log</code>、<code>06-after-recover.log</code></td>
+</tr>
+</tbody></table>
+<p><strong>页写入与块映射。</strong> 4 KiB 提交组实际日志为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">atomic_lab ino=4 START cow=5 size=32768 replace=0<br>atomic_lab ino=4 COMMIT_BEGIN cow=5 blocks=3<br>atomic_lab ino=4 MAP_REPLACE index=0 old=5633 new=5642 recover=0<br>atomic_lab ino=4 MAP_REPLACE index=2 old=5635 new=5643 recover=0<br>atomic_lab ino=4 MAP_REPLACE index=5 old=5638 new=5644 recover=0<br>atomic_lab ino=4 COMMIT_END ret=0<br>VERIFY_PASS path=/mnt/test/commit-4096.db page_size=4096 committed=1 pages=8<br></code></pre></td></tr></table></figure>
+
+<p>4 次页写入覆盖 3 个不同逻辑块，提交转交 3 个映射。块地址单位是 4 KiB 文件系统块，不是字节地址，更不是 NAND 物理位置。16 KiB 组记录 blocks&#x3D;12，映射索引为 0–3、8–11、20–23，即三个数据库页各对应四个 F2FS 块。不能由此推断设备 bio 数量或所有负载下的固定写放大。</p>
+<p><strong>未提交数据不会因写到 COW 就变成已提交数据。</strong> 提交前中断日志已经出现三个 COW_WRITE，随后出现 COW_WRITEBACK_REQUEST_DONE 和 CRASH_READY，没有 COMMIT。重新启动验证 committed&#x3D;0，8 页全部符合旧版本。</p>
+<p><strong>提交成功后的恢复确实经过 F2FS 恢复逻辑。</strong> 最终提交后中断的重启日志包含：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">recover_data: ino = 4, nid = 4 (i_size: recover), range (0, 873), recovered = 3, err = 0<br>do_recover_data: dnode: (recoverable: 1, fsynced: 1, total: 1), recovered: (inode: 1, dentry: 0, dnode: 1), err: 0<br>VERIFY_PASS path=/mnt/test/crash.db page_size=4096 committed=1 pages=8<br></code></pre></td></tr></table></figure>
+
+<p>这说明本次不是只验证同一次挂载中的缓存读回，而是在新 Guest 中通过恢复逻辑找回三个更新块。随后看到的 checkpoint 日志属于恢复过程，不能误称为 SQLite WAL checkpoint。</p>
+<p>取消和未提交 close 还验证了扩展文件的撤销：4 KiB 组从暂时的 36864 字节恢复到 32768；16 KiB 组从 147456 恢复到 131072。close 结果针对本程序的单个打开实例，不能推广成任意 fd 关闭都终止任意并发事务。</p>
+<h2 id="4-结论"><a href="#4-结论" class="headerlink" title="4. 结论"></a>4. 结论</h2><ol>
+<li>本次最新代码的核心是 <strong>COW 新块 → 原 inode 块映射转交 → 原子同步及恢复边界</strong>，不是旧版 inmem_pages 提交模型。</li>
+<li>START 改变后续写入的处理方式；pwrite 仍按主文件偏移进入缓存，写回时 atomic folio 使用 COW inode 的映射。数据可以在 COMMIT 前写出。</li>
+<li>COMMIT 先等待数据写回，再转交有效块映射，然后执行同步。成功后的 abort 函数调用是正常清理，clean&#x3D;false 不丢弃已提交结果。</li>
+<li>本负载中，重复覆盖同一个页没有增加最终转交的不同逻辑块数量；16 KiB 数据库页拆为四个 4 KiB 块，数据库页、内核页和设备请求不能混为一谈。</li>
+<li>实验确认了正常提交、取消、未提交关闭和提交前后 Guest 突然消失时的预期结果。<strong>没有测试 COMMIT 内部任意时点中断、故障注入、并发事务、真实 SQLite 日志回退或真实存储设备掉电；这些结果不构成对所有故障模式的证明。</strong></li>
+</ol>
+<p>本文已经包含事务时序、核心 F2FS 代码、完整 C 测试程序、维测代码、执行方法、关键日志和实验结论，不依赖其他笔记附件。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>f2fs atomic write与sqlite的紧密联系</div>
+      <div>http://example.com/2026/09/08/f2fs-atomic-write与sqlite的紧密联系/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年9月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/07/%E5%86%85%E6%A0%B8%E5%90%84%E5%88%86%E6%94%AF%E7%89%88%E6%9C%AC/" title="内核各分支版本">
+                        <span class="hidden-mobile">内核各分支版本</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
