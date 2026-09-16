@@ -24,7 +24,7 @@
 <meta property="og:description" content="NVIDIA DLSS 技术 本文资料截至 2026 年 9 月 16 日。DLSS 4.5 已经正式可用；DLSS 5 于 2026 年 9 月公开，NVIDIA 宣布将在 2026 年秋季进入首批游戏，因此目前对 DLSS 5 的讨论以官方技术论文、公开演示和已公布的兼容信息为主，不能把演示效果等同于大规模独立评测结论。  ![DLSS 神经渲染流水线](NVIDIA DLSS技术&#x2F;">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-09-16T13:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-16T13:02:51.359Z">
+<meta property="article:modified_time" content="2026-09-16T13:13:43.664Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="NVIDIA">
 <meta property="article:tag" content="DLSS">
@@ -218,7 +218,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.4k 字
+          9.2k 字
         
       </span>
     
@@ -229,7 +229,7 @@
         
         
         
-          63 分钟
+          77 分钟
         
       </span>
     
@@ -283,7 +283,7 @@
                 <h1 id="NVIDIA-DLSS-技术"><a href="#NVIDIA-DLSS-技术" class="headerlink" title="NVIDIA DLSS 技术"></a>NVIDIA DLSS 技术</h1><blockquote>
 <p>本文资料截至 <strong>2026 年 9 月 16 日</strong>。DLSS 4.5 已经正式可用；DLSS 5 于 2026 年 9 月公开，NVIDIA 宣布将在 2026 年秋季进入首批游戏，因此目前对 DLSS 5 的讨论以官方技术论文、公开演示和已公布的兼容信息为主，不能把演示效果等同于大规模独立评测结论。</p>
 </blockquote>
-<p>![DLSS 神经渲染流水线](NVIDIA DLSS技术&#x2F;dlss-pipeline.svg)</p>
+<p>![DLSS 神经渲染流水线](NVIDIA DLSS技术&#x2F;dlss-pipeline.png)</p>
 <h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
 <li><a href="#%E4%B8%80dlss-%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D">一、DLSS 技术介绍</a><ul>
 <li><a href="#1-dlss-%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98">1. DLSS 解决什么问题</a></li>
@@ -371,7 +371,7 @@
 </ul>
 <p>基础帧率过低时，运动矢量间隔更大、输入更新更慢，生成更多中间帧只能让运动看上去更连续，无法让底层游戏逻辑同步变快。实践中，动作和竞技游戏应优先保证较高的原生&#x2F;重建后基础帧率；帧生成更适合 GPU 压力很高的单机游戏、光追游戏和高刷新率显示器。</p>
 <hr>
-<h2 id="二、DLSS-发展历史"><a href="#二、DLSS-发展历史" class="headerlink" title="二、DLSS 发展历史"></a>二、DLSS 发展历史</h2><p>![DLSS 发展时间线](NVIDIA DLSS技术&#x2F;dlss-history.svg)</p>
+<h2 id="二、DLSS-发展历史"><a href="#二、DLSS-发展历史" class="headerlink" title="二、DLSS 发展历史"></a>二、DLSS 发展历史</h2><p>![DLSS 发展时间线](NVIDIA DLSS技术&#x2F;dlss-history.png)</p>
 <table>
 <thead>
 <tr>
@@ -430,7 +430,7 @@
 </blockquote>
 <p>DLSS 1 到 4.5 的主线仍然是“更高效地逼近传统渲染本可以得到的结果”；DLSS 5 开始允许模型补充传统实时渲染器难以经济表达的材质与光照外观，因此是一次目标层面的变化。</p>
 <hr>
-<h2 id="三、DLSS-4-5-与-DLSS-5：技术对比和原理"><a href="#三、DLSS-4-5-与-DLSS-5：技术对比和原理" class="headerlink" title="三、DLSS 4.5 与 DLSS 5：技术对比和原理"></a>三、DLSS 4.5 与 DLSS 5：技术对比和原理</h2><p>![DLSS 4.5 与 DLSS 5 对比](NVIDIA DLSS技术&#x2F;dlss-45-vs-5.svg)</p>
+<h2 id="三、DLSS-4-5-与-DLSS-5：技术对比和原理"><a href="#三、DLSS-4-5-与-DLSS-5：技术对比和原理" class="headerlink" title="三、DLSS 4.5 与 DLSS 5：技术对比和原理"></a>三、DLSS 4.5 与 DLSS 5：技术对比和原理</h2><p>![DLSS 4.5 与 DLSS 5 对比](NVIDIA DLSS技术&#x2F;dlss-45-vs-5.png)</p>
 <h3 id="1-DLSS-4-5-原理"><a href="#1-DLSS-4-5-原理" class="headerlink" title="1. DLSS 4.5 原理"></a>1. DLSS 4.5 原理</h3><p>DLSS 4.5 仍是一整套重建与帧生成技术，主要升级包括以下三部分。</p>
 <h4 id="第二代-Transformer-超级分辨率"><a href="#第二代-Transformer-超级分辨率" class="headerlink" title="第二代 Transformer 超级分辨率"></a>第二代 Transformer 超级分辨率</h4><p>DLSS 4 在 2025 年把 SR、RR 与 DLAA 从卷积神经网络逐步迁移到 Transformer。DLSS 4.5 的第二代 Transformer 模型进一步扩大训练和模型能力，重点改善：</p>
 <ul>
@@ -444,17 +444,55 @@
 <h4 id="6×-Multi-Frame-Generation"><a href="#6×-Multi-Frame-Generation" class="headerlink" title="6× Multi Frame Generation"></a>6× Multi Frame Generation</h4><p>“6×”表示在一个传统渲染帧的基础上，最多生成五个中间帧，最终输出理论上可达到基础帧率的六倍。它并不是让游戏引擎、物理或输入采样也运行到六倍速度。NVIDIA 表示，从 4× 升到 6× 后，RTX 50 系列在 4K 路径追踪游戏中的帧率最高可再提高约 35%，但实际提升会受计算开销、帧率上限与场景影响。</p>
 <h4 id="Dynamic-Multi-Frame-Generation"><a href="#Dynamic-Multi-Frame-Generation" class="headerlink" title="Dynamic Multi Frame Generation"></a>Dynamic Multi Frame Generation</h4><p>固定 MFG 会一直使用选定倍率；动态 MFG 则根据目标帧率或显示器最高刷新率，在 1× 到 6×之间选择当前所需的最低倍率，必要时可以完全关闭生成帧。其目标是避免“明明 3× 已经够用，却始终生成到 6×”带来的额外画质与延迟成本。</p>
 <p>DLSS 4.5 还提供 Frame Generation Preset B。它读取部分游戏引擎提供的 UI Depth Buffer，把静态 HUD、地图和文字与 3D 场景更好地区分，减少生成帧中的界面扭曲。该模型可用于 RTX 40&#x2F;50 系列，但需要游戏提供相应缓冲数据。</p>
-<h3 id="2-DLSS-5-原理"><a href="#2-DLSS-5-原理" class="headerlink" title="2. DLSS 5 原理"></a>2. DLSS 5 原理</h3><p>DLSS 5 的官方研究名称是 <strong>Generative Neural Rendering（生成式神经渲染）</strong>。其核心不是再次增加补帧倍率，而是在传统游戏流水线中增加一个生成式外观阶段。</p>
-<p>根据 NVIDIA ADLR 公开资料，DLSS 5 使用 <strong>3D-guided neural rendering（3D 引导神经渲染）</strong>：</p>
+<h3 id="2-DLSS-5-原理"><a href="#2-DLSS-5-原理" class="headerlink" title="2. DLSS 5 原理"></a>2. DLSS 5 原理</h3><p>DLSS 5 的官方研究名称是 <strong>Generative Neural Rendering（生成式神经渲染）</strong>。它最容易被误解成“用 AI 重新画一遍游戏”，但更准确的说法是：</p>
+<blockquote>
+<p>游戏引擎先交出一张结构正确、内容确定、但材质和光照细节还不够接近真实世界的基础画面；DLSS 5 再在严格约束下完成最后一层“外观渲染”。</p>
+</blockquote>
+<p>它不是 DLSS 4.5 的“8× 补帧版”，也不是输入一句提示词就随意生成画面的文生图模型。DLSS 5 仍然依赖游戏原有的几何、动画、材质、光照和运动数据，只是把传统实时渲染器很难在十几毫秒内算好的复杂外观，交给一个学习过真实世界规律的模型补全。</p>
+<h4 id="第一步：游戏引擎仍然先渲染基础帧"><a href="#第一步：游戏引擎仍然先渲染基础帧" class="headerlink" title="第一步：游戏引擎仍然先渲染基础帧"></a>第一步：游戏引擎仍然先渲染基础帧</h4><p>游戏中的人物是谁、站在哪里、穿什么衣服，建筑的形状、相机角度、遮挡关系和动画状态，仍然由游戏引擎决定。光栅化、光线追踪或路径追踪也不会消失，它们会生成一张基础颜色帧，并提供物体运动方向等辅助数据。</p>
+<p>这张基础帧可以理解为“内容正确的底稿”。例如人物脸型和姿势已经确定，皮衣也已经是棕色，但由于实时算力有限，皮肤内部散射、细发丝受光、皮革微表面的高光变化可能仍比较简化。DLSS 5 处理的是这些<strong>外观层面的复杂性</strong>，而不是重新决定人物长什么样。</p>
+<h4 id="第二步：模型获得四类关键输入"><a href="#第二步：模型获得四类关键输入" class="headerlink" title="第二步：模型获得四类关键输入"></a>第二步：模型获得四类关键输入</h4><p>NVIDIA 公布的 DLSS 5 推理输入主要包括：</p>
 <ol>
-<li>游戏仍然用传统光栅化、光追&#x2F;路径追踪和材质系统产生基础颜色帧；</li>
-<li>模型接收当前颜色帧、引擎运动矢量、跨帧保留的时间状态，以及开发者提供的艺术控制值；</li>
-<li>一个单步、像素空间的扩散模型分析人物、头发、布料、皮肤、树叶和环境光照等场景语义；</li>
-<li>模型将训练中学到的真实世界“外观先验”注入画面，例如皮肤次表面散射、布料光泽、头发与光线的复杂交互；</li>
-<li>最终结果被约束在原有 3D 内容、结构和艺术意图上，并以因果、确定性的方式逐帧运行。</li>
+<li><strong>当前颜色帧</strong>：告诉模型画面中实际存在什么，是最主要的结构锚点；</li>
+<li><strong>引擎运动矢量</strong>：告诉模型某个像素对应的物体从上一帧移动到了哪里；</li>
+<li><strong>时间状态（temporal state）</strong>：携带上一帧处理后留下的信息，让连续画面保持一致；</li>
+<li><strong>艺术控制值</strong>：由开发者指定增强强度、色彩倾向和哪些区域允许被处理。</li>
 </ol>
-<p>“确定性”很重要：通用文生视频模型可以每次生成不同内容，但游戏必须保证同一输入得到可预测结果，不能凭空改变角色、地形或关键物体。DLSS 5 在训练阶段使用渲染器导出的场景属性进行一致性监督；运行时则依靠当前帧、运动矢量和时间状态，尽量保持结构与跨帧稳定。</p>
-<p>开发者还可以通过强度、调色和遮罩控制增强区域。例如只增强角色皮肤和头发，保留某些风格化背景；或者限制某个材质不被模型改写。DLSS 5 通过现有 Streamline 框架集成，首发硬件范围是 <strong>GeForce RTX 50 系列</strong>，目标为最高 4K 实时运行。</p>
+<p>这与通用图像生成模型只接收文字或随机噪声有本质区别。DLSS 5 每一帧都被游戏的真实渲染结果和运动数据“拴住”，不能脱离 3D 世界自由发挥。</p>
+<h4 id="第三步：先理解画面语义，再补充真实外观"><a href="#第三步：先理解画面语义，再补充真实外观" class="headerlink" title="第三步：先理解画面语义，再补充真实外观"></a>第三步：先理解画面语义，再补充真实外观</h4><p>DLSS 5 的模型会识别当前区域更像皮肤、头发、布料、树叶、玻璃还是金属，同时判断它处于正面光、背光、阴天或间接光环境。这里的“识别”不是给物体贴文字标签，而是在网络内部形成对材质和光照关系的表示。</p>
+<p>然后，模型利用训练时学到的 <strong>appearance prior（外观先验）</strong> 补充传统实时渲染难以低成本模拟的表现。例如：</p>
+<ul>
+<li>光进入皮肤后在内部散射，再从附近位置透出，使皮肤不会像塑料；</li>
+<li>细小发丝在逆光下形成连续、自然的透光轮廓；</li>
+<li>布料根据纤维方向出现细腻而非均匀的高光；</li>
+<li>阳光穿过半透明树叶时产生更真实的透射和颜色变化；</li>
+<li>材质表面与环境间接光之间形成更复杂的明暗和颜色交互。</li>
+</ul>
+<p>所谓“先验”，可以理解为模型在大量训练资料中学会了“真实世界里的这类东西通常怎样与光线作用”。它不需要在运行时对每根纤维、每层皮肤组织进行完整物理模拟，而是根据基础渲染提供的条件，直接预测一个可信的最终外观。</p>
+<h4 id="第四步：为什么使用单步像素空间扩散模型"><a href="#第四步：为什么使用单步像素空间扩散模型" class="headerlink" title="第四步：为什么使用单步像素空间扩散模型"></a>第四步：为什么使用单步像素空间扩散模型</h4><p>DLSS 5 使用的是 <strong>one-step pixel-space diffusion model（单步像素空间扩散模型）</strong>。普通离线扩散模型往往需要反复迭代许多步，从噪声逐渐得到图像，耗时无法满足游戏每帧十几毫秒的预算。DLSS 5 的模型则被设计成一次实时推理就输出结果，并直接在像素空间工作，目标是在最高 4K 分辨率下仍能进入交互式渲染流水线。</p>
+<p>这里的“扩散”表示模型具有生成复杂视觉细节的能力；“单步”则说明它不是像离线 AI 绘图那样慢慢抽样几十次。它更像一个受当前游戏帧严格限制、一次完成的智能后处理阶段。</p>
+<h4 id="第五步：怎样防止画面乱变和闪烁"><a href="#第五步：怎样防止画面乱变和闪烁" class="headerlink" title="第五步：怎样防止画面乱变和闪烁"></a>第五步：怎样防止画面乱变和闪烁</h4><p>生成式模型用于游戏有两个最大风险：一是把开发者原本的内容改掉，二是连续帧之间发生闪烁。DLSS 5 为此加入了多层约束：</p>
+<ul>
+<li><strong>渲染器约束</strong>：输出必须以当前颜色帧中的人物、物体和场景结构为基础；</li>
+<li><strong>训练期一致性监督</strong>：训练时使用渲染器导出的场景属性监督模型，让生成结果忠于原场景；</li>
+<li><strong>运动矢量</strong>：帮助上一帧的同一物体在新位置保持相同外观；</li>
+<li><strong>时间状态</strong>：将跨帧信息传递下去，减少纹理、头发和高光随机跳变；</li>
+<li><strong>因果推理</strong>：生成当前帧只依赖当前和过去已有的信息，不等待未来帧，避免增加不可接受的流水线延迟；</li>
+<li><strong>确定性输出</strong>：相同输入应得到可预测结果，而不是每次随机生成另一张脸或另一种材质。</li>
+</ul>
+<p>因此，DLSS 5 与视频生成模型最重要的区别不是“能不能生成像素”，而是它必须<strong>实时、确定、连续，并且服从游戏世界</strong>。</p>
+<h4 id="第六步：开发者如何保留艺术风格"><a href="#第六步：开发者如何保留艺术风格" class="headerlink" title="第六步：开发者如何保留艺术风格"></a>第六步：开发者如何保留艺术风格</h4><p>更真实不一定适合所有游戏。卡通渲染、油画风格或夸张材质如果被统一变成照片质感，反而会破坏作品。因此 DLSS 5 向开发者提供三类控制：</p>
+<ul>
+<li><strong>强度</strong>：控制生成式外观增强的幅度；</li>
+<li><strong>调色</strong>：让结果继续服从游戏原有的色彩设计；</li>
+<li><strong>遮罩</strong>：指定哪些角色、材质或画面区域允许增强，哪些必须保持原样。</li>
+</ul>
+<p>例如，开发者可以增强写实角色的皮肤、眼睛和头发，同时屏蔽 UI、特殊魔法材质和风格化背景。模型是渲染工具的一部分，最终决定权仍在美术与开发团队手中。</p>
+<h4 id="与-DLSS-4-5-怎样配合"><a href="#与-DLSS-4-5-怎样配合" class="headerlink" title="与 DLSS 4.5 怎样配合"></a>与 DLSS 4.5 怎样配合</h4><p>可以把两代技术放到一条概念流水线中理解：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">游戏引擎生成基础画面<br>        ↓<br>DLSS 5：增强材质、皮肤、头发与光照的最终外观<br>        ↓<br>DLSS Super Resolution：重建到目标分辨率<br>        ↓<br>DLSS Frame Generation / MFG：生成额外显示帧<br>        ↓<br>显示器<br></code></pre></td></tr></table></figure>
+
+<p>实际游戏采用的具体次序和组合仍由 NVIDIA SDK 与开发者集成决定，但概念上二者并不冲突：<strong>DLSS 5 主要回答“这一帧最终应该长什么样”，DLSS 4.5 的 SR&#x2F;MFG 主要回答“怎样用更低成本输出更高分辨率和更多帧”。</strong></p>
+<p>DLSS 5 通过现有 Streamline 框架集成，首发硬件范围是 <strong>GeForce RTX 50 系列</strong>，目标为最高 4K 实时运行。由于它在本文截稿时刚公开，模型开销、延迟、不同游戏的稳定性和与其他 DLSS 组件同时开启时的效果，仍需后续独立测试验证。</p>
 <h3 id="3-核心差异"><a href="#3-核心差异" class="headerlink" title="3. 核心差异"></a>3. 核心差异</h3><table>
 <thead>
 <tr>
@@ -507,7 +545,7 @@
 <p>因此，DLSS 5 不是简单的“DLSS 4.5 帧数更高版”。两者解决的问题不同，而且很可能在同一条流水线中协同：传统渲染提供可靠的几何与基础画面，DLSS 5 增强最终外观，DLSS 4.5 的 SR&#x2F;MFG 组件继续负责分辨率和显示帧率。</p>
 <hr>
 <h2 id="四、DLSS-游戏评测结果"><a href="#四、DLSS-游戏评测结果" class="headerlink" title="四、DLSS 游戏评测结果"></a>四、DLSS 游戏评测结果</h2><h3 id="1-DLSS-4-5-动态多帧生成实测"><a href="#1-DLSS-4-5-动态多帧生成实测" class="headerlink" title="1. DLSS 4.5 动态多帧生成实测"></a>1. DLSS 4.5 动态多帧生成实测</h3><p>下面的数据来自 Tom’s Guide 在 RTX 5060 Ti 平台上的 4K 高画质压力测试。它刻意把基础帧率压到约 27～34 FPS，再观察 Dynamic MFG 的输出、1% Low 与延迟，因此更像“低基础帧率极限测试”，不应外推为所有显卡和设置的普遍结果。</p>
-<p>![DLSS 4.5 游戏实测](NVIDIA DLSS技术&#x2F;dlss-45-benchmark-1789563770293-1.svg)</p>
+<p>![DLSS 4.5 游戏实测](NVIDIA DLSS技术&#x2F;dlss-45-benchmark.png)</p>
 <table>
 <thead>
 <tr>
@@ -586,6 +624,7 @@
 <li><a target="_blank" rel="noopener" href="https://www.computerbase.de/artikel/grafikkarten/nvidia-dlss-4-5-super-resolution-test.95687/">ComputerBase：DLSS 4.5 Super Resolution 测试</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.dsogaming.com/articles/weve-tried-nvidia-dlss-4-5-dynamic-mfg-and-multi-frame-gen-x6-across-a-dozen-games-here-are-our-thoughts/">DSOGaming：12 款游戏 DLSS 4.5 MFG 实测</a></li>
 </ul>
+<p></p>
 
                 
               </div>
