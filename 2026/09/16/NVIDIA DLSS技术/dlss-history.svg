@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520">
+  <rect width="1200" height="520" rx="26" fill="#f5f7f9"/>
+  <text x="55" y="68" font-size="34" font-family="Arial,Microsoft YaHei,sans-serif" font-weight="700" fill="#15232c">DLSS 发展时间线</text>
+  <text x="55" y="106" font-size="18" font-family="Arial,Microsoft YaHei,sans-serif" fill="#64747f">从像素重建，走向帧生成、光线重建与生成式外观</text>
+  <line x1="95" y1="275" x2="1110" y2="275" stroke="#b8c2c9" stroke-width="8" stroke-linecap="round"/>
+  <g font-family="Arial,Microsoft YaHei,sans-serif">
+    <g><circle cx="115" cy="275" r="18" fill="#76b900"/><text x="115" y="190" text-anchor="middle" font-size="22" font-weight="700">2018</text><text x="115" y="225" text-anchor="middle" font-size="20" fill="#3d4d56">DLSS 1</text><text x="115" y="335" text-anchor="middle" font-size="16" fill="#65747c">AI 超采样</text></g>
+    <g><circle cx="300" cy="275" r="18" fill="#76b900"/><text x="300" y="340" text-anchor="middle" font-size="22" font-weight="700">2020</text><text x="300" y="373" text-anchor="middle" font-size="20" fill="#3d4d56">DLSS 2</text><text x="300" y="410" text-anchor="middle" font-size="16" fill="#65747c">通用时域网络</text></g>
+    <g><circle cx="485" cy="275" r="18" fill="#76b900"/><text x="485" y="190" text-anchor="middle" font-size="22" font-weight="700">2022</text><text x="485" y="225" text-anchor="middle" font-size="20" fill="#3d4d56">DLSS 3</text><text x="485" y="335" text-anchor="middle" font-size="16" fill="#65747c">Frame Generation</text></g>
+    <g><circle cx="665" cy="275" r="18" fill="#76b900"/><text x="665" y="340" text-anchor="middle" font-size="22" font-weight="700">2023</text><text x="665" y="373" text-anchor="middle" font-size="20" fill="#3d4d56">DLSS 3.5</text><text x="665" y="410" text-anchor="middle" font-size="16" fill="#65747c">Ray Reconstruction</text></g>
+    <g><circle cx="835" cy="275" r="18" fill="#76b900"/><text x="835" y="190" text-anchor="middle" font-size="22" font-weight="700">2025</text><text x="835" y="225" text-anchor="middle" font-size="20" fill="#3d4d56">DLSS 4</text><text x="835" y="335" text-anchor="middle" font-size="16" fill="#65747c">Transformer + 4× MFG</text></g>
+    <g><circle cx="985" cy="275" r="21" fill="#5c9200"/><text x="985" y="340" text-anchor="middle" font-size="22" font-weight="700">2026.01</text><text x="985" y="373" text-anchor="middle" font-size="20" fill="#3d4d56">DLSS 4.5</text><text x="985" y="410" text-anchor="middle" font-size="16" fill="#65747c">动态 6× MFG</text></g>
+    <g><circle cx="1110" cy="275" r="25" fill="#101820" stroke="#76b900" stroke-width="6"/><text x="1080" y="160" text-anchor="middle" font-size="22" font-weight="700">2026.09</text><text x="1080" y="195" text-anchor="middle" font-size="20" fill="#3d4d56">DLSS 5</text><text x="1080" y="230" text-anchor="middle" font-size="16" fill="#65747c">生成式神经渲染</text></g>
+  </g>
+  <rect x="55" y="460" width="1090" height="3" fill="#dce2e6"/>
+  <text x="600" y="492" text-anchor="middle" font-size="16" font-family="Arial,Microsoft YaHei,sans-serif" fill="#6a7982">重建分辨率 → 生成中间帧 → 重建光线 → 动态多帧 → 生成最终外观</text>
+</svg>
+
