@@ -16,21 +16,26 @@
   <meta name="author" content="OneAmx">
   <meta name="keywords" content="">
   
-    <meta name="description" content="NVIDIA DLSS 技术 本文资料截至 2026 年 9 月 16 日。DLSS 4.5 已经正式可用；DLSS 5 于 2026 年 9 月公开，NVIDIA 宣布将在 2026 年秋季进入首批游戏，因此目前对 DLSS 5 的讨论以官方技术论文、公开演示和已公布的兼容信息为主，不能把演示效果等同于大规模独立评测结论。  ![DLSS 神经渲染流水线](NVIDIA DLSS技术&#x2F;">
+    <meta name="description" content="NVIDIA DLSS 技术 本文资料截至 2026 年 9 月 16 日。DLSS 4.5 已经正式可用；DLSS 5 于 2026 年 9 月公开，NVIDIA 宣布将在 2026 年秋季进入首批游戏，因此目前对 DLSS 5 的讨论以官方技术论文、公开演示和已公布的兼容信息为主，不能把演示效果等同于大规模独立评测结论。    目录 一、DLSS 技术介绍 1. DLSS 解决什么问题 2.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="NVIDIA DLSS技术">
 <meta property="og:url" content="http://example.com/2026/09/16/NVIDIA%20DLSS%E6%8A%80%E6%9C%AF/index.html">
 <meta property="og:site_name" content="喝口白桃呜龙">
-<meta property="og:description" content="NVIDIA DLSS 技术 本文资料截至 2026 年 9 月 16 日。DLSS 4.5 已经正式可用；DLSS 5 于 2026 年 9 月公开，NVIDIA 宣布将在 2026 年秋季进入首批游戏，因此目前对 DLSS 5 的讨论以官方技术论文、公开演示和已公布的兼容信息为主，不能把演示效果等同于大规模独立评测结论。  ![DLSS 神经渲染流水线](NVIDIA DLSS技术&#x2F;">
+<meta property="og:description" content="NVIDIA DLSS 技术 本文资料截至 2026 年 9 月 16 日。DLSS 4.5 已经正式可用；DLSS 5 于 2026 年 9 月公开，NVIDIA 宣布将在 2026 年秋季进入首批游戏，因此目前对 DLSS 5 的讨论以官方技术论文、公开演示和已公布的兼容信息为主，不能把演示效果等同于大规模独立评测结论。    目录 一、DLSS 技术介绍 1. DLSS 解决什么问题 2.">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/09/16/NVIDIA%20DLSS%E6%8A%80%E6%9C%AF/dlss-pipeline-1789565445423-6.png">
+<meta property="og:image" content="http://example.com/2026/09/16/NVIDIA%20DLSS%E6%8A%80%E6%9C%AF/dlss-history-1789565450433-8.png">
+<meta property="og:image" content="http://example.com/2026/09/16/NVIDIA%20DLSS%E6%8A%80%E6%9C%AF/dlss-45-vs-5-1789565457272-10.png">
+<meta property="og:image" content="http://example.com/2026/09/16/NVIDIA%20DLSS%E6%8A%80%E6%9C%AF/dlss-45-benchmark-1789565461775-12.png">
 <meta property="article:published_time" content="2026-09-16T13:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-16T13:31:02.018Z">
+<meta property="article:modified_time" content="2026-09-16T13:35:08.809Z">
 <meta property="article:author" content="OneAmx">
 <meta property="article:tag" content="NVIDIA">
 <meta property="article:tag" content="DLSS">
 <meta property="article:tag" content="GPU">
 <meta property="article:tag" content="图形技术">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/09/16/NVIDIA%20DLSS%E6%8A%80%E6%9C%AF/dlss-pipeline-1789565445423-6.png">
   
   
   
@@ -218,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.2k 字
+          9k 字
         
       </span>
     
@@ -229,7 +234,7 @@
         
         
         
-          77 分钟
+          75 分钟
         
       </span>
     
@@ -283,7 +288,8 @@
                 <h1 id="NVIDIA-DLSS-技术"><a href="#NVIDIA-DLSS-技术" class="headerlink" title="NVIDIA DLSS 技术"></a>NVIDIA DLSS 技术</h1><blockquote>
 <p>本文资料截至 <strong>2026 年 9 月 16 日</strong>。DLSS 4.5 已经正式可用；DLSS 5 于 2026 年 9 月公开，NVIDIA 宣布将在 2026 年秋季进入首批游戏，因此目前对 DLSS 5 的讨论以官方技术论文、公开演示和已公布的兼容信息为主，不能把演示效果等同于大规模独立评测结论。</p>
 </blockquote>
-<p>![DLSS 神经渲染流水线](NVIDIA DLSS技术&#x2F;dlss-pipeline-1789565445423-6.png)</p>
+<img src="/2026/09/16/NVIDIA%20DLSS%E6%8A%80%E6%9C%AF/dlss-pipeline-1789565445423-6.png" srcset="/img/loading.gif" lazyload alt="DLSS 神经渲染流水线" style="zoom: 50%;">
+
 <h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
 <li><a href="#%E4%B8%80dlss-%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D">一、DLSS 技术介绍</a><ul>
 <li><a href="#1-dlss-%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98">1. DLSS 解决什么问题</a></li>
@@ -371,7 +377,8 @@
 </ul>
 <p>基础帧率过低时，运动矢量间隔更大、输入更新更慢，生成更多中间帧只能让运动看上去更连续，无法让底层游戏逻辑同步变快。实践中，动作和竞技游戏应优先保证较高的原生&#x2F;重建后基础帧率；帧生成更适合 GPU 压力很高的单机游戏、光追游戏和高刷新率显示器。</p>
 <hr>
-<h2 id="二、DLSS-发展历史"><a href="#二、DLSS-发展历史" class="headerlink" title="二、DLSS 发展历史"></a>二、DLSS 发展历史</h2><p>![DLSS 发展时间线](NVIDIA DLSS技术&#x2F;dlss-history-1789565450433-8.png)</p>
+<h2 id="二、DLSS-发展历史"><a href="#二、DLSS-发展历史" class="headerlink" title="二、DLSS 发展历史"></a>二、DLSS 发展历史</h2><img src="/2026/09/16/NVIDIA%20DLSS%E6%8A%80%E6%9C%AF/dlss-history-1789565450433-8.png" srcset="/img/loading.gif" lazyload alt="DLSS 发展时间线" style="zoom: 50%;">
+
 <table>
 <thead>
 <tr>
@@ -430,7 +437,8 @@
 </blockquote>
 <p>DLSS 1 到 4.5 的主线仍然是“更高效地逼近传统渲染本可以得到的结果”；DLSS 5 开始允许模型补充传统实时渲染器难以经济表达的材质与光照外观，因此是一次目标层面的变化。</p>
 <hr>
-<h2 id="三、DLSS-4-5-与-DLSS-5：技术对比和原理"><a href="#三、DLSS-4-5-与-DLSS-5：技术对比和原理" class="headerlink" title="三、DLSS 4.5 与 DLSS 5：技术对比和原理"></a>三、DLSS 4.5 与 DLSS 5：技术对比和原理</h2><p>![DLSS 4.5 与 DLSS 5 对比](NVIDIA DLSS技术&#x2F;dlss-45-vs-5-1789565457272-10.png)</p>
+<h2 id="三、DLSS-4-5-与-DLSS-5：技术对比和原理"><a href="#三、DLSS-4-5-与-DLSS-5：技术对比和原理" class="headerlink" title="三、DLSS 4.5 与 DLSS 5：技术对比和原理"></a>三、DLSS 4.5 与 DLSS 5：技术对比和原理</h2><img src="/2026/09/16/NVIDIA%20DLSS%E6%8A%80%E6%9C%AF/dlss-45-vs-5-1789565457272-10.png" srcset="/img/loading.gif" lazyload alt="DLSS 4.5 与 DLSS 5 对比" style="zoom: 50%;">
+
 <h3 id="1-DLSS-4-5-原理"><a href="#1-DLSS-4-5-原理" class="headerlink" title="1. DLSS 4.5 原理"></a>1. DLSS 4.5 原理</h3><p>DLSS 4.5 仍是一整套重建与帧生成技术，主要升级包括以下三部分。</p>
 <h4 id="第二代-Transformer-超级分辨率"><a href="#第二代-Transformer-超级分辨率" class="headerlink" title="第二代 Transformer 超级分辨率"></a>第二代 Transformer 超级分辨率</h4><p>DLSS 4 在 2025 年把 SR、RR 与 DLAA 从卷积神经网络逐步迁移到 Transformer。DLSS 4.5 的第二代 Transformer 模型进一步扩大训练和模型能力，重点改善：</p>
 <ul>
@@ -545,7 +553,8 @@
 <p>因此，DLSS 5 不是简单的“DLSS 4.5 帧数更高版”。两者解决的问题不同，而且很可能在同一条流水线中协同：传统渲染提供可靠的几何与基础画面，DLSS 5 增强最终外观，DLSS 4.5 的 SR&#x2F;MFG 组件继续负责分辨率和显示帧率。</p>
 <hr>
 <h2 id="四、DLSS-游戏评测结果"><a href="#四、DLSS-游戏评测结果" class="headerlink" title="四、DLSS 游戏评测结果"></a>四、DLSS 游戏评测结果</h2><h3 id="1-DLSS-4-5-动态多帧生成实测"><a href="#1-DLSS-4-5-动态多帧生成实测" class="headerlink" title="1. DLSS 4.5 动态多帧生成实测"></a>1. DLSS 4.5 动态多帧生成实测</h3><p>下面的数据来自 Tom’s Guide 在 RTX 5060 Ti 平台上的 4K 高画质压力测试。它刻意把基础帧率压到约 27～34 FPS，再观察 Dynamic MFG 的输出、1% Low 与延迟，因此更像“低基础帧率极限测试”，不应外推为所有显卡和设置的普遍结果。</p>
-<p>![DLSS 4.5 游戏实测](NVIDIA DLSS技术&#x2F;dlss-45-benchmark-1789565461775-12.png)</p>
+<img src="/2026/09/16/NVIDIA%20DLSS%E6%8A%80%E6%9C%AF/dlss-45-benchmark-1789565461775-12.png" srcset="/img/loading.gif" lazyload alt="DLSS 4.5 游戏实测" style="zoom: 50%;">
+
 <table>
 <thead>
 <tr>
