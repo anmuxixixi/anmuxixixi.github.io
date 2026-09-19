@@ -410,7 +410,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2026/09/19/exfat-bloom-filter-empty-entry-hint/" target="_self">
         <div>
-          exFAT Bloom filter 与 3-entry、4-entry 空洞复用问题本文讨论的是创建文件时的目录空槽复用，不是 Bloom filter 将一个已经存在的文件误判为不存在。对照基线为 exFAT dev 分支的 216426aff8f6；下文的优化实现指在此基础上加入 Bloom filter 和“下一个空槽”提示的补丁。 先把 3-entry 和 4-entry 说清楚exFA
+          exFAT Bloom filter 与 3-entry、4-entry 空洞复用问题本文讨论的是创建文件时的目录空槽复用，不是 Bloom filter 将一个已经存在的文件误判为不存在。对照基线为 exFAT dev 分支的 216426aff8f6，优化实现取自 v5 工作树的 44356cf7dfa0。下面引用的代码位于 fs/exfat/dir.c 和 fs/exfat/namei.c；
         </div>
       </a>
 
