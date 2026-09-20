@@ -1,0 +1,1053 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="ARM64&#x2F;Linux内存寻址速记我们用一个非常简单的程序： 12345678910111213141516#include &lt;stdio.h&gt;#include &lt;unistd.h&gt;int global_var &#x3D; 0x12345678;int main(void)&amp;#123;    int stack_var &#x3D; 100;    printf(&quot;pag">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARM64&#x2F;Linux内存寻址速记">
+<meta property="og:url" content="http://example.com/2026/09/20/ARM64-Linux%E5%86%85%E5%AD%98%E5%AF%BB%E5%9D%80%E9%80%9F%E8%AE%B0/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="ARM64&#x2F;Linux内存寻址速记我们用一个非常简单的程序： 12345678910111213141516#include &lt;stdio.h&gt;#include &lt;unistd.h&gt;int global_var &#x3D; 0x12345678;int main(void)&amp;#123;    int stack_var &#x3D; 100;    printf(&quot;pag">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-09-20T13:57:50.000Z">
+<meta property="article:modified_time" content="2026-09-20T14:10:42.144Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>ARM64/Linux内存寻址速记 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ARM64/Linux内存寻址速记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-09-20 21:57" pubdate>
+          2026年9月20日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          64 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">ARM64/Linux内存寻址速记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="ARM64-x2F-Linux内存寻址速记"><a href="#ARM64-x2F-Linux内存寻址速记" class="headerlink" title="ARM64&#x2F;Linux内存寻址速记"></a>ARM64&#x2F;Linux内存寻址速记</h1><p>我们用一个非常简单的程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><br><span class="hljs-type">int</span> global_var = <span class="hljs-number">0x12345678</span>;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> stack_var = <span class="hljs-number">100</span>;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;page size  = %ld bytes\n&quot;</span>, sysconf(_SC_PAGESIZE));<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;global_var value = 0x%x\n&quot;</span>, global_var);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;global_var VA    = %p\n&quot;</span>, (<span class="hljs-type">void</span> *)&amp;global_var);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;stack_var VA     = %p\n&quot;</span>, (<span class="hljs-type">void</span> *)&amp;stack_var);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>ARM64 Linux 上编译：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh">gcc test.c -o <span class="hljs-built_in">test</span><br>./test<br></code></pre></td></tr></table></figure>
+
+<p>可能得到：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs abnf">page size  <span class="hljs-operator">=</span> <span class="hljs-number">4096</span> bytes<br>global_var value <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x12345678<br>global_var VA    <span class="hljs-operator">=</span> <span class="hljs-number">0</span>xaaaad71c0058<br>stack_var VA     <span class="hljs-operator">=</span> <span class="hljs-number">0</span>xffffef6a823c<br></code></pre></td></tr></table></figure>
+
+<p>这里最重要的是：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs 1c"><span class="hljs-meta">&amp;global_var</span><br></code></pre></td></tr></table></figure>
+
+<p>得到的是<strong>虚拟地址 VA</strong>，不是 DDR 上的物理地址。</p>
+<p>程序真正执行类似：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">ldr</span> w0,<span class="hljs-meta"> [x1]</span><br></code></pre></td></tr></table></figure>
+
+<p>假设：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">x1</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x0000AAAA D71C0058<br></code></pre></td></tr></table></figure>
+
+<p>CPU 要读取这个地址的数据时，ARM64 MMU 才会把这个虚拟地址翻译成物理地址。</p>
+<hr>
+<h1 id="1-ARM64-整体地址转换流程"><a href="#1-ARM64-整体地址转换流程" class="headerlink" title="1. ARM64 整体地址转换流程"></a>1. ARM64 整体地址转换流程</h1><p>可以先看总流程：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">C 程序<br>    |<span class="hljs-string"></span><br><span class="hljs-string">    </span>|<span class="hljs-string"> &amp;global_var</span><br><span class="hljs-string">    v</span><br><span class="hljs-string">虚拟地址 VA</span><br><span class="hljs-string">0x0000AAAA_D71C0058</span><br><span class="hljs-string">    </span>|<br>    v<br>+------------------+<br>|<span class="hljs-string">      MMU         </span>|<br>+------------------+<br>    |<span class="hljs-string"></span><br><span class="hljs-string">    </span>|<span class="hljs-string"> 先查</span><br><span class="hljs-string">    v</span><br><span class="hljs-string">+------------------+</span><br><span class="hljs-string"></span>|<span class="hljs-string">       TLB        </span>|<br>|<span class="hljs-string">      快表        </span>|<br>+------------------+<br>    |<span class="hljs-string"></span><br><span class="hljs-string">    +---- hit ------------------------+</span><br><span class="hljs-string">    </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string"> miss                            </span>|<br>    v                                 |<span class="hljs-string"></span><br><span class="hljs-string">TTBR0_EL1                             </span>|<br>    |<span class="hljs-string">                                 </span>|<br>    v                                 |<span class="hljs-string"></span><br><span class="hljs-string">L0 页表                               </span>|<br>    |<span class="hljs-string">                                 </span>|<br>    v                                 |<span class="hljs-string"></span><br><span class="hljs-string">L1 页表                               </span>|<br>    |<span class="hljs-string">                                 </span>|<br>    v                                 |<span class="hljs-string"></span><br><span class="hljs-string">L2 页表                               </span>|<br>    |<span class="hljs-string">                                 </span>|<br>    v                                 |<span class="hljs-string"></span><br><span class="hljs-string">L3 页表                               </span>|<br>    |<span class="hljs-string">                                 </span>|<br>    v                                 |<span class="hljs-string"></span><br><span class="hljs-string">物理页地址                            </span>|<br>    |<span class="hljs-string">                                 </span>|<br>    +---------------&gt; 更新 TLB -------+<br>    |<span class="hljs-string"></span><br><span class="hljs-string">    v</span><br><span class="hljs-string">物理地址 PA</span><br><span class="hljs-string">    </span>|<br>    v<br>Cache<br>    |<span class="hljs-string"></span><br><span class="hljs-string">    v</span><br><span class="hljs-string">DDR</span><br></code></pre></td></tr></table></figure>
+
+<p>在你刚才学过的概念里：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">PTBR</span><br></code></pre></td></tr></table></figure>
+
+<p>在 ARM64 上对应的核心寄存器就是：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">TTBR0<span class="hljs-emphasis">_EL1</span><br><span class="hljs-emphasis">TTBR1_</span>EL1<br></code></pre></td></tr></table></figure>
+
+<p>即：</p>
+<p><strong>Translation Table Base Register</strong>。</p>
+<hr>
+<h1 id="2-ARM64-为什么有两个“PTBR”"><a href="#2-ARM64-为什么有两个“PTBR”" class="headerlink" title="2. ARM64 为什么有两个“PTBR”"></a>2. ARM64 为什么有两个“PTBR”</h1><p>ARM64 Linux 通常使用：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">TTBR0_EL1</span><br>    ↓<br>用户空间页表<br><br>TTBR1_EL1<br>    ↓<br>内核空间页表<br></code></pre></td></tr></table></figure>
+
+<p>所以你的程序：</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lisp">printf(<span class="hljs-string">&quot;%p\n&quot;</span>, <span class="hljs-symbol">&amp;global_var</span>)<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>访问的用户态虚拟地址，通常走：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">TTBR0_EL1<br></code></pre></td></tr></table></figure>
+
+<p>比如：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs dns">进程 <span class="hljs-keyword">A</span><br><br>TTBR0_EL1<br>     |<br>     v<br>进程 <span class="hljs-keyword">A</span> 的页表<br></code></pre></td></tr></table></figure>
+
+<p>切换到进程 B：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs less">进程 <span class="hljs-selector-tag">B</span><br><br><span class="hljs-selector-tag">TTBR0_EL1</span><br>     |<br>     <span class="hljs-selector-tag">v</span><br>进程 <span class="hljs-selector-tag">B</span> 的页表<br></code></pre></td></tr></table></figure>
+
+<p>所以两个进程可以出现：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs dns">进程 <span class="hljs-keyword">A</span>：<br>VA <span class="hljs-number">0x400000</span> → PA <span class="hljs-number">0x81000000</span><br><br>进程 B：<br>VA <span class="hljs-number">0x400000</span> → PA <span class="hljs-number">0</span>xA<span class="hljs-number">3000000</span><br></code></pre></td></tr></table></figure>
+
+<p>虚拟地址一样，物理地址可以完全不一样。</p>
+<hr>
+<h1 id="3-假设-ARM64-使用-4KB-页"><a href="#3-假设-ARM64-使用-4KB-页" class="headerlink" title="3. 假设 ARM64 使用 4KB 页"></a>3. 假设 ARM64 使用 4KB 页</h1><p>这是理解 ARM64 页表最经典的情况。</p>
+<p>假设：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf">page size <span class="hljs-operator">=</span> <span class="hljs-number">4</span>KB<br><span class="hljs-attribute">VA</span> <span class="hljs-operator">=</span> <span class="hljs-number">48</span> bit<br></code></pre></td></tr></table></figure>
+
+<p>因为：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">4KB</span> = <span class="hljs-number">2</span>^<span class="hljs-number">12</span><br></code></pre></td></tr></table></figure>
+
+<p>所以虚拟地址最低：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-string">[11:0]</span><br></code></pre></td></tr></table></figure>
+
+<p>是页内偏移。</p>
+<p>剩余地址被拆成四级页表索引：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-section">47       39 38       30 29       21 20       12 11       0</span><br><span class="hljs-section">+----------+-----------+-----------+-----------+-----------+</span><br><span class="hljs-section">| L0 index | L1 index  | L2 index  | L3 index  |  offset   |</span><br><span class="hljs-section">+----------+-----------+-----------+-----------+-----------+</span><br><span class="hljs-code">   9 bit       9 bit       9 bit       9 bit      12 bit</span><br></code></pre></td></tr></table></figure>
+
+<p>因此：</p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs excel">虚拟地址 =<br><br><span class="hljs-symbol">L0</span> <span class="hljs-built_in">index</span><br>+<br><span class="hljs-symbol">L1</span> <span class="hljs-built_in">index</span><br>+<br><span class="hljs-symbol">L2</span> <span class="hljs-built_in">index</span><br>+<br><span class="hljs-symbol">L3</span> <span class="hljs-built_in">index</span><br>+<br>page <span class="hljs-built_in">offset</span><br></code></pre></td></tr></table></figure>
+
+<p>这就是 ARM64 四级页表最核心的东西。</p>
+<hr>
+<h1 id="4-为什么每一级刚好-9-bit？"><a href="#4-为什么每一级刚好-9-bit？" class="headerlink" title="4. 为什么每一级刚好 9 bit？"></a>4. 为什么每一级刚好 9 bit？</h1><p>因为 ARM64 页表项通常：</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">8 </span>Byte<br></code></pre></td></tr></table></figure>
+
+<p>一个页表占：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">4KB<br></code></pre></td></tr></table></figure>
+
+<p>所以一个页表可以存：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">4096 / 8<br><span class="hljs-section">= 512</span><br><span class="hljs-section">= 2^9</span><br></code></pre></td></tr></table></figure>
+
+<p>个页表项。</p>
+<p>因此一个 index 只需要：</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">9 </span>bit<br></code></pre></td></tr></table></figure>
+
+<p>就可以选出：</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">0 </span>~ <span class="hljs-number">511</span><br></code></pre></td></tr></table></figure>
+
+<p>中的一个页表项。</p>
+<p>所以：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">                 一个4KB页表<br>        +--------------------------+<br>index 0 |<span class="hljs-string"> 8-byte descriptor        </span>|<br>        +--------------------------+<br>index 1 |<span class="hljs-string"> 8-byte descriptor        </span>|<br>        +--------------------------+<br>        |<span class="hljs-string"> ...                      </span>|<br>        +--------------------------+<br>index511|<span class="hljs-string"> 8-byte descriptor        </span>|<br>        +--------------------------+<br><br>总大小：<br><br>512 × 8 = 4096 Byte<br></code></pre></td></tr></table></figure>
+
+<p>因此：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">L0：<span class="hljs-number">9</span> <span class="hljs-type">bit</span><br>L1：<span class="hljs-number">9</span> <span class="hljs-type">bit</span><br>L2：<span class="hljs-number">9</span> <span class="hljs-type">bit</span><br>L3：<span class="hljs-number">9</span> <span class="hljs-type">bit</span><br><span class="hljs-keyword">offset</span>：<span class="hljs-number">12</span> <span class="hljs-type">bit</span><br></code></pre></td></tr></table></figure>
+
+<p>刚好：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">9 <span class="hljs-code">+ 9 +</span> 9 <span class="hljs-code">+ 9 +</span> 12<br><span class="hljs-section">= 48 bit</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="5-用一个具体地址拆一下"><a href="#5-用一个具体地址拆一下" class="headerlink" title="5. 用一个具体地址拆一下"></a>5. 用一个具体地址拆一下</h1><p>为了方便理解，我们假设某次 CPU 访问：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">VA</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x0000123456789ABC<br></code></pre></td></tr></table></figure>
+
+<p>MMU 不把这个地址整体拿去查页表，而是拆开：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">VA<br><br><span class="hljs-code">+--------+</span>--------<span class="hljs-code">+--------+</span>--------<span class="hljs-code">+------------+</span><br><span class="hljs-section">| L0 idx | L1 idx | L2 idx | L3 idx | page offset|</span><br><span class="hljs-section">+--------+--------+--------+--------+------------+</span><br><span class="hljs-code">  9 bit    9 bit    9 bit    9 bit      12 bit</span><br></code></pre></td></tr></table></figure>
+
+<p>例如假设解析出来：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs abnf">L0 index <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x24<br>L1 index <span class="hljs-operator">=</span> <span class="hljs-number">0</span>xD1<br>L2 index <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x0B<br>L3 index <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x189<br><br><span class="hljs-attribute">offset</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>xABC<br></code></pre></td></tr></table></figure>
+
+<p>那么 MMU 的工作就是：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs 1c">TTBR0_EL1<br>   <span class="hljs-string">|</span><br>   v<br>L0页表<br>   <span class="hljs-string">|</span><br>   <span class="hljs-string">| index = 0x24</span><br>   v<br>L0[<span class="hljs-number">0</span>x24]<br>   <span class="hljs-string">|</span><br>   <span class="hljs-string">| 得到L1页表物理地址</span><br>   v<br>L1页表<br>   <span class="hljs-string">|</span><br>   <span class="hljs-string">| index = 0xD1</span><br>   v<br>L1[<span class="hljs-number">0</span>xD1]<br>   <span class="hljs-string">|</span><br>   <span class="hljs-string">| 得到L2页表物理地址</span><br>   v<br>L2页表<br>   <span class="hljs-string">|</span><br>   <span class="hljs-string">| index = 0x0B</span><br>   v<br>L2[<span class="hljs-number">0</span>x0B]<br>   <span class="hljs-string">|</span><br>   <span class="hljs-string">| 得到L3页表物理地址</span><br>   v<br>L3页表<br>   <span class="hljs-string">|</span><br>   <span class="hljs-string">| index = 0x189</span><br>   v<br>L3[<span class="hljs-number">0</span>x189]<br>   <span class="hljs-string">|</span><br>   <span class="hljs-string">| 得到物理页</span><br>   v<br>Physical Page<br></code></pre></td></tr></table></figure>
+
+<p>假设最终 L3 PTE 指向：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs abnf">物理页：<br><br>PA base <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x0000000123456000<br></code></pre></td></tr></table></figure>
+
+<p>原来的页内偏移：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">offset</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>xABC<br></code></pre></td></tr></table></figure>
+
+<p>最终：</p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs excel">PA<br>=<br><span class="hljs-number">0</span>x0000000123456000<br>+<br><span class="hljs-number">0</span>xABC<br><br>=<br><span class="hljs-number">0</span>x0000000123456ABC<br></code></pre></td></tr></table></figure>
+
+<p>也就是：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs markdown">VA<br>0x0000123456789ABC<br><br><span class="hljs-code">        MMU</span><br><span class="hljs-code"></span><br><span class="hljs-code">            ↓</span><br><span class="hljs-code"></span><br>PA<br>0x0000000123456ABC<br></code></pre></td></tr></table></figure>
+
+<p>注意一个非常重要的事情：</p>
+<blockquote>
+<p>页表负责转换的是“页”，最低 12 bit 的 offset 不需要转换。</p>
+</blockquote>
+<p>例如：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs dns">VA page:<br><span class="hljs-number">0</span>x<span class="hljs-number">123456789000</span><br><br>映射到：<br><br>PA page:<br><span class="hljs-number">0</span>x<span class="hljs-number">8123400000</span><br></code></pre></td></tr></table></figure>
+
+<p>那么：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs dns">VA <span class="hljs-number">0</span>x<span class="hljs-number">123456789001</span><br>→ PA <span class="hljs-number">0</span>x<span class="hljs-number">8123400001</span><br><br>VA <span class="hljs-number">0</span>x<span class="hljs-number">123456789123</span><br>→ PA <span class="hljs-number">0</span>x<span class="hljs-number">8123400123</span><br><br>VA <span class="hljs-number">0</span>x123456789ABC<br>→ PA <span class="hljs-number">0</span>x8123400ABC<br></code></pre></td></tr></table></figure>
+
+<p>最低 12 bit 原封不动。</p>
+<hr>
+<h1 id="6-TTBR0-EL1-里面放什么？"><a href="#6-TTBR0-EL1-里面放什么？" class="headerlink" title="6. TTBR0_EL1 里面放什么？"></a>6. TTBR0_EL1 里面放什么？</h1><p>你可以暂时把：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">TTBR0_EL1<br></code></pre></td></tr></table></figure>
+
+<p>理解为：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">页表根节点的物理地址<br></code></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">TTBR0_EL1<br>       |<span class="hljs-string"></span><br><span class="hljs-string">       </span>|<br>       +----&gt; 0x0000000080000000<br><br>                    ↓<br><br>             +----------------+<br>             |<span class="hljs-string">    L0 table    </span>|<br>             |<span class="hljs-string">                </span>|<br>             |<span class="hljs-string"> 512 entries    </span>|<br>             +----------------+<br></code></pre></td></tr></table></figure>
+
+<p>所以：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">TTBR0_EL1</span> ≈ PTBR<br></code></pre></td></tr></table></figure>
+
+<p>只是 ARM64 的实际设计比教科书里的 PTBR 更复杂。</p>
+<p>TTBR 中除了页表基地址，还会涉及 ASID 等信息。</p>
+<hr>
+<h1 id="7-ASID-是干什么的？"><a href="#7-ASID-是干什么的？" class="headerlink" title="7. ASID 是干什么的？"></a>7. ASID 是干什么的？</h1><p>这里正好可以解释 TLB 一个很重要的问题。</p>
+<p>假设：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs dns">进程<span class="hljs-keyword">A</span>：<br>VA <span class="hljs-number">0x400000</span> → PA <span class="hljs-number">0x10000000</span><br><br>进程B：<br>VA <span class="hljs-number">0x400000</span> → PA <span class="hljs-number">0x20000000</span><br></code></pre></td></tr></table></figure>
+
+<p>TLB 如果只记录：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns"><span class="hljs-number">0x400000</span> → <span class="hljs-number">0x10000000</span><br></code></pre></td></tr></table></figure>
+
+<p>那么 CPU 从 A 切换到 B 后就出问题了。</p>
+<p>所以 TLB 实际上还要区分：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">ASID</span><br></code></pre></td></tr></table></figure>
+
+<p>即：</p>
+<p><strong>Address Space Identifier</strong>。</p>
+<p>可以粗略理解成：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">TLB：<br><br><span class="hljs-section">ASID       VA          PA</span><br><span class="hljs-section">--------------------------------</span><br><span class="hljs-code"> 10      0x400000 → 0x10000000</span><br><span class="hljs-code"> 11      0x400000 → 0x20000000</span><br></code></pre></td></tr></table></figure>
+
+<p>所以：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf">进程A ASID <span class="hljs-operator">=</span> <span class="hljs-number">10</span><br>进程B ASID <span class="hljs-operator">=</span> <span class="hljs-number">11</span><br></code></pre></td></tr></table></figure>
+
+<p>即使 VA 一样，也不会冲突。</p>
+<hr>
+<h1 id="8-TLB-命中的时候，根本不会查四级页表"><a href="#8-TLB-命中的时候，根本不会查四级页表" class="headerlink" title="8. TLB 命中的时候，根本不会查四级页表"></a>8. TLB 命中的时候，根本不会查四级页表</h1><p>这一点非常重要。</p>
+<p>你可能现在会觉得：</p>
+<blockquote>
+<p>CPU 每访问一次内存，都查 L0 → L1 → L2 → L3，这不得慢死？</p>
+</blockquote>
+<p>没错。</p>
+<p>所以实际工作流程首先是：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs 1c">VA<br> <span class="hljs-string">|</span><br> v<br>TLB<br></code></pre></td></tr></table></figure>
+
+<p>例如 CPU 要访问：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">VA</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>xAAAA12345678<br></code></pre></td></tr></table></figure>
+
+<p>MMU 实际查询类似：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">ASID</span> + VPN<br></code></pre></td></tr></table></figure>
+
+<p>假设 TLB 已经存在：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">ASID 42<br><br><span class="hljs-section">VPN               PFN</span><br><span class="hljs-section">-------------------------</span><br>0xAAAA12345  →  0x81234<br></code></pre></td></tr></table></figure>
+
+<p>那么直接：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs abnf">VA<br><br><span class="hljs-number">0</span>xAAAA12345678<br><br>拆：<br><br><span class="hljs-attribute">VPN</span>    <span class="hljs-operator">=</span> <span class="hljs-number">0</span>xAAAA12345<br><span class="hljs-attribute">offset</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x678<br><br>TLB：<br>VPN → PFN<br><br>得到：<br><br><span class="hljs-attribute">PFN</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x81234<br></code></pre></td></tr></table></figure>
+
+<p>然后：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">PA</span> = <span class="hljs-number">0</span>x81234000 + <span class="hljs-number">0</span>x678<br></code></pre></td></tr></table></figure>
+
+<p>整个：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">L0</span><br>L1<br>L2<br>L3<br></code></pre></td></tr></table></figure>
+
+<p>全部不用访问。</p>
+<p>所以大部分正常内存访问实际上是：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs 1c">CPU<br> <span class="hljs-string">|</span><br> v<br>VA<br> <span class="hljs-string">|</span><br> v<br>TLB HIT<br> <span class="hljs-string">|</span><br> v<br>PA<br> <span class="hljs-string">|</span><br> v<br>Cache<br></code></pre></td></tr></table></figure>
+
+<p>而不是：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">VA</span><br> ↓<br>L0<br> ↓<br>L1<br> ↓<br>L2<br> ↓<br>L3<br> ↓<br>PA<br></code></pre></td></tr></table></figure>
+
+<p>后面这个叫：</p>
+<p><strong>Page Table Walk &#x2F; Translation Table Walk</strong>，</p>
+<p>主要发生在：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">TLB miss</span><br></code></pre></td></tr></table></figure>
+
+<p>的时候。</p>
+<hr>
+<h1 id="9-TLB-miss-之后谁查页表？"><a href="#9-TLB-miss-之后谁查页表？" class="headerlink" title="9. TLB miss 之后谁查页表？"></a>9. TLB miss 之后谁查页表？</h1><p>ARM64 CPU 有硬件 page-table walker。</p>
+<p>也就是说不是 Linux 每次都执行：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">pte</span> <span class="hljs-operator">=</span> xxx<span class="hljs-comment">;</span><br><span class="hljs-attribute">pmd</span> <span class="hljs-operator">=</span> xxx<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>来转换地址。</p>
+<p>而是：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">CPU</span> / MMU 硬件<br></code></pre></td></tr></table></figure>
+
+<p>自己读取页表。</p>
+<p>所以：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">   CPU执行load/store<br>          |<span class="hljs-string"></span><br><span class="hljs-string">          v</span><br><span class="hljs-string">         VA</span><br><span class="hljs-string">          </span>|<br>          v<br>        MMU<br>          |<span class="hljs-string"></span><br><span class="hljs-string">   +------+------+</span><br><span class="hljs-string">   </span>|<span class="hljs-string">             </span>|<br>TLB hit       TLB miss<br>   |<span class="hljs-string">             </span>|<br>   |<span class="hljs-string">             v</span><br><span class="hljs-string">   </span>|<span class="hljs-string">        Hardware</span><br><span class="hljs-string">   </span>|<span class="hljs-string">       Table Walker</span><br><span class="hljs-string">   </span>|<span class="hljs-string">             </span>|<br>   |<span class="hljs-string">        TTBR0_EL1</span><br><span class="hljs-string">   </span>|<span class="hljs-string">             </span>|<br>   |<span class="hljs-string">             v</span><br><span class="hljs-string">   </span>|<span class="hljs-string">            L0</span><br><span class="hljs-string">   </span>|<span class="hljs-string">             </span>|<br>   |<span class="hljs-string">             v</span><br><span class="hljs-string">   </span>|<span class="hljs-string">            L1</span><br><span class="hljs-string">   </span>|<span class="hljs-string">             </span>|<br>   |<span class="hljs-string">             v</span><br><span class="hljs-string">   </span>|<span class="hljs-string">            L2</span><br><span class="hljs-string">   </span>|<span class="hljs-string">             </span>|<br>   |<span class="hljs-string">             v</span><br><span class="hljs-string">   </span>|<span class="hljs-string">            L3</span><br><span class="hljs-string">   </span>|<span class="hljs-string">             </span>|<br>   |<span class="hljs-string">             v</span><br><span class="hljs-string">   </span>|<span class="hljs-string">           PTE</span><br><span class="hljs-string">   </span>|<span class="hljs-string">             </span>|<br>   |<span class="hljs-string">        填入 TLB</span><br><span class="hljs-string">   </span>|<span class="hljs-string">             </span>|<br>   +------<span class="hljs-variable">&lt;------+</span><br><span class="hljs-variable">          |</span><br><span class="hljs-variable">          v</span><br><span class="hljs-variable">         PA</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="10-那什么时候-Linux-内核才会参与？"><a href="#10-那什么时候-Linux-内核才会参与？" class="headerlink" title="10. 那什么时候 Linux 内核才会参与？"></a>10. 那什么时候 Linux 内核才会参与？</h1><p>这里特别容易混淆。</p>
+<p>假设页表已经建立：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">VA</span> → PA<br></code></pre></td></tr></table></figure>
+
+<p>那么：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">TLB miss</span><br></code></pre></td></tr></table></figure>
+
+<p>不等于：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">page fault</span><br></code></pre></td></tr></table></figure>
+
+<p>这是两个完全不同的概念。</p>
+<h3 id="TLB-miss"><a href="#TLB-miss" class="headerlink" title="TLB miss"></a>TLB miss</h3><p>例如：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">TLB</span> 没缓存<br><br>但是页表：<br>VA → PA<br><br>是有效的<br></code></pre></td></tr></table></figure>
+
+<p>那么：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs awk">TLB miss<br>   ↓<br>硬件查询L0<span class="hljs-regexp">/L1/</span>L2/L3<br>   ↓<br>找到有效PTE<br>   ↓<br>更新TLB<br>   ↓<br>继续执行<br></code></pre></td></tr></table></figure>
+
+<p><strong>操作系统基本不用参与。</strong></p>
+<hr>
+<h3 id="Page-Fault"><a href="#Page-Fault" class="headerlink" title="Page Fault"></a>Page Fault</h3><p>如果：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">TLB miss</span><br></code></pre></td></tr></table></figure>
+
+<p>然后硬件查页表发现：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">PTE invalid</span><br></code></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs dns">VA <span class="hljs-number">0x12340000</span><br>      ↓<br>L0 OK<br>      ↓<br>L1 OK<br>      ↓<br>L2 OK<br>      ↓<br>L3 PTE INVALID<br></code></pre></td></tr></table></figure>
+
+<p>这时候 MMU 无法完成转换。</p>
+<p>CPU 就产生：</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ada"><span class="hljs-keyword">exception</span><br></code></pre></td></tr></table></figure>
+
+<p>Linux ARM64 内核接管：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">do_page_fault</span><br></code></pre></td></tr></table></figure>
+
+<p>之类的异常处理路径。</p>
+<p>然后 Linux 判断：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">这个地址是否合法？<br></code></pre></td></tr></table></figure>
+
+<p>如果合法，比如：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs llvm"><span class="hljs-keyword">malloc</span>过，但是物理页还没分配<br></code></pre></td></tr></table></figure>
+
+<p>Linux 会：</p>
+<figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs nsis">分配 physical <span class="hljs-keyword">page</span><br>        ↓<br>建立 PTE<br>        ↓<br>返回用户态<br>        ↓<br>重新执行指令<br>        ↓<br>MMU重新翻译<br></code></pre></td></tr></table></figure>
+
+<p>如果非法：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf">int *p <span class="hljs-operator">=</span> (int *)<span class="hljs-number">0</span>x123<span class="hljs-comment">;</span><br>*p <span class="hljs-operator">=</span> <span class="hljs-number">10</span><span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>可能最终：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">SIGSEGV</span><br></code></pre></td></tr></table></figure>
+
+<p>也就是你常见的：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">Segmentation fault</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="11-用-malloc-看就更明显了"><a href="#11-用-malloc-看就更明显了" class="headerlink" title="11. 用 malloc 看就更明显了"></a>11. 用 malloc 看就更明显了</h1><p>可以稍微修改程序：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> *p;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;page size = %ld\n&quot;</span>, <span class="hljs-built_in">sysconf</span>(_SC_PAGESIZE));<br><br>    p = <span class="hljs-built_in">malloc</span>(<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;p VA = %p\n&quot;</span>, (<span class="hljs-type">void</span> *)p);<br><br>    *p = <span class="hljs-number">0x12345678</span>;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;*p = 0x%x\n&quot;</span>, *p);<br><br>    <span class="hljs-built_in">free</span>(p);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>关键代码：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf">*p <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x12345678<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>在 ARM64 上可能生成类似：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">str</span> w1,<span class="hljs-meta"> [x0]</span><br></code></pre></td></tr></table></figure>
+
+<p>假设：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">x0</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x0000AAAAF1234000<br><span class="hljs-attribute">w1</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>x12345678<br></code></pre></td></tr></table></figure>
+
+<p>CPU 的逻辑就是：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">str w1,[x0]<br><br>          |<span class="hljs-string"></span><br><span class="hljs-string">          v</span><br><span class="hljs-string"></span><br><span class="hljs-string">VA = 0x0000AAAAF1234000</span><br><span class="hljs-string"></span><br><span class="hljs-string">          </span>|<br>          v<br><br>         MMU<br>          |<span class="hljs-string"></span><br><span class="hljs-string">          v</span><br><span class="hljs-string">     查TLB</span><br><span class="hljs-string"></span><br><span class="hljs-string">       /     \</span><br><span class="hljs-string">    hit       miss</span><br><span class="hljs-string">     </span>|<span class="hljs-string">          </span>|<br>     |<span class="hljs-string">       TTBR0_EL1</span><br><span class="hljs-string">     </span>|<span class="hljs-string">          </span>|<br>     |<span class="hljs-string">          v</span><br><span class="hljs-string">     </span>|<span class="hljs-string">      page table walk</span><br><span class="hljs-string">     </span>|<span class="hljs-string">          </span>|<br>     |<span class="hljs-string">          v</span><br><span class="hljs-string">     </span>|<span class="hljs-string">         PTE</span><br><span class="hljs-string">     </span>|<span class="hljs-string">          </span>|<br>     +------<span class="hljs-variable">&lt;---+</span><br><span class="hljs-variable">          |</span><br><span class="hljs-variable">          v</span><br><span class="hljs-variable"></span><br><span class="hljs-variable">PA = 0x00000008C1234000</span><br><span class="hljs-variable"></span><br><span class="hljs-variable">          |</span><br><span class="hljs-variable">          v</span><br><span class="hljs-variable">        Cache</span><br><span class="hljs-variable">          |</span><br><span class="hljs-variable">          v</span><br><span class="hljs-variable">         DDR</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="12-Linux-中对应的页表名称"><a href="#12-Linux-中对应的页表名称" class="headerlink" title="12. Linux 中对应的页表名称"></a>12. Linux 中对应的页表名称</h1><p>如果你后面看 Linux ARM64 内核代码，会看到的名字不完全叫：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">L0</span><br>L1<br>L2<br>L3<br></code></pre></td></tr></table></figure>
+
+<p>Linux 抽象通常叫：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">PGD</span><br>P4D<br>PUD<br>PMD<br>PTE<br></code></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">pgd_offset</span><span class="hljs-params">()</span></span><br><span class="hljs-function"><span class="hljs-title">p4d_offset</span><span class="hljs-params">()</span></span><br><span class="hljs-function"><span class="hljs-title">pud_offset</span><span class="hljs-params">()</span></span><br><span class="hljs-function"><span class="hljs-title">pmd_offset</span><span class="hljs-params">()</span></span><br><span class="hljs-function"><span class="hljs-title">pte_offset_kernel</span><span class="hljs-params">()</span></span><br></code></pre></td></tr></table></figure>
+
+<p>你可以先把它理解成 Linux 为了支持不同 CPU 架构而建立的通用抽象。</p>
+<p>粗略来看：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs 1c">ARM64硬件概念          Linux抽象<br><br>页表根<br>   <span class="hljs-string">|</span><br>   v<br>L0                 PGD<br>   <span class="hljs-string">|</span><br>   v<br>L1              PUD / P4D<br>   <span class="hljs-string">|</span><br>   v<br>L2                 PMD<br>   <span class="hljs-string">|</span><br>   v<br>L3                 PTE<br></code></pre></td></tr></table></figure>
+
+<p>但具体哪个 Linux level 对应哪个硬件 translation level，和：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs arduino">CONFIG_PGTABLE_LEVELS<br>VA_BITS<br>page size<br></code></pre></td></tr></table></figure>
+
+<p>有关，所以不要把它们永久机械地一一对应。</p>
+<hr>
+<h1 id="13-ARM64-不一定都是“四级-4KB”"><a href="#13-ARM64-不一定都是“四级-4KB”" class="headerlink" title="13. ARM64 不一定都是“四级 + 4KB”"></a>13. ARM64 不一定都是“四级 + 4KB”</h1><p>这一点也要知道。</p>
+<p>我上面讲的是非常典型、最适合入门的：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-number">4</span>KB granule<br><span class="hljs-number">48</span>-<span class="hljs-type">bit</span> VA<br><span class="hljs-number">4</span>-<span class="hljs-keyword">level</span> page <span class="hljs-keyword">table</span><br></code></pre></td></tr></table></figure>
+
+<p>ARM64 本身还可以支持例如：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs">4KB<br>16KB<br>64KB<br></code></pre></td></tr></table></figure>
+
+<p>translation granule。</p>
+<p>虚拟地址位数也可能根据 CPU 和 Linux 配置不同：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-number">39</span> bit<br><span class="hljs-number">42</span> bit<br><span class="hljs-number">48</span> bit<br><span class="hljs-number">52</span> bit<br>...<br></code></pre></td></tr></table></figure>
+
+<p>因此页表级数也可能变化。</p>
+<p>Linux ARM64 常见配置可以查看：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">getconf PAGESIZE</span><br></code></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-number">4096</span><br></code></pre></td></tr></table></figure>
+
+<p>内核配置：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gradle">zcat <span class="hljs-regexp">/proc/</span>config.gz | <span class="hljs-keyword">grep</span> CONFIG_ARM64_<br></code></pre></td></tr></table></figure>
+
+<p>或者：</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs coq">grep -E &#x27;CONFIG_ARM64_(<span class="hljs-number">4</span>K|<span class="hljs-type">16K</span>|<span class="hljs-type">64K</span>)_PAGES|<span class="hljs-type">CONFIG_PGTABLE_LEVELS</span>|<span class="hljs-type">CONFIG_ARM64_VA_BITS</span>&#x27; \<br>    /boot/config-$(uname -r)<br></code></pre></td></tr></table></figure>
+
+<p>可能看到：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_ARM64_4K_PAGES</span>=y<br><span class="hljs-attr">CONFIG_PGTABLE_LEVELS</span>=<span class="hljs-number">4</span><br><span class="hljs-attr">CONFIG_ARM64_VA_BITS_48</span>=y<br></code></pre></td></tr></table></figure>
+
+<p>那么刚才讲的模型就非常接近：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">L0</span> : VA[<span class="hljs-number">47</span>:<span class="hljs-number">39</span>]<br><span class="hljs-attribute">L1</span> : VA[<span class="hljs-number">38</span>:<span class="hljs-number">30</span>]<br><span class="hljs-attribute">L2</span> : VA[<span class="hljs-number">29</span>:<span class="hljs-number">21</span>]<br><span class="hljs-attribute">L3</span> : VA[<span class="hljs-number">20</span>:<span class="hljs-number">12</span>]<br><span class="hljs-attribute">offset</span> : VA[<span class="hljs-number">11</span>:<span class="hljs-number">0</span>]<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="14-你现在可以把整个知识点压缩成这一张图"><a href="#14-你现在可以把整个知识点压缩成这一张图" class="headerlink" title="14. 你现在可以把整个知识点压缩成这一张图"></a>14. 你现在可以把整个知识点压缩成这一张图</h1><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">用户程序：<br><br>int a = 10;<br><br>CPU访问：<br><br>&amp;a<br> |<span class="hljs-string"></span><br><span class="hljs-string"> </span>|<span class="hljs-string"> 虚拟地址 VA</span><br><span class="hljs-string"> v</span><br><span class="hljs-string">+-----------------------+</span><br><span class="hljs-string"></span>|<span class="hljs-string">         MMU           </span>|<br>+-----------+-----------+<br>            |<span class="hljs-string"></span><br><span class="hljs-string">            v</span><br><span class="hljs-string">     +-------------+</span><br><span class="hljs-string">     </span>|<span class="hljs-string">     TLB     </span>|<br>     |<span class="hljs-string">    快表     </span>|<br>     +------+------+<br>            |<span class="hljs-string"></span><br><span class="hljs-string">       +----+----+</span><br><span class="hljs-string">       </span>|<span class="hljs-string">         </span>|<br>      HIT       MISS<br>       |<span class="hljs-string">         </span>|<br>       |<span class="hljs-string">         v</span><br><span class="hljs-string">       </span>|<span class="hljs-string">    TTBR0_EL1</span><br><span class="hljs-string">       </span>|<span class="hljs-string">         </span>|<br>       |<span class="hljs-string">         v</span><br><span class="hljs-string">       </span>|<span class="hljs-string">      L0 table</span><br><span class="hljs-string">       </span>|<span class="hljs-string">         </span>|<br>       |<span class="hljs-string">         v</span><br><span class="hljs-string">       </span>|<span class="hljs-string">      L1 table</span><br><span class="hljs-string">       </span>|<span class="hljs-string">         </span>|<br>       |<span class="hljs-string">         v</span><br><span class="hljs-string">       </span>|<span class="hljs-string">      L2 table</span><br><span class="hljs-string">       </span>|<span class="hljs-string">         </span>|<br>       |<span class="hljs-string">         v</span><br><span class="hljs-string">       </span>|<span class="hljs-string">      L3 table</span><br><span class="hljs-string">       </span>|<span class="hljs-string">         </span>|<br>       |<span class="hljs-string">         v</span><br><span class="hljs-string">       </span>|<span class="hljs-string">        PTE</span><br><span class="hljs-string">       </span>|<span class="hljs-string">         </span>|<br>       |<span class="hljs-string">         </span>|<span class="hljs-string"> PFN</span><br><span class="hljs-string">       </span>|<span class="hljs-string">         </span>|<br>       |<span class="hljs-string">    更新 TLB</span><br><span class="hljs-string">       </span>|<span class="hljs-string">         </span>|<br>       +----<span class="hljs-variable">&lt;----+</span><br><span class="hljs-variable">            |</span><br><span class="hljs-variable">            v</span><br><span class="hljs-variable"></span><br><span class="hljs-variable">       PFN + offset</span><br><span class="hljs-variable"></span><br><span class="hljs-variable">            |</span><br><span class="hljs-variable">            v</span><br><span class="hljs-variable"></span><br><span class="hljs-variable">       Physical Address</span><br><span class="hljs-variable">            |</span><br><span class="hljs-variable">            v</span><br><span class="hljs-variable">          Cache</span><br><span class="hljs-variable">            |</span><br><span class="hljs-variable">            v</span><br><span class="hljs-variable">           DDR</span><br></code></pre></td></tr></table></figure>
+
+<p>最核心的一句话就是：</p>
+<blockquote>
+<p>在 ARM64 上，程序使用的是虚拟地址。MMU 首先使用 <strong>VA + ASID 查询 TLB</strong>；TLB 命中就直接得到物理页信息；TLB 未命中时，MMU 根据 <strong>TTBR0_EL1 指向的页表根节点</strong>进行硬件 page-table walk，逐级查询 L0&#x2F;L1&#x2F;L2&#x2F;L3，最终从页表项得到物理页框，再加上虚拟地址中保持不变的 page offset，形成最终物理地址 PA。</p>
+</blockquote>
+<p>而且要特别区分：</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gauss">TLB <span class="hljs-built_in">miss</span><br>    ≠<br>Page Fault<br></code></pre></td></tr></table></figure>
+
+<p><strong>TLB miss + 页表有效 → MMU 自己解决。</strong></p>
+<p><strong>页表项无效&#x2F;权限不允许 → CPU exception → Linux page fault 处</strong></p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>本质</th>
+<th>通常在哪里</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>MMU</strong></td>
+<td>地址转换硬件</td>
+<td>CPU 内部</td>
+</tr>
+<tr>
+<td><strong>TLB &#x2F; 快表</strong></td>
+<td>地址转换缓存</td>
+<td>CPU&#x2F;MMU 内部</td>
+</tr>
+<tr>
+<td><strong>PTBR</strong></td>
+<td>页表根地址寄存器</td>
+<td>CPU 内部</td>
+</tr>
+<tr>
+<td><strong>页表</strong></td>
+<td>地址映射数据结构</td>
+<td>DDR 内存</td>
+</tr>
+<tr>
+<td><strong>多级页表</strong></td>
+<td>分层组织的页表</td>
+<td>DDR 内存</td>
+</tr>
+<tr>
+<td><strong>PTE</strong></td>
+<td>单个页表项</td>
+<td>页表中</td>
+</tr>
+</tbody></table>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ARM64/Linux内存寻址速记</div>
+      <div>http://example.com/2026/09/20/ARM64-Linux内存寻址速记/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年9月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/19/exfat-bloom-filter-empty-entry-hint/" title="exFAT Bloom filter 与 3-entry、4-entry 空洞复用问题">
+                        <span class="hidden-mobile">exFAT Bloom filter 与 3-entry、4-entry 空洞复用问题</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
