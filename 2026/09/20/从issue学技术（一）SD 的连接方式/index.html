@@ -1,0 +1,824 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="从issue学技术（一）SD 的连接方式在 exfatprogs issue #384 的测试记录中，同一张 SD 卡分别通过 Realtek RTS522A PCIe 读卡器和 Genesys Logic GL3224 USB 读卡器接入 Linux。设备节点分别表现为 &#x2F;dev&#x2F;mmcblk... 与 &#x2F;dev&#x2F;sd...。为什么同一张卡会出现两条不同的系统路径？本文从硬件连接和 Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从issue学技术（一）SD 的连接方式">
+<meta property="og:url" content="http://example.com/2026/09/20/%E4%BB%8Eissue%E5%AD%A6%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89SD%20%E7%9A%84%E8%BF%9E%E6%8E%A5%E6%96%B9%E5%BC%8F/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="从issue学技术（一）SD 的连接方式在 exfatprogs issue #384 的测试记录中，同一张 SD 卡分别通过 Realtek RTS522A PCIe 读卡器和 Genesys Logic GL3224 USB 读卡器接入 Linux。设备节点分别表现为 &#x2F;dev&#x2F;mmcblk... 与 &#x2F;dev&#x2F;sd...。为什么同一张卡会出现两条不同的系统路径？本文从硬件连接和 Linux">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-09-20T15:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-20T15:04:11.475Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="USB">
+<meta property="article:tag" content="Linux 内核">
+<meta property="article:tag" content="SD 卡">
+<meta property="article:tag" content="PCIe">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>从issue学技术（一）SD 的连接方式 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="从issue学技术（一）SD 的连接方式"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-09-20 23:00" pubdate>
+          2026年9月20日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          44 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">从issue学技术（一）SD 的连接方式</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="从issue学技术（一）SD-的连接方式"><a href="#从issue学技术（一）SD-的连接方式" class="headerlink" title="从issue学技术（一）SD 的连接方式"></a>从issue学技术（一）SD 的连接方式</h1><p>在 <a target="_blank" rel="noopener" href="https://github.com/exfatprogs/exfatprogs/issues/384">exfatprogs issue #384</a> 的测试记录中，同一张 SD 卡分别通过 Realtek RTS522A PCIe 读卡器和 Genesys Logic GL3224 USB 读卡器接入 Linux。设备节点分别表现为 <code>/dev/mmcblk...</code> 与 <code>/dev/sd...</code>。为什么同一张卡会出现两条不同的系统路径？本文从硬件连接和 Linux 驱动源码回答这个问题。</p>
+<h2 id="Linux-中-PCIe-与-USB-SD-读卡器的代码链路"><a href="#Linux-中-PCIe-与-USB-SD-读卡器的代码链路" class="headerlink" title="Linux 中 PCIe 与 USB SD 读卡器的代码链路"></a>Linux 中 PCIe 与 USB SD 读卡器的代码链路</h2><blockquote>
+<p>以 Realtek RTS522A（PCIe）和 Genesys Logic GL3224（USB）为例。范围是 Linux 如何发现设备、发起 SD 卡读请求并完成 I&#x2F;O；不讨论特定应用或文件系统的性能问题。源码以 2026-09-20 查阅的 Linux 主线 <code>master</code> 为依据，函数名可能随内核版本调整。</p>
+</blockquote>
+<h2 id="1-先看结论"><a href="#1-先看结论" class="headerlink" title="1. 先看结论"></a>1. 先看结论</h2><p>同一张普通 SD 卡插入两种读卡器时，卡与读卡器之间仍使用 SD 协议；变化发生在<strong>读卡器与主机之间</strong>。RTS522A 通过 PCIe 暴露控制器，Linux 自己管理 SD&#x2F;MMC 命令并创建 <code>/dev/mmcblkN</code>。GL3224 通过 USB Mass Storage 的 Bulk-Only Transport（BOT）暴露逻辑单元，Linux 对它发 SCSI 块命令，GL3224 固件再把命令转成 SD 卡访问，最终创建 <code>/dev/sdX</code>。<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/misc/cardreader/rtsx_pcr.c">RTS522A PCI ID 与驱动</a> · <a target="_blank" rel="noopener" href="https://www.genesyslogic.com.tw/en/product/show.php?kind=USB3.2Gen1_MemoryCardReader&num=GL3224">GL3224 厂商规格</a></p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>RTS522A：PCIe 读卡器</th>
+<th>GL3224：USB 读卡器</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主机侧总线</td>
+<td>PCIe</td>
+<td>USB，经 xHCI 主机控制器</td>
+</tr>
+<tr>
+<td>Linux 驱动栈</td>
+<td><code>rtsx_pci</code> → <code>rtsx_pci_sdmmc</code> → MMC core → <code>mmcblk</code></td>
+<td>USB core → <code>usb-storage</code> → SCSI core → <code>sd</code></td>
+</tr>
+<tr>
+<td>主机发出的存储命令</td>
+<td>MMC core 生成 SD 命令，例如 CMD17&#x2F;CMD18</td>
+<td><code>sd</code> 驱动生成 SCSI READ(10&#x2F;16)，装入 BOT 命令包</td>
+</tr>
+<tr>
+<td>谁处理 SD 协议</td>
+<td>Linux MMC 栈和 RTS522A 控制器</td>
+<td>GL3224 控制器及其固件；Linux 主机侧看到 SCSI 磁盘</td>
+</tr>
+<tr>
+<td>常见设备节点</td>
+<td><code>/dev/mmcblk0p1</code></td>
+<td><code>/dev/sda1</code>（字母和序号均不固定）</td>
+</tr>
+<tr>
+<td>典型插拔入口</td>
+<td>控制器卡检测 → <code>mmc_detect_change()</code></td>
+<td>USB 枚举&#x2F;断开或 SCSI 介质状态变化，取决于读卡器行为</td>
+</tr>
+</tbody></table>
+<p><strong>名称提醒：</strong>这里的 PCIe 是 RTS522A 到计算机的连接方式，并不表示普通 SD 卡以 PCIe&#x2F;SD Express 模式工作。上游驱动已有部分 SD Express 支持代码，但是否使用该模式取决于卡、控制器及实际协商结果；本文讨论普通 SD 模式。<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/mmc/host/rtsx_pci_sdmmc.c">Realtek MMC 主机驱动</a></p>
+<h2 id="2-设备是怎么出现的"><a href="#2-设备是怎么出现的" class="headerlink" title="2. 设备是怎么出现的"></a>2. 设备是怎么出现的</h2><h3 id="2-1-RTS522A：PCIe-→-MMC"><a href="#2-1-RTS522A：PCIe-→-MMC" class="headerlink" title="2.1 RTS522A：PCIe → MMC"></a>2.1 RTS522A：PCIe → MMC</h3><ol>
+<li>PCI 子系统枚举到 Realtek 设备。<code>drivers/misc/cardreader/rtsx_pcr.c</code> 的 <code>rtsx_pci_ids[]</code> 包含 <code>10ec:522a</code>，<code>rtsx_pci_probe()</code> 启用 PCI 设备、映射寄存器、配置中断和 DMA，并以 <code>mfd_add_devices()</code> 创建卡槽子设备。<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/misc/cardreader/rtsx_pcr.c">源码</a></li>
+<li><code>drivers/mmc/host/rtsx_pci_sdmmc.c</code> 的 <code>rtsx_pci_sdmmc_drv_probe()</code> 为 SD 槽分配 <code>mmc_host</code>，注册 <code>mmc_host_ops</code>，调用 <code>mmc_add_host()</code>。<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/mmc/host/rtsx_pci_sdmmc.c">源码</a></li>
+<li>插卡事件调用 <code>mmc_detect_change()</code>；MMC core 识别卡、协商总线参数。<code>drivers/mmc/core/block.c</code> 和 <code>queue.c</code> 建立块设备及请求队列，用户通常看到 <code>/dev/mmcblkN</code> 和分区 <code>/dev/mmcblkNpM</code>。<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/mmc/host/rtsx_pci_sdmmc.c">主机驱动</a> · <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/mmc/core/queue.c">MMC 队列</a></li>
+</ol>
+<h3 id="2-2-GL3224：USB-→-SCSI"><a href="#2-2-GL3224：USB-→-SCSI" class="headerlink" title="2.2 GL3224：USB → SCSI"></a>2.2 GL3224：USB → SCSI</h3><ol>
+<li>xHCI&#x2F;USB core 枚举 USB 设备和接口；符合 Mass Storage BOT 的接口绑定 <code>usb-storage</code>。GL3224 官方规格明确支持 BOT，也支持单 LUN 或双 LUN；实际暴露几个 LUN 由产品配置决定。<a target="_blank" rel="noopener" href="https://www.genesyslogic.com.tw/en/product/show.php?kind=USB3.2Gen1_MemoryCardReader&num=GL3224">厂商规格</a></li>
+<li><code>drivers/usb/storage/usb.c</code> 在探测时选择传输方式：<code>USB_PR_BULK</code> 对应 <code>usb_stor_Bulk_transport</code>；随后注册 SCSI host，扫描 LUN。<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/usb/storage/usb.c">源码</a></li>
+<li>SCSI <code>sd</code> 驱动识别磁盘，建立块设备及请求队列，用户通常看到 <code>/dev/sdX</code> 和 <code>/dev/sdXN</code>。<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/scsi/sd.c">SCSI 磁盘驱动</a></li>
+</ol>
+<blockquote>
+<p>GL3224 数据手册描述的是 BOT，因此下文按 <code>usb-storage</code> 路径画图。具体机器仍应以 <code>lsusb -t</code> 显示的 <code>Driver=...</code> 为准。<a target="_blank" rel="noopener" href="https://www.genesyslogic.com.tw/en/product/show.php?kind=USB3.2Gen1_MemoryCardReader&num=GL3224">GL3224 厂商规格</a></p>
+</blockquote>
+<h2 id="3-一次读请求的代码链路"><a href="#3-一次读请求的代码链路" class="headerlink" title="3. 一次读请求的代码链路"></a>3. 一次读请求的代码链路</h2><p>从应用程序读取<strong>已挂载文件</strong>时，请求先经过 VFS、具体文件系统和页缓存；缓存命中可能完全不访问卡。直接读块设备或使用 direct I&#x2F;O 时，上层入口不同。两条硬件链路从块层提交的 <code>bio</code>&#x2F;<code>request</code> 开始才适合逐一对照。<a target="_blank" rel="noopener" href="https://docs.kernel.org/block/blk-mq.html">blk-mq 文档</a></p>
+<pre><code class=" mermaid">flowchart TD
+    A[用户程序 read/pread] --&gt; B[VFS / 文件系统 / 页缓存]
+    B --&gt; C[块层 bio / blk-mq request]
+    C --&gt; D&#123;读卡器连接方式&#125;
+    D --&gt; E[MMC block: mmcblk]
+    E --&gt; F[MMC core: mmc_request]
+    F --&gt; G[rtsx_pci_sdmmc]
+    G --&gt; H[rtsx_pci + PCIe DMA]
+    H --&gt; I[RTS522A → SD 命令 → SD 卡]
+    D --&gt; J[SCSI sd: READ 命令]
+    J --&gt; K[SCSI core → usb-storage]
+    K --&gt; L[USB BOT: CBW → 数据 → CSW]
+    L --&gt; M[USB core → xHCI → GL3224]
+    M --&gt; N[GL3224 固件 → SD 命令 → SD 卡]
+</code></pre>
+
+<h3 id="3-1-RTS522A-的读路径"><a href="#3-1-RTS522A-的读路径" class="headerlink" title="3.1 RTS522A 的读路径"></a>3.1 RTS522A 的读路径</h3><p>典型非 CQE 读路径可按以下函数追踪：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">blk-mq request<br>  → drivers/mmc/core/queue.c:mmc_mq_queue_rq()<br>  → drivers/mmc/core/block.c:mmc_blk_mq_issue_rq()<br>  → mmc_blk_mq_issue_rw_rq()<br>  → mmc_blk_rw_rq_prep()       # 把块读请求整理为 SD CMD17/CMD18 等<br>  → mmc_start_request()<br>  → mmc_host_ops.request = sdmmc_request()<br>  → 工作队列 sd_request()<br>  → sd_rw_multi() → sd_read_long_data()<br>  → rtsx_pci_dma_transfer()<br>  → RTS522A → SD 总线 → 卡<br></code></pre></td></tr></table></figure>
+
+<p>这里 <code>mmc_blk_rw_rq_prep()</code> 根据单块&#x2F;多块读取选择 <code>MMC_READ_SINGLE_BLOCK</code> 或 <code>MMC_READ_MULTIPLE_BLOCK</code>；<code>sdmmc_request()</code> 安排工作队列，<code>sd_request()</code> 执行实际访问，<code>sd_read_long_data()</code> 设置控制器寄存器并调用 <code>rtsx_pci_dma_transfer()</code>。完成时 <code>sd_request()</code> 调用 <code>mmc_request_done()</code>，结果沿 MMC&#x2F;block 层返回。<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/mmc/core/queue.c">MMC 队列</a> · <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/mmc/core/block.c">MMC 块驱动</a> · <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/mmc/host/rtsx_pci_sdmmc.c">Realtek 主机驱动</a></p>
+<p>注：MMC core 有不同的队列、重试和硬件能力分支；上面是理解普通 SD 卡读 I&#x2F;O 的主线，不代表所有请求都逐函数经过完全相同的分支。</p>
+<h3 id="3-2-GL3224-的读路径"><a href="#3-2-GL3224-的读路径" class="headerlink" title="3.2 GL3224 的读路径"></a>3.2 GL3224 的读路径</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">blk-mq request<br>  → drivers/scsi/sd.c:sd_init_command()<br>  → sd_setup_read_write_cmnd() # 形成 SCSI READ(10/16) 等命令<br>  → SCSI core<br>  → drivers/usb/storage/scsiglue.c:queuecommand_lck()<br>  → drivers/usb/storage/usb.c:usb_stor_control_thread()<br>  → proto_handler（常见为 transparent SCSI）<br>  → drivers/usb/storage/transport.c:usb_stor_invoke_transport()<br>  → usb_stor_Bulk_transport()<br>  → USB bulk OUT: CBW，bulk IN: 数据，bulk IN: CSW<br>  → USB core / xHCI → GL3224 → SD 总线 → 卡<br></code></pre></td></tr></table></figure>
+
+<p><code>sd_init_command()</code> 将块读请求转换成 SCSI 命令；<code>queuecommand_lck()</code> 唤醒 <code>usb-storage</code> 工作线程；<code>usb_stor_Bulk_transport()</code> 发送 BOT 的 Command Block Wrapper（CBW）、接收数据与 Command Status Wrapper（CSW）。USB 传输最终交给 USB core 和主机控制器驱动。<strong>SCSI READ 如何在 GL3224 内部变成具体 SD 命令，是读卡器固件实现，不在 Linux 主机源码中。</strong><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/scsi/sd.c">SCSI 磁盘驱动</a> · <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/usb/storage/scsiglue.c">USB SCSI 桥接</a> · <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/usb/storage/usb.c">USB 存储线程</a> · <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/usb/storage/transport.c">BOT 传输实现</a> · <a target="_blank" rel="noopener" href="https://www.usb.org/document-library/mass-storage-bulk-only-10">USB-IF BOT 规范</a></p>
+<p>USB 路径中，主机内存与 xHCI 之间同样使用 DMA；“PCIe 有 DMA、USB 没有 DMA”是不准确的。区别在于 Linux 面对的是 MMC 主机控制器，还是通过 USB&#x2F;SCSI 接口暴露的桥接设备。<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/usb/core/urb.c">USB URB API</a> · <a target="_blank" rel="noopener" href="https://www.genesyslogic.com.tw/en/product/show.php?kind=USB3.2Gen1_MemoryCardReader&num=GL3224">GL3224 厂商规格</a></p>
+<h2 id="4-在-Linux-机器上核对实际路径"><a href="#4-在-Linux-机器上核对实际路径" class="headerlink" title="4. 在 Linux 机器上核对实际路径"></a>4. 在 Linux 机器上核对实际路径</h2><p>下面命令均为只读。先用 <code>lsblk</code> 找到目标设备，再用总线工具核对；不要假定 <code>/dev/sda</code> 或 <code>/dev/mmcblk0</code> 永远对应某个读卡器。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">lsblk -o NAME,TYPE,TRAN,MODEL,SIZE,RM<br>lspci -nnk | grep -A4 -i <span class="hljs-string">&#x27;card reader&#x27;</span><br>lsusb -t<br><span class="hljs-built_in">readlink</span> -f /sys/block/mmcblk0/device   <span class="hljs-comment"># 换成实际 mmcblk 设备</span><br><span class="hljs-built_in">readlink</span> -f /sys/block/sda/device       <span class="hljs-comment"># 换成实际 sd 设备</span><br>udevadm info --query=property --name=/dev/sda | grep -E <span class="hljs-string">&#x27;ID_BUS|ID_PATH|ID_MODEL&#x27;</span><br>dmesg | grep -Ei <span class="hljs-string">&#x27;rtsx|mmc|usb-storage|scsi|sd[a-z]&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>预期：RTS522A 在 <code>lspci -nnk</code> 中出现，驱动通常是 <code>rtsx_pci</code>，SD 槽经 <code>rtsx_pci_sdmmc</code> 进入 MMC 子系统；GL3224 在 <code>lsusb -t</code> 中出现，接口驱动通常是 <code>usb-storage</code>，块设备位于 SCSI <code>sd</code> 栈。<code>TRAN</code>、设备节点和内核日志应互相印证；某些读卡器在无卡时仍保留 SCSI 磁盘节点，是否如此由设备行为和内核处理决定。<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/misc/cardreader/rtsx_pcr.c">PCIe 父驱动</a> · <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/usb/storage/usb.c">USB 存储驱动</a></p>
+<h2 id="5-源码阅读顺序"><a href="#5-源码阅读顺序" class="headerlink" title="5. 源码阅读顺序"></a>5. 源码阅读顺序</h2><table>
+<thead>
+<tr>
+<th>目标</th>
+<th>入口文件</th>
+<th>先找的函数或结构</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>确认 RTS522A PCI ID、父设备初始化</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/misc/cardreader/rtsx_pcr.c"><code>drivers/misc/cardreader/rtsx_pcr.c</code></a></td>
+<td><code>rtsx_pci_ids[]</code>、<code>rtsx_pci_probe()</code></td>
+</tr>
+<tr>
+<td>确认 MMC host、卡检测、SD 读与 DMA</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/mmc/host/rtsx_pci_sdmmc.c"><code>drivers/mmc/host/rtsx_pci_sdmmc.c</code></a></td>
+<td><code>rtsx_pci_sdmmc_drv_probe()</code>、<code>sdmmc_request()</code>、<code>sd_request()</code>、<code>sd_read_long_data()</code></td>
+</tr>
+<tr>
+<td>确认块请求转 SD 命令</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/mmc/core/queue.c"><code>drivers/mmc/core/queue.c</code></a>、<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/mmc/core/block.c"><code>block.c</code></a></td>
+<td><code>mmc_mq_queue_rq()</code>、<code>mmc_blk_mq_issue_rq()</code>、<code>mmc_blk_rw_rq_prep()</code></td>
+</tr>
+<tr>
+<td>确认 USB BOT 绑定和传输</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/usb/storage/usb.c"><code>drivers/usb/storage/usb.c</code></a>、<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/usb/storage/transport.c"><code>transport.c</code></a></td>
+<td><code>get_transport()</code>、<code>usb_stor_control_thread()</code>、<code>usb_stor_Bulk_transport()</code></td>
+</tr>
+<tr>
+<td>确认 SCSI 命令入队</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/usb/storage/scsiglue.c"><code>drivers/usb/storage/scsiglue.c</code></a></td>
+<td><code>queuecommand_lck()</code></td>
+</tr>
+<tr>
+<td>确认块读请求转 SCSI READ</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/drivers/scsi/sd.c"><code>drivers/scsi/sd.c</code></a></td>
+<td><code>sd_init_command()</code>、<code>sd_setup_read_write_cmnd()</code></td>
+</tr>
+</tbody></table>
+<p><strong>边界：</strong>普通文件读取的 VFS&#x2F;文件系统调用栈因文件系统类型、页缓存状态和 direct I&#x2F;O 方式而异；GL3224 内部固件的 SD 命令链路不可从 Linux 主线源码直接还原。本文给出的函数链路适合作为内核源码追踪地图，具体运行中的调用分支应结合内核版本和设备枚举结果确认。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux-%E5%86%85%E6%A0%B8/" class="category-chain-item">Linux 内核</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/USB/">#USB</a>
+      
+        <a href="/tags/Linux-%E5%86%85%E6%A0%B8/">#Linux 内核</a>
+      
+        <a href="/tags/SD-%E5%8D%A1/">#SD 卡</a>
+      
+        <a href="/tags/PCIe/">#PCIe</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>从issue学技术（一）SD 的连接方式</div>
+      <div>http://example.com/2026/09/20/从issue学技术（一）SD 的连接方式/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年9月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/20/ARM64-Linux%E5%86%85%E5%AD%98%E5%AF%BB%E5%9D%80%E9%80%9F%E8%AE%B0/" title="ARM64/Linux内存寻址速记">
+                        <span class="hidden-mobile">ARM64/Linux内存寻址速记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
