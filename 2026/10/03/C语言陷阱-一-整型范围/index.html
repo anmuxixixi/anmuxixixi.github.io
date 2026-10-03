@@ -1,0 +1,790 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="C语言陷阱(一)整型范围无符号整型回绕❗❗❗无符号整型的回绕跟C语言的标准有关 在 C11 &#x2F; ISO&#x2F;IEC 9899:2011，§6.2.5 “Types”，第 9 段，原文是：  A computation involving unsigned operands can never overflow, because a result that cannot be rep">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C语言陷阱(一)整型范围">
+<meta property="og:url" content="http://example.com/2026/10/03/C%E8%AF%AD%E8%A8%80%E9%99%B7%E9%98%B1-%E4%B8%80-%E6%95%B4%E5%9E%8B%E8%8C%83%E5%9B%B4/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="C语言陷阱(一)整型范围无符号整型回绕❗❗❗无符号整型的回绕跟C语言的标准有关 在 C11 &#x2F; ISO&#x2F;IEC 9899:2011，§6.2.5 “Types”，第 9 段，原文是：  A computation involving unsigned operands can never overflow, because a result that cannot be rep">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/10/03/C%E8%AF%AD%E8%A8%80%E9%99%B7%E9%98%B1-%E4%B8%80-%E6%95%B4%E5%9E%8B%E8%8C%83%E5%9B%B4/image-20261003180457184.png">
+<meta property="article:published_time" content="2026-10-03T09:33:52.000Z">
+<meta property="article:modified_time" content="2026-10-03T10:23:05.715Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/10/03/C%E8%AF%AD%E8%A8%80%E9%99%B7%E9%98%B1-%E4%B8%80-%E6%95%B4%E5%9E%8B%E8%8C%83%E5%9B%B4/image-20261003180457184.png">
+  
+  
+  
+  <title>C语言陷阱(一)整型范围 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="C语言陷阱(一)整型范围"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-10-03 17:33" pubdate>
+          2026年10月3日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">C语言陷阱(一)整型范围</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="C语言陷阱-一-整型范围"><a href="#C语言陷阱-一-整型范围" class="headerlink" title="C语言陷阱(一)整型范围"></a>C语言陷阱(一)整型范围</h1><h2 id="无符号整型回绕"><a href="#无符号整型回绕" class="headerlink" title="无符号整型回绕"></a>无符号整型回绕</h2><p>❗❗❗<strong>无符号整型的回绕跟C语言的标准有关</strong></p>
+<p>在 <strong>C11 &#x2F; ISO&#x2F;IEC 9899:2011，§6.2.5 “Types”，第 9 段</strong>，原文是：</p>
+<blockquote>
+<p>A computation involving unsigned operands can never overflow, because a result that cannot be represented by the resulting unsigned integer type is reduced modulo the number that is one greater than the largest value that can be represented by the resulting type. </p>
+</blockquote>
+<p>意思就是：</p>
+<blockquote>
+<p>无符号类型参与的计算不会发生 C 标准意义上的 overflow；如果数学结果超出该无符号类型能表示的范围，就对“该类型最大值 + 1”取模。</p>
+</blockquote>
+<p>下面看一个例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> x = <span class="hljs-number">0xff</span>;<br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d\n&quot;</span>, ++x);<br></code></pre></td></tr></table></figure>
+
+<p>上面的代码会输出：0 （因为0xff + 1是256，与2^8求模后就是0）</p>
+<hr>
+<p>⛔<strong>我们看一个实际的无符号整型溢出的问题</strong></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/exfatprogs/exfatprogs/pull/383">https://github.com/exfatprogs/exfatprogs/pull/383</a></p>
+<p>原来的<code>EXFAT_BITMAP_SIZE</code>定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> DIV_ROUND_UP(__i, __d)	(((__i) + (__d) - 1) / (__d))</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> EXFAT_BITMAP_SIZE(__c_count) (DIV_ROUND_UP(__c_count, BITS_PER) * sizeof(bitmap_t))</span><br></code></pre></td></tr></table></figure>
+
+<img src="/2026/10/03/C%E8%AF%AD%E8%A8%80%E9%99%B7%E9%98%B1-%E4%B8%80-%E6%95%B4%E5%9E%8B%E8%8C%83%E5%9B%B4/image-20261003180457184.png" srcset="/img/loading.gif" lazyload alt="image-20261003180457184" style="zoom: 50%;">
+
+<p>现在看这段代码是有点危险的，假如clus_cout是个巨大的值（例如exfat支持的最大簇数量0xFFFFFFF5），最后在计算DIV_ROUND_UP的时候会得到(0xFFFFFFF4 + 63 &#x3D; 0x33)，发生32位无符号整型溢出；那么在这里alloc_bitmap可能是个很小的值，后面就会发生无法预知的错误（因为他没有和实际的簇大小对上）</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs text">typedef __u32 clus_t;<br><br>struct exfat &#123;<br>	// ...<br>	struct list_head	dir_list;<br>	clus_t			clus_count;<br>	// ...<br>&#125;;<br><br>clus_count = EXFAT_MAX_NUM_CLUSTER - 1 = 0xFFFFFFF4<br>BITS_PER   = 64<br><br>0xFFFFFFF4 + 63 -&gt; 0x33  (32-bit wraparound)<br>EXFAT_BITMAP_SIZE(...) -&gt; 0<br></code></pre></td></tr></table></figure>
+
+<h2 id="有符号整型溢出"><a href="#有符号整型溢出" class="headerlink" title="有符号整型溢出"></a>有符号整型溢出</h2><p>🎬<strong>这里需要补充补码的知识：</strong><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV16U4y1t7LD">『教程』补码怎么来的？</a>,一定要看啊！！！！！！！因为计算机中的运算都是用补码来表示的</p>
+<p>有符号整数溢出和无符号回绕最大的区别是：</p>
+<blockquote>
+<p><strong>无符号溢出按模 (2^N) 回绕；有符号整数一旦超出类型可表示范围，在 C 语言里属于未定义行为（undefined behavior, UB）。</strong></p>
+</blockquote>
+<p>假设 <code>int</code> 是 32 位，范围通常是：<code>-2147483648 ~ 2147483647</code>,也就是：<code>INT_MIN ~ INT_MAX</code></p>
+<p>看这个例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;limits.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> x = INT_MAX;<br><br>    x = x + <span class="hljs-number">1</span>;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d\n&quot;</span>, x);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>很多机器上你实际运行可能会看到：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs diff"><span class="hljs-deletion">-2147483648</span><br></code></pre></td></tr></table></figure>
+
+<p>因为二进制层面：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">INT_MAX<br><span class="hljs-section">= 0x7fffffff</span><br><span class="hljs-section">= 01111111 11111111 11111111 11111111</span><br></code></pre></td></tr></table></figure>
+
+<p>加 1：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">  01111111 11111111 11111111 11111111<br>+ 00000000 00000000 00000000 00000001<br>------------------------------------------------<br>  10000000 00000000 00000000 00000000<br></code></pre></td></tr></table></figure>
+
+<p>在 32 位补码表示下：</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">10000000 </span><span class="hljs-number">00000000</span> <span class="hljs-number">00000000</span> <span class="hljs-number">00000000</span><br></code></pre></td></tr></table></figure>
+
+<p>表示：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs diff"><span class="hljs-deletion">-2147483648</span><br></code></pre></td></tr></table></figure>
+
+<p>所以从<strong>硬件直觉</strong>上看，很像：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs dns"><span class="hljs-number">2147483647</span> + <span class="hljs-number">1</span><br>    ↓<br>-<span class="hljs-number">2147483648</span><br></code></pre></td></tr></table></figure>
+
+<p>但这里必须强调：</p>
+<blockquote>
+<p><strong>C 标准并没有规定 signed overflow 必须这样回绕。</strong></p>
+</blockquote>
+<p>也就是说，下面这句：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> x = INT_MAX;<br>x++;<br></code></pre></td></tr></table></figure>
+
+<p>不是“标准规定得到 <code>INT_MIN</code>”，而是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">发生 <span class="hljs-type">signed</span> integer overflow<br>        ↓<br>Undefined Behavior<br></code></pre></td></tr></table></figure>
+
+<p>编译器因此可以做一些你直觉上觉得“奇怪”的优化。</p>
+<p>比如：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> x + <span class="hljs-number">1</span> &gt; x;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>你可能觉得当：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">x = INT_MAX<br></code></pre></td></tr></table></figure>
+
+<p>时：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">x + <span class="hljs-number">1</span> -&gt; INT_MIN<br></code></pre></td></tr></table></figure>
+
+<p>所以：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">INT_MIN</span> &gt; INT_MAX<br></code></pre></td></tr></table></figure>
+
+<p>是假的。</p>
+<p>但编译器按照 C 标准推理：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs arduino">如果 x + <span class="hljs-number">1</span> 发生 <span class="hljs-type">signed</span> overflow<br>那程序已经 UB<br><br>所以对于所有“合法执行”<br>x + <span class="hljs-number">1</span> 一定没有溢出<br></code></pre></td></tr></table></figure>
+
+<p>因此：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs llvm"><span class="hljs-keyword">x</span> + <span class="hljs-number">1</span> &gt; <span class="hljs-keyword">x</span><br></code></pre></td></tr></table></figure>
+
+<p>必然成立。</p>
+<p>编译器可能直接优化成：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这就是为什么 signed overflow 很危险。</p>
+<p>你可以和 unsigned 对比：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> x = <span class="hljs-built_in">UINT_MAX</span>;<br>x++;<br></code></pre></td></tr></table></figure>
+
+<p>这是完全合法的：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">UINT_MAX</span> + <span class="hljs-number">1</span> -&gt; <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>因为标准定义了模运算。</p>
+<p>但：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs llvm">int <span class="hljs-keyword">x</span> <span class="hljs-operator">=</span> INT_MAX<span class="hljs-comment">;</span><br><span class="hljs-keyword">x</span>++<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>是：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-literal">Undefined</span> Behavior<br></code></pre></td></tr></table></figure>
+
+<p>所以可以这样记：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>超出范围后</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>unsigned int</code></td>
+<td>按 (2^N) 取模，合法回绕</td>
+</tr>
+<tr>
+<td><code>signed int</code></td>
+<td>未定义行为 UB</td>
+</tr>
+</tbody></table>
+<p>再举一个你在实际代码里更容易遇到的例子：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs abnf">int a <span class="hljs-operator">=</span> <span class="hljs-number">100000</span><span class="hljs-comment">;</span><br>int b <span class="hljs-operator">=</span> <span class="hljs-number">100000</span><span class="hljs-comment">;</span><br><br>int c <span class="hljs-operator">=</span> a * b<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>数学结果：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">100000 * 100000<br><span class="hljs-section">= 10000000000</span><br></code></pre></td></tr></table></figure>
+
+<p>但 32 位 <code>int</code> 最大只有：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns"><span class="hljs-number">2147483647</span><br></code></pre></td></tr></table></figure>
+
+<p>所以这个乘法发生了 signed overflow。</p>
+<p>正确写法应该扩大类型：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-type">long</span> <span class="hljs-type">long</span> c = (<span class="hljs-type">long</span> <span class="hljs-type">long</span>)a * b;<br></code></pre></td></tr></table></figure>
+
+<p>这样先把 <code>a</code> 转成 <code>long long</code>，整个乘法就在更大的整数类型里进行。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>C语言陷阱(一)整型范围</div>
+      <div>http://example.com/2026/10/03/C语言陷阱-一-整型范围/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年10月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/23/vscode%E4%B8%80%E4%BA%9B%E9%85%8D%E7%BD%AE%E9%A1%B9/" title="vscode一些配置项">
+                        <span class="hidden-mobile">vscode一些配置项</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
