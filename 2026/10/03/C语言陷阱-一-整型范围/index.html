@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2026/10/03/C%E8%AF%AD%E8%A8%80%E9%99%B7%E9%98%B1-%E4%B8%80-%E6%95%B4%E5%9E%8B%E8%8C%83%E5%9B%B4/image-20261003180457184.png">
 <meta property="article:published_time" content="2026-10-03T09:33:52.000Z">
-<meta property="article:modified_time" content="2026-10-03T10:23:05.715Z">
+<meta property="article:modified_time" content="2026-10-03T11:25:06.447Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/10/03/C%E8%AF%AD%E8%A8%80%E9%99%B7%E9%98%B1-%E4%B8%80-%E6%95%B4%E5%9E%8B%E8%8C%83%E5%9B%B4/image-20261003180457184.png">
@@ -216,7 +216,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.6k 字
+          3.5k 字
         
       </span>
     
@@ -227,7 +227,7 @@
         
         
         
-          22 分钟
+          29 分钟
         
       </span>
     
@@ -329,71 +329,7 @@
 <p>所以从<strong>硬件直觉</strong>上看，很像：</p>
 <figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs dns"><span class="hljs-number">2147483647</span> + <span class="hljs-number">1</span><br>    ↓<br>-<span class="hljs-number">2147483648</span><br></code></pre></td></tr></table></figure>
 
-<p>但这里必须强调：</p>
-<blockquote>
-<p><strong>C 标准并没有规定 signed overflow 必须这样回绕。</strong></p>
-</blockquote>
-<p>也就是说，下面这句：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> x = INT_MAX;<br>x++;<br></code></pre></td></tr></table></figure>
-
-<p>不是“标准规定得到 <code>INT_MIN</code>”，而是：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">发生 <span class="hljs-type">signed</span> integer overflow<br>        ↓<br>Undefined Behavior<br></code></pre></td></tr></table></figure>
-
-<p>编译器因此可以做一些你直觉上觉得“奇怪”的优化。</p>
-<p>比如：</p>
-<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> x + <span class="hljs-number">1</span> &gt; x;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>你可能觉得当：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">x = INT_MAX<br></code></pre></td></tr></table></figure>
-
-<p>时：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">x + <span class="hljs-number">1</span> -&gt; INT_MIN<br></code></pre></td></tr></table></figure>
-
-<p>所以：</p>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">INT_MIN</span> &gt; INT_MAX<br></code></pre></td></tr></table></figure>
-
-<p>是假的。</p>
-<p>但编译器按照 C 标准推理：</p>
-<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs arduino">如果 x + <span class="hljs-number">1</span> 发生 <span class="hljs-type">signed</span> overflow<br>那程序已经 UB<br><br>所以对于所有“合法执行”<br>x + <span class="hljs-number">1</span> 一定没有溢出<br></code></pre></td></tr></table></figure>
-
-<p>因此：</p>
-<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs llvm"><span class="hljs-keyword">x</span> + <span class="hljs-number">1</span> &gt; <span class="hljs-keyword">x</span><br></code></pre></td></tr></table></figure>
-
-<p>必然成立。</p>
-<p>编译器可能直接优化成：</p>
-<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>这就是为什么 signed overflow 很危险。</p>
-<p>你可以和 unsigned 对比：</p>
-<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> x = <span class="hljs-built_in">UINT_MAX</span>;<br>x++;<br></code></pre></td></tr></table></figure>
-
-<p>这是完全合法的：</p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">UINT_MAX</span> + <span class="hljs-number">1</span> -&gt; <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
-
-<p>因为标准定义了模运算。</p>
-<p>但：</p>
-<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs llvm">int <span class="hljs-keyword">x</span> <span class="hljs-operator">=</span> INT_MAX<span class="hljs-comment">;</span><br><span class="hljs-keyword">x</span>++<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
-
-<p>是：</p>
-<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-literal">Undefined</span> Behavior<br></code></pre></td></tr></table></figure>
-
-<p>所以可以这样记：</p>
-<table>
-<thead>
-<tr>
-<th>类型</th>
-<th>超出范围后</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>unsigned int</code></td>
-<td>按 (2^N) 取模，合法回绕</td>
-</tr>
-<tr>
-<td><code>signed int</code></td>
-<td>未定义行为 UB</td>
-</tr>
-</tbody></table>
+<hr>
 <p>再举一个你在实际代码里更容易遇到的例子：</p>
 <figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs abnf">int a <span class="hljs-operator">=</span> <span class="hljs-number">100000</span><span class="hljs-comment">;</span><br>int b <span class="hljs-operator">=</span> <span class="hljs-number">100000</span><span class="hljs-comment">;</span><br><br>int c <span class="hljs-operator">=</span> a * b<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
 
@@ -408,6 +344,47 @@
 <figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-type">long</span> <span class="hljs-type">long</span> c = (<span class="hljs-type">long</span> <span class="hljs-type">long</span>)a * b;<br></code></pre></td></tr></table></figure>
 
 <p>这样先把 <code>a</code> 转成 <code>long long</code>，整个乘法就在更大的整数类型里进行。</p>
+<h2 id="隐式转换陷阱"><a href="#隐式转换陷阱" class="headerlink" title="隐式转换陷阱"></a>隐式转换陷阱</h2><ol>
+<li>赋值表达式中，将右边的值转换为左边的类型，然后赋值给左边的变量。</li>
+</ol>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf">int a <span class="hljs-operator">=</span> <span class="hljs-number">10</span><span class="hljs-comment">;</span><br>double b <span class="hljs-operator">=</span> a<span class="hljs-comment">;  // 隐式转换</span><br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>算术运算式中，低类型能够转换为高类型。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 从低类型到高类型转换</span><br><span class="hljs-type">char</span>, <span class="hljs-type">short</span> -&gt; <span class="hljs-type">int</span> -&gt; <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> -&gt; <span class="hljs-type">long</span> -&gt; <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> -&gt; <span class="hljs-type">float</span> -&gt; <span class="hljs-type">double</span> -&gt; <span class="hljs-type">long</span> <span class="hljs-type">double</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 相加</span><br><span class="hljs-type">int</span> a = <span class="hljs-number">10</span>;<br><span class="hljs-type">double</span> b = <span class="hljs-number">20.5</span>;<br><span class="hljs-type">double</span> c = a + b;  <span class="hljs-comment">// 隐式转换 a -&gt; double</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 浮点运算</span><br><span class="hljs-type">int</span> a = <span class="hljs-number">10</span>;<br><span class="hljs-type">int</span> b = <span class="hljs-number">3</span>;<br><span class="hljs-type">float</span> c = a / b;  <span class="hljs-comment">// 3.000000</span><br><span class="hljs-type">float</span> d = <span class="hljs-number">1.0</span> * a / b;  <span class="hljs-comment">// 3.333333 等价于下面的</span><br><span class="hljs-type">float</span> e = (<span class="hljs-type">float</span>)a / b;  <span class="hljs-comment">// 3.333333</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 高类型转换为低类型</span><br><span class="hljs-comment">// 损失精度</span><br><span class="hljs-type">long</span> a = <span class="hljs-number">1111110000000</span>;<br><span class="hljs-type">int</span> b = <span class="hljs-number">1</span>;<br><span class="hljs-type">int</span> c = b + a;<br><span class="hljs-type">int</span> d = a + b;<br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;c = %d\n&quot;</span>, c);<br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;d = %d\n&quot;</span>, d);<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>函数调用时，将实参转换为形参的类型。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span>&#123;</span><br>  <span class="hljs-type">int</span> a;<br>  <span class="hljs-type">int</span> b;<br>&#125; <span class="hljs-type">data_t</span>;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">func</span><span class="hljs-params">(<span class="hljs-type">void</span>* _data)</span> &#123;<br>  <span class="hljs-type">data_t</span>* data = (<span class="hljs-type">data_t</span>*)_data;<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;a = %d, b = %d\n&quot;</span>, data.a, data.b);<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span> &#123;<br>  <span class="hljs-type">data_t</span> data = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>&#125;;<br>  func(&amp;data);  <span class="hljs-comment">// 隐式转换</span><br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>逻辑运算式中，将非布尔类型转换为布尔类型。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> a = <span class="hljs-number">10</span>;<br><span class="hljs-keyword">if</span> (a) &#123; <span class="hljs-comment">// 隐式转换</span><br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;a is true\n&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>如果表达式中既有 int 又有 unsigned int ，则所有的 int 数据都被转化为 unsigned int 类型</li>
+</ol>
+<blockquote>
+<p>当 <code>int</code> 和 <code>unsigned int</code> 作为需要进行 usual arithmetic conversions 的两个操作数时，因为它们的 integer conversion rank 相同，所以 <code>int</code> 操作数会转换成 <code>unsigned int</code>。</p>
+<p><a target="_blank" rel="noopener" href="https://www.open-std.org/jtc1/sc22/wg14/www/docs/n843.htm">https://www.open-std.org/jtc1/sc22/wg14/www/docs/n843.htm</a>?</p>
+</blockquote>
+<p>首先进行一个实验，分别定义一个 signed int 型数据和 unsigned int 型数据，然后进行大小比较：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> a = <span class="hljs-number">20</span>;<br><span class="hljs-type">signed</span> <span class="hljs-type">int</span> b = <span class="hljs-number">-130</span>;<br></code></pre></td></tr></table></figure>
+
+<p>实验证明：b&gt;a，也就是说−130&gt;20，为什么会出现这样的结果呢？</p>
+<p>这是因为在C语言操作中，如果遇到无符号数与有符号数之间的操作，编译器会自动转化为无符号数来进行处理，因此a＝20,b＝4294967166，这样比较下去当然b&gt;a了。再举一个例子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> a = <span class="hljs-number">20</span>;<br><span class="hljs-type">signed</span> <span class="hljs-type">int</span> b = <span class="hljs-number">-130</span>;<br>std::cout &lt;&lt; a + b &lt;&lt; std::endl;<br></code></pre></td></tr></table></figure>
+
+<p>结果输出为4294967186。同样的道理：在运算之前，a＝20，b被转化为4294967166，所以$a＋b＝42949671864，减法和乘法的运算结果类似。</p>
 
                 
               </div>
@@ -469,6 +446,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2026/10/03/exfat-bloom-filter-maintainer-review-notes/" title="exFAT 大目录创建优化：Patch Set Review 与修改记录">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">exFAT 大目录创建优化：Patch Set Review 与修改记录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">

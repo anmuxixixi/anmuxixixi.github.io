@@ -1,0 +1,948 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="exFAT 大目录创建优化：Patch Set Review 与修改记录本文按照 patch set 版本，整理 exFAT 大目录文件创建优化从初版到 v7 期间收到的 review 意见、问题产生的实际场景、修改方案和验证方法。 相关代码主要位于： 12345fs&#x2F;exfat&#x2F;dir.cfs&#x2F;exfat&#x2F;namei.cfs&#x2F;exfat&#x2F;inode.cfs&#x2F;exfat&#x2F;super.cfs&#x2F;exf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="exFAT 大目录创建优化：Patch Set Review 与修改记录">
+<meta property="og:url" content="http://example.com/2026/10/03/exfat-bloom-filter-maintainer-review-notes/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="exFAT 大目录创建优化：Patch Set Review 与修改记录本文按照 patch set 版本，整理 exFAT 大目录文件创建优化从初版到 v7 期间收到的 review 意见、问题产生的实际场景、修改方案和验证方法。 相关代码主要位于： 12345fs&#x2F;exfat&#x2F;dir.cfs&#x2F;exfat&#x2F;namei.cfs&#x2F;exfat&#x2F;inode.cfs&#x2F;exfat&#x2F;super.cfs&#x2F;exf">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-03T10:30:00.000Z">
+<meta property="article:modified_time" content="2026-10-03T11:30:00.000Z">
+<meta property="article:author" content="OneAmx">
+<meta property="article:tag" content="exFAT">
+<meta property="article:tag" content="Linux 内核">
+<meta property="article:tag" content="Bloom filter">
+<meta property="article:tag" content="Kernel Review">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>exFAT 大目录创建优化：Patch Set Review 与修改记录 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="exFAT 大目录创建优化：Patch Set Review 与修改记录"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-10-03 18:30" pubdate>
+          2026年10月3日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          88 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">exFAT 大目录创建优化：Patch Set Review 与修改记录</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="exFAT-大目录创建优化：Patch-Set-Review-与修改记录"><a href="#exFAT-大目录创建优化：Patch-Set-Review-与修改记录" class="headerlink" title="exFAT 大目录创建优化：Patch Set Review 与修改记录"></a>exFAT 大目录创建优化：Patch Set Review 与修改记录</h1><p>本文按照 patch set 版本，整理 exFAT 大目录文件创建优化从初版到 v7 期间收到的 review 意见、问题产生的实际场景、修改方案和验证方法。</p>
+<p>相关代码主要位于：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">fs/exfat/dir.c<br>fs/exfat/namei.c<br>fs/exfat/inode.c<br>fs/exfat/super.c<br>fs/exfat/exfat_fs.h<br></code></pre></td></tr></table></figure>
+
+<p>本文的图片统一放在与文章同名的目录中，并使用相对路径访问：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs markdown">![<span class="hljs-string">图片说明</span>](<span class="hljs-link">./exfat-bloom-filter-maintainer-review-notes/图片文件名.png</span>)<br></code></pre></td></tr></table></figure>
+
+<h2 id="背景：为什么要优化大目录文件创建"><a href="#背景：为什么要优化大目录文件创建" class="headerlink" title="背景：为什么要优化大目录文件创建"></a>背景：为什么要优化大目录文件创建</h2><p>创建新文件前，exFAT 必须确认目录中不存在同名文件。原始路径会从目录开头扫描：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">exfat_create()<br>  └─ exfat_find()<br>       └─ exfat_find_dir_entry()<br>            └─ 从目录开头扫描名称<br></code></pre></td></tr></table></figure>
+
+<p>连续创建 N 个不同名称时，总扫描量接近：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">1 + 2 + 3 + ... + N = O(N²)<br></code></pre></td></tr></table></figure>
+
+<p>优化方案包含两部分：</p>
+<ol>
+<li>使用 Bloom filter 判断名称“一定不存在”，跳过完整名称扫描。</li>
+<li>保存下一处 empty-entry hint，避免名称扫描被跳过后，目录项分配又从头扫描。</li>
+</ol>
+<p>整个 review 过程始终围绕四条正确性原则：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">Bloom filter 可以假阳性，但不能假阴性<br>empty-entry hint 不能永久跳过可复用空洞<br>写盘返回错误不等于磁盘完全没有变化<br>无法证明缓存仍然正确时，应释放缓存并回退到完整扫描<br></code></pre></td></tr></table></figure>
+
+<h2 id="Patch-set-v1：初版优化与补丁规模问题"><a href="#Patch-set-v1：初版优化与补丁规模问题" class="headerlink" title="Patch set v1：初版优化与补丁规模问题"></a>Patch set v1：初版优化与补丁规模问题</h2><h3 id="v1-的主要实现"><a href="#v1-的主要实现" class="headerlink" title="v1 的主要实现"></a>v1 的主要实现</h3><p>初版把 Bloom filter、empty-entry hint、LRU、shrinker 以及多个错误路径修改放在一个大 patch 中。</p>
+<p>Bloom filter 用于处理负名称查找：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (!exfat_name_filter_maybe_contains(dir, &amp;uni_name))<br>	<span class="hljs-keyword">return</span> -ENOENT;<br></code></pre></td></tr></table></figure>
+
+<p>empty-entry hint 用于让下一次分配从刚写入的目录项之后继续：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">本次写入 [3000, 3002]<br>下一次 hint = 3003<br></code></pre></td></tr></table></figure>
+
+<h3 id="Review-提出的问题"><a href="#Review-提出的问题" class="headerlink" title="Review 提出的问题"></a>Review 提出的问题</h3><p>单个 patch 同时修改名称查找、目录项分配、inode 生命周期和内存回收，review 很难确认：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">每一部分是否可以独立工作<br>中间状态是否已经保持正确<br>错误路径修改属于哪个功能<br>后续 patch 是否只是在修复前一个 patch 引入的问题<br></code></pre></td></tr></table></figure>
+
+<h3 id="后续处理"><a href="#后续处理" class="headerlink" title="后续处理"></a>后续处理</h3><p>后续版本把系列拆成三个逻辑明确的 patch：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">PATCH 1/3: exfat: add a Bloom filter for negative name lookups<br>PATCH 2/3: exfat: retain the next empty directory entry hint<br>PATCH 3/3: exfat: reclaim name filters under memory pressure<br></code></pre></td></tr></table></figure>
+
+<p>拆分后的要求是：每个 patch 应当可以独立 review，并且应用到该 patch 为止时已经保持正确，不能依赖后面的 patch 修复前面的正确性问题。</p>
+<h2 id="Patch-set-v2：free-inode-的-RCU-x2F-softirq-上下文问题"><a href="#Patch-set-v2：free-inode-的-RCU-x2F-softirq-上下文问题" class="headerlink" title="Patch set v2：free_inode() 的 RCU&#x2F;softirq 上下文问题"></a>Patch set v2：<code>free_inode()</code> 的 RCU&#x2F;softirq 上下文问题</h2><h3 id="Maintainer-提出的问题"><a href="#Maintainer-提出的问题" class="headerlink" title="Maintainer 提出的问题"></a>Maintainer 提出的问题</h3><p>v1 在 <code>exfat_free_inode()</code> 中释放过滤器：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">exfat_name_filter_free(inode);<br></code></pre></td></tr></table></figure>
+
+<p>但是 VFS 最终释放 inode 可能经过：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs text">destroy_inode()<br>  └─ call_rcu(&amp;inode-&gt;i_rcu, i_callback)<br>       └─ 等待 RCU grace period<br>            └─ i_callback()<br>                 └─ sb-&gt;s_op-&gt;free_inode()<br>                      └─ exfat_free_inode()<br></code></pre></td></tr></table></figure>
+
+<p>RCU callback 可能在 softirq context 中执行。过滤器由 <code>kvzalloc()</code> 分配，释放时调用 <code>kvfree()</code>；如果底层是 vmalloc 内存，释放路径可能执行不允许在 softirq&#x2F;atomic context 中执行的操作，LOCKDEP 可能报告警告。</p>
+<h3 id="v2-修改方案"><a href="#v2-修改方案" class="headerlink" title="v2 修改方案"></a>v2 修改方案</h3><p>把过滤器释放移动到普通进程上下文中的 <code>exfat_evict_inode()</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">exfat_evict_inode</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode)</span><br>&#123;<br>	truncate_inode_pages_final(&amp;inode-&gt;i_data);<br>	exfat_name_filter_free(inode);<br><br>	<span class="hljs-comment">/* 其余 inode 清理 */</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>新的生命周期为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs text">evict_inode()<br>  ├─ 清理 page cache<br>  ├─ 释放 name filter<br>  └─ inode 进入后续最终回收<br><br>RCU callback<br>  └─ free_inode()<br>       └─ 只进行最终 inode 内存释放<br></code></pre></td></tr></table></figure>
+
+<h3 id="v2-验证重点"><a href="#v2-验证重点" class="headerlink" title="v2 验证重点"></a>v2 验证重点</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">启用 CONFIG_PROVE_LOCKING<br>反复创建、删除和回收目录 inode<br>检查日志中是否出现 sleeping in atomic、LOCKDEP、Oops<br></code></pre></td></tr></table></figure>
+
+<h2 id="Patch-set-v3：补丁拆分、255-字符边界和-stale-hint"><a href="#Patch-set-v3：补丁拆分、255-字符边界和-stale-hint" class="headerlink" title="Patch set v3：补丁拆分、255 字符边界和 stale hint"></a>Patch set v3：补丁拆分、255 字符边界和 stale hint</h2><p>v3 开始正式以 patch series 的形式提交，并集中处理名称边界与 empty-entry hint 失效问题。</p>
+<h3 id="问题一：合法的-255-个-UTF-16-code-units-被拒绝"><a href="#问题一：合法的-255-个-UTF-16-code-units-被拒绝" class="headerlink" title="问题一：合法的 255 个 UTF-16 code units 被拒绝"></a>问题一：合法的 255 个 UTF-16 code units 被拒绝</h3><p>早期过滤器构建代码为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">for</span> (len = <span class="hljs-number">0</span>; len &lt; MAX_NAME_LENGTH &amp;&amp; name.name[len]; len++)<br>	;<br><span class="hljs-keyword">if</span> (!len || len == MAX_NAME_LENGTH)<br>	<span class="hljs-keyword">goto</span> <span class="hljs-built_in">abort</span>;<br></code></pre></td></tr></table></figure>
+
+<p>exFAT 允许最大 255 个 UTF-16 code units。文件名长度恰好为 255 时，循环结束后的 <code>len == MAX_NAME_LENGTH</code> 成立，过滤器构建被错误中止。</p>
+<p>v3 改为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">for</span> (len = <span class="hljs-number">0</span>; len &lt;= MAX_NAME_LENGTH &amp;&amp; name.name[len]; len++)<br>	;<br><span class="hljs-keyword">if</span> (!len || len &gt; MAX_NAME_LENGTH)<br>	<span class="hljs-keyword">goto</span> <span class="hljs-built_in">abort</span>;<br></code></pre></td></tr></table></figure>
+
+<p>具体边界变成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">长度 254：合法<br>长度 255：合法<br>长度超过 255：放弃过滤器构建<br></code></pre></td></tr></table></figure>
+
+<h3 id="问题二：hint-只向前移动，删除产生的前部空洞可能被永久跳过"><a href="#问题二：hint-只向前移动，删除产生的前部空洞可能被永久跳过" class="headerlink" title="问题二：hint 只向前移动，删除产生的前部空洞可能被永久跳过"></a>问题二：hint 只向前移动，删除产生的前部空洞可能被永久跳过</h3><p>存在 Bloom filter 时，代码保留 empty-entry hint：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (!ei-&gt;name_filter)<br>	ei-&gt;hint_femp.eidx = EXFAT_HINT_NONE;<br></code></pre></td></tr></table></figure>
+
+<p>但以下路径可能在 hint 之前释放目录项：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">exfat_unlink()<br>exfat_rmdir()<br>__exfat_rename()<br>exfat_move_file()<br>exfat_add_entry() rollback<br></code></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">当前 hint = 3000<br>删除文件释放 [100, 102]<br></code></pre></td></tr></table></figure>
+
+<p>如果 hint 不失效，后续分配继续从 3000 开始，<code>[100, 102]</code> 可能长期得不到复用。</p>
+<h3 id="v3-修改方案"><a href="#v3-修改方案" class="headerlink" title="v3 修改方案"></a>v3 修改方案</h3><p>增加统一失效函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">exfat_invalidate_empty_hint</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_inode_info</span> *<span class="hljs-title">ei</span> =</span> EXFAT_I(inode);<br><br>	ei-&gt;hint_femp.eidx = EXFAT_HINT_NONE;<br>	ei-&gt;hint_femp.count = <span class="hljs-number">0</span>;<br>	ei-&gt;hint_femp.min_entries = <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>所有可能释放目录项的成功、失败或 rollback 路径，都调用该函数。下一次分配无法使用旧 hint 时，会重新从目录开头发现前部空洞。</p>
+<h3 id="v3-的-patch-series-结构"><a href="#v3-的-patch-series-结构" class="headerlink" title="v3 的 patch series 结构"></a>v3 的 patch series 结构</h3><p>拆分时把 Bloom filter 正确性放在 PATCH 1，把 empty-entry hint 的保存和失效放在 PATCH 2，把 LRU&#x2F;shrinker 放在 PATCH 3，避免一个 patch 同时承担过多职责。</p>
+<h2 id="Patch-set-v4：hint-发布时机和-rename-x2F-move-假阴性"><a href="#Patch-set-v4：hint-发布时机和-rename-x2F-move-假阴性" class="headerlink" title="Patch set v4：hint 发布时机和 rename&#x2F;move 假阴性"></a>Patch set v4：hint 发布时机和 rename&#x2F;move 假阴性</h2><h3 id="问题一：目录项提交前就推进-hint"><a href="#问题一：目录项提交前就推进-hint" class="headerlink" title="问题一：目录项提交前就推进 hint"></a>问题一：目录项提交前就推进 hint</h3><p>早期代码在 <code>exfat_find_empty_entry()</code> 找到空槽后立即推进 inode 上的 hint：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">exfat_set_next_empty_hint(inode, p_dir, dentry,<br>			  num_entries, es);<br></code></pre></td></tr></table></figure>
+
+<p>但后续操作仍可能失败：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">exfat_alloc_new_dir()<br>exfat_put_dentry_set()<br>volume-label 写入<br>创建失败 rollback<br></code></pre></td></tr></table></figure>
+
+<p>假设找到 <code>[100, 102]</code> 后立即把 hint 推进到 103，随后写入失败且 <code>[100, 102]</code> 仍为空，下一次创建就会跳过仍然可用的空槽。</p>
+<h3 id="v4-修改方案：先计算，提交成功后再发布"><a href="#v4-修改方案：先计算，提交成功后再发布" class="headerlink" title="v4 修改方案：先计算，提交成功后再发布"></a>v4 修改方案：先计算，提交成功后再发布</h3><p><code>exfat_find_empty_entry()</code> 只生成调用者局部变量：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_hint_femp</span> <span class="hljs-title">next_hint</span>;</span><br><br>dentry = exfat_find_empty_entry(inode, &amp;info-&gt;dir,<br>				num_entries, &amp;es, &amp;next_hint);<br></code></pre></td></tr></table></figure>
+
+<p>目录项集合成功提交后才写入 inode：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">ret = exfat_put_dentry_set(&amp;es, IS_DIRSYNC(inode));<br><span class="hljs-keyword">if</span> (ret)<br>	<span class="hljs-keyword">goto</span> rollback;<br><br>EXFAT_I(inode)-&gt;hint_femp = next_hint;<br></code></pre></td></tr></table></figure>
+
+<p>执行顺序变为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">找到空槽<br>  └─ 计算局部 next_hint<br>       └─ 提交目录项<br>            ├─ 成功：发布 next_hint<br>            └─ 失败：不发布，并按路径失效旧 hint<br></code></pre></td></tr></table></figure>
+
+<h3 id="问题二：rename-x2F-move-返回失败时，目标名称可能已经存在"><a href="#问题二：rename-x2F-move-返回失败时，目标名称可能已经存在" class="headerlink" title="问题二：rename&#x2F;move 返回失败时，目标名称可能已经存在"></a>问题二：rename&#x2F;move 返回失败时，目标名称可能已经存在</h3><p>跨目录 rename&#x2F;move 大致执行：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">1. 在目标目录找到空槽<br>2. 写入目标名称<br>3. 提交目标目录项<br>4. 删除源目录项<br>5. 提交源目录项删除<br></code></pre></td></tr></table></figure>
+
+<p>如果第 3 步已经成功，而第 4 或第 5 步失败，整体操作返回错误，但目标名称可能已经在磁盘上。</p>
+<p>旧代码只在整体成功时更新过滤器：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (!ret)<br>	exfat_name_filter_add(new_parent_inode, &amp;uni_name);<br></code></pre></td></tr></table></figure>
+
+<p>随后查询目标名称时，过滤器可能返回 definite miss，使内核不扫描磁盘而错误返回 <code>-ENOENT</code>。</p>
+<h3 id="v4-修改方案：失败时释放目标过滤器"><a href="#v4-修改方案：失败时释放目标过滤器" class="headerlink" title="v4 修改方案：失败时释放目标过滤器"></a>v4 修改方案：失败时释放目标过滤器</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (!ret)<br>	exfat_name_filter_add(new_parent_inode, &amp;uni_name);<br><span class="hljs-keyword">else</span><br>	exfat_name_filter_free(new_parent_inode);<br></code></pre></td></tr></table></figure>
+
+<p>错误发生在哪一步很难可靠判断，因此不尝试猜测目标名称是否写入。直接释放过滤器，使下一次 lookup 回退到完整磁盘扫描，是最安全的处理方式。</p>
+<h2 id="Patch-set-v5：基于-dev、返回值协议和-3-x2F-4-entry-小洞"><a href="#Patch-set-v5：基于-dev、返回值协议和-3-x2F-4-entry-小洞" class="headerlink" title="Patch set v5：基于 dev、返回值协议和 3&#x2F;4-entry 小洞"></a>Patch set v5：基于 dev、返回值协议和 3&#x2F;4-entry 小洞</h2><h3 id="问题一：patch-必须基于-exFAT-maintainer-的-dev-分支"><a href="#问题一：patch-必须基于-exFAT-maintainer-的-dev-分支" class="headerlink" title="问题一：patch 必须基于 exFAT maintainer 的 dev 分支"></a>问题一：patch 必须基于 exFAT maintainer 的 <code>dev</code> 分支</h3><p>maintainer 要求不要继续基于旧的 linux-next 快照制作 patch，而应基于 exFAT <code>dev</code> 分支，以减少上下文冲突，并保证 review 针对的是准备进入上游的最新代码。</p>
+<p>v5 重新基于当时的 <code>dev</code> 分支制作，后续 v7 的最终基线为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">216426aff8f6 MAINTAINERS: add exFAT documentation<br></code></pre></td></tr></table></figure>
+
+<h3 id="问题二：volume-label-路径不能用-if-ret-判断分配成功"><a href="#问题二：volume-label-路径不能用-if-ret-判断分配成功" class="headerlink" title="问题二：volume-label 路径不能用 if (!ret) 判断分配成功"></a>问题二：volume-label 路径不能用 <code>if (!ret)</code> 判断分配成功</h3><p>曾经的代码为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">ret = exfat_find_empty_entry(root_inode, &amp;clu, <span class="hljs-number">1</span>, &amp;es,<br>			     &amp;next_hint);<br><span class="hljs-keyword">if</span> (!ret)<br>	entry_allocated = <span class="hljs-literal">true</span>;<br></code></pre></td></tr></table></figure>
+
+<p><code>exfat_find_empty_entry()</code> 成功时返回目录项索引，而不是固定返回 0：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">ret &lt; 0：失败<br>ret = 0：在第 0 项找到，成功<br>ret = 17：在第 17 项找到，同样成功<br></code></pre></td></tr></table></figure>
+
+<p>v5 按函数协议改成：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (ret &gt;= <span class="hljs-number">0</span>)<br>	entry_allocated = <span class="hljs-literal">true</span>;<br></code></pre></td></tr></table></figure>
+
+<h3 id="问题三：4-entry-请求保存的-hint-会跳过-3-entry-空洞"><a href="#问题三：4-entry-请求保存的-hint-会跳过-3-entry-空洞" class="headerlink" title="问题三：4-entry 请求保存的 hint 会跳过 3-entry 空洞"></a>问题三：4-entry 请求保存的 hint 会跳过 3-entry 空洞</h3><p>假设目录前部存在：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">[100, 102]：连续 3 个空目录项<br></code></pre></td></tr></table></figure>
+
+<p>先创建一个 16 字符名称，需要 4 entries。前部空洞放不下，因此在后部 <code>[3000, 3003]</code> 创建，并保存：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">hint.eidx = 3004<br></code></pre></td></tr></table></figure>
+
+<p>随后创建一个只需 3 entries 的短名称。Bloom filter miss 跳过名称扫描后，如果无条件使用 3004，就会跳过本来可以使用的 <code>[100, 102]</code>。</p>
+<p>错误推导是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">前面没有能放下 4 entries 的空洞<br>              ↓ 不能推出<br>前面没有能放下 3 entries 的空洞<br></code></pre></td></tr></table></figure>
+
+<h3 id="v5-修改方案：增加-min-entries"><a href="#v5-修改方案：增加-min-entries" class="headerlink" title="v5 修改方案：增加 min_entries"></a>v5 修改方案：增加 <code>min_entries</code></h3><p>保存 hint 时记录产生它的请求大小：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_hint_femp</span> &#123;</span><br>	<span class="hljs-type">int</span> eidx;<br>	<span class="hljs-type">int</span> count;<br>	<span class="hljs-type">int</span> min_entries;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_chain</span> <span class="hljs-title">cur</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">hint_femp-&gt;min_entries = num_entries;<br></code></pre></td></tr></table></figure>
+
+<p>下次请求只有不小于原请求时才沿用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (ei-&gt;hint_femp.eidx != EXFAT_HINT_NONE) &#123;<br>	<span class="hljs-keyword">if</span> (num_entries &gt;= ei-&gt;hint_femp.min_entries)<br>		hint_femp = ei-&gt;hint_femp;<br>	exfat_invalidate_empty_hint(inode);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>具体代入：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">旧请求：4 entries，min_entries = 4<br>新请求：3 entries<br>判断：3 &gt;= 4 为假<br>结果：从头扫描并复用 [100, 102]<br></code></pre></td></tr></table></figure>
+
+<p>如果旧请求是 3 entries、新请求是 4 entries，那么旧 hint 之前连 3-entry 空洞都没有，自然不可能有 4-entry 空洞，因此可以安全沿用。</p>
+<h2 id="Patch-set-v6：create-写失败与-patch-独立正确性"><a href="#Patch-set-v6：create-写失败与-patch-独立正确性" class="headerlink" title="Patch set v6：create 写失败与 patch 独立正确性"></a>Patch set v6：create 写失败与 patch 独立正确性</h2><h3 id="Maintainer-提出的问题-1"><a href="#Maintainer-提出的问题-1" class="headerlink" title="Maintainer 提出的问题"></a>Maintainer 提出的问题</h3><p>创建文件时，<code>exfat_put_dentry_set()</code> 可能在部分 buffer 已经写入后返回错误。返回错误并不能证明新名称完全没有到达磁盘。</p>
+<p>错误路径会继续尝试读取并回滚：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">ret = exfat_put_dentry_set(&amp;es, IS_DIRSYNC(inode));<br><span class="hljs-keyword">if</span> (ret) &#123;<br>	cleanup_ret = exfat_get_dentry_set(...);<br>	<span class="hljs-keyword">if</span> (!cleanup_ret) &#123;<br>		exfat_remove_entries(...);<br>		cleanup_ret = exfat_put_dentry_set(...);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>此时可能出现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">新名称完全未写入<br>新名称部分写入<br>新名称已经可见，但函数报告后续 I/O 错误<br>rollback 成功<br>rollback 也失败<br></code></pre></td></tr></table></figure>
+
+<p>如果保留旧 Bloom filter，而磁盘上实际已经出现新名称，后续 lookup 就可能产生假阴性。</p>
+<h3 id="v6-修改方案"><a href="#v6-修改方案" class="headerlink" title="v6 修改方案"></a>v6 修改方案</h3><p>第一次提交返回错误后，在尝试 rollback 之前立即释放过滤器：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">ret = exfat_put_dentry_set(&amp;es, IS_DIRSYNC(inode));<br><span class="hljs-keyword">if</span> (ret) &#123;<br>	<span class="hljs-type">int</span> cleanup_ret;<br><br>	exfat_name_filter_free(inode);<br>	cleanup_ret = exfat_get_dentry_set(...);<br>	<span class="hljs-comment">/* rollback */</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>即使 rollback 成功，释放过滤器也只损失一次重建成本；如果 rollback 失败，则避免错误的 <code>-ENOENT</code>。</p>
+<h3 id="v6-的-patch-组织调整"><a href="#v6-的-patch-组织调整" class="headerlink" title="v6 的 patch 组织调整"></a>v6 的 patch 组织调整</h3><p>rename&#x2F;move 错误时失效目标过滤器属于 Bloom filter 自身的正确性要求，因此必须放进 PATCH 1，而不能等 PATCH 2 或 PATCH 3 再修复。</p>
+<p>这保证：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">只应用 PATCH 1：Bloom filter 已经正确<br>再应用 PATCH 2：只增加 empty-entry hint 优化<br>再应用 PATCH 3：只增加内存回收能力<br></code></pre></td></tr></table></figure>
+
+<h2 id="Patch-set-v7：动态过滤器、饱和重建和-shrinker-协议"><a href="#Patch-set-v7：动态过滤器、饱和重建和-shrinker-协议" class="headerlink" title="Patch set v7：动态过滤器、饱和重建和 shrinker 协议"></a>Patch set v7：动态过滤器、饱和重建和 shrinker 协议</h2><p>v7 主要处理 maintainer 对固定 64 KiB 过滤器和 shrinker 扫描预算的意见。</p>
+<h3 id="问题一：固定-64-KiB-对小目录浪费、对超大目录失效"><a href="#问题一：固定-64-KiB-对小目录浪费、对超大目录失效" class="headerlink" title="问题一：固定 64 KiB 对小目录浪费、对超大目录失效"></a>问题一：固定 64 KiB 对小目录浪费、对超大目录失效</h3><p>过滤器在目录达到 1024 个磁盘目录项时建立。短名称通常占 3 个目录项，门槛附近大约只有：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">1024 / 3 ≈ 340 个文件<br></code></pre></td></tr></table></figure>
+
+<p>为约 340 个文件固定分配 64 KiB 明显浪费。另一方面，64 KiB 只有 524288 bits；面对 100 万以上文件时，绝大多数 bit 会被置为 1，查询不存在名称时也几乎总是返回“可能存在”，过滤器失去性能价值。</p>
+<h3 id="v7-修改：根据目录容量动态选择-bitmap"><a href="#v7-修改：根据目录容量动态选择-bitmap" class="headerlink" title="v7 修改：根据目录容量动态选择 bitmap"></a>v7 修改：根据目录容量动态选择 bitmap</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> EXFAT_NAME_FILTER_MIN_DENTRIES       1024</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> EXFAT_NAME_FILTER_BITS_PER_DENTRY    4</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> EXFAT_NAME_FILTER_MIN_ORDER          12</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> EXFAT_NAME_FILTER_MAX_ORDER          25</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> u8 <span class="hljs-title function_">exfat_name_filter_order</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode)</span><br>&#123;<br>	u64 dentries = exfat_bytes_to_dentries(i_size_read(inode));<br>	u64 bits;<br><br>	dentries = <span class="hljs-type">clamp_t</span>(u64, dentries,<br>			   EXFAT_NAME_FILTER_MIN_DENTRIES,<br>			   MAX_EXFAT_DENTRIES);<br>	bits = dentries * EXFAT_NAME_FILTER_BITS_PER_DENTRY;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-type">clamp_t</span>(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>, fls64(bits - <span class="hljs-number">1</span>),<br>		       EXFAT_NAME_FILTER_MIN_ORDER,<br>		       EXFAT_NAME_FILTER_MAX_ORDER);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>范围为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">最小 bitmap：512 bytes<br>最大 bitmap：4 MiB<br></code></pre></td></tr></table></figure>
+
+<p>短名称至少占 3 个目录项，相当于至少 12 bits&#x2F;name。100 万个短名称大约使用 2 MiB bitmap，理论假阳性率约为 0.44%。</p>
+<p>目录增长到需要更高 order 时不能直接复制旧 bitmap，因为 hash 索引范围已经变化。代码释放旧过滤器，等待后续完整扫描重建：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (exfat_name_filter_order(inode) &gt; filter-&gt;order) &#123;<br>	exfat_name_filter_free(inode);<br>	<span class="hljs-keyword">return</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="问题二：删除名称不会清-bit，过滤器会持续饱和"><a href="#问题二：删除名称不会清-bit，过滤器会持续饱和" class="headerlink" title="问题二：删除名称不会清 bit，过滤器会持续饱和"></a>问题二：删除名称不会清 bit，过滤器会持续饱和</h3><p>普通 Bloom filter 不能在删除文件时直接清 bit，因为多个名称可能共享同一个 bit：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">name_A ─┐<br>        ├─ bit 100<br>name_B ─┘<br></code></pre></td></tr></table></figure>
+
+<p>删除 <code>name_A</code> 后清 bit 100，会让仍存在的 <code>name_B</code> 产生假阴性。因此历史 bit 会不断积累。</p>
+<h3 id="v7-修改：统计置位数量并在阈值处重建"><a href="#v7-修改：统计置位数量并在阈值处重建" class="headerlink" title="v7 修改：统计置位数量并在阈值处重建"></a>v7 修改：统计置位数量并在阈值处重建</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exfat_name_filter</span> &#123;</span><br>	u32 nr_set_bits;<br>	u8 order;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> bitmap[];<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>只有 bit 从 0 变成 1 时才增加计数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++)<br>	<span class="hljs-keyword">if</span> (!__test_and_set_bit(indexes[i], filter-&gt;bitmap))<br>		filter-&gt;nr_set_bits++;<br></code></pre></td></tr></table></figure>
+
+<p>三分之一 bit 已置位时释放过滤器：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">return</span> filter-&gt;nr_set_bits &gt;= nr_bits / <span class="hljs-number">3</span>;<br></code></pre></td></tr></table></figure>
+
+<p>此时三个 hash 全部命中的估算概率为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">(1 / 3)^3 ≈ 3.70%<br></code></pre></td></tr></table></figure>
+
+<p>后续完整 negative lookup 会根据当前真实目录重建过滤器，从而清除已经删除名称留下的历史 bit。</p>
+<h3 id="问题三：shrinker-覆盖-nr-scanned-可能让-core-无进展循环"><a href="#问题三：shrinker-覆盖-nr-scanned-可能让-core-无进展循环" class="headerlink" title="问题三：shrinker 覆盖 nr_scanned 可能让 core 无进展循环"></a>问题三：shrinker 覆盖 <code>nr_scanned</code> 可能让 core 无进展循环</h3><p>旧回调执行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">sc-&gt;nr_scanned = freed;<br><span class="hljs-keyword">return</span> freed;<br></code></pre></td></tr></table></figure>
+
+<p>但 shrinker core 调用前已经设置：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">shrinkctl-&gt;nr_to_scan = nr_to_scan;<br>shrinkctl-&gt;nr_scanned = nr_to_scan;<br></code></pre></td></tr></table></figure>
+
+<p>并使用 <code>nr_scanned</code> 消耗预算：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">total_scan -= shrinkctl-&gt;nr_scanned;<br></code></pre></td></tr></table></figure>
+
+<p>假设希望扫描 2 个对象，而 LRU 只有 1 个：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">第一次：释放 1，nr_scanned 被改成 1，total_scan 从 2 变成 1<br>第二次：LRU 为空，释放 0，nr_scanned 被改成 0，total_scan 仍为 1<br></code></pre></td></tr></table></figure>
+
+<p>如果循环条件仍成立，<code>do_shrink_slab()</code> 可能重复扫描空 LRU。</p>
+<h3 id="v7-修改：保留-core-预算，空-LRU-返回-SHRINK-STOP"><a href="#v7-修改：保留-core-预算，空-LRU-返回-SHRINK-STOP" class="headerlink" title="v7 修改：保留 core 预算，空 LRU 返回 SHRINK_STOP"></a>v7 修改：保留 core 预算，空 LRU 返回 <code>SHRINK_STOP</code></h3><p>正常路径不再覆盖 <code>nr_scanned</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span> (freed &lt; sc-&gt;nr_to_scan) &#123;<br>	<span class="hljs-comment">/* detach and free filters */</span><br>&#125;<br><br><span class="hljs-keyword">return</span> freed;<br></code></pre></td></tr></table></figure>
+
+<p>进入回调时 LRU 已空则停止：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (empty &amp;&amp; !freed) &#123;<br>	sc-&gt;nr_scanned = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">return</span> SHRINK_STOP;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>因此：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">本轮释放过对象：core 设置的预算被正常消费<br>进入时 LRU 已空：SHRINK_STOP 结束扫描<br></code></pre></td></tr></table></figure>
+
+<h3 id="问题四：动态大小过滤器不能继续按对象个数统计"><a href="#问题四：动态大小过滤器不能继续按对象个数统计" class="headerlink" title="问题四：动态大小过滤器不能继续按对象个数统计"></a>问题四：动态大小过滤器不能继续按对象个数统计</h3><p>改成动态 bitmap 后：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">512-byte filter：1 object<br>4-MiB filter：1 object<br></code></pre></td></tr></table></figure>
+
+<p>如果仍然只统计对象数，shrinker 无法反映实际可回收内存。</p>
+<p>v7 改成按页统计：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span><br><span class="hljs-title function_">exfat_name_filter_nr_pages</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> exfat_name_filter *filter)</span><br>&#123;<br>	<span class="hljs-type">size_t</span> size = struct_size(filter, bitmap,<br>				  BITS_TO_LONGS(BIT(filter-&gt;order)));<br><br>	<span class="hljs-keyword">return</span> DIV_ROUND_UP(size, PAGE_SIZE);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>superblock 保存总页数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> name_filter_pages;<br></code></pre></td></tr></table></figure>
+
+<p>发布时增加，detach 时减少，scan 返回值也累计页数，使 <code>count_objects()</code>、<code>nr_to_scan</code> 和实际回收量使用相同单位。</p>
+<h2 id="Patch-set-演进总结"><a href="#Patch-set-演进总结" class="headerlink" title="Patch set 演进总结"></a>Patch set 演进总结</h2><table>
+<thead>
+<tr>
+<th>Patch set</th>
+<th>Maintainer&#x2F;Reviewer 关注点</th>
+<th>主要修改</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>v1</td>
+<td>单个 patch 过大，功能和错误路径混在一起</td>
+<td>规划拆分为 Bloom filter、hint、shrinker 三个 patch</td>
+</tr>
+<tr>
+<td>v2</td>
+<td><code>free_inode()</code> 可能在 RCU softirq context 执行</td>
+<td>把过滤器释放移动到 <code>evict_inode()</code></td>
+</tr>
+<tr>
+<td>v3</td>
+<td>255 UTF-16 边界错误；删除后 hint 不回退；系列需要拆分</td>
+<td>修正长度判断；所有释放目录项路径失效 hint；拆成 3 patches</td>
+</tr>
+<tr>
+<td>v4</td>
+<td>hint 在提交前发布；rename&#x2F;move 失败可能留下目标名称</td>
+<td>成功提交后才发布 hint；失败时释放目标过滤器</td>
+</tr>
+<tr>
+<td>v5</td>
+<td>必须基于 <code>dev</code>；返回值判断错误；3-entry 空洞可能被 4-entry hint 跳过</td>
+<td>rebase；使用 <code>ret &gt;= 0</code>；增加 <code>min_entries</code></td>
+</tr>
+<tr>
+<td>v6</td>
+<td>create 提交失败也可能写入名称；patch 必须独立正确</td>
+<td>写失败立即释放过滤器；rename&#x2F;move 失效逻辑放入 PATCH 1</td>
+</tr>
+<tr>
+<td>v7</td>
+<td>64 KiB 固定大小不合理；删除导致饱和；shrinker 可能无进展循环</td>
+<td>动态 bitmap；饱和重建；按页统计；保留 scan budget&#x2F;返回 <code>SHRINK_STOP</code></td>
+</tr>
+</tbody></table>
+<h2 id="当前版本的验证重点"><a href="#当前版本的验证重点" class="headerlink" title="当前版本的验证重点"></a>当前版本的验证重点</h2><p>按照项目测试约束，后续迭代只测试当前 patch 后的执行时间，不再重复运行耗时很长的未打补丁基线。v7 当前 patch 创建 20,000 个文件的结果为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">real    30.09 s<br>user     3.40 s<br>sys     26.65 s<br></code></pre></td></tr></table></figure>
+
+<p>正确性验证包括：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">1. 255 UTF-16 code units 的名称可以参与过滤器构建<br>2. 3-entry 空洞可以在 4-entry 请求后被较短名称复用<br>3. create、rename、move 写失败时不会留下 Bloom filter 假阴性<br>4. 过滤器达到饱和阈值后被释放，并在完整扫描后重建<br>5. shrinker 对非空和空 LRU 的超额扫描都能及时返回<br>6. fsck.exfat 报告文件系统 clean<br>7. 日志中没有 LOCKDEP、Oops 或 panic<br>8. 每个 patch 单独通过 W=1 编译<br>9. 最终邮件通过 checkpatch 和 git am 验证<br></code></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>从 v1 到 v7，修改重点逐渐从“减少目录扫描”扩展到“保证缓存和磁盘状态始终一致”：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">Bloom filter 不确定        → 扫描磁盘<br>写入结果不确定             → 释放过滤器<br>目录空洞状态可能变化       → 失效 empty hint<br>请求尺寸变小               → 不沿用较大请求的 hint<br>过滤器过满或目录增长       → 丢弃并重建<br>内存压力                   → shrinker 按实际页数回收<br>shrinker 无法继续扫描      → 消费预算或 SHRINK_STOP<br></code></pre></td></tr></table></figure>
+
+<p>性能缓存可以被丢弃、重建和回收；目录查询结果与磁盘真实状态的一致性不能妥协。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/exFAT/">#exFAT</a>
+      
+        <a href="/tags/Linux-%E5%86%85%E6%A0%B8/">#Linux 内核</a>
+      
+        <a href="/tags/Bloom-filter/">#Bloom filter</a>
+      
+        <a href="/tags/Kernel-Review/">#Kernel Review</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>exFAT 大目录创建优化：Patch Set Review 与修改记录</div>
+      <div>http://example.com/2026/10/03/exfat-bloom-filter-maintainer-review-notes/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年10月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/10/03/C%E8%AF%AD%E8%A8%80%E9%99%B7%E9%98%B1-%E4%B8%80-%E6%95%B4%E5%9E%8B%E8%8C%83%E5%9B%B4/" title="C语言陷阱(一)整型范围">
+                        <span class="hidden-mobile">C语言陷阱(一)整型范围</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
