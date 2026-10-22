@@ -24,7 +24,7 @@
 <meta property="og:description" content="sashiko安装学习笔记 Sashiko 是面向 Linux 内核补丁的智能代码评审工具。它从本地 Git仓库提取一个提交或提交区间，读取补丁及相关上下文，然后让大模型按多个阶段检查。  内核补丁Sashiko检视：https:&#x2F;&#x2F;sashiko.dev&#x2F; Sashiko源码：https:&#x2F;&#x2F;github.com&#x2F;sashiko-dev&#x2F;sashiko   本地安装Sashiko依赖项Rust安">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-10-21T15:05:01.000Z">
-<meta property="article:modified_time" content="2026-10-21T15:29:54.114Z">
+<meta property="article:modified_time" content="2026-10-22T15:25:49.992Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -214,7 +214,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.4k 字
+          5.8k 字
         
       </span>
     
@@ -225,7 +225,7 @@
         
         
         
-          29 分钟
+          49 分钟
         
       </span>
     
@@ -385,7 +385,66 @@
 <h3 id="限制配置文件权限"><a href="#限制配置文件权限" class="headerlink" title="限制配置文件权限"></a>限制配置文件权限</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">chmod</span> 600 ~/.config/sashiko.toml<br></code></pre></td></tr></table></figure>
 
 <p>即使 key 不在 TOML 中，配置也可能包含内部 endpoint、项目路径或其他敏感信息。</p>
-<h2 id="开始检视"><a href="#开始检视" class="headerlink" title="开始检视"></a>开始检视</h2>
+<h2 id="开始检视"><a href="#开始检视" class="headerlink" title="开始检视"></a>开始检视</h2><h3 id="评审最新一个提交"><a href="#评审最新一个提交" class="headerlink" title="评审最新一个提交"></a>评审最新一个提交</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review<br></code></pre></td></tr></table></figure>
+
+<p>等价于：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD<br></code></pre></td></tr></table></figure>
+
+<h3 id="评审多个提交"><a href="#评审多个提交" class="headerlink" title="评审多个提交"></a>评审多个提交</h3><p>评审最近三个提交：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD<br></code></pre></td></tr></table></figure>
+
+<p>评审两个明确引用之间的提交：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review &lt;base-commit&gt;..&lt;head-commit&gt;<br></code></pre></td></tr></table></figure>
+
+<p>注意：<code>A..B</code> 评审的是从 A 之后到 B 的提交，不包含 A。</p>
+<h3 id="显式指定-baseline"><a href="#显式指定-baseline" class="headerlink" title="显式指定 baseline"></a>显式指定 baseline</h3><p>默认 baseline 是区间第一个提交的父提交。需要覆盖时：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD --baseline &lt;baseline-commit&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="先做无-AI-预检"><a href="#先做无-AI-预检" class="headerlink" title="先做无 AI 预检"></a>先做无 AI 预检</h3><p>在正式消耗 API token 前，建议先检查补丁能否提取和应用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD --no-ai --color never<br></code></pre></td></tr></table></figure>
+
+<p>出现以下结果说明预检完成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">No AI review was run.<br>Review complete<br></code></pre></td></tr></table></figure>
+
+<p><code>--no-ai</code> 不会产生 AI 代码审查结论，只验证基础流程。</p>
+<h3 id="选择推理强度"><a href="#选择推理强度" class="headerlink" title="选择推理强度"></a>选择推理强度</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD --effort mid<br>sashiko review HEAD~3..HEAD --effort high<br>sashiko review HEAD~3..HEAD --effort dynamic<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>mid</code>：各阶段使用中等强度，通常更快、更省；</li>
+<li><code>high</code>：各阶段高强度，耗时和费用显著增加；</li>
+<li><code>dynamic</code>：筛选、规划和报告阶段较低，关键验证阶段较高，通常是实用选择。</li>
+</ul>
+<p>对 DeepSeek 等 OpenAI-compatible provider，命令行的 review effort 与模型的<br><code>reasoning_effort</code> 支持程度并不完全等价。遇到 400 错误时，应先去掉 provider<br>配置里的 <code>effort</code>，再尝试 <code>--effort mid</code> 或不传该参数。</p>
+<h3 id="输出文本报告"><a href="#输出文本报告" class="headerlink" title="输出文本报告"></a>输出文本报告</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD \<br>  --format text \<br>  --color never<br></code></pre></td></tr></table></figure>
+
+<p>保存文本结果和运行日志：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD \<br>  --format text \<br>  --color never \<br>  &gt; sashiko-review.txt \<br>  2&gt; sashiko-review.stderr.log<br></code></pre></td></tr></table></figure>
+
+<h3 id="输出JSON"><a href="#输出JSON" class="headerlink" title="输出JSON"></a>输出JSON</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD \<br>  --format json \<br>  --color never \<br>  &gt; sashiko-review.json \<br>  2&gt; sashiko-review.stderr.log<br></code></pre></td></tr></table></figure>
+
+<p>不要把 stdout 和 stderr 合并到同一文件，否则进度日志可能与 JSON 混合，不便解析。</p>
+<h3 id="面向其他-AI-agent-的输出"><a href="#面向其他-AI-agent-的输出" class="headerlink" title="面向其他 AI agent 的输出"></a>面向其他 AI agent 的输出</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD --agent --color never<br></code></pre></td></tr></table></figure>
+
+<p><code>--agent</code> 输出更简洁、适合机器消费的 JSON，并跳过普通文本报告生成。</p>
+<h3 id="检查-touched-code-中的既有问题"><a href="#检查-touched-code-中的既有问题" class="headerlink" title="检查 touched code 中的既有问题"></a>检查 touched code 中的既有问题</h3><p>默认重点是补丁新引入的问题。若要同时报告接触区域中的既有问题：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD --report-preexisting<br></code></pre></td></tr></table></figure>
+
+<p>这会扩大报告范围和成本。修补当前补丁时，一般先不启用，避免把历史问题和回归混在一起。</p>
+<h3 id="添加自定义关注点"><a href="#添加自定义关注点" class="headerlink" title="添加自定义关注点"></a>添加自定义关注点</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD \<br>  --custom-prompt <span class="hljs-string">&quot;重点检查 shrinker 的锁顺序、nr_scanned 计量和回收递归&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>自定义提示应补充评审重点，不应要求模型忽略事实、跳过验证或把猜测当结论。</p>
+<h3 id="显式指定配置和项目"><a href="#显式指定配置和项目" class="headerlink" title="显式指定配置和项目"></a>显式指定配置和项目</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">sashiko review HEAD~3..HEAD \<br>  --settings /path/to/Settings.toml \<br>  --project linux<br></code></pre></td></tr></table></figure>
+
+<p>Sashiko 当前支持的 <code>--project</code> 值包括 <code>linux</code> 和 <code>sashiko</code>。</p>
+<h2 id="推荐的完整执行流程"><a href="#推荐的完整执行流程" class="headerlink" title="推荐的完整执行流程"></a>推荐的完整执行流程</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /path/to/linux<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">1. 确认范围</span><br>git log --oneline HEAD~3..HEAD<br>git diff --stat HEAD~3..HEAD<br>git diff --check HEAD~3..HEAD<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">2. 加载密钥</span><br>set -a<br>. /etc/sashiko.env<br>set +a<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">3. 无 AI 预检</span><br>sashiko review HEAD~3..HEAD --no-ai --color never<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">4. 正式评审</span><br>sashiko review HEAD~3..HEAD \<br>  --effort dynamic \<br>  --format json \<br>  --color never \<br><span class="hljs-meta prompt_">  &gt; </span><span class="language-bash">sashiko-review.json \</span><br><span class="language-bash">  2&gt; sashiko-review.stderr.log</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">5. 记录待评审提交，便于复现</span><br>git rev-parse HEAD~3<br>git rev-parse HEAD<br></code></pre></td></tr></table></figure>
+
+<h2 id="实践案例"><a href="#实践案例" class="headerlink" title="实践案例"></a>实践案例</h2><blockquote>
+<p>patchset v7：<a target="_blank" rel="noopener" href="https://lore.kernel.org/all/CAKYAXd_2PTzdiQQUp=C0_mz6ot_hnm3=VYKGcZtRujbWka+LWA@mail.gmail.com/">https://lore.kernel.org/all/CAKYAXd_2PTzdiQQUp=C0_mz6ot_hnm3=VYKGcZtRujbWka+LWA@mail.gmail.com/</a></p>
+<p>patchset v7 sashiko review: <a target="_blank" rel="noopener" href="https://sashiko.dev/#/patchset/20261004135638.1888530-1-anmuxixixi%40gmail.com">https://sashiko.dev/#/patchset/20261004135638.1888530-1-anmuxixixi%40gmail.com</a></p>
+</blockquote>
+<p>这是提交到社区的patchV8：<a target="_blank" rel="noopener" href="https://lore.kernel.org/all/20261014153130.2111500-1-anmuxixixi@gmail.com/">https://lore.kernel.org/all/20261014153130.2111500-1-anmuxixixi@gmail.com/</a></p>
+<p>下面介绍下对于这个patch的本地sashiko检视过程</p>
+
                 
               </div>
             
