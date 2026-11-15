@@ -1,0 +1,847 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="OneAmx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="内核多线程编程经验READ_ONCE问题描述我们先来看一个例子，假如不使用read_once会出现什么样的后果 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647#include &lt;pthread.h&gt;#include &lt;stdio.h&gt;#include">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内核多线程编程经验">
+<meta property="og:url" content="http://example.com/2026/11/15/%E5%86%85%E6%A0%B8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C/index.html">
+<meta property="og:site_name" content="喝口白桃呜龙">
+<meta property="og:description" content="内核多线程编程经验READ_ONCE问题描述我们先来看一个例子，假如不使用read_once会出现什么样的后果 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647#include &lt;pthread.h&gt;#include &lt;stdio.h&gt;#include">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/11/15/%E5%86%85%E6%A0%B8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C/image-20261115204619614.png">
+<meta property="og:image" content="http://example.com/2026/11/15/%E5%86%85%E6%A0%B8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C/image-20261115204724646.png">
+<meta property="article:published_time" content="2026-11-15T12:44:34.000Z">
+<meta property="article:modified_time" content="2026-11-15T14:31:46.387Z">
+<meta property="article:author" content="OneAmx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/11/15/%E5%86%85%E6%A0%B8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C/image-20261115204619614.png">
+  
+  
+  
+  <title>内核多线程编程经验 - 喝口白桃呜龙</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/chinese-new-year.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>喝口白桃呜龙</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="内核多线程编程经验"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-11-15 20:44" pubdate>
+          2026年11月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          43 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          浏览 <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">内核多线程编程经验</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="内核多线程编程经验"><a href="#内核多线程编程经验" class="headerlink" title="内核多线程编程经验"></a>内核多线程编程经验</h1><h2 id="READ-ONCE"><a href="#READ-ONCE" class="headerlink" title="READ_ONCE"></a>READ_ONCE</h2><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>我们先来看一个例子，假如不使用read_once会出现什么样的后果</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><br><span class="hljs-comment">/* 用户态模拟 Linux 内核 READ_ONCE 的标量访问效果 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> READ_ONCE(x) \</span><br><span class="hljs-meta">    (*(volatile __typeof__(x) *)&amp;(x))</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> WRITE_ONCE(x, v) \</span><br><span class="hljs-meta">    (*(volatile __typeof__(x) *)&amp;(x) = (v))</span><br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> done = <span class="hljs-number">0</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> *<span class="hljs-title function_">worker</span><span class="hljs-params">(<span class="hljs-type">void</span> *arg)</span><br>&#123;<br>    usleep(<span class="hljs-number">100</span> * <span class="hljs-number">1000</span>);  <span class="hljs-comment">// 延迟100ms</span><br><br>    WRITE_ONCE(done, <span class="hljs-number">1</span>);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;worker: done = 1\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">pthread_t</span> tid;<br><br>    pthread_create(&amp;tid, <span class="hljs-literal">NULL</span>, worker, <span class="hljs-literal">NULL</span>);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;main: waiting for done...\n&quot;</span>);<br>    fflush(<span class="hljs-built_in">stdout</span>);<br><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> USE_READ_ONCE</span><br>    <span class="hljs-comment">/* 正确版本：每次循环重新读取 done */</span><br>    <span class="hljs-keyword">while</span> (READ_ONCE(done) == <span class="hljs-number">0</span>)<br>        ;<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    <span class="hljs-comment">/* 错误版本：编译器可能将 done 读取移出循环 */</span><br>    <span class="hljs-keyword">while</span> (done == <span class="hljs-number">0</span>)<br>        ;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;main: observed done = 1, exited loop\n&quot;</span>);<br><br>    pthread_join(tid, <span class="hljs-literal">NULL</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编译两个版本：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 不使用 READ_ONCE</span><br>gcc -O2 -pthread read_once_demo.c -o demo_bad<br><br><span class="hljs-comment"># 使用 READ_ONCE</span><br>gcc -O2 -pthread -DUSE_READ_ONCE read_once_demo.c -o demo_good<br></code></pre></td></tr></table></figure>
+
+<p>注意，<strong>必须开启</strong> <code>-O2</code> <strong>优化</strong>，否则可能不容易观察到区别。</p>
+<p>然后执行：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">timeout</span> 2s ./demo_bad<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;exit=$?&quot;</span><br><br><span class="hljs-built_in">timeout</span> 2s ./demo_good<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;exit=$?&quot;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>不使用READ_ONCE</li>
+</ul>
+<img src="/2026/11/15/%E5%86%85%E6%A0%B8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C/image-20261115204619614.png" srcset="/img/loading.gif" lazyload alt="image-20261115204619614" style="zoom:80%;">
+
+<ul>
+<li>使用READ_ONCE</li>
+</ul>
+<img src="/2026/11/15/%E5%86%85%E6%A0%B8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E7%BB%8F%E9%AA%8C/image-20261115204724646.png" srcset="/img/loading.gif" lazyload alt="image-20261115204724646" style="zoom:80%;">
+
+<p>可以看到，实际上主线程一直在循环没有退出，没有达到我们实际想达到的目的，读到这个值有变化后，主线程退出。那为什么会出现这猴子那个情况呢？</p>
+<hr>
+<p>我们使用 <code>objdump -d</code> 查看两个版本，发现 GCC 优化后的代码差别非常明显。</p>
+<p>没有 READ_ONCE 的版本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs assembly">cmpl $0x0, done(%rip)  # 只读取一次 done<br>je   loop<br><br>loop:<br>    jmp loop           # 无条件死循环<br></code></pre></td></tr></table></figure>
+
+<p>GCC 将 <code>done</code> 的读取移出了循环。</p>
+<p>使用 READ_ONCE 的版本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loop:<br>    mov (%rax), %edx    # 每次循环重新读取 done<br>    test %edx, %edx<br>    je loop<br></code></pre></td></tr></table></figure>
+
+<p>GCC 必须保留每次循环中的内存加载。</p>
+<p>这正是 <code>READ_ONCE</code> 的核心作用：<strong>阻止编译器把共享变量的读取缓存到寄存器里，或把读取移到循环外面。</strong></p>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p><strong>场景 1：一个 CPU 修改标志位，另一个 CPU 轮询</strong></p>
+<p>例如，内核中有一个监控线程，需要根据 <code>stop</code> 标志决定是否退出。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> stop = <span class="hljs-literal">false</span>;<br><br><span class="hljs-comment">/* CPU0：监控线程 */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">monitor_thread</span><span class="hljs-params">(<span class="hljs-type">void</span> *arg)</span><br>&#123;<br>    <span class="hljs-keyword">while</span> (!READ_ONCE(stop)) &#123;<br>        pr_info(<span class="hljs-string">&quot;monitor running\n&quot;</span>);<br>        msleep(<span class="hljs-number">1000</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">/* CPU1：控制线程 */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">stop_monitor</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    WRITE_ONCE(stop, <span class="hljs-literal">true</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里应该使用 <code>READ_ONCE()</code>，因为：</p>
+<ul>
+<li><code>stop</code> 可能随时被 CPU1 修改。</li>
+<li>CPU0 没有通过锁同步对 <code>stop</code> 的读取。</li>
+<li>希望 CPU0 每次循环重新读取 <code>stop</code>。</li>
+</ul>
+<p>如果不用 <code>READ_ONCE()</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span> (!stop) &#123;<br>    <span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编译器可能复用之前的读取结果。是否真正发生这种优化，取决于代码上下文及编译器分析。</p>
+<p><strong>场景 2：读取可能被并发修改的状态变量</strong></p>
+<p>假设有一个设备状态：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">dev_state</span> &#123;</span><br>    DEV_IDLE,<br>    DEV_RUNNING,<br>    DEV_ERROR,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> dev_state = DEV_IDLE;<br></code></pre></td></tr></table></figure>
+
+<p>CPU0 修改状态：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">WRITE_ONCE(dev_state, DEV_ERROR);<br></code></pre></td></tr></table></figure>
+
+<p>CPU1 读取状态：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> state = READ_ONCE(dev_state);<br><br><span class="hljs-keyword">if</span> (state == DEV_ERROR)<br>    pr_err(<span class="hljs-string">&quot;device error\n&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>这种情况下，如果只是希望获得一次状态快照，<u><strong>允许读取到旧状态</strong></u>，那么 <code>READ_ONCE()</code> 就比较合适。</p>
+<p>但如果 CPU1 必须确保读取到最新状态，或者需要根据状态执行互斥操作，单纯的 <code>READ_ONCE()</code> 就不够了。</p>
+<hr>
+<p>Linux 内核文档也将无锁统计和启发式决策列为 <code>READ_ONCE()</code> 的典型使用场景。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.kernel.org/dev-tools/lkmm/docs/access-marking.htm">https://docs.kernel.org/dev-tools/lkmm/docs/access-marking.htm</a></p>
+<p><strong>什么时候不需要 READ_ONCE？</strong></p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>是否需要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>只有当前线程访问的局部变量</td>
+<td>不需要</td>
+</tr>
+<tr>
+<td>变量只在初始化时写入，之后只读</td>
+<td>通常不需要</td>
+</tr>
+<tr>
+<td>所有访问都由同一把 <code>mutex</code> 保护</td>
+<td>不需要</td>
+</tr>
+<tr>
+<td>所有访问都由同一把 <code>spinlock</code> 保护</td>
+<td>不需要</td>
+</tr>
+<tr>
+<td>多 CPU 无锁访问同一状态变量，允许旧值</td>
+<td>通常需要</td>
+</tr>
+<tr>
+<td>多 CPU 对同一个变量执行 <code>++</code></td>
+<td><code>READ_ONCE</code> 不够，需要 atomic 或锁</td>
+</tr>
+<tr>
+<td>通过状态位同步其他数据</td>
+<td>需要 Acquire&#x2F;Release 等同步机制</td>
+</tr>
+</tbody></table>
+<p>例如，下面使用 mutex 的代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-title function_">DEFINE_MUTEX</span><span class="hljs-params">(state_lock)</span>;<br><span class="hljs-type">static</span> <span class="hljs-type">int</span> state;<br><br><span class="hljs-comment">/* CPU0 */</span><br>mutex_lock(&amp;state_lock);<br>state = <span class="hljs-number">1</span>;<br>mutex_unlock(&amp;state_lock);<br><br><span class="hljs-comment">/* CPU1 */</span><br>mutex_lock(&amp;state_lock);<br><span class="hljs-type">int</span> tmp = state;<br>mutex_unlock(&amp;state_lock);<br></code></pre></td></tr></table></figure>
+
+<p>CPU1 不需要再写成：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> tmp = READ_ONCE(state);<br></code></pre></td></tr></table></figure>
+
+<p>因为 mutex 已经提供了互斥和必要的内存排序保证。</p>
+<p>再比如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> a = <span class="hljs-number">100</span>;<br><span class="hljs-type">int</span> b = a;<br></code></pre></td></tr></table></figure>
+
+<p>如果 <code>a</code> 是当前线程私有变量，没有其他 CPU 并发修改，就完全没有必要使用 <code>READ_ONCE()</code>。</p>
+<h2 id="SMP内存屏障"><a href="#SMP内存屏障" class="headerlink" title="SMP内存屏障"></a>SMP内存屏障</h2><h3 id="问题描述-1"><a href="#问题描述-1" class="headerlink" title="问题描述"></a>问题描述</h3><p>❗❗❗先看这个视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1LN9FBtEuY">https://www.bilibili.com/video/BV1LN9FBtEuY</a></p>
+<p>现代CPU为了提升执行效率，会对指令进行<strong>乱序执行</strong>（Out-of-Order Execution）和<strong>缓存优化</strong>。在单线程环境下，这种优化不会产生问题，但在多线程&#x2F;多核心环境中，就可能导致数据一致性问题。</p>
+<p>考虑以下场景：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs abnf">// CPU核心<span class="hljs-number">1</span>执行<br><span class="hljs-attribute">a</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span><span class="hljs-comment">;          // 写操作A</span><br><span class="hljs-attribute">flag</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span><span class="hljs-comment">;       // 写操作B</span><br><br>// CPU核心<span class="hljs-number">2</span>执行<br>while (flag <span class="hljs-operator">=</span><span class="hljs-operator">=</span> <span class="hljs-number">0</span>)<span class="hljs-comment">;  // 读操作C</span><br><span class="hljs-attribute">b</span> <span class="hljs-operator">=</span> a<span class="hljs-comment">;          // 读操作D</span><br></code></pre></td></tr></table></figure>
+
+<p>没有内存屏障时，CPU可能会将核心1的指令重排序为<code>flag=1</code>先执行，此时核心2会读取到<code>flag=1</code>但<code>a=0</code>的错误结果。这就是<strong>可见性问题</strong>——一个核心的写操作对另一个核心的读操作不可见。</p>
+<p>内存屏障通过强制CPU遵守特定的执行顺序，解决了这类问题。Linux内核提供了多种内存屏障，其中<code>smp_rmb</code>和<code>smp_wmb</code>专门用于对称多处理器（SMP）环境。</p>
+<h3 id="smp-rmb与smp-wmb的核心差异"><a href="#smp-rmb与smp-wmb的核心差异" class="headerlink" title="smp_rmb与smp_wmb的核心差异"></a>smp_rmb与smp_wmb的核心差异</h3><p><strong>定义与作用</strong></p>
+<ul>
+<li>smp_rmb()：读内存屏障（Read Memory Barrier），确保屏障前的所有读操作在屏障后的读操作之前完成。</li>
+<li>smp_wmb()：写内存屏障（Write Memory Barrier），确保屏障前的所有写操作在屏障后的写操作之前完成。</li>
+</ul>
+<p><strong>实现差异</strong></p>
+<p>不同架构的CPU对内存屏障的实现不同，内核通过头文件封装了这些差异：</p>
+<p><strong>x86架构</strong>（<a href="https://link.csdn.net/?target=https://link.gitcode.com/i/946b399613d50c023e154d8b662d6192?login=from_csdn">arch&#x2F;x86&#x2F;include&#x2F;asm&#x2F;barrier.h</a>）：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-selector-id">#define</span> <span class="hljs-built_in">__smp_rmb</span>()	<span class="hljs-built_in">dma_rmb</span>()    <span class="hljs-comment">// 等同于barrier()，依赖CPU的读操作顺序保证</span><br><span class="hljs-selector-id">#define</span> <span class="hljs-built_in">__smp_wmb</span>()	<span class="hljs-built_in">barrier</span>()     <span class="hljs-comment">// 编译器屏障，阻止编译期重排序</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>ARM64架构</strong>（<a href="https://link.csdn.net/?target=https://link.gitcode.com/i/a82e87fbf023ab294d0d55bcb56e6729?login=from_csdn">arch&#x2F;arm64&#x2F;include&#x2F;asm&#x2F;barrier.h</a>）：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-selector-id">#define</span> <span class="hljs-built_in">__smp_rmb</span>()	<span class="hljs-built_in">dmb</span>(ishld)    <span class="hljs-comment">// 内部共享域的读操作屏障</span><br><span class="hljs-selector-id">#define</span> <span class="hljs-built_in">__smp_wmb</span>()	<span class="hljs-built_in">dmb</span>(ishst)    <span class="hljs-comment">// 内部共享域的写操作屏障</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，x86架构由于硬件层面保证了读操作的顺序性，因此<code>smp_rmb</code>仅需编译器屏障；而ARM64则需要显式的硬件指令（<code>dmb</code>）来控制内存访问顺序。</p>
+<h3 id="smp-rmb的典型应用场景"><a href="#smp-rmb的典型应用场景" class="headerlink" title="smp_rmb的典型应用场景"></a>smp_rmb的典型应用场景</h3><ol>
+<li>防止读操作重排序</li>
+</ol>
+<p>在驱动开发中，当读取设备寄存器时，需要确保读取顺序与逻辑顺序一致。例如，在网络设备驱动中，读取接收缓冲区状态和数据时：</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs gcode"><span class="hljs-comment">// 伪代码示例</span><br>status = read_reg<span class="hljs-comment">(dev, STATUS_REG)</span>;  <span class="hljs-comment">// 读操作1</span><br>smp_rmb<span class="hljs-comment">()</span>;                          <span class="hljs-comment">// 读屏障</span><br>data = read_reg<span class="hljs-comment">(dev, DATA_REG)</span>;      <span class="hljs-comment">// 读操作2</span><br></code></pre></td></tr></table></figure>
+
+<p>如果没有<code>smp_rmb</code>，CPU可能会先读取<code>DATA_REG</code>再读取<code>STATUS_REG</code>，导致获取到无效数据。</p>
+<ol start="2">
+<li>与原子操作配合</li>
+</ol>
+<p>在使用原子变量进行同步时，<code>smp_rmb</code>确保读取到的变量状态是最新的。例如，在<a href="https://link.csdn.net/?target=https://link.gitcode.com/i/120c9aa1ea5d05dcf51d035b81f00ef3?login=from_csdn">fs&#x2F;xfs&#x2F;xfs_log_priv.h</a>中：</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xl">uint32_t seq;<br><span class="hljs-function"><span class="hljs-title">seq</span> = atomic_read(&amp;<span class="hljs-built_in">log</span>-&gt;</span>lsn_sequence);<br>smp_rmb();  <span class="hljs-comment">// 确保读取seq后，再读取lsn</span><br><span class="hljs-function"><span class="hljs-title">lsn</span> = <span class="hljs-built_in">log</span>-&gt;</span>lsn;<br></code></pre></td></tr></table></figure>
+
+<p>这里<code>smp_rmb</code>保证了<code>seq</code>和<code>lsn</code>的读取顺序，避免了数据不一致。</p>
+<h3 id="smp-wmb的典型应用场景"><a href="#smp-wmb的典型应用场景" class="headerlink" title="smp_wmb的典型应用场景"></a>smp_wmb的典型应用场景</h3><ol>
+<li>防止写操作重排序</li>
+</ol>
+<p>在更新共享数据结构时，<code>smp_wmb</code>确保关键数据的写操作顺序。例如，在进程调度中（<a href="https://link.csdn.net/?target=https://link.gitcode.com/i/3baf0a053835260f67cb23184cead437?login=from_csdn">kernel&#x2F;sched&#x2F;sched.h</a>）：</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs xl"><span class="hljs-function"><span class="hljs-title">p</span>-&gt;</span>state = TASK_RUNNING;  <span class="hljs-comment">// 写操作1</span><br>smp_wmb();                <span class="hljs-comment">// 写屏障</span><br><span class="hljs-function"><span class="hljs-title">p</span>-&gt;</span>on_rq = <span class="hljs-number">1</span>;             <span class="hljs-comment">// 写操作2</span><br></code></pre></td></tr></table></figure>
+
+<p>如果没有<code>smp_wmb</code>，CPU可能会将<code>p-&gt;on_rq=1</code>先执行，此时调度器可能会错误地将未就绪的进程加入运行队列。</p>
+<ol start="2">
+<li>设备驱动中的数据同步</li>
+</ol>
+<p>在块设备驱动中，向设备发送命令和数据时，需要确保命令先于数据写入：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-comment">// 伪代码示例</span><br><span class="hljs-built_in">write_reg</span>(dev, CMD_REG, WRITE_CMD);  <span class="hljs-comment">// 写操作1</span><br><span class="hljs-built_in">smp_wmb</span>();                           <span class="hljs-comment">// 写屏障</span><br><span class="hljs-built_in">write_reg</span>(dev, DATA_REG, data);      <span class="hljs-comment">// 写操作2</span><br></code></pre></td></tr></table></figure>
+
+<p><code>smp_wmb</code>确保设备先接收到命令，再接收数据，避免了命令和数据的乱序。</p>
+<h3 id="如何正确选择内存屏障？"><a href="#如何正确选择内存屏障？" class="headerlink" title="如何正确选择内存屏障？"></a>如何正确选择内存屏障？</h3><p>选择<code>smp_rmb</code>还是<code>smp_wmb</code>，取决于操作类型和场景：</p>
+<table>
+<thead>
+<tr>
+<th align="left">场景</th>
+<th align="left">推荐屏障</th>
+<th align="left">示例代码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">多核心读共享变量</td>
+<td align="left">smp_rmb</td>
+<td align="left"><code>seq = atomic_read(&amp;var); smp_rmb(); data = buf;</code></td>
+</tr>
+<tr>
+<td align="left">多核心写共享变量</td>
+<td align="left">smp_wmb</td>
+<td align="left"><code>buf = data; smp_wmb(); atomic_set(&amp;var, seq);</code></td>
+</tr>
+<tr>
+<td align="left">读写混合操作</td>
+<td align="left">smp_mb</td>
+<td align="left"><code>write_data(); smp_mb(); read_flag();</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注意：如果需要同时保证读写顺序，应使用<code>smp_mb()</code>（全内存屏障）。</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>内核多线程编程经验</div>
+      <div>http://example.com/2026/11/15/内核多线程编程经验/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>OneAmx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年11月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/10/21/sashiko%E5%AE%89%E8%A3%85%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="sashiko安装学习笔记">
+                        <span class="hidden-mobile">sashiko安装学习笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+  <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+  <script type="text/javascript" src="/js/fireworks.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
