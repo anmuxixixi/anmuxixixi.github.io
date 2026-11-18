@@ -29,8 +29,9 @@
 <meta property="og:image" content="http://example.com/2026/11/17/device-mapper%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20261117225052479.png">
 <meta property="og:image" content="http://example.com/2026/11/17/device-mapper%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20261117232810022.png">
 <meta property="og:image" content="http://example.com/2026/11/17/device-mapper%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20261117233007799.png">
+<meta property="og:image" content="http://example.com/2026/11/17/device-mapper%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20261118213615041.png">
 <meta property="article:published_time" content="2026-11-17T14:39:47.000Z">
-<meta property="article:modified_time" content="2026-11-17T15:37:53.269Z">
+<meta property="article:modified_time" content="2026-11-18T14:06:45.210Z">
 <meta property="article:author" content="OneAmx">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/2026/11/17/device-mapper%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20261117224056880.png">
@@ -221,7 +222,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.7k 字
+          7.9k 字
         
       </span>
     
@@ -232,7 +233,7 @@
         
         
         
-          40 分钟
+          67 分钟
         
       </span>
     
@@ -521,7 +522,140 @@
 
 <p>快照保存了创建时刻的数据视图。</p>
 <p>传统 <code>dm-snapshot</code> 使用独立的 COW 设备保存变化的数据，且 COW 空间不足可能使快照失效。</p>
-<h2 id="第六章：实战——自己创建一个-Device-Mapper-设备"><a href="#第六章：实战——自己创建一个-Device-Mapper-设备" class="headerlink" title="第六章：实战——自己创建一个 Device Mapper 设备"></a>第六章：<strong>实战——自己创建一个 Device Mapper 设备</strong></h2>
+<h2 id="第六章：实战——自己创建一个-Device-Mapper-设备"><a href="#第六章：实战——自己创建一个-Device-Mapper-设备" class="headerlink" title="第六章：实战——自己创建一个 Device Mapper 设备"></a>第六章：<strong>实战——自己创建一个 Device Mapper 设备</strong></h2><h3 id="6-1-创建dm-linear设备"><a href="#6-1-创建dm-linear设备" class="headerlink" title="6.1 创建dm-linear设备"></a>6.1 创建dm-linear设备</h3><ol>
+<li>准备两个文件</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">truncate</span> -s 32M dm_a.img<br><span class="hljs-built_in">truncate</span> -s 32M dm_b.img<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>创建Loop块设备</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh">LOOP_A=$(sudo losetup --find --show dm_a.img)<br>LOOP_B=$(sudo losetup --find --show dm_b.img)<br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$LOOP_A</span>&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$LOOP_B</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>创建device mapper table</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">sudo dmsetup create dm_tutorial --table \<br><span class="hljs-string">&quot;0 32768 linear <span class="hljs-variable">$LOOP_A</span> 0</span><br><span class="hljs-string">32768 32768 linear <span class="hljs-variable">$LOOP_B</span> 0&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>这里的 <code>dmsetup</code> 是 Device Mapper 的用户空间管理工具。执行成功后，系统会生成<code>/dev/mapper/dm_tutorial</code></p>
+<ol start="4">
+<li>查看创建的dm设备</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh">sudo dmsetup <span class="hljs-built_in">ls</span><br><br>root@iZuf62iu4ebdrfah86j43wZ:~/study-amx/md_demo<span class="hljs-comment"># dmsetup ls</span><br>dm_tutorial     (253:0)<br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>格式化设备并挂载</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh">sudo mkfs.ext4 -F /dev/mapper/dm_tutorial<br><br><span class="hljs-built_in">mkdir</span> mnt_dm_tutorial<br><br>sudo mount /dev/mapper/dm_tutorial ./mnt_dm_tutorial<br><br><span class="hljs-comment"># 写入一个文件</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Hello Device Mapper&quot;</span> | sudo <span class="hljs-built_in">tee</span> ,/mnt_dm_tutorial/hello.txt<br><span class="hljs-comment"># 读取这个文件</span><br><span class="hljs-built_in">cat</span> ,/mnt_dm_tutorial/hello.txt<br></code></pre></td></tr></table></figure>
+
+<p>至此，你实际上已经完成了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs pliantxt">应用程序写文件<br>       |<br>       v<br>ext4<br>       |<br>       v<br>Device Mapper<br>       |<br>       +---- /dev/loop0<br>       |<br>       +---- /dev/loop1<br>       |<br>       v<br>两个文件镜像<br></code></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>清理</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 卸载</span><br>sudo umount ./mnt_dm_tutorial<br><br><span class="hljs-comment"># 删除dm设备</span><br>sudo dmsetup remove dm_tutorial<br><br><span class="hljs-comment"># 解除loop</span><br>sudo losetup -d <span class="hljs-string">&quot;<span class="hljs-variable">$LOOP_A</span>&quot;</span><br>sudo losetup -d <span class="hljs-string">&quot;<span class="hljs-variable">$LOOP_B</span>&quot;</span><br><br><span class="hljs-comment"># 删除实验镜像</span><br><span class="hljs-built_in">rm</span> -rf dm_a.img<br><span class="hljs-built_in">rm</span> -rf dm_b.img<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-2-创建dm-encrpt加密设备"><a href="#6-2-创建dm-encrpt加密设备" class="headerlink" title="6.2 创建dm-encrpt加密设备"></a>6.2 创建dm-encrpt加密设备</h3><p>我们创建一个64MB 的文件，模拟一块真实磁盘。最终实现：</p>
+<ul>
+<li>创建一个模拟磁盘 <code>/tmp/dmcrypt-demo.img</code>。</li>
+<li>使用 LUKS2 初始化加密设备。</li>
+<li>使用 dm-crypt 创建虚拟块设备。</li>
+<li>在虚拟块设备上创建 ext4 文件系统。</li>
+<li>写入明文文件。</li>
+<li>验证底层文件存储的是密文，而不是明文。</li>
+</ul>
+<img src="/2026/11/17/device-mapper%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20261118213615041.png" srcset="/img/loading.gif" lazyload alt="image-20261118213615041" style="zoom:67%;">
+
+<ol>
+<li>准备环境</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 安装依赖工具</span><br>sudo apt install cryptsetup-bin dmsetup e2fsprogs<br><br><span class="hljs-comment"># 创建64MB的镜像文件</span><br><span class="hljs-built_in">truncate</span> -s 64M /tmp/dmcrypt-demo.img<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>创建loop块设备</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">LOOP=$(sudo losetup --find --show /tmp/dmcrypt-demo.img)<br><br><span class="hljs-built_in">echo</span> <span class="hljs-variable">$LOOP</span><br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>使用LUKS2初始化加密设备</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sh">root@iZuf62iu4ebdrfah86j43wZ:~/study-amx/md_demo<span class="hljs-comment"># sudo cryptsetup luksFormat --type luks2 $LOOP</span><br><br>WARNING!<br>========<br>This will overwrite data on /dev/loop3 irrevocably.<br><br>Are you sure? (Type <span class="hljs-string">&#x27;yes&#x27;</span> <span class="hljs-keyword">in</span> capital letters): YES<br>Enter passphrase <span class="hljs-keyword">for</span> /tmp/dmcrypt-demo.img:<br>Verify passphrase:<br></code></pre></td></tr></table></figure>
+
+<p>系统会提示<code>Are you sure? (Type &#39;yes&#39; in capital letters)</code>，这时候输入<code>YES</code>会让你设置密码</p>
+<blockquote>
+<p><strong>LUKS 和 dm-crypt 不是同一个东西。</strong></p>
+<ul>
+<li>LUKS：负责加密设备的元数据、密钥槽和密钥管理。</li>
+<li>dm-crypt：负责内核中的实际数据加解密。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs plaintxt">&gt;用户输入密码<br>     |<br>     v<br>   LUKS<br>     |<br>     v<br>&gt;解锁真正的数据加密密钥<br>     |<br>     v<br>  dm-crypt<br>     |<br>     v<br>&gt;实际数据加解密<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>LUKS2 会在底层设备上保存 Header、密钥槽等元数据，真正的数据密钥通常是随机生成的 Volume Key。</p>
+<p>用户密码主要用于解锁这个 Volume Key，而不是直接作为每个数据块的加密密钥。</p>
+<ol start="4">
+<li>打开加密设备</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">sudo cryptsetup open <span class="hljs-variable">$LOOP</span> dmcrypt_demo<br></code></pre></td></tr></table></figure>
+
+<p>输入刚才设置的密码。执行成功后，查看<code>ls -l /dev/mapper</code>可以看到<code>dmcrypt_demo</code>，现在系统已经创建了一个DM虚拟块设备</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plaintxt">/dev/mapper/dmcrypt_demo<br>          |<br>          v<br>       dm-crypt<br>          |<br>          v<br>       /dev/loop0<br>          |<br>          v<br>  dmcrypt-demo.img<br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>在加密设备上创建文件系统</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">sudo mkfs.ext4 /dev/mapper/dmcrypt_demo<br>sudo <span class="hljs-built_in">mkdir</span> -p /mnt/dmcrypt-demo<br>sudo mount /dev/mapper/dmcrypt_demo /mnt/dmcrypt-demo<br></code></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>写入数据</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;DMCRYPT_SECRET_DATA_123456789&quot;</span> | sudo <span class="hljs-built_in">tee</span> /mnt/dmcrypt-demo/secret.txt<br></code></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>关闭设备查看镜像是否是密文</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 卸载</span><br>sudo umount /mnt/dmcrypt-demo<br><br><span class="hljs-comment"># 关闭dm加密设备</span><br>sudo cryptsetup close dmcrypt_demo<br><br><span class="hljs-comment"># 检索不到</span><br>sudo grep -rnf <span class="hljs-string">&quot;123456789&quot;</span> /dev/mapper/dmcrypt_demo<br></code></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>重新打开后挂载，此时再去查看是否是明文</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sh">root@iZuf62iu4ebdrfah86j43wZ:~/study-amx/md_demo<span class="hljs-comment"># echo $LOOP</span><br>/dev/loop3<br>root@iZuf62iu4ebdrfah86j43wZ:~/study-amx/md_demo<span class="hljs-comment"># sudo cryptsetup open /dev/loop3 dmcrypt_demo</span><br>Enter passphrase <span class="hljs-keyword">for</span> /tmp/dmcrypt-demo.img:<br>root@iZuf62iu4ebdrfah86j43wZ:~<span class="hljs-comment"># sudo grep -aobF &quot;123456789&quot; /dev/mapper/dmcrypt_demo</span><br>7401492:123456789<br><br><span class="hljs-comment"># 这里的7401492是偏移量</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：这里实际的&#x2F;dev&#x2F;loop3和&#x2F;tmp&#x2F;dmcrypt-demo.img都是加密的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs plaintxt">/dev/mapper/dmcrypt_demo<br>          |<br>          | 读取时：解密<br>          | 写入时：加密<br>          v<br>       dm-crypt<br>          |<br>          v<br>      /dev/loop3<br>          |<br>          v<br> /tmp/dmcrypt-demo.img<br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>读取位置</th>
+<th>读取的数据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/dev/mapper/dmcrypt_demo</code></td>
+<td>dm-crypt 解密后的明文块数据</td>
+</tr>
+<tr>
+<td><code>/dev/loop3</code></td>
+<td>原始密文块数据（包含 LUKS 元数据）</td>
+</tr>
+<tr>
+<td><code>/tmp/dmcrypt-demo.img</code></td>
+<td>原始密文块数据（包含 LUKS 元数据）</td>
+</tr>
+</tbody></table>
+</blockquote>
+<ol start="8">
+<li>清理</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 卸载</span><br>sudo umount /mnt/dmcrypt-demo<br><span class="hljs-comment"># 关闭dm加密设备</span><br>sudo cryptsetup close dmcrypt_demo<br><span class="hljs-comment"># 解除loop</span><br>sudo losetup -d <span class="hljs-variable">$LOOP</span><br><span class="hljs-comment"># 删除实验镜像</span><br><span class="hljs-built_in">rm</span> -f /tmp/dmcrypt-demo.img<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
                 
               </div>
             
