@@ -410,7 +410,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2026/11/19/dm-dust%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
         <div>
-          dm-dust学习笔记实验部分 实验环境准备  12345678IMG=dm-dust-demo.imgtruncate -s 16M &quot;$IMG&quot;LOOP=$(losetup --find --show &quot;$IMG&quot;)SECTORS=$(blockdev --getsz &quot;$LOOP&quot;)echo &quot;loop device: $
+          dm-dust学习笔记理论部分dm-dust 是 Linux Device Mapper 的一个测试 target，用于在指定逻辑块上模拟坏块。 它在一个真实块设备或 loop 设备上套一层虚拟块设备： 1234567应用/文件系统      │ I/O      ▼/dev/mapper/dustdemo      │ dm-dust：检查该块是否被标记为坏块      ▼底层设备（磁盘、分区、
         </div>
       </a>
 
